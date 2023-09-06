@@ -1,3 +1,8 @@
+**To the Neptune team:** Until the utility is available for install through NPM, you can install it by downloading aws-neptune-for-graphql-1.0.0.tgz and install it with:
+`npm install aws-neptune-for-graphql-1.0.0.tgz -g`
+
+===================================================================
+<br>
 <img src="./doc/images/utilityRunning.gif" width="180" height="100">
 
 # **Amazon Neptune utility for GraphQL&trade; schemas and resolvers**
