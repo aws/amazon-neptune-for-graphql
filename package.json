@@ -1,0 +1,53 @@
+{
+  "name": "@aws/neptune-for-graphql",
+  "version": "1.0.0",
+  "description": "CLI utility to create and maintain a GraphQL API for Amazon Neptune",
+  "keywords": [
+    "Amazon Neptune",
+    "Neptune",
+    "graph database",
+    "GraphQL",
+    "AppSync",
+    "Amplify"
+  ],
+  "homepage": "https://github.com/aws/amazon-neptune-for-graphql#readme",
+  "main": "neptune-for-graphql",
+  "bugs": {
+    "url": "https://github.com/aws/amazon-neptune-for-graphql/issues"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "postinstall": "cd templates/Lambda4AppSyncHTTP && npm install && cd ../Lambda4AppSyncSDK && npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "neptune-for-graphql": "./neptune-for-graphql.mjs"
+  },
+  "files": [
+    "neptune-for-graphql.mjs",
+    "./templates/CDKTemplate.js",
+    "./templates/JSResolverOCHTTPSTemplate.js",
+    "./templates/Lambda4AppSyncHTTP/index.mjs",
+    "./templates/Lambda4AppSyncHTTP/package.json",
+    "./templates/Lambda4AppSyncSDK/index.mjs",
+    "./templates/Lambda4AppSyncSDK/package.json",
+    "./src/**"
+  ],
+  "author": "AWS",
+  "license": "Apache-2.0",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-appsync": "^3.387.0",
+    "@aws-sdk/client-iam": "^3.387.0",
+    "@aws-sdk/client-lambda": "^3.387.0",
+    "@aws-sdk/client-neptune": "^3.387.0",
+    "@aws-sdk/client-neptunedata": "^3.403.0",
+    "archiver": "^5.3.1",
+    "axios": "^1.4.0",
+    "graphql": "16.7.1",
+    "graphql-tag": "2.12.6",
+    "ora": "^7.0.1"
+  }
+}

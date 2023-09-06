@@ -1,0 +1,17 @@
+{
+  "name": "testaxios",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws4-axios": "^3.3.0",
+    "axios": "^1.5.0",
+    "graphql-tag": "2.12.6",
+    "retry-axios": "^3.1.0"
+  }
+}

@@ -1,0 +1,483 @@
+/*
+Copyright 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Licensed under the Apache License, Version 2.0 (the "License").
+You may not use this file except in compliance with the License.
+A copy of the License is located at
+    http://www.apache.org/licenses/LICENSE-2.0
+or in the "license" file accompanying this file. This file is distributed
+on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+express or implied. See the License for the specific language governing
+permissions and limitations under the License.
+*/
+
+import axios from "axios";
+import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
+
+let HOST = 'airport00.cluster-ccbtmrye8gfu.us-east-1.neptune.amazonaws.com';
+let PORT = 8182;
+let SAMPLE = 10000;
+let VERBOSE = false; 
+let language = 'openCypher';
+let useSDK = false;
+
+let yellowStart = '\x1b[33m';
+let yellowEnd = '\x1b[0m';
+
+
+const schema = {
+    nodeStructures:[],
+    edgeStructures:[]
+};
+
+
+function yellow(text) {
+    return yellowStart + text + yellowEnd;
+}
+
+
+function consoleOut(text) {
+    if (VERBOSE) {
+        console.log(text);
+    }
+}
+
+
+async function queryNeptune(q) {    
+    if (useSDK) {
+        const response = await queryNeptuneSDK(q);
+        return response; 
+    } else {
+        try {
+        const response = await axios.get(`https://${HOST}:${PORT}/${language}?query=${encodeURIComponent(q)}`);        
+        return response.data;    
+        } catch (error) {
+            console.error("Http query request failed: ", error.message);
+            consoleOut("Trying with the AWS SDK");            
+            const response = await queryNeptuneSDK(q);
+            useSDK = true;
+            return response;             
+        }
+    } 
+}
+
+
+async function queryNeptuneSDK(q) {
+    try {
+        const config = {            
+            endpoint: `https://${HOST}:${PORT}`
+        };
+        const client = new NeptunedataClient(config);
+        const input = {
+            openCypherQuery: q            
+        };
+        const command = new ExecuteOpenCypherQueryCommand(input);
+        const response = await client.send(command);        
+        return response;
+
+    } catch (error) {        
+        console.error("SDK query request failed: ", error.message);
+        process.exit(1);
+    }
+}
+
+
+async function getNodesNamesRecurse () {
+    let nodes = '';
+    schema.nodeStructures.forEach(node => {
+        nodes += ' n:' + node.label + ' OR';
+    });
+    nodes = nodes.substring(0, nodes.length - 3);
+    let query = `MATCH (n) WHERE NOT (${nodes}) RETURN labels(n) as labels LIMIT 1`
+    let response = await queryNeptune(query);    
+    let result = response.results[0];
+
+    try {
+        schema.nodeStructures.push({ label: result['labels'][0], properties: []});
+        consoleOut('  Found Node: ' + yellow(result['labels'][0]));
+        
+        await getNodesNamesRecurse();
+    }
+    catch (e) {     
+        return;
+    }
+}
+
+
+async function getNodesNames() {
+    let query = `MATCH (a) RETURN labels(a) as labels LIMIT 1`;
+    let response = await queryNeptune(query);    
+    let result = response.results[0];
+
+    try {
+        schema.nodeStructures.push({ label: result['labels'][0], properties: []});
+        consoleOut('  Found Node: ' + yellow(result['labels'][0]));
+    }
+    catch (e)  {
+        consoleOut("  No nodes found");
+        return;
+    }
+
+    await getNodesNamesRecurse();
+
+}
+
+
+async function getEdgesNamesRecurse () {
+    let edges = '';
+    schema.edgeStructures.forEach(edge => {
+        edges += ` type(r)<>'${edge.label}' AND`;
+    });    
+    edges = edges.substring(0, edges.length - 4);
+    
+    let query = `MATCH ()-[r]->() WHERE ${edges} RETURN type(r) as type LIMIT 1`
+
+    let response = await queryNeptune(query);    
+    let result = response.results[0];
+
+    try {
+        schema.edgeStructures.push({ label: result['type'], directions: [], properties:[]});
+        consoleOut('  Found Edge: ' + yellow(result['type']));
+        await getEdgesNamesRecurse();
+    }
+    catch (e)  {
+        return;
+    }
+}
+
+
+async function getEdgesNames() {
+    let query = `MATCH ()-[r]->() RETURN type(r) as type LIMIT 1`;
+    let response = await queryNeptune(query);    
+    let result = response.results[0];
+
+    try {
+        schema.edgeStructures.push({ label: result['type'], directions: [], properties:[]});
+        consoleOut('  Found Edge: ' + yellow(result['type']));
+    }
+    catch (e)  {
+        consoleOut("  No edges found");
+        return;
+    }
+
+    await getEdgesNamesRecurse();
+}
+
+
+async function getEdgesDirectionsSerial() {    
+    for (const edge of schema.edgeStructures) {        
+        for (const fromNode of schema.nodeStructures) {
+            for (const toNode of schema.nodeStructures) {                
+                let query = `MATCH (from:${fromNode.label})-[r:${edge.label}]->(to:${toNode.label}) RETURN r as edge LIMIT 1`;
+                let response = await queryNeptune(query);                
+                let result = response.results[0];
+                if (result !== undefined) {                    
+                    edge.directions.push({from:fromNode.label, to:toNode.label});
+                    consoleOut('  Found edge: ' + yellow(edge.label) + '  direction: ' + yellow(fromNode.label) + ' -> ' + yellow(toNode.label));                   
+                }
+            }                                    
+        }
+    }
+}
+
+
+async function checkEdgeDirection(direction) {
+    let query = `MATCH (from:${direction.from})-[r:${direction.edge.label}]->(to:${direction.to}) RETURN r as edge LIMIT 1`;
+    let response = await queryNeptune(query);
+    let result = response.results[0];
+    if (result !== undefined) {                    
+        direction.edge.directions.push({from:direction.from, to:direction.to});
+        consoleOut('  Found edge: ' + yellow(direction.edge.label) + '  direction: ' + yellow(direction.from) + ' -> ' + yellow(direction.to));
+    }
+}
+
+
+async function getEdgesDirectionsParallel() {
+    let possibleDirections = [];
+    for (const edge of schema.edgeStructures) {        
+        for (const fromNode of schema.nodeStructures) {
+            for (const toNode of schema.nodeStructures) {
+                possibleDirections.push({edge:edge, from:fromNode.label, to:toNode.label});            
+            }
+        }
+    }
+
+    await Promise.all(possibleDirections.map(async (direction) => {
+        await checkEdgeDirection(direction);
+      }));
+}
+
+
+function addUpdateNodeProperty(nodeName, name, value) {
+    let node = schema.nodeStructures.find(node => node.label === nodeName);
+    let property = node.properties.find(p => p.name === name);
+    if (property === undefined) {
+        let propertyType = 'String';
+        
+        if (typeof value === 'number') {
+            if (Number.isInteger(value)) {
+                propertyType = 'Int';
+            }
+            propertyType = 'Float'
+        }
+
+        if (typeof value === 'boolean') propertyType = 'Boolean';
+        if (typeof value === 'date' ) propertyType = 'Date';        
+
+        node.properties.push({name: name, type: propertyType});
+        consoleOut(`  Added property to node: ${yellow(nodeName)} property: ${yellow(name)} type: ${yellow(propertyType)}`);
+    
+    } else {
+    
+    }
+    
+}
+
+
+function addUpdateEdgeProperty(edgeName, name, value) {
+    let edge = schema.edgeStructures.find(edge => edge.label === edgeName);
+    let property = edge.properties.find(p => p.name === name);
+    if (property === undefined) {
+        let propertyType = 'String';
+        
+        if (typeof value === 'number') {
+            if (Number.isInteger(value)) {
+                propertyType = 'Int';
+            } else {
+                propertyType = 'Float'
+            }
+        }
+
+        if (typeof value === 'boolean') propertyType = 'Boolean';
+        if (typeof value === 'date' ) propertyType = 'Date';        
+
+        edge.properties.push({name: name, type: propertyType});
+        consoleOut('  Added property to edge: ' + yellow(edgeName) + ' property: ' + yellow(name) + ' type: ' + yellow(propertyType));
+    }
+}
+
+
+async function getEdgesPropertiesSerial() {    
+    for (const edge of schema.edgeStructures) { 
+        let query = `MATCH ()-[n:${edge.label}]->() RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
+        try {
+            let response = await queryNeptune(query);            
+            let result = response.results;
+            result.forEach(e => {                                
+                Object.keys(e.properties).forEach(key => {
+                    addUpdateEdgeProperty(edge.label, key, e.properties[key]);
+                });                            
+            });            
+        }
+        catch (e)  {
+            consoleOut("  No properties found for edge: " + edge.label);
+        }    
+    }
+}
+
+
+async function getEdgeProperties(edge) {
+    let query = `MATCH ()-[n:${edge.label}]->() RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
+    try {
+        let response = await queryNeptune(query);            
+        let result = response.results;
+        result.forEach(e => {                                
+            Object.keys(e.properties).forEach(key => {
+                addUpdateEdgeProperty(edge.label, key, e.properties[key]);
+            });                            
+        });            
+    }
+    catch (e)  {
+        consoleOut("  No properties found for edge: " + edge.label);
+    }    
+}
+
+
+async function getEdgesPropertiesParallel() {
+    await Promise.all(schema.edgeStructures.map(async (edge) => {
+        await getEdgeProperties(edge);
+      }));
+}
+
+
+async function getNodesPropertiesSerial() {    
+    for (const node of schema.nodeStructures) {
+        let query = `MATCH (n:${node.label}) RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
+        try {
+            let response = await queryNeptune(query);            
+            let result = response.results;
+            result.forEach(e => {                                
+                Object.keys(e.properties).forEach(key => {
+                    addUpdateNodeProperty(node.label, key, e.properties[key]);
+                });                            
+            });            
+        }
+        catch (e)  {
+            consoleOut("  No properties found for node: " + node.label);
+        }    
+    }
+}
+
+
+async function getNodeProperties(node) {
+    let query = `MATCH (n:${node.label}) RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
+    try {
+        let response = await queryNeptune(query);            
+        let result = response.results;
+        result.forEach(e => {                                
+            Object.keys(e.properties).forEach(key => {
+                addUpdateNodeProperty(node.label, key, e.properties[key]);
+            });                            
+        });            
+    }
+    catch (e)  {
+        consoleOut("  No properties found for node: " + node.label);
+    }    
+}
+
+
+async function getNodesPropertiesParallel() {    
+    await Promise.all(schema.nodeStructures.map(async (node) => {
+        await getNodeProperties(node);
+      }));
+}
+
+
+async function getEdgesDirectionsCardinalitySerial() {        
+    for (const edgeN in schema.edgeStructures) {
+        //for (const direction in edge.directions) { // STRANGE! edge is now the index of the edge
+        for (const directionN in schema.edgeStructures[edgeN].directions) { 
+            let edge = schema.edgeStructures[edgeN];
+            let direction = schema.edgeStructures[edgeN].directions[directionN];
+            let queryFrom = `MATCH (from:${direction.from})-[r:${edge.label}]->(to:${direction.to}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;     
+            let responseFrom = await queryNeptune(queryFrom);
+            let resultFrom = responseFrom.results[0];
+            let queryTo = `MATCH (from:${direction.from})-[r:${edge.label}]->(to:${direction.to}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;            
+            let responseTo = await queryNeptune(queryTo);
+            let resultTo = responseTo.results[0];
+            let d = '';
+            
+            if (resultFrom !== undefined) {
+                d = 'MANY-'
+            } else {
+                d = 'ONE-'
+            }
+
+            if (resultTo !== undefined) {
+                d += 'MANY'
+            } else {
+                d += 'ONE'
+            }
+
+            Object.assign(direction, {relationship: d});
+            consoleOut('  Found edge: ' + yellow(edge.label) + '  direction: ' + yellow(direction.from) + ' -> ' + yellow(direction.to) + ' relationship: ' + d);
+        }
+    }
+}
+
+
+async function checkEdgeDirectionCardinality(d) {
+    let queryFrom = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;     
+    let responseFrom = await queryNeptune(queryFrom);
+    let resultFrom = responseFrom.results[0];
+    let queryTo = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;            
+    let responseTo = await queryNeptune(queryTo);
+    let resultTo = responseTo.results[0];
+    let c = '';
+    
+    if (resultFrom !== undefined) {
+        c = 'MANY-'
+    } else {
+        c = 'ONE-'
+    }
+
+    if (resultTo !== undefined) {
+        c += 'MANY'
+    } else {
+        c += 'ONE'
+    }
+
+    Object.assign(d.direction, {relationship: c});
+    consoleOut('  Found edge: ' + yellow(d.edge.label) + '  direction: ' + yellow(d.from) + ' -> ' + yellow(d.to) + ' relationship: ' + yellow(c));
+}
+
+
+async function getEdgesDirectionsCardinalityParallel() {
+    let possibleDirections = [];
+    for (const edge of schema.edgeStructures) {
+        for (const direction of edge.directions) {
+            possibleDirections.push({edge:edge, direction:direction, from:direction.from, to:direction.to});
+        }
+    }
+    
+    await Promise.all(possibleDirections.map(async (d) => {
+        await checkEdgeDirectionCardinality(d);     
+    }));    
+}
+
+
+function setGetNeptuneSchemaParameters(host, port, verbose = false) {
+    HOST = host;
+    PORT = port;
+    VERBOSE = verbose;
+}
+
+
+async function getSchemaViaSummaryAPI() {
+    try {
+        const response = await axios.get(`https://${HOST}:${PORT}/propertygraph/statistics/summary?mode=detailed`);
+        response.data.payload.graphSummary.nodeLabels.forEach(label => {
+            schema.nodeStructures.push({label:label, properties:[]});
+            consoleOut('  Found node: ' + yellow(label));
+        });
+
+        response.data.payload.graphSummary.edgeLabels.forEach(label => {
+            schema.edgeStructures.push({label:label, properties:[], directions:[]});
+            consoleOut('  Found edge: ' + yellow(label));
+        });
+
+        return true;
+
+    } catch (error) {
+        return false;
+    }    
+}
+
+
+
+async function getNeptuneSchema(quite) {
+    const credentials = await provider.fromNodeProviderChain();
+    
+    VERBOSE = !quite;
+
+    if (await getSchemaViaSummaryAPI()) {
+        consoleOut("Got nodes and edges via Neptune Summary API.");        
+    } else {
+        consoleOut("Getting nodes and edges via queries.");
+        await getNodesNames();
+        await getEdgesNames();
+    }
+        
+    //await getNodesPropertiesSerial();
+    await getNodesPropertiesParallel();
+
+    //await getEdgesPropertiesSerial();
+    await getEdgesPropertiesParallel();
+    
+    //await getEdgesDirectionsSerial();
+    await getEdgesDirectionsParallel();
+
+    //await getEdgesDirectionsCardinalitySerial();
+    await getEdgesDirectionsCardinalityParallel();
+    
+    return JSON.stringify(schema, null, 2);
+}
+
+async function main() {    
+    await getSchema();
+    console.log(JSON.stringify(schema, null, 2));
+}
+
+//main();
+//console.log(JSON.stringify(await getSchema(), null, 2));
+
+export { getNeptuneSchema, setGetNeptuneSchemaParameters };

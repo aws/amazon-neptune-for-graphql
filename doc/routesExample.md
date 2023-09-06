@@ -1,0 +1,249 @@
+# Air Routes Example: Starting from a Neptune database with data
+Amazon Neptune uses the Air Routes dataset in several Notebook tutorials. If you don't have a Neptune database with the Air Route data you can create a new database, and follow one of  the Notebook tutorials to seed it with the Air Route data.
+
+Then you can run this Neptune GraphQL Utility command to create an AppSync GraphQL API.
+
+`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `*your-neptune-database-endpoint:port*` --create-update-aws-pipeline --create-update-aws-pipeline-name AriRoutesExample`
+
+The command will log during the execution the graph database schema it finds, the files it creates and the AWS resouces it creates or modifies. If you ever want to run the command logging only errors use the `--quite` CLI option.
+
+![Running](/doc/images/utilityRunning.gif)
+
+The utility creates these files naming them based on the `--create-update-aws-pipeline-name` option, in our case `AirRoutesExample`:
+
+| *file*  | *description*        |
+|---------|----------------------|
+| AirRoutes.zip |the Lambda code zip file|
+| AirRoutesExample.source.schema.graphql | the GraphQL schema with directives |
+| AirRoutesExample.schema.graphql | the GraphQL schema|
+| AirRoutesExample.resolver.graphql.js | the JavaScript resolver |
+| AirRoutesExample.neptune.schema.json | the graph schema it discovered |
+| AirportNGU-resources.json | the list of AWS Resources it created |
+
+## The graph schema it discovered
+The picture below show the content of the file AirRoutesExample.neptune.schema.json.
+The files contains nodes, edges, properties, and edges cardinality. 
+The utility then use this data to inference the GraphQL schema.
+
+```json
+{
+  "nodeStructures": [
+    {
+      "label": "continent",
+      "properties": [
+        { "name": "code", "type": "String" },
+        { "name": "type", "type": "String" },
+        { "name": "desc", "type": "String" }]},
+    {
+      "label": "country",
+      "properties": [
+        { "name": "code", "type": "String" },
+        { "name": "type", "type": "String" },
+        { "name": "desc", "type": "String" }]},
+    {
+      "label": "version",
+      "properties": [
+        { "name": "date", "type": "String" },
+        { "name": "code", "type": "String" },
+        { "name": "author", "type": "String" },
+        { "name": "type", "type": "String" },
+        { "name": "desc", "type": "String" }]},
+    {
+      "label": "airport",
+      "properties": [ 
+        { "name": "country", "type": "String" },
+        { "name": "longest", "type": "Float" },
+        { "name": "code", "type": "String" },
+        { "name": "city", "type": "String" },
+        { "name": "elev", "type": "Float" },
+        { "name": "icao", "type": "String" },
+        { "name": "lon", "type": "Float" },
+        { "name": "runways", "type": "Float" },
+        { "name": "region", "type": "String" },
+        { "name": "type", "type": "String" },
+        { "name": "lat", "type": "Float" },
+        { "name": "desc", "type": "String" }]}
+  ],
+  "edgeStructures": [
+    {
+      "label": "contains",
+      "properties": [],
+      "directions": [
+        { "from": "continent", "to": "airport", "relationship": "ONE-MANY" },
+        { "from": "country", "to": "airport", "relationship": "ONE-MANY" }
+      ]
+    },
+    {
+      "label": "route",
+      "properties": [
+        { "name": "dist", "type": "Int" }        
+      ],
+      "directions": [
+        { "from": "airport", "to": "airport", "relationship": "MANY-MANY" }
+      ]}
+  ]
+}
+```
+
+## The GraphQL schema with directives
+The picture below show the GraphQL schema with directives, inferenced by the utility.
+
+- The Air Routes nodes labels are lower case, and GraphQL type names are typically in Pascal case, so the utility added the *@alias* directive to map the names between GraphQL and the Neptune Database.
+- Because the node labelled *continent* is connected to the *airport* using the edge *contains* and the cardinality is one to many, you can see the directive *@relationship* in the GraphQL type *Continent* and new field names *AirportOut* returning an array of *Airport*. The type Airport has an opposite field called *continentIn* as single *Continent*. This tuple declaration will enable you to query the *Continent* from the *Airport* and the list of *Airport*/s from a *Continent*.
+- The edge *route* that connect an *airport* to another *airport* has a property called *dist*. You can find it in the type *Route*, and is added to the type *Airport* as well. We will see later how to query it.
+- For each type the utility also added input, which are used as helpers for queries and mutations.
+- For each node label the utility added two queries. One to retrive a single node/type using an id or any of the type fields listed in the input, and the second to retrive multiple values, again filtered using the input of that node/type.
+- For each node three mutations: create, update and delete. Selecting the node to delete using an id or the input for that node/type.
+- For edges two mutations: connect and delete. They take as input the ids of the from and to node, and in case the edge type has properties the corrispondent input.
+
+Note: the queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: *Customize the GraphQL schema with directives*.
+
+
+```graphql
+type Continent @alias(property: "continent") {
+  id: ID!
+  code: String
+  type: String
+  desc: String
+  airportsOut: [Airport] @relationship(edgeType: "contains", direction: OUT)
+  contains: Contains
+}
+
+input ContinentInput {
+  code: String
+  type: String
+  desc: String
+}
+
+type Country @alias(property: "country") {
+  id: ID!
+  code: String
+  type: String
+  desc: String
+  airportsOut: [Airport] @relationship(edgeType: "contains", direction: OUT)
+  contains: Contains
+}
+
+input CountryInput {
+  code: String
+  type: String
+  desc: String
+}
+
+type Version @alias(property: "version") {
+  id: ID!
+  date: String
+  code: String
+  author: String
+  type: String
+  desc: String
+}
+
+input VersionInput {
+  date: String
+  code: String
+  author: String
+  type: String
+  desc: String
+}
+
+type Airport @alias(property: "airport") {
+  id: ID!
+  country: String
+  longest: Float
+  code: String
+  city: String
+  elev: Float
+  icao: String
+  lon: Float
+  runways: Float
+  region: String
+  type: String
+  lat: Float
+  desc: String
+  continentIn: Continent @relationship(edgeType: "contains", direction: IN)
+  countryIn: Country @relationship(edgeType: "contains", direction: IN)
+  airportsOut: [Airport] @relationship(edgeType: "route", direction: OUT)
+  airportsIn: [Airport] @relationship(edgeType: "route", direction: IN)
+  contains: Contains
+  route: Route
+}
+
+input AirportInput {
+  country: String
+  longest: Float
+  code: String
+  city: String
+  elev: Float
+  icao: String
+  lon: Float
+  runways: Float
+  region: String
+  type: String
+  lat: Float
+  desc: String
+}
+
+type Contains @alias(property: "contains") {
+  id: ID!
+}
+
+type Route @alias(property: "route") {
+  id: ID!
+  dist: Int
+}
+
+input RouteInput {
+  dist: Int
+}
+
+type Query {
+  getNodeContinent(id: ID, filter: ContinentInput): Continent
+  getNodeContinents(filter: ContinentInput): [Continent]
+  getNodeCountry(id: ID, filter: CountryInput): Country
+  getNodeCountrys(filter: CountryInput): [Country]
+  getNodeVersion(id: ID, filter: VersionInput): Version
+  getNodeVersions(filter: VersionInput): [Version]
+  getNodeAirport(id: ID, filter: AirportInput): Airport
+  getNodeAirports(filter: AirportInput): [Airport]
+}
+
+type Mutation {
+  createNodeContinent(input: ContinentInput!): Continent
+  updateNodeContinent(id: ID!, input: ContinentInput!): Continent
+  deleteNodeContinent(id: ID!): Boolean
+  createNodeCountry(input: CountryInput!): Country
+  updateNodeCountry(id: ID!, input: CountryInput!): Country
+  deleteNodeCountry(id: ID!): Boolean
+  createNodeVersion(input: VersionInput!): Version
+  updateNodeVersion(id: ID!, input: VersionInput!): Version
+  deleteNodeVersion(id: ID!): Boolean
+  createNodeAirport(input: AirportInput!): Airport
+  updateNodeAirport(id: ID!, input: AirportInput!): Airport
+  deleteNodeAirport(id: ID!): Boolean
+  connectNodeContinentToNodeAirportEdgeContains(from: ID!, to: ID!): Contains
+  deleteEdgeContainsFromContinentToAirport(from: ID!, to: ID!): Boolean
+  connectNodeCountryToNodeAirportEdgeContains(from: ID!, to: ID!): Contains
+  deleteEdgeContainsFromCountryToAirport(from: ID!, to: ID!): Boolean
+  connectNodeAirportToNodeAirportEdgeRoute(from: ID!, to: ID!, edge: RouteInput!): Route
+  updateEdgeRouteFromAirportToAirport(from: ID!, to: ID!, edge: RouteInput!): Route
+  deleteEdgeRouteFromAirportToAirport(from: ID!, to: ID!): Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+```
+
+## Let's use our new GraphQL API from AppSync console
+Here below snapshot of the AppSync Queries console used to test our new GraphQL API named *AirRoutesExampleAPI*.
+In the middle window, the Explorer shows you the queries and mutations. You can then pick a query, the input parameters and the return fields. 
+
+In this case it formed a GrahQL query that is looking for one *Airport*, with *code* equal *SEA*, and return the *city*, the outboud flights *airportsOut*, and for each destination the *city* and the *route* distance, *dist*. As mentioned earlier in the graph database the nodes *airport* are connected with the edge type *route*, and *dist* is a property of the edge.
+
+You can then follow the AppSync documentation on how to call the GraphQL API from your application, enable caching and other AppSync API features.
+
+![AppSync Queries UI](/doc/images/AppSyncQuery.jpg)
+
+
