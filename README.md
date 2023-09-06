@@ -76,7 +76,7 @@ Node.js is required to run the utility, v18 or above.
 - To install it on macOS or Windows go to the [Node.js website](https://nodejs.org/) to download the installer.
 - To install on an EC2-Instance follow the [AWS documentation](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html).
 
-### Install the Amazon Neptune utility for GraphQL&trade
+### Install the Amazon Neptune utility for GraphQL
 The utility is available as NPM package. To install it:
 
 `npm install @aws/neptune-for-graphql -g`
