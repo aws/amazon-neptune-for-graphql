@@ -11,17 +11,36 @@ permissions and limitations under the License.
 */
 
 import axios from "axios";
+import { aws4Interceptor } from "aws4-axios";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
+import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 
-let HOST = 'airport00.cluster-ccbtmrye8gfu.us-east-1.neptune.amazonaws.com';
+let HOST = '';
 let PORT = 8182;
-let SAMPLE = 10000;
+let REGION = ''
+let SAMPLE = 5000;
 let VERBOSE = false; 
 let language = 'openCypher';
 let useSDK = false;
 
 let yellowStart = '\x1b[33m';
 let yellowEnd = '\x1b[0m';
+
+
+async function getAWSCredentials() {
+    const credentialProvider = fromNodeProviderChain();
+    const cred = await credentialProvider();
+
+    const interceptor = aws4Interceptor({
+        options: {
+            region: REGION,
+            service: "neptune-db",
+        },
+        credentials: cred
+    });
+
+    axios.interceptors.request.use(interceptor);
+}
 
 
 const schema = {
@@ -163,23 +182,6 @@ async function getEdgesNames() {
 }
 
 
-async function getEdgesDirectionsSerial() {    
-    for (const edge of schema.edgeStructures) {        
-        for (const fromNode of schema.nodeStructures) {
-            for (const toNode of schema.nodeStructures) {                
-                let query = `MATCH (from:${fromNode.label})-[r:${edge.label}]->(to:${toNode.label}) RETURN r as edge LIMIT 1`;
-                let response = await queryNeptune(query);                
-                let result = response.results[0];
-                if (result !== undefined) {                    
-                    edge.directions.push({from:fromNode.label, to:toNode.label});
-                    consoleOut('  Found edge: ' + yellow(edge.label) + '  direction: ' + yellow(fromNode.label) + ' -> ' + yellow(toNode.label));                   
-                }
-            }                                    
-        }
-    }
-}
-
-
 async function checkEdgeDirection(direction) {
     let query = `MATCH (from:${direction.from})-[r:${direction.edge.label}]->(to:${direction.to}) RETURN r as edge LIMIT 1`;
     let response = await queryNeptune(query);
@@ -191,7 +193,7 @@ async function checkEdgeDirection(direction) {
 }
 
 
-async function getEdgesDirectionsParallel() {
+async function getEdgesDirections() {
     let possibleDirections = [];
     for (const edge of schema.edgeStructures) {        
         for (const fromNode of schema.nodeStructures) {
@@ -256,25 +258,6 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 }
 
 
-async function getEdgesPropertiesSerial() {    
-    for (const edge of schema.edgeStructures) { 
-        let query = `MATCH ()-[n:${edge.label}]->() RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
-        try {
-            let response = await queryNeptune(query);            
-            let result = response.results;
-            result.forEach(e => {                                
-                Object.keys(e.properties).forEach(key => {
-                    addUpdateEdgeProperty(edge.label, key, e.properties[key]);
-                });                            
-            });            
-        }
-        catch (e)  {
-            consoleOut("  No properties found for edge: " + edge.label);
-        }    
-    }
-}
-
-
 async function getEdgeProperties(edge) {
     let query = `MATCH ()-[n:${edge.label}]->() RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
     try {
@@ -292,29 +275,10 @@ async function getEdgeProperties(edge) {
 }
 
 
-async function getEdgesPropertiesParallel() {
+async function getEdgesProperties() {
     await Promise.all(schema.edgeStructures.map(async (edge) => {
         await getEdgeProperties(edge);
       }));
-}
-
-
-async function getNodesPropertiesSerial() {    
-    for (const node of schema.nodeStructures) {
-        let query = `MATCH (n:${node.label}) RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
-        try {
-            let response = await queryNeptune(query);            
-            let result = response.results;
-            result.forEach(e => {                                
-                Object.keys(e.properties).forEach(key => {
-                    addUpdateNodeProperty(node.label, key, e.properties[key]);
-                });                            
-            });            
-        }
-        catch (e)  {
-            consoleOut("  No properties found for node: " + node.label);
-        }    
-    }
 }
 
 
@@ -335,43 +299,10 @@ async function getNodeProperties(node) {
 }
 
 
-async function getNodesPropertiesParallel() {    
+async function getNodesProperties() {    
     await Promise.all(schema.nodeStructures.map(async (node) => {
         await getNodeProperties(node);
       }));
-}
-
-
-async function getEdgesDirectionsCardinalitySerial() {        
-    for (const edgeN in schema.edgeStructures) {
-        //for (const direction in edge.directions) { // STRANGE! edge is now the index of the edge
-        for (const directionN in schema.edgeStructures[edgeN].directions) { 
-            let edge = schema.edgeStructures[edgeN];
-            let direction = schema.edgeStructures[edgeN].directions[directionN];
-            let queryFrom = `MATCH (from:${direction.from})-[r:${edge.label}]->(to:${direction.to}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;     
-            let responseFrom = await queryNeptune(queryFrom);
-            let resultFrom = responseFrom.results[0];
-            let queryTo = `MATCH (from:${direction.from})-[r:${edge.label}]->(to:${direction.to}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;            
-            let responseTo = await queryNeptune(queryTo);
-            let resultTo = responseTo.results[0];
-            let d = '';
-            
-            if (resultFrom !== undefined) {
-                d = 'MANY-'
-            } else {
-                d = 'ONE-'
-            }
-
-            if (resultTo !== undefined) {
-                d += 'MANY'
-            } else {
-                d += 'ONE'
-            }
-
-            Object.assign(direction, {relationship: d});
-            consoleOut('  Found edge: ' + yellow(edge.label) + '  direction: ' + yellow(direction.from) + ' -> ' + yellow(direction.to) + ' relationship: ' + d);
-        }
-    }
 }
 
 
@@ -401,7 +332,7 @@ async function checkEdgeDirectionCardinality(d) {
 }
 
 
-async function getEdgesDirectionsCardinalityParallel() {
+async function getEdgesDirectionsCardinality() {
     let possibleDirections = [];
     for (const edge of schema.edgeStructures) {
         for (const direction of edge.directions) {
@@ -415,9 +346,10 @@ async function getEdgesDirectionsCardinalityParallel() {
 }
 
 
-function setGetNeptuneSchemaParameters(host, port, verbose = false) {
+function setGetNeptuneSchemaParameters(host, port, region, verbose = false) {
     HOST = host;
     PORT = port;
+    REGION = region;
     VERBOSE = verbose;
 }
 
@@ -443,11 +375,15 @@ async function getSchemaViaSummaryAPI() {
 }
 
 
-
-async function getNeptuneSchema(quite) {
-    const credentials = await provider.fromNodeProviderChain();
+async function getNeptuneSchema(quite) {    
     
     VERBOSE = !quite;
+    
+    try {
+        await getAWSCredentials();
+    } catch (error) {        
+        consoleOut("There are no AWS credetials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.");
+    }
 
     if (await getSchemaViaSummaryAPI()) {
         consoleOut("Got nodes and edges via Neptune Summary API.");        
@@ -456,28 +392,17 @@ async function getNeptuneSchema(quite) {
         await getNodesNames();
         await getEdgesNames();
     }
-        
-    //await getNodesPropertiesSerial();
-    await getNodesPropertiesParallel();
-
-    //await getEdgesPropertiesSerial();
-    await getEdgesPropertiesParallel();
+                
+    await getNodesProperties();
     
-    //await getEdgesDirectionsSerial();
-    await getEdgesDirectionsParallel();
-
-    //await getEdgesDirectionsCardinalitySerial();
-    await getEdgesDirectionsCardinalityParallel();
+    await getEdgesProperties();
+    
+    await getEdgesDirections();
+    
+    await getEdgesDirectionsCardinality();
     
     return JSON.stringify(schema, null, 2);
 }
 
-async function main() {    
-    await getSchema();
-    console.log(JSON.stringify(schema, null, 2));
-}
-
-//main();
-//console.log(JSON.stringify(await getSchema(), null, 2));
 
 export { getNeptuneSchema, setGetNeptuneSchemaParameters };

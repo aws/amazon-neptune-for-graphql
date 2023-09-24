@@ -48,7 +48,7 @@ export const handler = async (event) => {
               noResponseRetries: 5, // number of retry when facing connection error
               onRetryAttempt: err => {
                 const cfg = rax.getConfig(err);
-                console.log(`Retry attempt #${cfg.currentRetryAttempt}`); // track current trial
+                console.log(`Retry attempt #${cfg.currentRetryAttempt} Status: ${err.response.statusText}`); // track current trial
               }
             },
             timeout: 2000

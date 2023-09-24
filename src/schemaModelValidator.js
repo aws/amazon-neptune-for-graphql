@@ -23,6 +23,17 @@ function yellow(text) {
 }
 
 
+function lowercaseFirstCharacter(inputString) {
+    if (inputString.length === 0) {     
+      return inputString;
+    }  
+    const firstChar = inputString.charAt(0); // Get the first character
+    const restOfString = inputString.slice(1); // Get the rest of the string
+    const lowercasedFirstChar = firstChar.toLowerCase(); // Lowercase the first character
+    return lowercasedFirstChar + restOfString; // Combine the lowercased first character with the rest of the string
+  }
+  
+
 function isGraphDBDirectives(schemaModel) {
     let r = false;
     schemaModel.definitions.forEach(def => {
@@ -131,10 +142,23 @@ function addNode(def) {
     
     // Input fields    
     let inputFields = '';
+    inputFields += `\n  _id:ID @alias(property:"~id")`
     def.fields.forEach(field => {
         try {
-            if (field.type.name.value === 'String' || field.type.name.value === 'Int' || field.type.name.value === 'Float' || field.type.name.value === 'Boolean')
+            if (field.name.value === 'id') {
+                inputFields += `\n  id: ID`;
+            }
+
+        } catch {}
+
+        try {
+            if (field.type.name.value === 'String' || 
+                field.type.name.value === 'Int' || 
+                field.type.name.value === 'Float' || 
+                field.type.name.value === 'Boolean') {
+
                 inputFields += `\n  ${field.name.value}: ${field.type.name.value}`;            
+            }
         } catch {}
     });
 
@@ -142,13 +166,13 @@ function addNode(def) {
     typesToAdd.push(`input ${name}Input {${inputFields}\n}`);    
 
     // Create query
-    queriesToAdd.push(`getNode${name}(id: ID, filter: ${name}Input): ${name}\n`);
+    queriesToAdd.push(`getNode${name}(filter: ${name}Input, options: Options): ${name}\n`);
     queriesToAdd.push(`getNode${name}s(filter: ${name}Input): [${name}]\n`);
 
     // Create mutation
     mutationsToAdd.push(`createNode${name}(input: ${name}Input!): ${name}\n`);
-    mutationsToAdd.push(`updateNode${name}(id: ID!, input: ${name}Input!): ${name}\n`);
-    mutationsToAdd.push(`deleteNode${name}(id: ID!): Boolean\n`);
+    mutationsToAdd.push(`updateNode${name}(input: ${name}Input!): ${name}\n`);
+    mutationsToAdd.push(`deleteNode${name}(_id: ID!): Boolean\n`);
 
     if (!quite) console.log(`Added input type: ${yellow(name+'Input')}`);
     if (!quite) console.log(`Added query: ${yellow('getNode' + name)}`);
@@ -159,18 +183,57 @@ function addNode(def) {
 }
 
 
-function addEdge(from, to, edgeName) {
-    // Create type
-    typesToAdd.push(`type ${edgeName} {\n  id:ID! \n}`);
+function addEdge(from, to, edgeName) {    
+    if (!typesToAdd.some((str) => str.startsWith(`type ${edgeName}`))) {
 
-    // Create mutation
-    mutationsToAdd.push(`connectNode${from}ToNode${to}Edge${edgeName}(from: ID!, to: ID!): ${edgeName}\n`);    
-    mutationsToAdd.push(`deleteEdge${edgeName}From${from}To${to}(from: ID!, to: ID!): Boolean\n`);
+        // Create type
+        typesToAdd.push(`type ${edgeName} {\n  _id:ID! @alias(property:"~id")\n}`);
 
-    if (!quite) console.log(`Added type for edge: ${yellow(edgeName)}`);
-    if (!quite) console.log(`Added mutation: ${yellow(`connectNode${from}ToNode${to}Edge${edgeName}`)}`);
-    if (!quite) console.log(`Added mutation: ${yellow(`deleteEdge${edgeName}From${from}To${to}`)}`);
+        // Create mutation
+        mutationsToAdd.push(`connectNode${from}ToNode${to}Edge${edgeName}(from_id: ID!, to_id: ID!): ${edgeName}\n`);    
+        mutationsToAdd.push(`deleteEdge${edgeName}From${from}To${to}(from_id: ID!, to_id: ID!): Boolean\n`);
+
+        if (!quite) console.log(`Added type for edge: ${yellow(edgeName)}`);
+        if (!quite) console.log(`Added mutation: ${yellow(`connectNode${from}ToNode${to}Edge${edgeName}`)}`);
+        if (!quite) console.log(`Added mutation: ${yellow(`deleteEdge${edgeName}From${from}To${to}`)}`);
+    }
 }
+
+
+function addFilterOptionsArguments(field) {
+    // filter
+    field.arguments.push({
+        kind: 'InputValueDefinition',
+        name: {
+            kind: 'Name',
+            value: 'filter'
+        },
+        type: {
+            kind: 'NamedType',
+            name: {
+                kind: 'Name',
+                value: field.type.type.name.value + 'Input'
+            }
+        }
+    });
+
+    // options
+    field.arguments.push({
+        kind: 'InputValueDefinition',
+        name: {
+            kind: 'Name',
+            value: 'options'
+        },
+        type: {
+            kind: 'NamedType',
+            name: {
+                kind: 'Name',
+                value: 'Options'
+            }
+        }
+    });
+}
+
 
 
 function inferGraphDatabaseDirectives(schemaModel) {
@@ -182,24 +245,76 @@ function inferGraphDatabaseDirectives(schemaModel) {
             if (!(def.name.value == 'Query' || def.name.value == 'Mutation')) {
                 currentType = def.name.value;
                 addNode(def);
-                def.fields.forEach(field => {
+                const edgesTypeToAdd = [];
+
+                // Add _id field to the object type
+                def.fields.unshift({                
+                    kind: "FieldDefinition", name: { kind: "Name", value: "_id" },
+                    arguments: [],
+                    type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" }}},
+                    directives: [ 
+                        { kind: "Directive", name: { kind: "Name", value: "alias" },
+                          arguments: [
+                            { kind: "Argument", name: { kind: "Name", value: "property" },
+                              value: { kind: "StringValue", value: "~id", block: false }
+                            }
+                          ]
+                        }
+                    ]                      
+                });
+
+                // add relationships
+                def.fields.forEach(field => {                    
                     if (field.type.type !== undefined) {
-                        if (field.type.type.kind == 'NamedType' && field.type.type.name.value != 'ID')
+                        if (field.type.type.kind === 'NamedType' && field.type.type.name.value !== 'ID')
                         {
                             try {
+                                if (field.type.kind === 'ListType')
+                                    addFilterOptionsArguments(field);
+                            }
+                            catch {}
+
+                            try {
                                 var referencedType = field.type.type.name.value;
-                                const edgeName = referencedType + 'Edge';
+                                var edgeName = referencedType + 'Edge';
                                 if (!quite) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));                                
                                 addRelationshipDirective(field, edgeName, 'OUT');
-                                addEdge(currentType, referencedType, edgeName);                   
-                            }
-                        catch {}
+                                addEdge(currentType, referencedType, edgeName);
+                                if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);                                
+                            }                 
+                            
+                            catch {}
                         }
+                    } else if (field.type.name.value !== 'String' && 
+                               field.type.name.value !== 'Int' && 
+                               field.type.name.value !== 'Float' && 
+                               field.type.name.value !== 'Boolean') {
+                            
+                        var referencedType = field.type.name.value;
+                        var edgeName = referencedType + 'Edge';
+                        if (!quite) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));
+                        addRelationshipDirective(field, edgeName, 'OUT');
+                        addEdge(currentType, referencedType, edgeName);
+                        if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);
                     }
                 });
+
+                // add edges
+                edgesTypeToAdd.forEach(edgeName => {
+                    def.fields.push({
+                        kind: "FieldDefinition",
+                        name: { kind: "Name", value: lowercaseFirstCharacter(edgeName) },
+                        arguments: [],
+                        type: { kind: "NamedType", name: { kind: "Name", value: edgeName } },
+                        directives: []
+                    });
+                });
+                
             }
         }
     });
+
+    typesToAdd.push(`input Options {\n  limit: Int\n}\n`);
 
     return injectChanges(schemaModel);
 }

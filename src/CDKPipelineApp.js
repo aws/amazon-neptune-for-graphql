@@ -12,6 +12,7 @@ permissions and limitations under the License.
 
 import { getNeptuneClusterinfoBy } from './pipelineResources.js'
 import { readFile, writeFile } from 'fs/promises';
+import semver from 'semver';
 import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
@@ -97,10 +98,10 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
         }
 
         if (neptuneClusterInfo.version != '') {
-            const v = neptuneClusterInfo.version;
-            if (lambdaFilesPath.includes('SDK') == true && 
+            const v = neptuneClusterInfo.version;            
+            if (lambdaFilesPath.includes('SDK') == true && //semver.satisfies(v, '>=1.2.1.0') ) {
                 (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {                     
-                console.error("Neptune SDK query is supported starting with Neptune versions 1.2.2.0");
+                console.error("Neptune SDK query is supported starting with Neptune versions 1.2.1.0.R5");
                 console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
                 exit(1);
             }
@@ -109,6 +110,7 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     } catch (error) {
         if (!quite) spinner.fail("Error getting Neptune Cluster Info.");
         if (!isNeptuneIAMAuth) {
+            spinner.clear();
             console.error("VPC data is not available to proceed.");
             exit(1);
         } else {

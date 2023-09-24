@@ -35,7 +35,7 @@ import { fileURLToPath } from 'url';
 import { hostname } from 'os';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-console.log("Install dir: ", __dirname);
+//console.log("Install dir: ", __dirname);
 
 // Input
 let quite = false;
@@ -222,8 +222,12 @@ async function asyncProcess() {
         }
         let neptuneHost = endpointParts[0];
         let neptunePort = endpointParts[1];
+        
+        let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');        
+        let neptuneRegion = neptuneRegionParts[2];                
+        
         if (!quite) console.log('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
-        setGetNeptuneSchemaParameters(neptuneHost, neptunePort, true);
+        setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, true);
         let startTime = performance.now();
         inputGraphDBSchema = await getNeptuneSchema(quite);
         let endTime = performance.now();

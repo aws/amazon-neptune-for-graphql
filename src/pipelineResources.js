@@ -166,36 +166,30 @@ async function getNeptuneClusterinfoBy(name, region) {
 }
 
 
-async function getNeptuneClusterinfo() {
-    try {
-        const neptuneClient = new NeptuneClient({region: REGION});
+async function getNeptuneClusterinfo() {    
+    const neptuneClient = new NeptuneClient({region: REGION});
 
-        const params = {
-            DBClusterIdentifier: NEPTUNE_DB_NAME
-        };
+    const params = {
+        DBClusterIdentifier: NEPTUNE_DB_NAME
+    };
 
-        const data = await neptuneClient.send(new DescribeDBClustersCommand(params));
-        
-        const input = { // DescribeDBSubnetGroupsMessage
-            DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,        
-        };
-        const command = new DescribeDBSubnetGroupsCommand(input);
-        const response = await neptuneClient.send(command);
-            
-        NEPTUNE_HOST = data.DBClusters[0].Endpoint;
-        NEPTUNE_PORT = data.DBClusters[0].Port.toString();
-        NEPTUNE_DBSubnetGroup = data.DBClusters[0].DBSubnetGroup;
-        NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
-        NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
-        NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
-        response.DBSubnetGroups[0].Subnets.forEach(element => { 
-            NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
-        });
-    } catch (error) {
-
-    }
-
+    const data = await neptuneClient.send(new DescribeDBClustersCommand(params));
     
+    const input = { // DescribeDBSubnetGroupsMessage
+        DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,        
+    };
+    const command = new DescribeDBSubnetGroupsCommand(input);
+    const response = await neptuneClient.send(command);
+        
+    NEPTUNE_HOST = data.DBClusters[0].Endpoint;
+    NEPTUNE_PORT = data.DBClusters[0].Port.toString();
+    NEPTUNE_DBSubnetGroup = data.DBClusters[0].DBSubnetGroup;
+    NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
+    NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
+    NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
+    response.DBSubnetGroups[0].Subnets.forEach(element => { 
+        NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
+    });    
 }
 
 
@@ -480,7 +474,7 @@ export function response(ctx) {
     response = await appSyncClient.send(command);    
     await sleep(5000); // wait for schema
     if (!quite) spinner.succeed('Added schema');
-  
+    
     await attachResolvers(appSyncClient, apiId, functionId);
 }
 

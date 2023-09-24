@@ -8,6 +8,8 @@ If you **start from a Neptune database with data**, the utility discover the gra
 
 You can also **start with a GraphQL schema with your types and an empty Neptune database**. The utility will process your starting GraphQL schema and inference the directives required to map it to the Neptune database graph nodes and edges.
 
+[add start from GraphQL schema with directives]
+
 The utility has the option to **generate the AWS resources** of the entire pipeline, including the AWS AppSync API, configuring the roles, data source, schema and resolver, and the AWS Lambda that queries Amazon Neptune.
 
 If you have a **few queries** with a static number of input parameters and return fields, and you are willing to code your GraphQL resolver, look at these blogs:
@@ -22,6 +24,8 @@ Index:
 - [Starting from a Neptune database with data: Air Routes Example](/doc/routesExample.md)
 - [Starting from a GraphQL schema and an empty Neptune database](#starting-from-a-graphql-schema-and-an-empty-neptune-database)
 - [Starting from a GraphQL schema and an empty Neptune database: Todo Example](/doc/todoExample.md)
+- [add start from GraphQL schema with directives section]
+- [add start from GraphQL schema with directives example]
 - [Install and Setup](#install-and-setup)
 - [Customize the GraphQL schema with directives](#customize-the-graphql-schema-with-directives)
 - [AWS resources for the GraphQL API](#aws-resources-for-the-graphql-api)
