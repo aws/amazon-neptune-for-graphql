@@ -589,7 +589,8 @@ function createTypeFieldStatementAndRecurse(e, fieldSchemaInfo, lastNamePath, la
   
     if (schemaTypeInfo.isArray) {
         if (fieldSchemaInfo.argOptionsLimit != null) {                            
-            withStatements[thisWithId].content += `) AS ${schemaTypeInfo.pathName}_collect LIMIT ${fieldSchemaInfo.argOptionsLimit}`;
+            //withStatements[thisWithId].content += `) AS ${schemaTypeInfo.pathName}_collect LIMIT ${fieldSchemaInfo.argOptionsLimit}`;
+            withStatements[thisWithId].content += `)[..${fieldSchemaInfo.argOptionsLimit}] AS ${schemaTypeInfo.pathName}_collect`;
         } else {
             withStatements[thisWithId].content += ') AS ' + schemaTypeInfo.pathName + '_collect';
         }
@@ -693,7 +694,8 @@ function resolveGrapgDBqueryForGraphQLQuery (obj, querySchemaInfo) {
     if (querySchemaInfo.returnIsArray) {
         returnString.push(')');
         if (querySchemaInfo.argOptionsLimit != null)
-            returnString.push(` LIMIT ${querySchemaInfo.argOptionsLimit}`);
+            //returnString.push(` LIMIT ${querySchemaInfo.argOptionsLimit}`);
+            returnString.push(`[..${querySchemaInfo.argOptionsLimit}]`);
     } else {
         returnString.push(' LIMIT 1');   
     }
@@ -730,7 +732,7 @@ function transformFunctionInputParameters(fields, schemaInfo) {
   
 function returnStringOnly(selections, querySchemaInfo) {
     withStatements.push({carryOver: querySchemaInfo.pathName, inLevel:'', content:''});    
-    selectionsRecurse(selections, 0, querySchemaInfo.pathName, querySchemaInfo.returnType);
+    selectionsRecurse(selections, querySchemaInfo.pathName, querySchemaInfo.returnType);
     return `{${withStatements[0].content}}`
 }
   

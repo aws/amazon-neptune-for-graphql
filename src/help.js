@@ -12,7 +12,7 @@ permissions and limitations under the License.
 
 const helpTxt =`
 Amazon Neptune utility for GraphQL(TM) schemas and resolvers
-Version 0.1.0
+Version 1.0.0
 
 Description
 ***********
