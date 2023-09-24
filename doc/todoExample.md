@@ -1,4 +1,4 @@
-# TODO Example: Starting from a GraphQL schema
+# TODO Example: Starting from a GraphQL schema with no directives
 You can start from a GraphQL schema without directives and an empty Neptune database. The utility will inference directives, input, queries and mutations, and create the the GraphQL API. Then, you can use GraphQL to create, mutate and query the data stored in a Neptune database without the need of knowing how to use a graph query language. 
 
 In this example we start from a TODO GraphQL schema, that you can find in the [samples](/samples/todo.schema.graphql), which include two types: *Todo* and *Comment*. The *Todo* includes a field *comments* as list of *Comment* type.
