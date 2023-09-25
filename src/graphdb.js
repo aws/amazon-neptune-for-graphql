@@ -68,7 +68,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             r += `type ${nodeCase} {\n`;
         }
         
-        r += '\t_id: ID! @alias(property:"~id")\n';
+        r += '\t_id: ID! @id\n';
 
         node.properties.forEach(property => {
             if (property.name == 'id')                
@@ -139,7 +139,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         // input for the node type
         r += `input ${nodeCase}Input {\n`;
-        r += '\t_id: ID @alias(property:"~id")\n';
+        r += '\t_id: ID @id\n';
         node.properties.forEach(property => {
             r+= `\t${property.name}: ${property.type}\n`;
         });
@@ -156,7 +156,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         } else {
             r += `type ${edgeCase} {\n`;
         }
-        r += '\t_id: ID! @alias(property:"~id")\n';
+        r += '\t_id: ID! @id\n';
 
         edge.properties.forEach(property => {
             if (property.name == 'id')                

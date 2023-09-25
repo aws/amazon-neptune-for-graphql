@@ -142,7 +142,7 @@ function addNode(def) {
     
     // Input fields    
     let inputFields = '';
-    inputFields += `\n  _id:ID @alias(property:"~id")`
+    inputFields += `\n  _id: ID @id`
     def.fields.forEach(field => {
         try {
             if (field.name.value === 'id') {
@@ -187,7 +187,7 @@ function addEdge(from, to, edgeName) {
     if (!typesToAdd.some((str) => str.startsWith(`type ${edgeName}`))) {
 
         // Create type
-        typesToAdd.push(`type ${edgeName} {\n  _id:ID! @alias(property:"~id")\n}`);
+        typesToAdd.push(`type ${edgeName} {\n  _id: ID! @id\n}`);
 
         // Create mutation
         mutationsToAdd.push(`connectNode${from}ToNode${to}Edge${edgeName}(from_id: ID!, to_id: ID!): ${edgeName}\n`);    
@@ -253,12 +253,8 @@ function inferGraphDatabaseDirectives(schemaModel) {
                     arguments: [],
                     type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" }}},
                     directives: [ 
-                        { kind: "Directive", name: { kind: "Name", value: "alias" },
-                          arguments: [
-                            { kind: "Argument", name: { kind: "Name", value: "property" },
-                              value: { kind: "StringValue", value: "~id", block: false }
-                            }
-                          ]
+                        { kind: "Directive", name: { kind: "Name", value: "id" },
+                          arguments: []                            
                         }
                     ]                      
                 });

@@ -86,7 +86,7 @@ function getTypeAlias(typeName) {
 }
   
 
-function getSchemaInputTypeArgs (inputType, args) {
+function getSchemaInputTypeArgs (inputType, schemaInfo) {
     
     schemaDataModel.definitions.forEach(def => {
         if (def.kind === 'InputObjectTypeDefinition') {
@@ -114,13 +114,16 @@ function getSchemaInputTypeArgs (inputType, args) {
                             if (directive.name.value === 'alias') {
                                 alias = directive.arguments[0].value.value;
                             }
+                            if (directive.name.value === 'id') {
+                                schemaInfo.graphDBIdArgName = arg.name;
+                            }
                         });
                     }
 
                     if (alias != null)
                         Object.assign(arg, {alias: alias});
                                         
-                    args.push(arg);
+                        schemaInfo.args.push(arg);
                 });            
             }
         }
@@ -185,9 +188,8 @@ function getSchemaQueryInfo(name) {
             // graphQuery
             if (field.directives.length > 0) {
                 field.directives.forEach(directive => {
-                    if (directive.name.value === 'graphQuery' || directive.name.value === 'Cypher' || directive.name.value === 'cypher') {
+                    if (directive.name.value === 'graphQuery' || directive.name.value === 'Cypher' || directive.name.value === 'cypher')
                         r.graphQuery = directive.arguments[0].value.value;
-                    }
                 });
             }
             
@@ -195,9 +197,9 @@ function getSchemaQueryInfo(name) {
             if (field.arguments.length > 0) {
                 field.arguments.forEach(arg => {
                     if (arg.type.kind === 'NamedType') {
-                        getSchemaInputTypeArgs(arg.type.name.value, r.args);
+                        getSchemaInputTypeArgs(arg.type.name.value, r);
                     } else if (arg.type.kind === 'NonNullType') {
-                        getSchemaInputTypeArgs(arg.type.type.name.value, r.args);
+                        getSchemaInputTypeArgs(arg.type.type.name.value, r);
                     } else if (arg.type.type.name.value === 'String' || arg.type.type.name.value === 'Int' || arg.type.type.name.value === 'ID') {
                         r.args.push({name: arg.name.value, type: arg.type.type.name.value});
                     } else {
@@ -205,12 +207,6 @@ function getSchemaQueryInfo(name) {
                     }                   
                 });
             }
-        });
-
-        r.args.forEach( arg => {
-            if (arg.alias !== undefined)
-                if (arg.alias === '~id')
-                    r.graphDBIdArgName = arg.name;
         });
                 
     });
@@ -330,15 +326,17 @@ function getSchemaFieldInfo(typeName, fieldName, pathName) {
                                         r.graphQuery = r.graphQuery.replace(' AS id', '');
                                     }                 
                                 }
+                                if (directive.name.value === 'id')
+                                    r.graphDBIdArgName = r.name;
                             });
                         }
 
                         if (field.arguments.length > 0) {
                             field.arguments.forEach(arg => {
                                 if (arg.type.kind === 'NamedType') {
-                                    getSchemaInputTypeArgs(arg.type.name.value, r.args);
+                                    getSchemaInputTypeArgs(arg.type.name.value, r);
                                 } else if (arg.type.kind === 'NonNullType') {
-                                    getSchemaInputTypeArgs(arg.type.type.name.value, r.args);
+                                    getSchemaInputTypeArgs(arg.type.type.name.value, r);
                                 } else if (arg.type.type.name.value === 'String' || arg.type.type.name.value === 'Int' || arg.type.type.name.value === 'ID') {
                                     r.args.push({name: arg.name.value, type: arg.type.type.name.value});
                                 } else {
@@ -353,13 +351,7 @@ function getSchemaFieldInfo(typeName, fieldName, pathName) {
             }
         }
     });
-
-    r.args.forEach( arg => {
-        if (arg.alias !== undefined)
-            if (arg.alias === '~id')
-                r.graphDBIdArgName = arg.name;
-    });
-
+    
     schemaDataModel.definitions.forEach(def => {
         if (def.kind === 'ObjectTypeDefinition') {
             if (def.name.value === r.type) {
@@ -534,7 +526,8 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
     
     withStatements[i].content += fieldSchemaInfo.name + ':';
 
-    if (fieldSchemaInfo.alias === '~id' && fieldSchemaInfo.graphQuery == null) {          
+    //if (fieldSchemaInfo.alias === '~id' && fieldSchemaInfo.graphQuery == null) {
+    if (fieldSchemaInfo.graphDBIdArgName === fieldSchemaInfo.name && fieldSchemaInfo.graphQuery == null) {          
         withStatements[i].content += 'ID(' + lastNamePath + ')';
     } else {
     
