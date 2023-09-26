@@ -33,7 +33,7 @@ rax.attach();
 
 export const handler = async (event) => {
     let r = null;
-    let resolver = { query:'', language: 'opencypher', fieldsAlias: {} };
+    let resolver = { query:'', parameters: {}, language: 'opencypher', fieldsAlias: {} };
     let result = null;
 
     // Create Neptune query from GraphQL query
@@ -55,7 +55,7 @@ export const handler = async (event) => {
         };
         
         if (resolver.language == 'opencypher') {
-            result = await axios.get(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}/opencypher?query=${encodeURIComponent(resolver.query)}`, myConfig);
+            result = await axios.get(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}/opencypher?query=${encodeURIComponent(resolver.query)}&parameters=${encodeURIComponent(JSON.stringify(resolver.parameters))}`, myConfig);
         } else {
             result = await axios.get(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}?gremlin=${encodeURIComponent(resolver.query)}`, myConfig);
         }

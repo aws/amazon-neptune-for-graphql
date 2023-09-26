@@ -29,7 +29,7 @@ export const handler = async(event) => {
 
     if (LOGGING_ENABLED) console.log(event);
 
-    let resolver = { query:'', language: 'opencypher', fieldsAlias: {} };
+    let resolver = { query:'', parameters:{}, language: 'opencypher', fieldsAlias: {} };
 
     try {
         resolver = resolveGraphDBQueryFromAppSyncEvent(event);
@@ -56,7 +56,8 @@ export const handler = async(event) => {
     if (resolver.language == 'opencypher') {        
         try {
             const input = {
-                openCypherQuery: resolver.query            
+                openCypherQuery: resolver.query,
+                parameters: JSON.stringify(resolver.parameters)
             };
             const command = new ExecuteOpenCypherQueryCommand(input);
             const response = await client.send(command);
