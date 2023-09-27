@@ -6435,15 +6435,12 @@ node_modules/zip-stream/node_modules/archiver-utils/LICENSE
 node_modules/zip-stream/node_modules/archiver-utils/package.json
 node_modules/zip-stream/node_modules/archiver-utils/README.md
 .vscode/launch.json
-samples/airports.graphdb.json
 samples/airports.nodeegesprop.graphql
 samples/airports.schema.graphql
-samples/airports.source.schema.graphql
 samples/changesAirport.json
 samples/DiningWithFriends3.graphql
 samples/fraud.neptune.schema.json
 samples/polestar.graphql
-samples/todo.schema.graphql
 samples/P8DemoDB..json
 output/output.lambda.zip
 output/output.neptune.schema.json

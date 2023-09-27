@@ -17,25 +17,24 @@ Version 1.0.0
 Description
 ***********
 Create a GraphQL API, Schema and Resolver for Amazon Neptune.
-You can start from an existing Amazon Neptune database, or a property graph database schema, or a GraphQL schema. 
+You have the option to start from an existing Amazon Neptune database, or a property graph database schema, or a GraphQL schema. 
 The utility generates the GraphQL Schema and the Resolver code to query Amazon Neptune via a GraphQL server.
-Optionally the utility can create, update or remove an AppSync GraphQL API, and all the AWS resources to query 
+Optionally, the utility can create, update or remove an AppSync GraphQL API, and the AWS resources to query 
 the Amazon Neptune database, or a CDK file. The utility generates an intermediate GraphQL schema that includes the 
-directives that inform the resolver how to query the graph databases. If you input a GraphQL schema withput graph 
-database directive the utility inference them.
+directives that inform the resolver how to query the graph databases. If you input a GraphQL schema without graph 
+database directives the utility inference them.
 
 Input options:
 - Amazon Neptune endpoint
 - Property graph database schema  
-- GraphQL schema   
+- GraphQL schema
 
 Output:
 - AppSync GraphQL API
-- GraphQL schema without directives, default name is output.schema.graphql
-- GraphQL schema with directives, default name is output.source.schema.graphql
-- GraphQL resolver as Node.js code for the AWS Lambda used between AWS AppSync and
-  Amazon Neptune, default name is output.lambda.index.mjs
-- GraphQL resolver as generic Javascript function
+- GraphQL schema without directives, the default name is output.schema.graphql
+- GraphQL schema with directives, the default name is output.source.schema.graphql
+- GraphQL resolver Javascript resolver, the default name is output.lambda.index.js
+- A zip file with the Lambda code, default name is output.lambda.zip
 - A file with the list of AWS resources created
 - CDK file with the Lambda zip file
 

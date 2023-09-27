@@ -78,6 +78,11 @@ The file name output for discovered Neptune graphdb schema. If not specified the
 <br>
 The file name output for a copy of the resolver code. If not specified the default is *output.resolver.graphql.js*, or if a pipeline name is set with `--create-update-aws-pipeline-name` the file name is going to be *pipeline-name.resolver.graphql.js*. This file is zipped in code package uploaded to the Lambda function that run the resolver.
 
+`--output-resolver-query-sdk`
+`--output-resolver-query-https`
+<br>
+The default method for the Lambda uses to query Neptune is the Neptune-data SDK option `--output-resolver-query-sdk`. The SDK is available inly from Neptune version 1.2.1.0.R5. When the utility detect an older Neptune version, it stops suggesting to use the HTTPS Lambda option `--output-resolver-query-https`. If you prefer the HTTPS query method just use `--output-resolver-query-https`.
+
 `--create-update-aws-pipeline`
 <br>
 This trigger the creation of the AWS resources for the GraphQL API, including the AppSync GraphQL API and the Lambda that run the resolver.

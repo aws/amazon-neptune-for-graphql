@@ -101,37 +101,39 @@ Note: the queries and mutations you see below are recognized by the resolver bas
 
 ```graphql
 type Continent @alias(property: "continent") {
-  id: ID!
+  _id: ID! @id
   code: String
   type: String
   desc: String
-  airportsOut: [Airport] @relationship(edgeType: "contains", direction: OUT)
+  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
   contains: Contains
 }
 
 input ContinentInput {
+  _id: ID @id
   code: String
   type: String
   desc: String
 }
 
 type Country @alias(property: "country") {
-  id: ID!
+  _id: ID! @id
   code: String
   type: String
   desc: String
-  airportsOut: [Airport] @relationship(edgeType: "contains", direction: OUT)
+  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
   contains: Contains
 }
 
 input CountryInput {
+  _id: ID @id
   code: String
   type: String
   desc: String
 }
 
 type Version @alias(property: "version") {
-  id: ID!
+  _id: ID! @id
   date: String
   code: String
   author: String
@@ -140,6 +142,7 @@ type Version @alias(property: "version") {
 }
 
 input VersionInput {
+  _id: ID @id
   date: String
   code: String
   author: String
@@ -148,7 +151,7 @@ input VersionInput {
 }
 
 type Airport @alias(property: "airport") {
-  id: ID!
+  _id: ID! @id
   country: String
   longest: Float
   code: String
@@ -161,15 +164,16 @@ type Airport @alias(property: "airport") {
   type: String
   lat: Float
   desc: String
-  continentIn: Continent @relationship(edgeType: "contains", direction: IN)
-  countryIn: Country @relationship(edgeType: "contains", direction: IN)
-  airportsOut: [Airport] @relationship(edgeType: "route", direction: OUT)
-  airportsIn: [Airport] @relationship(edgeType: "route", direction: IN)
+  continentContainsIn: Continent @relationship(edgeType: "contains", direction: IN)
+  countryContainsIn: Country @relationship(edgeType: "contains", direction: IN)
+  airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: OUT)
+  airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: IN)
   contains: Contains
   route: Route
 }
 
 input AirportInput {
+  _id: ID @id
   country: String
   longest: Float
   code: String
@@ -185,11 +189,11 @@ input AirportInput {
 }
 
 type Contains @alias(property: "contains") {
-  id: ID!
+  _id: ID! @id
 }
 
 type Route @alias(property: "route") {
-  id: ID!
+  _id: ID! @id
   dist: Int
 }
 
@@ -197,37 +201,41 @@ input RouteInput {
   dist: Int
 }
 
+input Options {
+  limit: Int
+}
+
 type Query {
-  getNodeContinent(id: ID, filter: ContinentInput): Continent
-  getNodeContinents(filter: ContinentInput): [Continent]
-  getNodeCountry(id: ID, filter: CountryInput): Country
-  getNodeCountrys(filter: CountryInput): [Country]
-  getNodeVersion(id: ID, filter: VersionInput): Version
-  getNodeVersions(filter: VersionInput): [Version]
-  getNodeAirport(id: ID, filter: AirportInput): Airport
-  getNodeAirports(filter: AirportInput): [Airport]
+  getNodeContinent(filter: ContinentInput): Continent
+  getNodeContinents(filter: ContinentInput, options: Options): [Continent]
+  getNodeCountry(filter: CountryInput): Country
+  getNodeCountrys(filter: CountryInput, options: Options): [Country]
+  getNodeVersion(filter: VersionInput): Version
+  getNodeVersions(filter: VersionInput, options: Options): [Version]
+  getNodeAirport(filter: AirportInput): Airport
+  getNodeAirports(filter: AirportInput, options: Options): [Airport]
 }
 
 type Mutation {
   createNodeContinent(input: ContinentInput!): Continent
-  updateNodeContinent(id: ID!, input: ContinentInput!): Continent
-  deleteNodeContinent(id: ID!): Boolean
+  updateNodeContinent(input: ContinentInput!): Continent
+  deleteNodeContinent(_id: ID!): Boolean
   createNodeCountry(input: CountryInput!): Country
-  updateNodeCountry(id: ID!, input: CountryInput!): Country
-  deleteNodeCountry(id: ID!): Boolean
+  updateNodeCountry(input: CountryInput!): Country
+  deleteNodeCountry(_id: ID!): Boolean
   createNodeVersion(input: VersionInput!): Version
-  updateNodeVersion(id: ID!, input: VersionInput!): Version
-  deleteNodeVersion(id: ID!): Boolean
+  updateNodeVersion(input: VersionInput!): Version
+  deleteNodeVersion(_id: ID!): Boolean
   createNodeAirport(input: AirportInput!): Airport
-  updateNodeAirport(id: ID!, input: AirportInput!): Airport
-  deleteNodeAirport(id: ID!): Boolean
-  connectNodeContinentToNodeAirportEdgeContains(from: ID!, to: ID!): Contains
-  deleteEdgeContainsFromContinentToAirport(from: ID!, to: ID!): Boolean
-  connectNodeCountryToNodeAirportEdgeContains(from: ID!, to: ID!): Contains
-  deleteEdgeContainsFromCountryToAirport(from: ID!, to: ID!): Boolean
-  connectNodeAirportToNodeAirportEdgeRoute(from: ID!, to: ID!, edge: RouteInput!): Route
-  updateEdgeRouteFromAirportToAirport(from: ID!, to: ID!, edge: RouteInput!): Route
-  deleteEdgeRouteFromAirportToAirport(from: ID!, to: ID!): Boolean
+  updateNodeAirport(input: AirportInput!): Airport
+  deleteNodeAirport(_id: ID!): Boolean
+  connectNodeContinentToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  deleteEdgeContainsFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
+  connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  connectNodeAirportToNodeAirportEdgeRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  deleteEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
 }
 
 schema {

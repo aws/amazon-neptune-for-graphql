@@ -1,11 +1,10 @@
 # TODO Example: Starting from a GraphQL schema with no directives
-You can start from a GraphQL schema without directives and an empty Neptune database. The utility will inference directives, input, queries and mutations, and create the the GraphQL API. Then, you can use GraphQL to create, mutate and query the data stored in a Neptune database without the need of knowing how to use a graph query language. 
+You can start from a GraphQL schema without directives and an empty Neptune database. The utility will inference directives, input, queries and mutations, and create the the GraphQL API. Then, you can use GraphQL to create, mutate and query the data stored in a Neptune database without the need to know how to use a graph query language. 
 
-In this example we start from a TODO GraphQL schema, that you can find in the [samples](/samples/todo.schema.graphql), which include two types: *Todo* and *Comment*. The *Todo* includes a field *comments* as list of *Comment* type.
+In this example we start from a TODO GraphQL schema, that you can find in the [samples](/samples/todo.schema.graphql). Includes two types: *Todo* and *Comment*. The *Todo* has a field *comments* as list of *Comment* type.
 
 ```graphql
-type Todo {
-    id: ID!
+type Todo {    
     name: String
     description: String
     priority: Int
@@ -13,15 +12,14 @@ type Todo {
     comments: [Comment]
 }
 
-type Comment {
-    id: ID!    
+type Comment {        
     content: String
 }
 ```
 
 Let's now run this schema through the utility and create the GraphQL API in AWS AppSync. *(Note: pls provide a reachable, empty Neptune database endpoint)*
 
-`neptune-for-graphql --input-schema-file ./samples/todo.schema.graphql --create-update-aws-pipeline --create-update-aws-pipeline-name TodoExample --create-update-aws-pipeline-neptune-endpoint` *your-neptune-database-endpoint:port* 
+`neptune-for-graphql --input-schema-file ./samples/todo.schema.graphql --create-update-aws-pipeline --create-update-aws-pipeline-name TodoExample --create-update-aws-pipeline-neptune-endpoint` *your-neptune-database-endpoint:port* ` --output-resolver-query-https`
 
 Te utility created a new file in the *output* folder called *TodoExample.source.graphql*, and the GraphQL API in AppSync. As you can see below, the utility inferenced:
 
@@ -31,24 +29,31 @@ Te utility created a new file in the *output* folder called *TodoExample.source.
 - For each type three mutations: create, update and delete. Selecting the type to delete using an id or the input for that type. These mutation affect the data stored in The Neptune database.
 - For connections two mutations: connect and delete. They take as input the ids of the from and to. The ids are of used by Neptune, and the connection are edges in the graph database as mention earlier.
 
-Note: the queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: *Customize the GraphQL schema with directives.*
+Note: the queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: [Customize the GraphQL schema with directives](../README.md/#customize-the-graphql-schema-with-directives).
 
 ```graphql
 type Todo {
-  id: ID!
+  _id: ID! @id
   name: String
   description: String
   priority: Int
   status: String
-  comments: [Comment] @relationship(type: "CommentEdge", direction: OUT)
+  comments(filter: CommentInput, options: Options): [Comment] @relationship(type: "CommentEdge", direction: OUT)
+  bestComment: Comment @relationship(type: "CommentEdge", direction: OUT)
+  commentEdge: CommentEdge
 }
 
 type Comment {
-  id: ID!
+  _id: ID! @id
   content: String
 }
 
+input Options {
+  limit: Int
+}
+
 input TodoInput {
+  _id: ID @id
   name: String
   description: String
   priority: Int
@@ -56,29 +61,34 @@ input TodoInput {
 }
 
 type CommentEdge {
-  id: ID!
+  _id: ID! @id
 }
 
 input CommentInput {
+  _id: ID @id
   content: String
 }
 
+input Options {
+  limit: Int
+}
+
 type Query {
-  getNodeTodo(id: ID, filter: TodoInput): Todo
+  getNodeTodo(filter: TodoInput, options: Options): Todo
   getNodeTodos(filter: TodoInput): [Todo]
-  getNodeComment(id: ID, filter: CommentInput): Comment
+  getNodeComment(filter: CommentInput, options: Options): Comment
   getNodeComments(filter: CommentInput): [Comment]
 }
 
 type Mutation {
   createNodeTodo(input: TodoInput!): Todo
-  updateNodeTodo(id: ID!, input: TodoInput!): Todo
-  deleteNodeTodo(id: ID!): Boolean
-  connectNodeTodoToNodeCommentEdgeCommentEdge(from: ID!, to: ID!): CommentEdge
-  deleteEdgeCommentEdgeFromTodoToComment(from: ID!, to: ID!): Boolean
+  updateNodeTodo(input: TodoInput!): Todo
+  deleteNodeTodo(_id: ID!): Boolean
+  connectNodeTodoToNodeCommentEdgeCommentEdge(from_id: ID!, to_id: ID!): CommentEdge
+  deleteEdgeCommentEdgeFromTodoToComment(from_id: ID!, to_id: ID!): Boolean
   createNodeComment(input: CommentInput!): Comment
-  updateNodeComment(id: ID!, input: CommentInput!): Comment
-  deleteNodeComment(id: ID!): Boolean
+  updateNodeComment(input: CommentInput!): Comment
+  deleteNodeComment(_id: ID!): Boolean
 }
 
 schema {
