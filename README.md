@@ -279,7 +279,6 @@ Sure, [here](/doc/resources.md) the detailed list of resorces needed to configur
 <br>
 
 # Roadmap
-- Support of Neptune database with IAM authetication
 - Resolver generates Gremlin queries instead of openCypher.
 - Gremlin resolver.
 - SPARQL resolver for RDF database.
