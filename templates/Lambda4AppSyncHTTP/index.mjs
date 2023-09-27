@@ -51,7 +51,7 @@ export const handler = async (event) => {
                 console.log(`Retry attempt #${cfg.currentRetryAttempt} Status: ${err.response.statusText}`); // track current trial
               }
             },
-            timeout: 2000
+            timeout: 20000
         };
         
         if (resolver.language == 'opencypher') {
