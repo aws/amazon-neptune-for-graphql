@@ -40,7 +40,7 @@ Index:
 <br>
 
 # Starting from a Neptune database with data
-Independently if you are familiar with GraphQL or not, the command below is the fastest way to create a GraphQL API. Starting from an existing Neptune database endpoint, the utility scans the Neptune database and extracting a schema for the existing nodes, edges and properties. Based on the graph database schema, it inferences a GraphQL schema, queries and mutations. Then, it creates an AppSync GraphQL API, and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility complete the execution, go to your AWS console. You will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu. (*Note: follow the setup instructions below to enable your environment to reach the Neptune database and create AWS resources.*)
+Independently if you are familiar with GraphQL or not, the command below is the fastest way to create a GraphQL API. Starting from an existing Neptune database endpoint, the utility scans the Neptune database discovering the schema of the existing nodes, edges and properties. Based on the graph database schema, it inferences a GraphQL schema, queries and mutations. Then, it creates an AppSync GraphQL API, and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility complete the execution, you will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu. (*Note: follow the setup instructions below to enable your environment to reach the Neptune database and create AWS resources.*)
 
 `neptune-for-graphql --input-graphdb-schema-neptune-endpoint `*your-neptune-database-endpoint:port*` --create-update-aws-pipeline --create-update-aws-pipeline-name` *your-new-GraphQL-API-name* ` --output-resolver-query-https`
 
@@ -58,7 +58,7 @@ To rollback, removing all the AWS resources run:
 <br>
 
 # Starting from a GraphQL schema and an empty Neptune database
-You can start from an empty Neptune database and use a GraphQL API to create the data and query it. The utility will automate the creation of the AWS resources running the command below. Your *your-graphql-schema-file* must include the GraphQL schema types, like in the TODO example [here](/doc/todoExample.md). The utility will analyze your schema and create an extended version based on your types. It will add queries and mutations for nodes stored in the graph database, and in case your schema have nested types, it will add relationships between the types stored as edges in the graph database, again see the TODO example [here](/doc/todoExample.md). The utility creates an AppSync GraphQL API, and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility complete the execution, go to your AWS console. You will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu. (*Note: follow the setup instructions below to enable your environment to reach the Neptune database and create AWS resources.*)
+You can start from an empty Neptune database and use a GraphQL API to create the data and query it. Running the command below, the utility will automate the creation of the AWS resources. Your *your-graphql-schema-file* must include the GraphQL schema types, like in the TODO example [here](/doc/todoExample.md). The utility will analyze your schema and create an extended version based on your types. It will add queries and mutations for the nodes stored in the graph database, and in case your schema have nested types, it will add relationships between the types stored as edges in the graph database, again see the TODO example [here](/doc/todoExample.md). The utility creates an AppSync GraphQL API, and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility complete the execution, you will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu. (*Note: follow the setup instructions below to enable your environment to reach the Neptune database and create AWS resources.*)
 
 `neptune-for-graphql --input-schema-file `*your-graphql-schema-file*` --create-update-aws-pipeline --create-update-aws-pipeline-name` *your-new-GraphQL-API-name* `--create-update-aws-pipeline-neptune-endpoint` *your-neptune-database-endpoint:port*  ` --output-resolver-query-https`
 
@@ -285,7 +285,7 @@ Sure, [here](/doc/resources.md) the detailed list of resorces needed to configur
 - Generate GraphQL resolver and configurations for Apollo Server
 <br>
 
-# Licence
+# License
 Copyright 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Licensed under the Apache License, Version 2.0 (the "License").
 You may not use this file except in compliance with the License.
