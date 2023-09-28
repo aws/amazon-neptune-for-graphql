@@ -29,9 +29,32 @@ function schemaStringify (schemaModel, directives = true) {
 		const schemaWithoutDirectives = visit(schemaModel, {
 			Directive: () => null,
 		});
-		r = print(schemaWithoutDirectives);
+		const schemaTxt = print(schemaWithoutDirectives);
+        r = changeComments(schemaTxt);
+        r = addSchemaType(r);   
 	}
 	return r;
+}
+
+
+function changeComments(schemaTxt) {
+    const lines = schemaTxt.split('\n');
+    const modifiedLines = lines.map(line => {  
+        line = line.replace(/^(\s*)"""/, '$1#');  
+        line = line.replace(/"""(\s*)$/, '$1');
+        return line;
+    });
+ 
+    const r = modifiedLines.join('\n');
+    return r;
+}
+
+
+function addSchemaType(schemaTxt) {
+    if (!schemaTxt.includes('schema {')) {
+        schemaTxt += '\n\nschema {\n  query: Query\n  mutation: Mutation\n}';
+    }
+    return schemaTxt;
 }
 
 
