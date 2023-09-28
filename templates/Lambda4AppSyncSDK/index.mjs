@@ -1,17 +1,29 @@
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand, ExecuteGremlinQueryCommand } from "@aws-sdk/client-neptunedata";
-import {resolveGraphDBQueryFromAppSyncEvent} from './output.resolver.graphql.js';
+import {resolveGraphDBQueryFromAppSyncEvent, refactorGremlinqueryOutput} from './output.resolver.graphql.js';
 
-const LOGGING_ENABLED = true;
+const LOGGING_ENABLED = false;
 
 const config = {            
     endpoint: `https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`
 };
 
 let client;
-try {
-    client = new NeptunedataClient(config);
-} catch (error) {
-    onError('new NeptunedataClient: ', error);
+//try {
+//    client = new NeptunedataClient(config);
+//} catch (error) {
+//    onError('new NeptunedataClient: ', error);
+//}
+
+function getClient() {
+    if (client) {
+        return client;
+    } 
+  
+    try {
+        client = new NeptunedataClient(config);
+    } catch (error) {
+        onError('new NeptunedataClient: ', error);
+    }
 }
 
 
@@ -44,10 +56,10 @@ export const handler = async(event) => {
                 gremlinQuery: resolver.query            
             };
             const command = new ExecuteGremlinQueryCommand(input);
-            const response = await client.send(command);
-            result = response.results[0];
-            result = response.results;
-            r = result[0][Object.keys(result[0])];
+            const response = await getClient().send(command);
+            result = response["result"]["data"];
+            const refac = refactorGremlinqueryOutput(result, resolver.fieldsAlias)
+            r = JSON.parse(refac);
         } catch (error) {
             onError('Gremlin query: ', error);
         }
@@ -60,7 +72,7 @@ export const handler = async(event) => {
                 parameters: JSON.stringify(resolver.parameters)
             };
             const command = new ExecuteOpenCypherQueryCommand(input);
-            const response = await client.send(command);
+            const response = await getClient().send(command);
             result = response.results;
             r = result[0][Object.keys(result[0])];
         } catch (error) {
