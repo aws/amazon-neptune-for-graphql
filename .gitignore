@@ -6440,14 +6440,11 @@ samples/airports.schema.graphql
 samples/changesAirport.json
 samples/DiningWithFriends3.graphql
 samples/fraud.neptune.schema.json
-samples/polestar.graphql
-samples/P8DemoDB..json
 output/output.lambda.zip
 output/output.neptune.schema.json
 output/output.resolver.graphql.js
 output/output.schema.graphql
 output/output.source.schema.graphql
-samples/P8DemoDB.json
 node_modules/.bin/acorn
 node_modules/.bin/acorn.cmd
 node_modules/.bin/acorn.ps1
