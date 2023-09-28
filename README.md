@@ -268,6 +268,7 @@ The code of the utiliy uses the JavaScript AWS sdk v3, if you'd like to review t
 ### I prefer a CDK file
 No problem, the option to trigger the creation of the CDK file starts with the command option `--output-aws-pipeline-cdk`, and its accessory options ([see the commands reference](/doc/cliReference.md)). <br> 
 After you ran it you will find in the *output* folder the file *CDK-pipeline-name.cdk* and *CDK-pipeline-name.zip*. The ZIP file is the code for the Lambda function.
+See CDK end to end example [here](/doc/cdk.md).
 
 ### Let me setup the resources manually or with my favorite DevOps toolchain
 Sure, [here](/doc/resources.md) the detailed list of resorces needed to configure the GraphQL API pipeline.
