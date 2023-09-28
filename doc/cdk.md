@@ -33,7 +33,7 @@ Create a directory *your-CDK-dir* for your CDK application, CD in the new direct
 
 Install CDK libraries used by the GraphQL utility.
 
-`npm install @aws-cdk/aws-aws-iam`
+`npm install @aws-cdk/aws-iam`
 <br>
 `npm install @aws-cdk/aws-ec2`
 <br>
