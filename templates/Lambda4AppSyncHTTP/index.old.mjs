@@ -1,20 +1,21 @@
 import { HttpRequest} from "@aws-sdk/protocol-http"; 
-//import { defaultProvider } from "@aws-sdk/credential-provider-node";
+import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import { NodeHttpHandler } from "@aws-sdk/node-http-handler";
 import { SignatureV4 } from '@aws-sdk/signature-v4';
 import { Sha256 } from '@aws-crypto/sha256-js';
 import async from "async";
-
 import {resolveGraphDBQueryFromAppSyncEvent, refactorGremlinqueryOutput} from './output.resolver.graphql.js';
 
+/*
 const {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     AWS_SESSION_TOKEN
   } = process.env;
+*/
 
 const LOGGING_ENABLED = true;
-let resolver = { query:'', language: 'opencypher', fieldsAlias: {} };
+let resolver = { query:'', parameters: {}, language: 'opencypher', fieldsAlias: {} };
 
 
 async function doQuery() {
@@ -52,7 +53,7 @@ const postRequest = async() => {
 
     let postBody ='';
     if (resolver.language == 'opencypher')
-        postBody = `query=${encodeURIComponent(resolver.query)}`;
+        postBody = `query=${encodeURIComponent(resolver.query)}&parameters=${encodeURIComponent(JSON.stringify(resolver.parameters))}`;
 
     if (resolver.language == 'gremlin')
         postBody = `{"gremlin":"${resolver.query}"}`;
@@ -68,12 +69,14 @@ const postRequest = async() => {
     });
 
     var signer = new SignatureV4({
-        //credentials: defaultProvider(),
+        credentials: defaultProvider(),
+        /*
         credentials: {
             accessKeyId: AWS_ACCESS_KEY_ID,
             secretAccessKey: AWS_SECRET_ACCESS_KEY,
             sessionToken: AWS_SESSION_TOKEN,
         },
+        */
         region: process.env.AWS_REGION,
         service: 'neptune-db',
         sha256: Sha256

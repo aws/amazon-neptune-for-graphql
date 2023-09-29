@@ -140,7 +140,7 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     CDKFile = CDKFile.toString().replace( "const NEPTUNE_HOST = '';",                   `const NEPTUNE_HOST = '${NEPTUNE_HOST}';` );
     CDKFile = CDKFile.toString().replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );    
     CDKFile = CDKFile.toString().replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
-    CDKFile = CDKFile.toString().replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );
+    CDKFile = CDKFile.toString().replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
     //CDKFile = CDKFile.toString().replace( "const NEPTUNE_DBSubnetIds = [];",            `const NEPTUNE_DBSubnetIds = ${JSON.stringify(NEPTUNE_DBSubnetIds)};` );
     //CDKFile = CDKFile.toString().replace( "const NEPTUNE_VpcSecurityGroupId = null;",   `const NEPTUNE_VpcSecurityGroupId = '${NEPTUNE_VpcSecurityGroupId}';` );
 

@@ -35,7 +35,9 @@ import { fileURLToPath } from 'url';
 import { hostname } from 'os';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-//console.log("Install dir: ", __dirname);
+
+// get version
+const version = JSON.parse(readFileSync(__dirname + '/package.json')).version;
 
 // Input
 let quite = false;
@@ -95,6 +97,13 @@ process.argv.forEach(function (val, index, array) {
         case '-help':
         case '-h':
             console.log(helpTxt);
+            process.exit(0);
+        break;
+        case '--version':
+        case '--v':
+        case '-version':
+        case '-v':
+            console.log(version);
             process.exit(0);
         break;
         case '--quite':

@@ -3,7 +3,7 @@ import * as rax from 'retry-axios';
 import { aws4Interceptor } from "aws4-axios";
 import {resolveGraphDBQueryFromAppSyncEvent, refactorGremlinqueryOutput} from './output.resolver.graphql.js';
 
-const LOGGING_ENABLED = false;
+const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
 const {
     AWS_ACCESS_KEY_ID,

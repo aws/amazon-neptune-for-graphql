@@ -287,7 +287,8 @@ async function createLambdaFunction() {
                 Variables: {
                     "NEPTUNE_HOST": NEPTUNE_HOST,
                     "NEPTUNE_PORT": NEPTUNE_PORT,
-                    "NEPTUNE_IAM_AUTH_ENABLED": "true"
+                    "NEPTUNE_IAM_AUTH_ENABLED": "true",
+                    "LOGGING_ENABLED": "false"
                 },
             },
         };
@@ -311,7 +312,8 @@ async function createLambdaFunction() {
                 Variables: {
                     "NEPTUNE_HOST": NEPTUNE_HOST,
                     "NEPTUNE_PORT": NEPTUNE_PORT,
-                    "NEPTUNE_IAM_AUTH_ENABLED": "false"
+                    "NEPTUNE_IAM_AUTH_ENABLED": "false",
+                    "LOGGING_ENABLED": "false"
                 },
             },
         };

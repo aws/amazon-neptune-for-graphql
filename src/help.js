@@ -12,7 +12,6 @@ permissions and limitations under the License.
 
 const helpTxt =`
 Amazon Neptune utility for GraphQL(TM) schemas and resolvers
-Version 1.0.0
 
 Description
 ***********
@@ -111,6 +110,7 @@ Create the CDK Files
 Parameters
 ***********
 [--help|--h|-help|-h]
+[--version|--v|-version|-v]
 [--input-schema <value>]
 [--input-schema-file <value>]
 [--input-schema-changes-file <value>]   
