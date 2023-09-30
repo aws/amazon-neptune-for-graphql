@@ -1,3 +1,7 @@
-node_modules/**
+test/**
 output/**
+package-lock.json
 .vscode/launch.json
+node_modules/**
+templates/Lambda4AppSyncHTTP/node_modules/**
+templates/Lambda4AppSyncSDK/node_modules/**

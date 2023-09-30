@@ -397,13 +397,15 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
     } else {
 
         let { queryArguments, where } = getQueryArguments(obj.definitions[0].selectionSet.selections[0].arguments, querySchemaInfo);
-
-        // Define openCypher match statement based on query return type
+        
         if  (queryArguments.length > 0) {
             matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias}{${queryArguments}})${where}`);
         } else {
             matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias})${where}`);
         }
+
+        if (querySchemaInfo.argOptionsLimit != null)
+            matchStatements.push(`WITH ${querySchemaInfo.pathName} LIMIT ${querySchemaInfo.argOptionsLimit}`);
     }
 
     withStatements.push({carryOver: querySchemaInfo.pathName, inLevel:'', content:''});
@@ -418,11 +420,10 @@ function getQueryArguments(arguments, querySchemaInfo) {
             let inputFields = transformFunctionInputParameters(arg.value.fields, querySchemaInfo);
             queryArguments = queryArguments + inputFields.fields + ",";
 
-            if (inputFields.graphIdValue != null) {
-                // where = ` WHERE ID(${querySchemaInfo.pathName}) = '${inputFields.graphIdValue}'`; // Test parametrized queries
-                let param = querySchemaInfo.pathName + '_' + 'whereId'; // Test parametrized queries
-                Object.assign(parameters, { [param]: inputFields.graphIdValue }); // Test parametrized queries
-                where = ` WHERE ID(${querySchemaInfo.pathName}) = $${param}`; // Test parametrized queries
+            if (inputFields.graphIdValue != null) {                
+                let param = querySchemaInfo.pathName + '_' + 'whereId';
+                Object.assign(parameters, { [param]: inputFields.graphIdValue });
+                where = ` WHERE ID(${querySchemaInfo.pathName}) = $${param}`;
             }
 
         } else if (arg.name.value == 'options') {
@@ -489,8 +490,6 @@ function graphQueryRefactoring(lastNamePath, fieldSchemaInfo) {
         r.returnCarryOver = name + '_' + returningName;
     }
 
-    
-    
     return r;
 }
 
@@ -532,7 +531,6 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
     
     withStatements[i].content += fieldSchemaInfo.name + ':';
 
-    //if (fieldSchemaInfo.alias === '~id' && fieldSchemaInfo.graphQuery == null) {
     if (fieldSchemaInfo.graphDBIdArgName === fieldSchemaInfo.name && fieldSchemaInfo.graphQuery == null) {          
         withStatements[i].content += 'ID(' + lastNamePath + ')';
     } else {
@@ -542,7 +540,6 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
                 matchStatements.push(` CALL { WITH ${lastNamePath} ${fieldSchemaInfo.graphQuery.replace('this', lastNamePath)} AS ${lastNamePath + '_' + fieldSchemaInfo.name} }`);                  
                 withStatements[i].content += ' ' + lastNamePath + '_' + fieldSchemaInfo.name;
             } else {
-                //withId++;
                 createQueryFieldMatchStatement(fieldSchemaInfo, lastNamePath);
             }
         } else {              
@@ -588,7 +585,6 @@ function createTypeFieldStatementAndRecurse(e, fieldSchemaInfo, lastNamePath, la
   
     if (schemaTypeInfo.isArray) {
         if (fieldSchemaInfo.argOptionsLimit != null) {                            
-            //withStatements[thisWithId].content += `) AS ${schemaTypeInfo.pathName}_collect LIMIT ${fieldSchemaInfo.argOptionsLimit}`;
             withStatements[thisWithId].content += `)[..${fieldSchemaInfo.argOptionsLimit}] AS ${schemaTypeInfo.pathName}_collect`;
         } else {
             withStatements[thisWithId].content += ') AS ' + schemaTypeInfo.pathName + '_collect';
@@ -709,21 +705,16 @@ function transformFunctionInputParameters(fields, schemaInfo) {
         fields.forEach(field => {
             if (field.name.value === arg.name) {
                 let value = field.value.value;
-                if (arg.type === 'String') {
-                    //value = `'${value}'`;  // test parametrized queries              
-                }
                 if (arg.name === schemaInfo.graphDBIdArgName) {
                     r.graphIdValue = value
                 } else if (arg.alias != null) {
-                    //r.fields += `${arg.alias}: ${value}, `;
-                    let param = schemaInfo.pathName + '_' + arg.alias; // test parametrized queries
-                    r.fields += `${arg.alias}: $${param}, `; // test parametrized queries
-                    Object.assign(parameters, { [param]: value }); // test parametrized queries
+                    let param = schemaInfo.pathName + '_' + arg.alias;
+                    r.fields += `${arg.alias}: $${param}, `;
+                    Object.assign(parameters, { [param]: value });
                 } else  {
-                    // r.fields += `${arg.name}: ${value}, `;
-                    let param = schemaInfo.pathName + '_' + arg.name; // test parametrized queries
+                    let param = schemaInfo.pathName + '_' + arg.name;
                     r.fields += `${arg.name}: $${param}, `;
-                    Object.assign(parameters, { [param]: value }); // test parametrized queries
+                    Object.assign(parameters, { [param]: value });
                 }
             }
         });
@@ -743,20 +734,6 @@ function returnStringOnly(selections, querySchemaInfo) {
   
         
 function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
-    /*  Mutation cases:
-    
-        1 - No graph DB query in GraphQL schema. This inference the graphDB query based on the beginning of the function.
-            The naming convetion is:
-                - createNode[node](),                     Example: createNodeairport(input ...) => create node type airport and assing the input parameters.
-                - updateNode[node](),                     Example: updateNodeairport(id:ID, input ...) => update node type airport and assing the input parameters.
-                - deleteNode[node](),                     Example: deleteNodeairport(id: ID) => delete node type airport.
-                - connectFrom[node]To[node]Edge[edge](),  Example: connectFromairportToairportEdgeroute(from: ID, to: ID, edge: input fields) => connect node type airport and assing the input parameters.
-                - updateEdge[edge]From[node]To[node](),   Example: updateEdgerouteFromairportToairport(from: ID, to: ID, input ...) => update edge type Route and assing the input parameters.
-                - deleteEdge[edge]From[node]To[node](),   Example: deleteEdgerouteFromairportToairport(from: ID, to: ID) => delete edge type route.
-                    
-        2 - Graph DB query in GraphQL schema. 
-            This is like a query, except it could use input a variable number of parameters
-    */
     
     // createNode
     if (querySchemaInfo.name.startsWith('createNode') && querySchemaInfo.graphQuery == null) {
@@ -772,7 +749,6 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
     
     // updateNode
     if (querySchemaInfo.name.startsWith('updateNode') && querySchemaInfo.graphQuery == null) {
-        //let nodeID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
         let nodeID = inputFields.graphIdValue;
         let nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
@@ -790,9 +766,8 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
             setString = setString + ` ${nodeName}.${kv[0]} = ${kv[1]},`;
         });
         setString = setString.substring(0, setString.length - 1);
-        let param  = nodeName + '_' + 'whereId'; // test parametrized queries
-        Object.assign(parameters, {[param]: nodeID}); // test parametrized queries
-        //let ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = '${nodeID}'\nSET ${setString}\nRETURN ${returnBlock}`;
+        let param  = nodeName + '_' + 'whereId';
+        Object.assign(parameters, {[param]: nodeID});
         let ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nSET ${setString}\nRETURN ${returnBlock}`;
         return ocQuery;
     }
@@ -801,10 +776,9 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
     if (querySchemaInfo.name.startsWith('deleteNode') && querySchemaInfo.graphQuery == null) {    
         let nodeID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
-        //let ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = '${nodeID}'\nDETACH DELETE ${nodeName}\nRETURN true`; // test parametrized queries
-        let param  = nodeName + '_' + 'whereId'; // test parametrized queries
-        Object.assign(parameters, {[param]: nodeID}); // test parametrized queries
-        let ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nDETACH DELETE ${nodeName}\nRETURN true`; // test parametrized queries
+        let param  = nodeName + '_' + 'whereId';
+        Object.assign(parameters, {[param]: nodeID});
+        let ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nDETACH DELETE ${nodeName}\nRETURN true`;
         return ocQuery;
     }
     
@@ -817,21 +791,11 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         let egdgeTypeAlias = getTypeAlias(edgeType);
         let returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         
-        let paramFromId  = edgeName + '_' + 'whereFromId'; // test parametrized queries
-        let paramToId  = edgeName + '_' + 'whereToId'; // test parametrized queries
-        Object.assign(parameters, {[paramFromId]: fromID}); // test parametrized queries
-        Object.assign(parameters, {[paramToId]: toID}); // test parametrized queries
+        let paramFromId  = edgeName + '_' + 'whereFromId';
+        let paramToId  = edgeName + '_' + 'whereToId';
+        Object.assign(parameters, {[paramFromId]: fromID});
+        Object.assign(parameters, {[paramToId]: toID});
 
-        /*
-        if (obj.definitions[0].selectionSet.selections[0].arguments.length > 2) {            
-            let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = '${fromID}' AND ID(to) = '${toID}'\nCREATE (from)-[${edgeName}:${egdgeTypeAlias}{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
-            return ocQuery;
-        } else {
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = '${fromID}' AND ID(to) = '${toID}'\nCREATE (from)-[${edgeName}:${egdgeTypeAlias}]->(to)\nRETURN ${returnBlock}`;
-            return ocQuery;
-        } 
-        */
         if (obj.definitions[0].selectionSet.selections[0].arguments.length > 2) {            
             let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
             let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:${egdgeTypeAlias}{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
@@ -862,12 +826,11 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         });
         setString = setString.substring(0, setString.length - 1);
 
-        let paramFromId  = edgeName + '_' + 'whereFromId'; // test parametrized queries
-        let paramToId  = edgeName + '_' + 'whereToId'; // test parametrized queries
-        Object.assign(parameters, {[paramFromId]: fromID}); // test parametrized queries
-        Object.assign(parameters, {[paramToId]: toID}); // test parametrized queries
+        let paramFromId  = edgeName + '_' + 'whereFromId';
+        let paramToId  = edgeName + '_' + 'whereToId';
+        Object.assign(parameters, {[paramFromId]: fromID});
+        Object.assign(parameters, {[paramToId]: toID});
 
-        //let ocQuery = `MATCH (from)-[${edgeName}:${egdgeTypeAlias}]->(to)\nWHERE ID(from) = '${fromID}' AND ID(to) = '${toID}'\nSET ${setString}\nRETURN ${returnBlock}`;
         let ocQuery = `MATCH (from)-[${edgeName}:${egdgeTypeAlias}]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
         return  ocQuery;
     }
@@ -878,12 +841,11 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;   
         let edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
 
-        let paramFromId  = edgeName + '_' + 'whereFromId'; // test parametrized queries
-        let paramToId  = edgeName + '_' + 'whereToId'; // test parametrized queries
-        Object.assign(parameters, {[paramFromId]: fromID}); // test parametrized queries
-        Object.assign(parameters, {[paramToId]: toID}); // test parametrized queries                
+        let paramFromId  = edgeName + '_' + 'whereFromId';
+        let paramToId  = edgeName + '_' + 'whereToId';
+        Object.assign(parameters, {[paramFromId]: fromID});
+        Object.assign(parameters, {[paramToId]: toID});                
         
-        //let ocQuery = `MATCH (from)-[${edgeName}]->(to)\nWHERE ID(from) = '${fromID}' AND ID(to) = '${toID}'\nDELETE ${edgeName}\nRETURN true`;
         let ocQuery = `MATCH (from)-[${edgeName}]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nDELETE ${edgeName}\nRETURN true`;
         return  ocQuery;
     }
@@ -1047,10 +1009,6 @@ function resolveGremlinQuery(obj, querySchemaInfo) {
         gremlinQuery.query = gremlinQuery.query.replace('$' + arg.name.value, arg.value.value);
     });
 
-    //if (gremlinQuery.query.endsWith == 'elementMap()')
-    //    gremlinQuery.refactorOutput = refactorGremlinqueryOutput;
-
-
     return gremlinQuery;
 }
 
@@ -1080,8 +1038,7 @@ function resolveGraphDBQuery(query) {
     if (executeQuery.language == 'gremlin') {
         executeQuery = resolveGremlinQuery(obj, querySchemaInfo);
     }
-           
-  
+    
     return executeQuery;
 }
 

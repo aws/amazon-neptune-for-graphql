@@ -1,6 +1,6 @@
 {
   "name": "@aws/neptune-for-graphql",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI utility to create and maintain a GraphQL API for Amazon Neptune",
   "keywords": [
     "Amazon Neptune",
