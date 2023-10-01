@@ -1,12 +1,11 @@
 
-const axios = require('axios');
-const { exec } = require('child_process');
-const vm  = require('vm');
-const utils = require('util');
-const fs = require('fs');
-const graphql = require('graphql-tag');
-const { Console } = require('console');
+import axios from 'axios';
+import { exec } from 'child_process';
+import utils from 'util';
+import fs  from 'fs';
+import ora from 'ora';
 
+let spinner = null;
 
 async function queryNeptune(q, language, host, port) {    
     try {
@@ -29,59 +28,62 @@ async function testUtilitySchemaInputExecution(command) {
 
     const log = await execute(command);
 
-    if (log.stdout.includes('Error')) {
-        console.error("FAILD: Running the utility");
+    if (log.stdout.includes('Error')) {        
+        spinner.fail("FAILD: Running the utility");
         console.error(log);
         return;     
-    } else {
-        console.log("PASSED: Running the utility");
+    } else {        
+        spinner.succeed("PASSED: Running the utility");
     }
 }
 
 
 function checkOutputFilesSize(files, referenceFolder) {    
-    files.forEach(file => {        
+    files.forEach(file => {
+        spinner.start(`Checking file ${file} size`);        
         const stats = fs.statSync(`./output/${file}`);
         const referenceStats = fs.statSync(`./${referenceFolder}/${file}`);
-        if (stats.size == referenceStats.size) {
-            console.log(`PASSED: File ${file} size`);
-        } else {
-            console.error(`FAILED: File ${file} size`);
-        }        
+        if (stats.size == referenceStats.size)            
+            spinner.succeed(`PASSED: File ${file} size`);
+         else             
+            spinner.fail(`FAILED: File ${file} size`);
+                
     });
 }
 
 
 function checkOutputFilesContent(files, referenceFolder) {    
-    files.forEach(file => {        
+    files.forEach(file => {
+        spinner.start(`Checking file ${file} content`);        
         const stats = fs.readFileSync(`./output/${file}`, 'utf8');
         const referenceStats = fs.readFileSync(`./${referenceFolder}/${file}`, 'utf8');
-        if (stats == referenceStats) {
-            console.log(`PASSED: File ${file} content`);
-        } else {
-            console.error(`FAILED: File ${file} content`);
-        }        
+        if (stats == referenceStats)            
+            spinner.succeed(`PASSED: File ${file} content`);
+         else             
+            spinner.fail(`FAILED: File ${file} content`);
     });
 }
 
+async function loadResolver() {
+    return await import('./output/output.resolver.graphql.cjs');
+}
 
-async function testResolver(codeFile, queriesReferenceFolder, testNeptuneResult, host, port) {
-    let code = fs.readFileSync(codeFile, 'utf8');
-    code = code.replace("module.exports = { resolveGraphDBQueryFromAppSyncEvent, resolveGraphDBQueryFromApolloQueryEvent, resolveGraphDBQuery, refactorGremlinqueryOutput };", "" );
-    const context = {require, graphql, console};
-    vm.createContext(context);
-    vm.runInNewContext(code, context);
+
+async function testResolver(queriesReferenceFolder, testNeptuneResult, host, port) {
+    const resolverModule = await loadResolver();
     
     const queryFiles = fs.readdirSync(queriesReferenceFolder);
 
     for (const queryFile of queryFiles) {
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" +queryFile));
         if (query.graphql != "") {
-            const result = context.resolveGraphDBQuery(query.graphql);
-            if (result.query == query.resolved) {
-                console.log(`PASSED: Resolved query: ${query.name}`);
+            const result = resolverModule.resolveGraphDBQuery(query.graphql);
+            spinner.start(`Checking query: ${query.name}`);
+            if (result.query == query.resolved) {                
+                spinner.succeed(`PASSED: Resolved query: ${query.name}`);
                 
                 if (testNeptuneResult) {
+                    spinner.start(`Checking Neptune result query: ${query.name}`);
                     const httpResult = await queryNeptune(query.resolved, result.language, host, port);
                     
                     let data = null;
@@ -89,21 +91,20 @@ async function testResolver(codeFile, queriesReferenceFolder, testNeptuneResult,
                         data = httpResult.results[0][Object.keys(httpResult.results[0])[0]];
                     else {
                         const input = httpResult.result.data;
-                        data = JSON.parse(context.refactorGremlinqueryOutput(input, result.fieldsAlias));
-                        //data = httpResult.result.data;                    
+                        data = JSON.parse(resolverModule.refactorGremlinqueryOutput(input, result.fieldsAlias));                                            
                     }
                     
-                    if (JSON.stringify(data, null, 2) == JSON.stringify(query.result, null, 2))
-                        console.log(`PASSED: Neptune result query: ${query.name}`);
-                    else {
-                        console.error(`FAILED: Neptune result query: ${queryFile}, ${query.name}`);
+                    if (JSON.stringify(data, null, 2) == JSON.stringify(query.result, null, 2))                        
+                        spinner.succeed(`PASSED: Neptune result query: ${query.name}`);
+                    else {                       
+                        spinner.fail(`FAILED: Neptune result query: ${queryFile}, ${query.name}`);
                         console.log(JSON.stringify(data, null, 2));
                     }
                 }
 
             }
             else {
-                console.error(`FAILED: Resolving query: ${queryFile}, name: ${query.name}`);
+                spinner.fail(`FAILED: Resolving query: ${queryFile}, name: ${query.name}`);
                 console.log(result.query);
             }
         }
@@ -115,14 +116,15 @@ async function runTestCase(testCaseFolder) {
     const testCase = JSON.parse(fs.readFileSync(testCaseFolder + '/case.json', 'utf8'));
     console.log(`Running test case: ${testCase.name}`);
 
-    console.log(`Running utility: ${testCase.utilityCommand}`);
+    //console.log(`Running utility: ${testCase.utilityCommand}`);
+    spinner = ora(`Running utility: ${testCase.utilityCommand}`).start()
     await testUtilitySchemaInputExecution(testCase.utilityCommand);
 
     checkOutputFilesSize(testCase.testOutputFilesSize, testCaseFolder + '/output');
     
     checkOutputFilesContent(testCase.testOutputFilesContent, testCaseFolder + '/output');
 
-    await testResolver('./output/output.resolver.graphql.js', testCaseFolder + '/queries', true, testCase.host, testCase.port);
+    await testResolver(testCaseFolder + '/queries', true, testCase.host, testCase.port);
 }
 
 

@@ -412,10 +412,10 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
 }
 
 
-function getQueryArguments(arguments, querySchemaInfo) {
+function getQueryArguments(args, querySchemaInfo) {
     let where = '';
     let queryArguments = '';    
-    arguments.forEach(arg => {
+    args.forEach(arg => {
         if (arg.name.value == 'filter') {
             let inputFields = transformFunctionInputParameters(arg.value.fields, querySchemaInfo);
             queryArguments = queryArguments + inputFields.fields + ",";
