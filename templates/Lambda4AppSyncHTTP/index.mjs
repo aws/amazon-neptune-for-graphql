@@ -73,7 +73,7 @@ export const handler = async (event) => {
     if (resolver.language == 'gremlin') {
         const input = result.data["result"]["data"];
         const refac = refactorGremlinqueryOutput(input, resolver.fieldsAlias);
-        console.log("Refac: ", refac);
+        if (LOGGING_ENABLED) console.log("Refac: ", refac);
         r = JSON.parse(refac);        
     } 
 
