@@ -10,10 +10,14 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-let changesDirectives = [];
-
-
-function addChanges(currentType) {
+function addChanges(changesDirectives, currentType) {
+    /* Alternative 
+    return changesDirectives
+     .filter(change => change.type === currentType && change.action == "acc")
+     .map(change => change.value)
+     .join("\n")
+      + "\n" 
+    */
     let r = '';
     changesDirectives.forEach(change => {
         if (change.type == currentType && change.action == 'add') {
@@ -24,7 +28,7 @@ function addChanges(currentType) {
 }
 
 
-function removeChanges(currentType, line) {
+function removeChanges(changesDirectives, currentType, line) {
     let r = line;
 
     changesDirectives.forEach(change => {
@@ -38,15 +42,15 @@ function removeChanges(currentType, line) {
 
 
 function changeGraphQLSchema(schema, changes) {
-    changesDirectives = JSON.parse(changes);
+    const changesDirectives = JSON.parse(changes);
 
 
     let lines = schema.split('\n');
     let r = ''; 
 
     let currentType = '';
-    for (let i = 0; i < lines.length; i++) {
-        let line = lines[i].trim();
+    for (const linel of lines) {
+        let line = linel.trim();
         let parts = line.split(' ');
         
         if (line.startsWith('type ')) {
@@ -54,11 +58,11 @@ function changeGraphQLSchema(schema, changes) {
         }
 
         if (line.startsWith('}')) {
-            r += addChanges(currentType);            
+            r += addChanges(changesDirectives, currentType);            
             currentType = '';
         }
         
-        line = removeChanges(currentType, line);
+        line = removeChanges(changesDirectives, currentType, line);
         
         if (line != '*** REMOVE ***') {
             r += line + '\n';

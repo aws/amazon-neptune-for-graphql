@@ -12,8 +12,8 @@ permissions and limitations under the License.
 
 import axios from "axios";
 import { aws4Interceptor } from "aws4-axios";
-import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
+import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
 
 let HOST = '';
 let PORT = 8182;
@@ -22,9 +22,6 @@ let SAMPLE = 5000;
 let VERBOSE = false; 
 let language = 'openCypher';
 let useSDK = false;
-
-let yellowStart = '\x1b[33m';
-let yellowEnd = '\x1b[0m';
 
 
 async function getAWSCredentials() {
@@ -50,7 +47,7 @@ const schema = {
 
 
 function yellow(text) {
-    return yellowStart + text + yellowEnd;
+    return '\x1b[33m' + text + '\x1b[0m';
 }
 
 
@@ -203,9 +200,26 @@ async function getEdgesDirections() {
         }
     }
 
-    await Promise.all(possibleDirections.map(async (direction) => {
-        await checkEdgeDirection(direction);
-      }));
+    await Promise.all(possibleDirections.map(checkEdgeDirection))
+    //await Promise.all(possibleDirections.map(async (direction) => {
+    //    await checkEdgeDirection(direction);
+    //  }));
+}
+
+
+function CastGraphQLType(value) {
+    let propertyType = 'String';
+
+    if (typeof value === 'number') {
+        if (Number.isInteger(value)) {
+            propertyType = 'Int';
+        }
+        propertyType = 'Float';
+    }
+
+    if (typeof value === 'boolean') propertyType = 'Boolean';
+    if (typeof value === 'date') propertyType = 'Date';
+    return propertyType;
 }
 
 
@@ -213,25 +227,10 @@ function addUpdateNodeProperty(nodeName, name, value) {
     let node = schema.nodeStructures.find(node => node.label === nodeName);
     let property = node.properties.find(p => p.name === name);
     if (property === undefined) {
-        let propertyType = 'String';
-        
-        if (typeof value === 'number') {
-            if (Number.isInteger(value)) {
-                propertyType = 'Int';
-            }
-            propertyType = 'Float'
-        }
-
-        if (typeof value === 'boolean') propertyType = 'Boolean';
-        if (typeof value === 'date' ) propertyType = 'Date';        
-
+        let propertyType = CastGraphQLType(value);        
         node.properties.push({name: name, type: propertyType});
         consoleOut(`  Added property to node: ${yellow(nodeName)} property: ${yellow(name)} type: ${yellow(propertyType)}`);
-    
-    } else {
-    
-    }
-    
+    }    
 }
 
 
@@ -239,19 +238,7 @@ function addUpdateEdgeProperty(edgeName, name, value) {
     let edge = schema.edgeStructures.find(edge => edge.label === edgeName);
     let property = edge.properties.find(p => p.name === name);
     if (property === undefined) {
-        let propertyType = 'String';
-        
-        if (typeof value === 'number') {
-            if (Number.isInteger(value)) {
-                propertyType = 'Int';
-            } else {
-                propertyType = 'Float'
-            }
-        }
-
-        if (typeof value === 'boolean') propertyType = 'Boolean';
-        if (typeof value === 'date' ) propertyType = 'Date';        
-
+        let propertyType = CastGraphQLType(value);        
         edge.properties.push({name: name, type: propertyType});
         consoleOut('  Added property to edge: ' + yellow(edgeName) + ' property: ' + yellow(name) + ' type: ' + yellow(propertyType));
     }
@@ -375,9 +362,9 @@ async function getSchemaViaSummaryAPI() {
 }
 
 
-async function getNeptuneSchema(quite) {    
+async function getNeptuneSchema(quiet) {    
     
-    VERBOSE = !quite;
+    VERBOSE = !quiet;
     
     try {
         await getAWSCredentials();

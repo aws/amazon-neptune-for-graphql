@@ -40,6 +40,12 @@ function yellow(text) {
 }
 
 async function getSchemaFields(typeName) {
+    /*  To be updated as:
+            SCHEMA_MODEL.definitions
+            .filter(def => def.kind === "ObjectTypeDefinition" && def.name.value === typeName)
+            .flatMap(def => def.fields)
+            .map(field => field.name.value)
+    */
     const r = [];
     SCHEMA_MODEL.definitions.forEach(function (def) {
         if (def.kind == "ObjectTypeDefinition") {
@@ -55,16 +61,20 @@ async function getSchemaFields(typeName) {
 
 
 async function createDeploymentFile(folderPath, zipFilePath) {
-    const output = fs.createWriteStream(zipFilePath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
-    archive.pipe(output);
-    archive.directory(folderPath, false);
-    archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
-    await archive.finalize();
+    try {
+        const output = fs.createWriteStream(zipFilePath);
+        const archive = archiver('zip', { zlib: { level: 9 } });
+        archive.pipe(output);
+        archive.directory(folderPath, false);
+        archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
+        await archive.finalize();
+    } catch (err) {
+        console.error('Creating deployment zip file: ' + err); 
+    }
 }
 
 
-async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, outputFile, __dirname, quite, isNeptuneIAMAuth, neptuneHost, neptunePort ) {    
+async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, outputFile, __dirname, quiet, isNeptuneIAMAuth, neptuneHost, neptunePort ) {    
 
     NAME = pipelineName;    
     REGION = neptuneDBregion;
@@ -77,10 +87,10 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     let neptuneClusterInfo = null;
 
     try {
-        if (!quite) console.log('Get Neptune Cluster Info');
-        if (!quite) spinner = ora('Getting ...').start();
+        if (!quiet) console.log('Get Neptune Cluster Info');
+        if (!quiet) spinner = ora('Getting ...').start();
         neptuneClusterInfo = await getNeptuneClusterinfoBy(NEPTUNE_DB_NAME, REGION);
-        if (!quite) spinner.succeed('Got Neptune Cluster Info');
+        if (!quiet) spinner.succeed('Got Neptune Cluster Info');
         if (isNeptuneIAMAuth) {
             if (!neptuneClusterInfo.isIAMauth) {
                 console.error("The Neptune database authentication is set to VPC.");
@@ -93,7 +103,7 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
                 console.error("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
                 exit(1);
             } else {
-                if (!quite) console.log(`Subnet Group: ` + yellow(neptuneClusterInfo.dbSubnetGroup));
+                if (!quiet) console.log(`Subnet Group: ` + yellow(neptuneClusterInfo.dbSubnetGroup));
             }
         }
 
@@ -108,16 +118,15 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
         }
 
     } catch (error) {
-        if (!quite) spinner.fail("Error getting Neptune Cluster Info.");
+        if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
         if (!isNeptuneIAMAuth) {
             spinner.clear();
             console.error("VPC data is not available to proceed.");
             exit(1);
         } else {
-            if (!quite) console.log("Proceeding without getting Neptune Cluster info.");
+            if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
         }
     }
-    
     
     NEPTUNE_HOST = neptuneClusterInfo.host;
     NEPTUNE_PORT = neptuneClusterInfo.port;
@@ -125,39 +134,33 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     NEPTUNE_DBSubnetIds = neptuneClusterInfo.dbSubnetIds;
     NEPTUNE_VpcSecurityGroupId = neptuneClusterInfo.vpcSecurityGroupId;    
         
-    if (!quite) spinner = ora('Creating ZIP ...').start();
+    if (!quiet) spinner = ora('Creating ZIP ...').start();
     await createDeploymentFile(lambdaFilesPath, LAMBDA_ZIP_FILE);
-    if (!quite) spinner.succeed('Created ZIP File: ' + yellow(LAMBDA_ZIP_FILE));
+    if (!quiet) spinner.succeed('Created ZIP File: ' + yellow(LAMBDA_ZIP_FILE));
     
     APPSYNC_ATTACH_QUERY = await getSchemaFields('Query');
     APPSYNC_ATTACH_MUTATION = await getSchemaFields('Mutation');
     
-    let CDKFile = await readFile(__dirname + '/templates/CDKTemplate.js');
+    let CDKFile = await readFile(__dirname + '/templates/CDKTemplate.js', 'utf8');
 
-    CDKFile = CDKFile.toString().replace( "const NAME = '';",                           `const NAME = '${NAME}';` );
-    CDKFile = CDKFile.toString().replace( "const REGION = '';",                         `const REGION = '${REGION}';` );
-    //CDKFile = CDKFile.toString().replace( "const NEPTUNE_DB_NAME = '';",                `const NEPTUNE_DB_NAME = '${NEPTUNE_DB_NAME}';` );
-    CDKFile = CDKFile.toString().replace( "const NEPTUNE_HOST = '';",                   `const NEPTUNE_HOST = '${NEPTUNE_HOST}';` );
-    CDKFile = CDKFile.toString().replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );    
-    CDKFile = CDKFile.toString().replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
-    CDKFile = CDKFile.toString().replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
-    //CDKFile = CDKFile.toString().replace( "const NEPTUNE_DBSubnetIds = [];",            `const NEPTUNE_DBSubnetIds = ${JSON.stringify(NEPTUNE_DBSubnetIds)};` );
-    //CDKFile = CDKFile.toString().replace( "const NEPTUNE_VpcSecurityGroupId = null;",   `const NEPTUNE_VpcSecurityGroupId = '${NEPTUNE_VpcSecurityGroupId}';` );
+    CDKFile = CDKFile.replace( "const NAME = '';",                           `const NAME = '${NAME}';` );
+    CDKFile = CDKFile.replace( "const REGION = '';",                         `const REGION = '${REGION}';` );
+    CDKFile = CDKFile.replace( "const NEPTUNE_HOST = '';",                   `const NEPTUNE_HOST = '${NEPTUNE_HOST}';` );
+    CDKFile = CDKFile.replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );    
+    CDKFile = CDKFile.replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
+    CDKFile = CDKFile.replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
 
-    CDKFile = CDKFile.toString().replace( "const LAMBDA_FUNCTION_NAME = '';",           `const LAMBDA_FUNCTION_NAME = '${NAME + 'LambdaFunction'}';` );
-    CDKFile = CDKFile.toString().replace( "const LAMBDA_ZIP_FILE = '';",                `const LAMBDA_ZIP_FILE = '${NAME}.zip';` );
+    CDKFile = CDKFile.replace( "const LAMBDA_FUNCTION_NAME = '';",           `const LAMBDA_FUNCTION_NAME = '${NAME + 'LambdaFunction'}';` );
+    CDKFile = CDKFile.replace( "const LAMBDA_ZIP_FILE = '';",                `const LAMBDA_ZIP_FILE = '${NAME}.zip';` );
 
-    CDKFile = CDKFile.toString().replace( "const APPSYNC_SCHEMA = '';",                 `const APPSYNC_SCHEMA = \`${APPSYNC_SCHEMA}\`;` );
-    CDKFile = CDKFile.toString().replace( "const APPSYNC_ATTACH_QUERY = [];",            `const APPSYNC_ATTACH_QUERY = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_QUERY, null, 2)}\`);` );
-    CDKFile = CDKFile.toString().replace( "const APPSYNC_ATTACH_MUTATION = [];",         `const APPSYNC_ATTACH_MUTATION = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_MUTATION, null, 2)}\`);` );
+    CDKFile = CDKFile.replace( "const APPSYNC_SCHEMA = '';",                 `const APPSYNC_SCHEMA = \`${APPSYNC_SCHEMA}\`;` );
+    CDKFile = CDKFile.replace( "const APPSYNC_ATTACH_QUERY = [];",            `const APPSYNC_ATTACH_QUERY = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_QUERY, null, 2)}\`);` );
+    CDKFile = CDKFile.replace( "const APPSYNC_ATTACH_MUTATION = [];",         `const APPSYNC_ATTACH_MUTATION = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_MUTATION, null, 2)}\`);` );
 
-    //CDKFile = CDKFile.toString().replace( "class AppSyncNeptuneStack extends Stack {",  `class ${NAME}CdkStack extends Stack {` );
-    //CDKFile = CDKFile.toString().replace( "module.exports = { AppSyncNeptuneStack }",   `module.exports = { ${NAME}CdkStack }` );
-
-    if (!quite) spinner = ora('Creating CDK File ...').start();
+    if (!quiet) spinner = ora('Creating CDK File ...').start();
     await writeFile(outputFile, CDKFile);
-    if (!quite) spinner.succeed('Created CDK File: ' + yellow(outputFile));
-    
+    if (!quiet) spinner.succeed('Created CDK File: ' + yellow(outputFile));
+
 }
 
 

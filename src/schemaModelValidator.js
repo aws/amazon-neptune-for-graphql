@@ -13,7 +13,7 @@ permissions and limitations under the License.
 import { schemaParser, schemaStringify } from './schemaParser.js';
 import {gql} from 'graphql-tag'
 
-let quite = false;
+let quiet = false;
 const typesToAdd = [];
 const queriesToAdd = [];
 const mutationsToAdd = [];
@@ -174,12 +174,12 @@ function addNode(def) {
     mutationsToAdd.push(`updateNode${name}(input: ${name}Input!): ${name}\n`);
     mutationsToAdd.push(`deleteNode${name}(_id: ID!): Boolean\n`);
 
-    if (!quite) console.log(`Added input type: ${yellow(name+'Input')}`);
-    if (!quite) console.log(`Added query: ${yellow('getNode' + name)}`);
-    if (!quite) console.log(`Added query: ${yellow('getNode' + name + 's')}`);
-    if (!quite) console.log(`Added mutation: ${yellow('createNode' + name)}`);
-    if (!quite) console.log(`Added mutation: ${yellow('updateNode' + name)}`);
-    if (!quite) console.log(`Added mutation: ${yellow('deleteNode' + name)}`);
+    if (!quiet) console.log(`Added input type: ${yellow(name+'Input')}`);
+    if (!quiet) console.log(`Added query: ${yellow('getNode' + name)}`);
+    if (!quiet) console.log(`Added query: ${yellow('getNode' + name + 's')}`);
+    if (!quiet) console.log(`Added mutation: ${yellow('createNode' + name)}`);
+    if (!quiet) console.log(`Added mutation: ${yellow('updateNode' + name)}`);
+    if (!quiet) console.log(`Added mutation: ${yellow('deleteNode' + name)}`);
 }
 
 
@@ -193,9 +193,9 @@ function addEdge(from, to, edgeName) {
         mutationsToAdd.push(`connectNode${from}ToNode${to}Edge${edgeName}(from_id: ID!, to_id: ID!): ${edgeName}\n`);    
         mutationsToAdd.push(`deleteEdge${edgeName}From${from}To${to}(from_id: ID!, to_id: ID!): Boolean\n`);
 
-        if (!quite) console.log(`Added type for edge: ${yellow(edgeName)}`);
-        if (!quite) console.log(`Added mutation: ${yellow(`connectNode${from}ToNode${to}Edge${edgeName}`)}`);
-        if (!quite) console.log(`Added mutation: ${yellow(`deleteEdge${edgeName}From${from}To${to}`)}`);
+        if (!quiet) console.log(`Added type for edge: ${yellow(edgeName)}`);
+        if (!quiet) console.log(`Added mutation: ${yellow(`connectNode${from}ToNode${to}Edge${edgeName}`)}`);
+        if (!quiet) console.log(`Added mutation: ${yellow(`deleteEdge${edgeName}From${from}To${to}`)}`);
     }
 }
 
@@ -273,7 +273,7 @@ function inferGraphDatabaseDirectives(schemaModel) {
                             try {
                                 var referencedType = field.type.type.name.value;
                                 var edgeName = referencedType + 'Edge';
-                                if (!quite) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));                                
+                                if (!quiet) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));                                
                                 addRelationshipDirective(field, edgeName, 'OUT');
                                 addEdge(currentType, referencedType, edgeName);
                                 if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);                                
@@ -288,7 +288,7 @@ function inferGraphDatabaseDirectives(schemaModel) {
                             
                         var referencedType = field.type.name.value;
                         var edgeName = referencedType + 'Edge';
-                        if (!quite) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));
+                        if (!quiet) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));
                         addRelationshipDirective(field, edgeName, 'OUT');
                         addEdge(currentType, referencedType, edgeName);
                         if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);
@@ -316,8 +316,8 @@ function inferGraphDatabaseDirectives(schemaModel) {
 }
 
 
-function validatedSchemaModel (schemaModel, quite) {
-    quite = quite;    
+function validatedSchemaModel (schemaModel, quiet) {
+    quiet = quiet;    
     
     if (!isGraphDBDirectives(schemaModel)) {
         console.log("The schema model does not contain any graph database directives.");

@@ -21,7 +21,7 @@ import { resolverJS } from './src/resolverJS.js';
 import { getNeptuneSchema, setGetNeptuneSchemaParameters } from './src/NeptuneSchema.js';
 import { createUpdateAWSpipeline, removeAWSpipelineResources } from './src/pipelineResources.js'
 import { createAWSpipelineCDK } from './src/CDKPipelineApp.js'
-import { createLmbdaDeploymentPackage } from './src/lambdaZip.js'
+import { createLambdaDeploymentPackage } from './src/lambdaZip.js'
 
 import ora from 'ora';
 let spinner = null;
@@ -40,7 +40,7 @@ const __dirname = path.dirname(__filename);
 const version = JSON.parse(readFileSync(__dirname + '/package.json')).version;
 
 // Input
-let quite = false;
+let quiet = false;
 let inputGraphQLSchema = '';
 let inputGraphQLSchemaFile = '';
 let inputGraphQLSchemaChanges = '';
@@ -106,8 +106,8 @@ process.argv.forEach(function (val, index, array) {
             console.log(version);
             process.exit(0);
         break;
-        case '--quite':
-            quite = true;
+        case '--quiet':
+            quiet = true;
         break;
         case '--input-schema':
             inputGraphQLSchema = array[index + 1];
@@ -215,7 +215,7 @@ async function asyncProcess() {
     if (inputGraphDBSchemaFile != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
         try {
             inputGraphDBSchema = readFileSync(inputGraphDBSchemaFile, 'utf8');
-            if (!quite) console.log('Loaded graphDB schema from file: ' + inputGraphDBSchemaFile);        
+            if (!quiet) console.log('Loaded graphDB schema from file: ' + inputGraphDBSchemaFile);        
         } catch (err) {
             console.error('Error reading graphDB schema file: ' + inputGraphDBSchemaFile);
             process.exit(1);
@@ -235,28 +235,28 @@ async function asyncProcess() {
         let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');        
         let neptuneRegion = neptuneRegionParts[2];                
         
-        if (!quite) console.log('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
+        if (!quiet) console.log('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
         setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, true);
         let startTime = performance.now();
-        inputGraphDBSchema = await getNeptuneSchema(quite);
+        inputGraphDBSchema = await getNeptuneSchema(quiet);
         let endTime = performance.now();
         let executionTime = endTime - startTime;
-        if (!quite) console.log(`Execution time: ${(executionTime/1000).toFixed(2)} seconds`);
-        if (!quite) console.log('');
+        if (!quiet) console.log(`Execution time: ${(executionTime/1000).toFixed(2)} seconds`);
+        if (!quiet) console.log('');
     }
 
     // Option 2: inference GraphQL schema from graphDB schema
     if (inputGraphDBSchema != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
-        if (!quite) console.log('Inferencing GraphQL schema from graphDB schema');
+        if (!quiet) console.log('Inferencing GraphQL schema from graphDB schema');
         inputGraphQLSchema = graphDBInferenceSchema(inputGraphDBSchema, outputSchemaMutations);
-        if (!quite) console.log('');
+        if (!quiet) console.log('');
     }
 
     // Option 1: load
     if (inputGraphQLSchema == '' && inputGraphQLSchemaFile != '') {
         try {
             inputGraphQLSchema = readFileSync(inputGraphQLSchemaFile, 'utf8');
-            if (!quite) console.log('Loaded GraphQL schema from file: ' + inputGraphQLSchemaFile);
+            if (!quiet) console.log('Loaded GraphQL schema from file: ' + inputGraphQLSchemaFile);
         } catch (err) {
             console.error('Error reading GraphQL schema file: ' + inputGraphQLSchemaFile);
             process.exit(1);
@@ -267,7 +267,7 @@ async function asyncProcess() {
     if (inputGraphQLSchemaChangesFile != '') {
         try {
             inputGraphQLSchemaChanges = readFileSync(inputGraphQLSchemaChangesFile, 'utf8');
-            if (!quite) console.log('Loaded GraphQL schema changes from file: ' + inputGraphQLSchemaChangesFile);
+            if (!quiet) console.log('Loaded GraphQL schema changes from file: ' + inputGraphQLSchemaChangesFile);
         } catch (err) {
             console.error('Error reading GraphQL schema changes file: ' + inputGraphQLSchemaChangesFile);
             process.exit(1);
@@ -344,7 +344,7 @@ async function asyncProcess() {
         schemaModel = schemaParser(inputGraphQLSchema);
         
         // Validate schema
-        schemaModel = validatedSchemaModel(schemaModel, quite);
+        schemaModel = validatedSchemaModel(schemaModel, quiet);
 
         // Generate AWS Lambda resolver for AppSync and Amazon Neptune        
         outputLambdaResolver = resolverJS(schemaModel, queryLanguage, queryClient, __dirname);
@@ -373,7 +373,7 @@ async function asyncProcess() {
 
         try {
             writeFileSync(outputSchemaFile, outputSchema);
-            if (!quite) console.log('Wrote GraphQL schema to file: ' + yellow(outputSchemaFile));
+            if (!quiet) console.log('Wrote GraphQL schema to file: ' + yellow(outputSchemaFile));
         } catch (err) {
             console.error('Error writing GraphQL schema to file: ' + outputSchemaFile);    
         }
@@ -391,7 +391,7 @@ async function asyncProcess() {
 
         try {
             writeFileSync(outputSourceSchemaFile, outputSourceSchema);
-            if (!quite) console.log('Wrote GraphQL schema to file: ' + yellow(outputSourceSchemaFile));
+            if (!quiet) console.log('Wrote GraphQL schema to file: ' + yellow(outputSourceSchemaFile));
         } catch (err) {
             console.error('Error writing GraphQL schema to file: ' + outputSourceSchemaFile);    
         }
@@ -408,7 +408,7 @@ async function asyncProcess() {
 
         try {
             writeFileSync(outputNeptuneSchemaFile, inputGraphDBSchema);
-            if (!quite) console.log('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile));
+            if (!quiet) console.log('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile));
         } catch (err) {
             console.error('Error writing Neptune schema to file: ' + outputNeptuneSchemaFile);    
         }
@@ -421,7 +421,7 @@ async function asyncProcess() {
 
         try {
             writeFileSync(outputLambdaResolverFile, outputLambdaResolver);
-            if (!quite) console.log('Wrote Lambda resolver to file: ' + yellow(outputLambdaResolverFile));
+            if (!quiet) console.log('Wrote Lambda resolver to file: ' + yellow(outputLambdaResolverFile));
         } catch (err) {
             console.error('Error writing Lambda resolver to file: ' + outputLambdaResolverFile);    
         }
@@ -439,7 +439,7 @@ async function asyncProcess() {
         try {
             writeFileSync(outputJSResolverFile, outputJSResolver);
             //writeFileSync('./test/output.resolver.graphql.js', outputJSResolver); // Remove, for development and test only
-            if (!quite) console.log('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile));
+            if (!quiet) console.log('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile));
         } catch (err) {
             console.error('Error writing Javascript resolver to file: ' + outputJSResolverFile);    
         }
@@ -464,9 +464,9 @@ async function asyncProcess() {
                 outputLambdaResolverZipFile = './output/' + outputLambdaResolverZipName + '.zip';
 
             try {
-                if (!quite) spinner = ora('Creating Lambda ZIP ...').start();
-                await createLmbdaDeploymentPackage(__dirname + outputLambdaPackagePath, outputLambdaResolverZipFile);                                
-                if (!quite) {
+                if (!quiet) spinner = ora('Creating Lambda ZIP ...').start();
+                await createLambdaDeploymentPackage(__dirname + outputLambdaPackagePath, outputLambdaResolverZipFile);                                
+                if (!quiet) {
                     spinner.stop();
                     console.log('Wrote Lambda ZIP file: ' + yellow(outputLambdaResolverZipFile));
                 }
@@ -488,7 +488,7 @@ async function asyncProcess() {
                 let neptuneHost = endpointParts[0];
                 let neptunePort = endpointParts[1];
 
-                if (!quite) console.log('\nCreating AWS pipeline resources')            
+                if (!quiet) console.log('\nCreating AWS pipeline resources')            
                 await createUpdateAWSpipeline(  createUpdatePipelineName, 
                                                 createUpdatePipelineNeptuneDatabaseName, 
                                                 createUpdatePipelineRegion,
@@ -496,7 +496,7 @@ async function asyncProcess() {
                                                 schemaModel,
                                                 __dirname + outputLambdaPackagePath,
                                                 outputSchemaMutations,
-                                                quite,
+                                                quiet,
                                                 __dirname,
                                                 isNeptuneIAMAuth,
                                                 neptuneHost,
@@ -509,7 +509,7 @@ async function asyncProcess() {
         // Output CDK
         if (inputCDKpipeline) {
             try {
-                if (!quite) console.log('\nCreating CDK File')
+                if (!quiet) console.log('\nCreating CDK File')
 
                 let endpointParts = inputCDKpipelineEnpoint.split(':');
                 if (endpointParts.length < 2) {
@@ -532,7 +532,7 @@ async function asyncProcess() {
                                             __dirname + outputLambdaPackagePath,
                                             inputCDKpipelineFile,
                                             __dirname,
-                                            quite,
+                                            quiet,
                                             isNeptuneIAMAuth,
                                             neptuneHost,
                                             neptunePort );
@@ -545,17 +545,17 @@ async function asyncProcess() {
 
     // Remove AWS Pipeline
     if ( removePipelineName != '') {
-        if (!quite) console.log('\nRemoving pipeline AWS resources, name: ' + yellow(removePipelineName))        
+        if (!quiet) console.log('\nRemoving pipeline AWS resources, name: ' + yellow(removePipelineName))        
         let resourcesToRemove = null;
         let resourcesFile = `./output/${removePipelineName}-resources.json`;
-        if (!quite) console.log('Using file: ' + yellow(resourcesFile));
+        if (!quiet) console.log('Using file: ' + yellow(resourcesFile));
         try {
             resourcesToRemove = readFileSync(resourcesFile, 'utf8');
         } catch (err) {
             console.error('Error reading AWS pipeline resources file: ' + resourcesFile + ' ' + err);
             process.exit(1);
         }
-        await removeAWSpipelineResources(JSON.parse(resourcesToRemove), quite);
+        await removeAWSpipelineResources(JSON.parse(resourcesToRemove), quiet);
     }
     
     console.log('\nDone\n\n'); 
