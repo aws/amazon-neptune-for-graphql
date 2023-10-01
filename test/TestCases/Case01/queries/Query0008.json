@@ -4,7 +4,7 @@
     "graphql": "query MyQuery {\n getAirportWithGremlin(code: \"SEA\") {\n _id\n city\n runways\n }\n }\n",
     "resolved": "g.V().has('airport', 'code', 'SEA').elementMap()",
     "result": {
-        "id": "22",
+        "_id": "22",
         "type": "airport",
         "code": "SEA",
         "desc2": "Seattle-Tacoma",

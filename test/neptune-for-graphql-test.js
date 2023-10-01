@@ -6,7 +6,6 @@ const utils = require('util');
 const fs = require('fs');
 const graphql = require('graphql-tag');
 const { Console } = require('console');
-const async = require('async');
 
 
 async function queryNeptune(q, language, host, port) {    

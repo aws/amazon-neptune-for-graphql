@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2023-10-01T00:02:47.337Z
+// 2023-10-01T17:32:08.787Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3897,7 +3897,8 @@ function gremlinElementToJson(o, fieldsAlias) {
             if (v['@value'] == 'label')
                 data += '"type":';
             if (v['@value'] == 'id') 
-                data += '"id":';
+                //data += '"id":';
+                data += '"' + fieldsAlias["id"] + '":';
             if (v['@type'] == 'g:Int32' || v['@type'] == 'g:Double' || v['@type'] == 'g:Int64')
                 data += v['@value'] + ', ';
             isKey = !isKey;            
@@ -3970,6 +3971,9 @@ function getFieldsAlias(typeName) {
                         field.directives.forEach(directive => {
                             if (directive.name.value === 'alias') {
                                 alias = directive.arguments[0].value.value;                                
+                            }
+                            if (directive.name.value === 'id') {
+                                alias = 'id';                            
                             }                                                            
                         });
                     }
