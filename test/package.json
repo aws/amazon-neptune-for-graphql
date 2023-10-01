@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "^3.2.4",
-    "graphql-tag": "2.12.6"
+    "graphql-tag": "2.12.6",
+    "ora": "^7.0.1"
   }
 }

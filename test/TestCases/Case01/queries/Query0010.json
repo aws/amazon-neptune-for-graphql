@@ -1,0 +1,7 @@
+{
+    "name": "graphQuery Gremlin scalar",
+    "description": "Query using Gremlin returning a scalar",
+    "graphql": "query MyQuery {\n getCountriesCountGremlin\n }\n",
+    "resolved": "g.V().hasLabel('country').count()",
+    "result":237
+}

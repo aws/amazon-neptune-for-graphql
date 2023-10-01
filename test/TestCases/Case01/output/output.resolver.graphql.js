@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2023-09-30T16:58:00.500Z
+// 2023-10-01T15:12:23.666Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -2028,7 +2028,7 @@ const schemaDataModelJSON = `{
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
-            "value": "getAirportsWithGremlin"
+            "value": "getContinentsWithGremlin"
           },
           "arguments": [],
           "type": {
@@ -2037,7 +2037,7 @@ const schemaDataModelJSON = `{
               "kind": "NamedType",
               "name": {
                 "kind": "Name",
-                "value": "Airport"
+                "value": "Continent"
               }
             }
           },
@@ -2057,7 +2057,7 @@ const schemaDataModelJSON = `{
                   },
                   "value": {
                     "kind": "StringValue",
-                    "value": "g.V().hasLabel('airport').elementMap().fold()",
+                    "value": "g.V().hasLabel('continent').elementMap().fold()",
                     "block": false
                   }
                 }
@@ -3497,7 +3497,7 @@ const schemaDataModelJSON = `{
   ],
   "loc": {
     "start": 0,
-    "end": 4909
+    "end": 4915
   }
 }`;
     

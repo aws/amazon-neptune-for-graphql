@@ -1,0 +1,742 @@
+{
+    "name": "Edge properties 2",
+    "description": "Get edge properties in nested array",
+    "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n airportRoutesOut {\n code\n route {\n dist\n }\n }\n }\n }\n", 
+    "resolved": "MATCH (getAirport_Airport:airport{code:'SEA'})\nOPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:airport)\nWITH getAirport_Airport, getAirport_Airport_airportRoutesOut, {dist: getAirport_Airport_airportRoutesOut_route.dist} AS getAirport_Airport_airportRoutesOut_route_one\nWITH getAirport_Airport, collect({code: getAirport_Airport_airportRoutesOut.code, route: getAirport_Airport_airportRoutesOut_route_one}) AS getAirport_Airport_airportRoutesOut_collect\nRETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1",
+    "result": {
+        "airportRoutesOut": [
+          {
+            "route": {
+              "dist": 103
+            },
+            "code": "YKM"
+          },
+          {
+            "route": {
+              "dist": 249
+            },
+            "code": "PUW"
+          },
+          {
+            "route": {
+              "dist": 98
+            },
+            "code": "EAT"
+          },
+          {
+            "route": {
+              "dist": 212
+            },
+            "code": "ALW"
+          },
+          {
+            "route": {
+              "dist": 907
+            },
+            "code": "JNU"
+          },
+          {
+            "route": {
+              "dist": 387
+            },
+            "code": "MSO"
+          },
+          {
+            "route": {
+              "dist": 260
+            },
+            "code": "LWS"
+          },
+          {
+            "route": {
+              "dist": 937
+            },
+            "code": "BUR"
+          },
+          {
+            "route": {
+              "dist": 889
+            },
+            "code": "HDN"
+          },
+          {
+            "route": {
+              "dist": 662
+            },
+            "code": "BIL"
+          },
+          {
+            "route": {
+              "dist": 1426
+            },
+            "code": "ICT"
+          },
+          {
+            "route": {
+              "dist": 2010
+            },
+            "code": "CMH"
+          },
+          {
+            "route": {
+              "dist": 563
+            },
+            "code": "RNO"
+          },
+          {
+            "route": {
+              "dist": 1528
+            },
+            "code": "FAI"
+          },
+          {
+            "route": {
+              "dist": 956
+            },
+            "code": "ONT"
+          },
+          {
+            "route": {
+              "dist": 1516
+            },
+            "code": "OKC"
+          },
+          {
+            "route": {
+              "dist": 129
+            },
+            "code": "PDX"
+          },
+          {
+            "route": {
+              "dist": 2118
+            },
+            "code": "PIT"
+          },
+          {
+            "route": {
+              "dist": 2333
+            },
+            "code": "MEX"
+          },
+          {
+            "route": {
+              "dist": 5199
+            },
+            "code": "ICN"
+          },
+          {
+            "route": {
+              "dist": 619
+            },
+            "code": "JAC"
+          },
+          {
+            "route": {
+              "dist": 489
+            },
+            "code": "HLN"
+          },
+          {
+            "route": {
+              "dist": 510
+            },
+            "code": "GTF"
+          },
+          {
+            "route": {
+              "dist": 377
+            },
+            "code": "FCA"
+          },
+          {
+            "route": {
+              "dist": 541
+            },
+            "code": "BZN"
+          },
+          {
+            "route": {
+              "dist": 618
+            },
+            "code": "STS"
+          },
+          {
+            "route": {
+              "dist": 223
+            },
+            "code": "GEG"
+          },
+          {
+            "route": {
+              "dist": 93
+            },
+            "code": "BLI"
+          },
+          {
+            "route": {
+              "dist": 219
+            },
+            "code": "YLW"
+          },
+          {
+            "route": {
+              "dist": 6204
+            },
+            "code": "XMN"
+          },
+          {
+            "route": {
+              "dist": 1816
+            },
+            "code": "SJD"
+          },
+          {
+            "route": {
+              "dist": 2698
+            },
+            "code": "LIH"
+          },
+          {
+            "route": {
+              "dist": 398
+            },
+            "code": "BOI"
+          },
+          {
+            "route": {
+              "dist": 1065
+            },
+            "code": "COS"
+          },
+          {
+            "route": {
+              "dist": 605
+            },
+            "code": "SMF"
+          },
+          {
+            "route": {
+              "dist": 4788
+            },
+            "code": "HND"
+          },
+          {
+            "route": {
+              "dist": 451
+            },
+            "code": "YYC"
+          },
+          {
+            "route": {
+              "dist": 5008
+            },
+            "code": "CGN"
+          },
+          {
+            "route": {
+              "dist": 557
+            },
+            "code": "YEG"
+          },
+          {
+            "route": {
+              "dist": 4633
+            },
+            "code": "MAN"
+          },
+          {
+            "route": {
+              "dist": 5264
+            },
+            "code": "MUC"
+          },
+          {
+            "route": {
+              "dist": 848
+            },
+            "code": "SBP"
+          },
+          {
+            "route": {
+              "dist": 908
+            },
+            "code": "SBA"
+          },
+          {
+            "route": {
+              "dist": 228
+            },
+            "code": "RDM"
+          },
+          {
+            "route": {
+              "dist": 171
+            },
+            "code": "PSC"
+          },
+          {
+            "route": {
+              "dist": 351
+            },
+            "code": "MFR"
+          },
+          {
+            "route": {
+              "dist": 234
+            },
+            "code": "EUG"
+          },
+          {
+            "route": {
+              "dist": 97
+            },
+            "code": "YYJ"
+          },
+          {
+            "route": {
+              "dist": 2141
+            },
+            "code": "GDL"
+          },
+          {
+            "route": {
+              "dist": 749
+            },
+            "code": "FAT"
+          },
+          {
+            "route": {
+              "dist": 2409
+            },
+            "code": "CHS"
+          },
+          {
+            "route": {
+              "dist": 3608
+            },
+            "code": "KEF"
+          },
+          {
+            "route": {
+              "dist": 5024
+            },
+            "code": "KIX"
+          },
+          {
+            "route": {
+              "dist": 6058
+            },
+            "code": "TPE"
+          },
+          {
+            "route": {
+              "dist": 4868
+            },
+            "code": "AMS"
+          },
+          {
+            "route": {
+              "dist": 5705
+            },
+            "code": "PVG"
+          },
+          {
+            "route": {
+              "dist": 5389
+            },
+            "code": "PEK"
+          },
+          {
+            "route": {
+              "dist": 6484
+            },
+            "code": "HKG"
+          },
+          {
+            "route": {
+              "dist": 4523
+            },
+            "code": "DUB"
+          },
+          {
+            "route": {
+              "dist": 7406
+            },
+            "code": "DXB"
+          },
+          {
+            "route": {
+              "dist": 8059
+            },
+            "code": "SIN"
+          },
+          {
+            "route": {
+              "dist": 4754
+            },
+            "code": "NRT"
+          },
+          {
+            "route": {
+              "dist": 5090
+            },
+            "code": "FRA"
+          },
+          {
+            "route": {
+              "dist": 4998
+            },
+            "code": "CDG"
+          },
+          {
+            "route": {
+              "dist": 4807
+            },
+            "code": "LGW"
+          },
+          {
+            "route": {
+              "dist": 4783
+            },
+            "code": "LHR"
+          },
+          {
+            "route": {
+              "dist": 127
+            },
+            "code": "YVR"
+          },
+          {
+            "route": {
+              "dist": 2053
+            },
+            "code": "YYZ"
+          },
+          {
+            "route": {
+              "dist": 1920
+            },
+            "code": "DTW"
+          },
+          {
+            "route": {
+              "dist": 2370
+            },
+            "code": "PHL"
+          },
+          {
+            "route": {
+              "dist": 1215
+            },
+            "code": "TUS"
+          },
+          {
+            "route": {
+              "dist": 671
+            },
+            "code": "OAK"
+          },
+          {
+            "route": {
+              "dist": 679
+            },
+            "code": "KTN"
+          },
+          {
+            "route": {
+              "dist": 6469
+            },
+            "code": "SZX"
+          },
+          {
+            "route": {
+              "dist": 2687
+            },
+            "code": "KOA"
+          },
+          {
+            "route": {
+              "dist": 2638
+            },
+            "code": "OGG"
+          },
+          {
+            "route": {
+              "dist": 2079
+            },
+            "code": "PVR"
+          },
+          {
+            "route": {
+              "dist": 1363
+            },
+            "code": "OMA"
+          },
+          {
+            "route": {
+              "dist": 1728
+            },
+            "code": "MDW"
+          },
+          {
+            "route": {
+              "dist": 1689
+            },
+            "code": "MKE"
+          },
+          {
+            "route": {
+              "dist": 1178
+            },
+            "code": "ABQ"
+          },
+          {
+            "route": {
+              "dist": 1704
+            },
+            "code": "STL"
+          },
+          {
+            "route": {
+              "dist": 1667
+            },
+            "code": "DAL"
+          },
+          {
+            "route": {
+              "dist": 1485
+            },
+            "code": "MCI"
+          },
+          {
+            "route": {
+              "dist": 1860
+            },
+            "code": "IND"
+          },
+          {
+            "route": {
+              "dist": 988
+            },
+            "code": "PSP"
+          },
+          {
+            "route": {
+              "dist": 2683
+            },
+            "code": "CUN"
+          },
+          {
+            "route": {
+              "dist": 2273
+            },
+            "code": "CLT"
+          },
+          {
+            "route": {
+              "dist": 1367
+            },
+            "code": "ELP"
+          },
+          {
+            "route": {
+              "dist": 1891
+            },
+            "code": "HOU"
+          },
+          {
+            "route": {
+              "dist": 2670
+            },
+            "code": "HNL"
+          },
+          {
+            "route": {
+              "dist": 2393
+            },
+            "code": "EWR"
+          },
+          {
+            "route": {
+              "dist": 2082
+            },
+            "code": "MSY"
+          },
+          {
+            "route": {
+              "dist": 1772
+            },
+            "code": "SAT"
+          },
+          {
+            "route": {
+              "dist": 1020
+            },
+            "code": "DEN"
+          },
+          {
+            "route": {
+              "dist": 866
+            },
+            "code": "LAS"
+          },
+          {
+            "route": {
+              "dist": 687
+            },
+            "code": "SLC"
+          },
+          {
+            "route": {
+              "dist": 978
+            },
+            "code": "SNA"
+          },
+          {
+            "route": {
+              "dist": 965
+            },
+            "code": "LGB"
+          },
+          {
+            "route": {
+              "dist": 1050
+            },
+            "code": "SAN"
+          },
+          {
+            "route": {
+              "dist": 2515
+            },
+            "code": "TPA"
+          },
+          {
+            "route": {
+              "dist": 696
+            },
+            "code": "SJC"
+          },
+          {
+            "route": {
+              "dist": 678
+            },
+            "code": "SFO"
+          },
+          {
+            "route": {
+              "dist": 2347
+            },
+            "code": "RDU"
+          },
+          {
+            "route": {
+              "dist": 1106
+            },
+            "code": "PHX"
+          },
+          {
+            "route": {
+              "dist": 1710
+            },
+            "code": "ORD"
+          },
+          {
+            "route": {
+              "dist": 1390
+            },
+            "code": "MSP"
+          },
+          {
+            "route": {
+              "dist": 2720
+            },
+            "code": "MIA"
+          },
+          {
+            "route": {
+              "dist": 2549
+            },
+            "code": "MCO"
+          },
+          {
+            "route": {
+              "dist": 954
+            },
+            "code": "LAX"
+          },
+          {
+            "route": {
+              "dist": 2410
+            },
+            "code": "JFK"
+          },
+          {
+            "route": {
+              "dist": 1870
+            },
+            "code": "IAH"
+          },
+          {
+            "route": {
+              "dist": 2300
+            },
+            "code": "IAD"
+          },
+          {
+            "route": {
+              "dist": 2712
+            },
+            "code": "FLL"
+          },
+          {
+            "route": {
+              "dist": 1660
+            },
+            "code": "DFW"
+          },
+          {
+            "route": {
+              "dist": 2320
+            },
+            "code": "DCA"
+          },
+          {
+            "route": {
+              "dist": 2335
+            },
+            "code": "BWI"
+          },
+          {
+            "route": {
+              "dist": 2490
+            },
+            "code": "BOS"
+          },
+          {
+            "route": {
+              "dist": 1972
+            },
+            "code": "BNA"
+          },
+          {
+            "route": {
+              "dist": 1768
+            },
+            "code": "AUS"
+          },
+          {
+            "route": {
+              "dist": 1440
+            },
+            "code": "ANC"
+          },
+          {
+            "route": {
+              "dist": 2180
+            },
+            "code": "ATL"
+          }
+        ]
+    }
+}

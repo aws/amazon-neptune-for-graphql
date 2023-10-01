@@ -9,10 +9,15 @@ const { Console } = require('console');
 const async = require('async');
 
 
-async function queryNeptune(q, host, port) {    
+async function queryNeptune(q, language, host, port) {    
     try {
-        const language ='opencypher';
-        const response = await axios.get(`https://${host}:${port}/${language}?query=${encodeURIComponent(q)}`);        
+        let response = null;
+        if (language == 'opencypher')
+            response = await axios.get(`https://${host}:${port}/opencypher?query=${encodeURIComponent(q)}`);
+        else 
+            //response = await axios.get(`https://${host}:${port}?gremlin=${encodeURIComponent(q)}`);
+            response = await axios.post(`https://${host}:${port}/gremlin`, `{"gremlin":"${q}"}`)
+
         return response.data;    
     } catch (error) {
         console.error("Http query request failed: ", error.message);            
@@ -39,7 +44,7 @@ function checkOutputFilesSize(files, referenceFolder) {
     files.forEach(file => {        
         const stats = fs.statSync(`./output/${file}`);
         const referenceStats = fs.statSync(`./${referenceFolder}/${file}`);
-        if (stats.size != referenceStats) {
+        if (stats.size == referenceStats.size) {
             console.log(`PASSED: File ${file} size`);
         } else {
             console.error(`FAILED: File ${file} size`);
@@ -75,20 +80,33 @@ async function testResolver(codeFile, queriesReferenceFolder, testNeptuneResult,
         if (query.graphql != "") {
             const result = context.resolveGraphDBQuery(query.graphql);
             if (result.query == query.resolved) {
-                console.log(`PASSED: Resolved query: ${queryFile}`);
+                console.log(`PASSED: Resolved query: ${query.name}`);
                 
                 if (testNeptuneResult) {
-                    const httpResult = await queryNeptune(query.resolved, host, port);
-                    const data = httpResult.results[0][Object.keys(httpResult.results[0])[0]];
+                    const httpResult = await queryNeptune(query.resolved, result.language, host, port);
+                    
+                    let data = null;
+                    if (result.language == 'opencypher')
+                        data = httpResult.results[0][Object.keys(httpResult.results[0])[0]];
+                    else {
+                        const input = httpResult.result.data;
+                        data = JSON.parse(context.refactorGremlinqueryOutput(input, result.fieldsAlias));
+                        //data = httpResult.result.data;                    
+                    }
+                    
                     if (JSON.stringify(data, null, 2) == JSON.stringify(query.result, null, 2))
-                        console.log(`PASSED: Neptune result query: ${queryFile}`);
-                    else
-                        console.error(`FAILED: Neptune result query: ${queryFile}`);
+                        console.log(`PASSED: Neptune result query: ${query.name}`);
+                    else {
+                        console.error(`FAILED: Neptune result query: ${queryFile}, ${query.name}`);
+                        console.log(JSON.stringify(data, null, 2));
+                    }
                 }
 
             }
-            else 
+            else {
                 console.error(`FAILED: Resolving query: ${queryFile}, name: ${query.name}`);
+                console.log(result.query);
+            }
         }
     }
 }
@@ -98,6 +116,7 @@ async function runTestCase(testCaseFolder) {
     const testCase = JSON.parse(fs.readFileSync(testCaseFolder + '/case.json', 'utf8'));
     console.log(`Running test case: ${testCase.name}`);
 
+    console.log(`Running utility: ${testCase.utilityCommand}`);
     await testUtilitySchemaInputExecution(testCase.utilityCommand);
 
     checkOutputFilesSize(testCase.testOutputFilesSize, testCaseFolder + '/output');

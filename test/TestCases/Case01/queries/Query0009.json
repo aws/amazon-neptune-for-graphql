@@ -1,0 +1,50 @@
+{
+    "name": "graphQuery Gremlin type array",
+    "description": "Query using Gremlin returning a type array",
+    "graphql": "query MyQuery {\n  getContinentsWithGremlin {\n code\n }\n }\n",
+    "resolved": "g.V().hasLabel('continent').elementMap().fold()",
+    "result": [
+        {
+          "id": "3741",
+          "type": "continent",
+          "code": "EU",
+          "desc": "Europe"
+        },
+        {
+          "id": "3742",
+          "type": "continent",
+          "code": "AF",
+          "desc": "Africa"
+        },
+        {
+          "id": "3743",
+          "type": "continent",
+          "code": "NA",
+          "desc": "North America"
+        },
+        {
+          "id": "3744",
+          "type": "continent",
+          "code": "SA",
+          "desc": "South America"
+        },
+        {
+          "id": "3745",
+          "type": "continent",
+          "code": "AS",
+          "desc": "Asia"
+        },
+        {
+          "id": "3746",
+          "type": "continent",
+          "code": "OC",
+          "desc": "Oceania"
+        },
+        {
+          "id": "3747",
+          "type": "continent",
+          "code": "AN",
+          "desc": "Antarctica"
+        }
+      ]
+}

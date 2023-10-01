@@ -108,7 +108,7 @@ type Query {
   getAirport(code: String): Airport
   getAirportConnection(fromCode: String!, toCode: String!): Airport
   getAirportWithGremlin(code: String): Airport
-  getAirportsWithGremlin: [Airport]
+  getContinentsWithGremlin: [Continent]
   getCountriesCountGremlin: Int
   getNodeContinent(filter: ContinentInput): Continent
   getNodeContinents(filter: ContinentInput, options: Options): [Continent]
