@@ -111,6 +111,7 @@ Parameters
 ***********
 [--help|--h|-help|-h]
 [--version|--v|-version|-v]
+[--quite]
 [--input-schema <value>]
 [--input-schema-file <value>]
 [--input-schema-changes-file <value>]   

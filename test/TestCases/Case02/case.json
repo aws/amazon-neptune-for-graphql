@@ -1,0 +1,9 @@
+{
+    "name": "Air Routes db json",
+    "description":"Start from graph db json, from Air Routes db",
+    "utilityCommand":"node.exe ../neptune-for-graphql.mjs --quite --input-graphdb-schema-file ./TestCases/Case02/input/airports.graphdb.json",
+    "host": "airport00.cluster-ccbtmrye8gfu.us-east-1.neptune.amazonaws.com",
+    "port": "8183",
+    "testOutputFilesSize": ["output.lambda.zip", "output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
+    "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
+}

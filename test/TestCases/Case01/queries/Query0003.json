@@ -1,0 +1,21 @@
+{  
+    "id": "3",
+    "name": "getAirport nested type",
+    "description": "Nested types single and array, references in and out",
+    "graphql": "query MyQuery {\n getAirport(code: \"YKM\") {\n city\n continentContainsIn {\n desc\n }\n countryContainsIn {\n desc\n }\n airportRoutesOut {\n code\n }\n }\n }",
+    "resolved": "MATCH (getAirport_Airport:airport{code:'YKM'})\nOPTIONAL MATCH (getAirport_Airport)<-[getAirport_Airport_continentContainsIn_contains:contains]-(getAirport_Airport_continentContainsIn:continent)\nOPTIONAL MATCH (getAirport_Airport)<-[getAirport_Airport_countryContainsIn_contains:contains]-(getAirport_Airport_countryContainsIn:country)\nOPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:airport)\nWITH getAirport_Airport, getAirport_Airport_continentContainsIn, getAirport_Airport_countryContainsIn, collect({code: getAirport_Airport_airportRoutesOut.code}) AS getAirport_Airport_airportRoutesOut_collect\nWITH getAirport_Airport, getAirport_Airport_continentContainsIn, getAirport_Airport_airportRoutesOut_collect, {desc: getAirport_Airport_countryContainsIn.desc} AS getAirport_Airport_countryContainsIn_one\nWITH getAirport_Airport, getAirport_Airport_countryContainsIn_one, getAirport_Airport_airportRoutesOut_collect, {desc: getAirport_Airport_continentContainsIn.desc} AS getAirport_Airport_continentContainsIn_one\nRETURN {city: getAirport_Airport.city, continentContainsIn: getAirport_Airport_continentContainsIn_one, countryContainsIn: getAirport_Airport_countryContainsIn_one, airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1",
+    "result":{
+        "airportRoutesOut": [
+          {
+            "code": "SEA"
+          }
+        ],
+        "city": "Yakima",
+        "countryContainsIn": {
+          "desc": "United States"
+        },
+        "continentContainsIn": {
+          "desc": "North America"
+        }
+      }
+}
