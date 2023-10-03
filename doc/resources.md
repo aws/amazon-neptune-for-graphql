@@ -3,15 +3,17 @@
 Steps:
 
 1. Run Neptune Graph Utility
-2. Create the Lambda
-3. Load in the Lambda the GraphQL resolver code
-4. Create the AppSync API
-5. Create the AppSync data source for the Lambda
-6. Create the AppSync function for the Lambda with selectionSetGraphQL payload
-7. Create the AppSync GraphQL Schema using the Neptune Graph Utility output
-8. Attach to each GraphQL Schema operation the resolver function
-9. Test using the AppSync Queries
+2. Create IAM roles
+3. Create the Lambda
+4. Load in the Lambda the GraphQL resolver code
+5. Create the AppSync API
+6. Create the AppSync data source for the Lambda
+7. Create the AppSync function for the Lambda with selectionSetGraphQL payload
+8. Create the AppSync GraphQL Schema using the Neptune Graph Utility output
+9. Attach to each GraphQL Schema operation the resolver function
+10. Test using the AppSync Queries
 
+The resources configuration change to access a Neptune Database in a VPC or with IAM enabled. The following instruction are marked (VPC) or (IAM) to differentiate it. 
 
 ## 1 . Run Neptune Graph Utility
 
@@ -19,14 +21,19 @@ Run the Neptune GraphQL Utility to generate the resolver code for the Lambda, an
 
 Starting from an existing Neptune database.
 Run the command below passing your Neptune cluster endpoint and port.
-You can run the utility from a personal computer where you setup an SSH tunnel to an EC2 instance in the same VPC of your Neptune DB, or run the utility from an EC2 instance in the same Neptune VPC.
+You can run the utility from a personal computer where you setup an SSH tunnel to an EC2 instance in the same VPC of your Neptune DB (VPC), or run the utility from an EC2 instance in the same Neptune VPC (VPC), or with a Neptune IAM role (IAM).
 
 `neptune-for-graphql --input-graphdb-schema-neptune-endpoint` *your-database-endpoint:port*
 
 The default output location for the GraphQL schema file to use in AppSync schema is: ./output/output.schema.graphql
+<br>
 The default output location of Lambda resolver file is: ./output/output.resolver.graphql.js
+<br>
 The default output location of the Lambda zip: is: ./output/output.lambda.zip
 
+## 2. Create IAM roles
+1. Create the Lambda execution role for the Lambda
+3. Create the Lambda invocation role for the AppSync API
 
 ## 2. Create the Lambda
 
