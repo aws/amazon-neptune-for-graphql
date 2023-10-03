@@ -35,7 +35,7 @@ The default output location of the Lambda zip: is: ./output/output.lambda.zip
 1. Create the Lambda execution role for the Lambda
 3. Create the Lambda invocation role for the AppSync API
 
-## 2. Create the Lambda
+## 3. Create the Lambda
 
 Create the AWS Lambda that will receive the AppSync query requests, resolve it into a Neptune graph query, query the Neptune database and return the result to AppSync.
 To create the Lambda you have two options:
@@ -54,12 +54,12 @@ To create the Lambda you have two options:
         3. NEPTUNE_PORT = your database port typically 8182
         4. LOGGING_ENABLED = false
 
-## 3. Load in the Lambda the GraphQL resolver code
+## 4. Load in the Lambda the GraphQL resolver code
 
 1. Upload in the Lambda the zip file in the output folder
 2. The Lambda is now ready
 
-## 4. Create the AppSync API
+## 5. Create the AppSync API
 
 1. Go to the AppSync Console
 2. Create API
@@ -68,7 +68,7 @@ To create the Lambda you have two options:
     3. Name the API
     4. Next and Create API
 
-## 5. Create the AppSync data source for the Lambda
+## 6. Create the AppSync data source for the Lambda
 
 1. Select “Data Sources” from the AppSync menu of your new API
     1. Create data source
@@ -78,7 +78,7 @@ To create the Lambda you have two options:
     5. Select the ARN of the Lambda you created
     6. Create
 
-## 6. Create the AppSync function for the Lambda with selectionSetGraphQL payload
+## 7. Create the AppSync function for the Lambda with selectionSetGraphQL payload
 
 Select “Functions” from the AppSync menu of your new API
 
@@ -107,14 +107,14 @@ export function response(ctx) {
 }
 ```
 
-## 7. Create the AppSync GraphQL Schema using the Neptune Graph Utility output
+## 8. Create the AppSync GraphQL Schema using the Neptune Graph Utility output
 
 Select “Schema” from the AppSync menu of your new API
 
 1. Replace the AppSync Schema with the content of the Neptune GraphQL Utility output in the file with default named  ./output/output.schema.graphql.
 2. Save Schema
 
-## 8. Attach to each GraphQL Schema operation the resolver function
+## 9. Attach to each GraphQL Schema operation the resolver function
 
 1. Scroll through the “Resolvers” list to Query
     1. for each field in the Query section select “Attach”
@@ -124,7 +124,7 @@ Select “Schema” from the AppSync menu of your new API
 2. Go back to the AppSync Schema, and repeat the step above for each field in the Resolvers Query and Mutation section. Note: you might have to repeat it 10-30 times :(
 3. Congratulation you have now a GraphQL API for your Neptune database
 
-## 9. Test using the AppSync Queries
+## 10. Test using the AppSync Queries
 
 To test it, select “Query” in the AppSync menu of your new API.
 
