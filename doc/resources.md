@@ -1,4 +1,4 @@
-# Detailed Resources
+# Detailed AWS Resources
 
 Steps:
 
@@ -24,7 +24,8 @@ You can run the utility from a personal computer where you setup an SSH tunnel t
 `neptune-for-graphql --input-graphdb-schema-neptune-endpoint` *your-database-endpoint:port*
 
 The default output location for the GraphQL schema file to use in AppSync schema is: ./output/output.schema.graphql
-The default output location of Lambda files that includes the resolver is: ./output/output.resolver.graphql.js
+The default output location of Lambda resolver file is: ./output/output.resolver.graphql.js
+The default output location of the Lambda zip: is: ./output/output.lambda.zip
 
 
 ## 2. Create the Lambda
@@ -44,13 +45,12 @@ To create the Lambda you have two options:
         1. NEPTUNE_HOST= your database endpoint
         2. NEPTUNE_IAM_AUTH_ENABLED = true
         3. NEPTUNE_PORT = your database port typically 8182
+        4. LOGGING_ENABLED = false
 
 ## 3. Load in the Lambda the GraphQL resolver code
 
-1. Create a zip file called like the Lambda you just created with the content of the folder ./src/Lambda4AppSync/ and the ./output/output.resolver.graphql.js.
-2. Go to the Lambda code source and delete the existing file index.mjs
-3. Upload in the Lambda the zip file you just created, and Save
-4. The Lambda is now ready
+1. Upload in the Lambda the zip file in the output folder
+2. The Lambda is now ready
 
 ## 4. Create the AppSync API
 
