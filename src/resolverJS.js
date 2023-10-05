@@ -18,7 +18,7 @@ function resolverJS (schemaModel, queryLanguage, queryClient, __dirname) {
     
     if (queryLanguage == 'opencypher') {
         try {
-            code = readFileSync(__dirname + '/templates/JSResolverOCHTTPSTemplate.js');
+            code = readFileSync(__dirname + '/../templates/JSResolverOCHTTPSTemplate.js');
             code = code.toString().replace('TIMESTAMP HERE', (new Date()).toISOString());
             code = code.toString().replace('INSERT SCHEMA DATA MODEL HERE', queryDataModelJSON);
         } catch (err) {
