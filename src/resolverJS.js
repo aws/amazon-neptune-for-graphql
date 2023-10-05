@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { readFileSync, writeFileSync, mkdirSync} from 'fs';
+import { readFileSync} from 'fs';
 
 function resolverJS (schemaModel, queryLanguage, queryClient, __dirname) {
     let code = '';

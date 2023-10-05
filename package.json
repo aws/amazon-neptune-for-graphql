@@ -20,7 +20,15 @@
   },
   "scripts": {
     "postinstall": "cd templates/Lambda4AppSyncHTTP && npm install && cd ../Lambda4AppSyncSDK && npm install",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint neptune-for-graphql.mjs ./src",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config .jest.json"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "html"
+    ]
   },
   "bin": {
     "neptune-for-graphql": "./neptune-for-graphql.mjs"
@@ -53,7 +61,8 @@
     "ora": "7.0.1",
     "semver": "7.5.4"
   },
-  "devDependencies": {
-    "eslint": "^8.50.0"
+  "devDependencies": {    
+    "eslint": "^8.50.0",
+    "jest": "^29.7.0"
   }
 }

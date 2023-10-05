@@ -11,7 +11,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { readFileSync, writeFileSync, mkdirSync, readFile}  from 'fs';
+import { readFileSync, writeFileSync, mkdirSync}  from 'fs';
 import { helpTxt }  from './src/help.js';
 import { graphDBInferenceSchema } from './src/graphdb.js';
 import { changeGraphQLSchema } from './src/changes.js';
@@ -32,7 +32,6 @@ function yellow(text) {
 // find global installation dir
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { hostname } from 'os';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -210,6 +209,10 @@ process.argv.forEach(function (val, index, array) {
 
 
 async function asyncProcess() {
+    if (process.argv.length <= 2) {
+        console.log("--h for help.\n");
+        process.exit(0);
+    }
 
     // Get graphDB schema from file
     if (inputGraphDBSchemaFile != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
@@ -562,3 +565,5 @@ async function asyncProcess() {
 }
 
 asyncProcess();
+
+export { asyncProcess };

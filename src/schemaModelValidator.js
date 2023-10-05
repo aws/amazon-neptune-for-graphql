@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { schemaParser, schemaStringify } from './schemaParser.js';
+import { schemaStringify } from './schemaParser.js';
 import {gql} from 'graphql-tag'
 
 let quiet = false;
@@ -144,14 +144,14 @@ function addNode(def) {
     let inputFields = '';
     inputFields += `\n  _id: ID @id`
     def.fields.forEach(field => {
-        try {
+        //try {
             if (field.name.value === 'id') {
                 inputFields += `\n  id: ID`;
             }
 
-        } catch {}
+        //} catch {}
 
-        try {
+        //try {
             if (field.type.name.value === 'String' || 
                 field.type.name.value === 'Int' || 
                 field.type.name.value === 'Float' || 
@@ -159,7 +159,7 @@ function addNode(def) {
 
                 inputFields += `\n  ${field.name.value}: ${field.type.name.value}`;            
             }
-        } catch {}
+        //} catch {}
     });
 
     // Create Input type
@@ -239,6 +239,8 @@ function addFilterOptionsArguments(field) {
 function inferGraphDatabaseDirectives(schemaModel) {
     
     var currentType = '';
+    let referencedType = '';
+    let edgeName = '';
 
     schemaModel.definitions.forEach(def => {
         if (def.kind == 'ObjectTypeDefinition') {
@@ -264,30 +266,30 @@ function inferGraphDatabaseDirectives(schemaModel) {
                     if (field.type.type !== undefined) {
                         if (field.type.type.kind === 'NamedType' && field.type.type.name.value !== 'ID')
                         {
-                            try {
+                            //try {
                                 if (field.type.kind === 'ListType')
                                     addFilterOptionsArguments(field);
-                            }
-                            catch {}
+                            //}
+                            //catch {}
 
-                            try {
-                                var referencedType = field.type.type.name.value;
-                                var edgeName = referencedType + 'Edge';
+                            //try {
+                                referencedType = field.type.type.name.value;
+                                edgeName = referencedType + 'Edge';
                                 if (!quiet) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));                                
                                 addRelationshipDirective(field, edgeName, 'OUT');
                                 addEdge(currentType, referencedType, edgeName);
                                 if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);                                
-                            }                 
+                            //}                 
                             
-                            catch {}
+                            //catch {}
                         }
                     } else if (field.type.name.value !== 'String' && 
                                field.type.name.value !== 'Int' && 
                                field.type.name.value !== 'Float' && 
                                field.type.name.value !== 'Boolean') {
                             
-                        var referencedType = field.type.name.value;
-                        var edgeName = referencedType + 'Edge';
+                        referencedType = field.type.name.value;
+                        edgeName = referencedType + 'Edge';
                         if (!quiet) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));
                         addRelationshipDirective(field, edgeName, 'OUT');
                         addEdge(currentType, referencedType, edgeName);
@@ -316,8 +318,8 @@ function inferGraphDatabaseDirectives(schemaModel) {
 }
 
 
-function validatedSchemaModel (schemaModel, quiet) {
-    quiet = quiet;    
+function validatedSchemaModel (schemaModel, quietInput) {
+    quiet = quietInput;    
     
     if (!isGraphDBDirectives(schemaModel)) {
         console.log("The schema model does not contain any graph database directives.");
