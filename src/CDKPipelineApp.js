@@ -143,7 +143,7 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     APPSYNC_ATTACH_QUERY = await getSchemaFields('Query');
     APPSYNC_ATTACH_MUTATION = await getSchemaFields('Mutation');
     
-    let CDKFile = await readFile(__dirname + '/templates/CDKTemplate.js', 'utf8');
+    let CDKFile = await readFile(__dirname + '/../templates/CDKTemplate.js', 'utf8');
 
     CDKFile = CDKFile.replace( "const NAME = '';",                           `const NAME = '${NAME}';` );
     CDKFile = CDKFile.replace( "const REGION = '';",                         `const REGION = '${REGION}';` );

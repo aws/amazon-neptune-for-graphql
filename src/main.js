@@ -540,8 +540,9 @@ async function main() {
             } catch (err) {
                 console.error('Error creating CDK File: ' + err);            
             }
-
         }
+
+        if (!quiet) console.log('\nDone\n'); 
     }
 
     // Remove AWS Pipeline
@@ -559,7 +560,7 @@ async function main() {
         await removeAWSpipelineResources(JSON.parse(resourcesToRemove), quiet);
     }
     
-    //console.log('\nDone\n\n'); 
+    /
 }
 
 
