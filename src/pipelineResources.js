@@ -253,12 +253,12 @@ async function createLambdaRole() {
 
 
 async function createDeploymentPackage(folderPath) {        
-    const zipFilePath = `./output/${NAME}.zip`;
+    const zipFilePath = `../output/${NAME}.zip`;
     const output = fs.createWriteStream(zipFilePath);
     const archive = archiver('zip', { zlib: { level: 9 } });
     archive.pipe(output);
     archive.directory(folderPath, false);
-    archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
+    archive.file('../output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
     await archive.finalize();
     await sleep(2000);
     const fileContent = await fs.readFileSync(zipFilePath);

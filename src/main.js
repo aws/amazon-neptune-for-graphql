@@ -449,10 +449,10 @@ async function main() {
         // Output Lambda Zip file
         switch (queryClient) {
             case 'http':
-                outputLambdaPackagePath = '/templates/Lambda4AppSyncHTTP';
+                outputLambdaPackagePath = '/../templates/Lambda4AppSyncHTTP';
             break;
             case 'sdk':
-                outputLambdaPackagePath = '/templates/Lambda4AppSyncSDK';
+                outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
             break;
         }
 
@@ -559,8 +559,7 @@ async function main() {
         }
         await removeAWSpipelineResources(JSON.parse(resourcesToRemove), quiet);
     }
-    
-    /
+        
 }
 
 
