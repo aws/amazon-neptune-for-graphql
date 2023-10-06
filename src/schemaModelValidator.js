@@ -144,14 +144,14 @@ function addNode(def) {
     let inputFields = '';
     inputFields += `\n  _id: ID @id`
     def.fields.forEach(field => {
-        //try {
+        try {
             if (field.name.value === 'id') {
                 inputFields += `\n  id: ID`;
             }
 
-        //} catch {}
+        } catch {}
 
-        //try {
+        try {
             if (field.type.name.value === 'String' || 
                 field.type.name.value === 'Int' || 
                 field.type.name.value === 'Float' || 
@@ -159,7 +159,7 @@ function addNode(def) {
 
                 inputFields += `\n  ${field.name.value}: ${field.type.name.value}`;            
             }
-        //} catch {}
+        } catch {}
     });
 
     // Create Input type
@@ -266,22 +266,21 @@ function inferGraphDatabaseDirectives(schemaModel) {
                     if (field.type.type !== undefined) {
                         if (field.type.type.kind === 'NamedType' && field.type.type.name.value !== 'ID')
                         {
-                            //try {
+                            try {
                                 if (field.type.kind === 'ListType')
                                     addFilterOptionsArguments(field);
-                            //}
-                            //catch {}
+                            }
+                            catch {}
 
-                            //try {
+                            try {
                                 referencedType = field.type.type.name.value;
                                 edgeName = referencedType + 'Edge';
                                 if (!quiet) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));                                
                                 addRelationshipDirective(field, edgeName, 'OUT');
                                 addEdge(currentType, referencedType, edgeName);
                                 if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);                                
-                            //}                 
-                            
-                            //catch {}
+                            }                 
+                            catch {}
                         }
                     } else if (field.type.name.value !== 'String' && 
                                field.type.name.value !== 'Int' && 
@@ -322,7 +321,7 @@ function validatedSchemaModel (schemaModel, quietInput) {
     quiet = quietInput;    
     
     if (!isGraphDBDirectives(schemaModel)) {
-        console.log("The schema model does not contain any graph database directives.");
+        if (!quiet) console.log("The schema model does not contain any graph database directives.");
         schemaModel = inferGraphDatabaseDirectives(schemaModel);
     }    
  

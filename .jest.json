@@ -1,4 +1,5 @@
 {
     "transform": {},
-    "verbose": true
+    "verbose": true,
+    "testSequencer": "./test/jestTestSequencer.js"
 }

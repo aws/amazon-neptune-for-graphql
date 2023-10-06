@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /*
 Copyright 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Licensed under the Apache License, Version 2.0 (the "License").
@@ -62,6 +61,8 @@ let inputCDKpipelineEnpoint = '';
 let inputCDKpipelineFile = '';
 let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
+let createLambdaZip = true;
+let outputFolderPath = './output';
 
 
 // Outputs
@@ -198,6 +199,12 @@ function processArgs() {
             break;
             case '--output-aws-pipeline-cdk-neptune-IAM':
                 isNeptuneIAMAuth = true;
+            break;
+            case '--output-no-lambda-zip':
+                createLambdaZip = false;
+            break;
+            case '--output-folder-path':
+                outputFolderPath = array[index + 1];
             break;
         }
     });
@@ -366,9 +373,9 @@ async function main() {
         outputSchema = schemaStringify(schemaModel, false);
         if ( outputSchemaFile == '' ) {
             if (createUpdatePipelineName == '') { 
-                outputSchemaFile = './output/output.schema.graphql';
+                outputSchemaFile = outputFolderPath + '/output.schema.graphql';
             } else {
-                outputSchemaFile = `./output/${createUpdatePipelineName}.schema.graphql`;
+                outputSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.schema.graphql`;
             } 
         }
 
@@ -384,9 +391,9 @@ async function main() {
         outputSourceSchema = schemaStringify(schemaModel, true);
         if ( outputSourceSchemaFile == '' ) {
             if (createUpdatePipelineName == '') { 
-                outputSourceSchemaFile = './output/output.source.schema.graphql';
+                outputSourceSchemaFile = outputFolderPath + '/output.source.schema.graphql';
             } else {
-                outputSourceSchemaFile = `./output/${createUpdatePipelineName}.source.schema.graphql`;
+                outputSourceSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.source.schema.graphql`;
             } 
         }   
 
@@ -401,9 +408,9 @@ async function main() {
         // Output Neptune schema
         if (outputNeptuneSchemaFile == '') {
             if (createUpdatePipelineName == '') { 
-                outputNeptuneSchemaFile = './output/output.neptune.schema.json';
+                outputNeptuneSchemaFile = outputFolderPath + '/output.neptune.schema.json';
             } else {
-                outputNeptuneSchemaFile = `./output/${createUpdatePipelineName}.neptune.schema.json`;
+                outputNeptuneSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.neptune.schema.json`;
             } 
         }
 
@@ -417,7 +424,7 @@ async function main() {
 
         // Output Lambda resolver
         if (outputLambdaResolverFile == '') { 
-            outputLambdaResolverFile = './output/output.resolver.graphql.js'; 
+            outputLambdaResolverFile = outputFolderPath + '/output.resolver.graphql.js'; 
         }
 
         try {
@@ -431,9 +438,9 @@ async function main() {
         // Output Javascript resolver
         if (outputJSResolverFile == '') {
             if (createUpdatePipelineName == '') { 
-                outputJSResolverFile = './output/output.resolver.graphql.js';
+                outputJSResolverFile = outputFolderPath + '/output.resolver.graphql.js';
             } else {
-                outputJSResolverFile = `./output/${createUpdatePipelineName}.resolver.graphql.js`;
+                outputJSResolverFile = `${outputFolderPath}/${createUpdatePipelineName}.resolver.graphql.js`;
             } 
         }
 
@@ -456,13 +463,13 @@ async function main() {
             break;
         }
 
-        if  ( !(createUpdatePipeline || inputCDKpipeline) ) {
+        if  ( !(createUpdatePipeline || inputCDKpipeline) && createLambdaZip) {
 
             if (outputLambdaResolverZipFile == '' && outputLambdaResolverZipName == '')  
-                outputLambdaResolverZipFile = './output/output.lambda.zip';
+                outputLambdaResolverZipFile = outputFolderPath + '/output.lambda.zip';
             
             if (outputLambdaResolverZipFile == '' && outputLambdaResolverZipName != '')  
-                outputLambdaResolverZipFile = './output/' + outputLambdaResolverZipName + '.zip';
+                outputLambdaResolverZipFile = outputFolderPath + '/' + outputLambdaResolverZipName + '.zip';
 
             try {
                 if (!quiet) spinner = ora('Creating Lambda ZIP ...').start();
@@ -522,7 +529,7 @@ async function main() {
 
                 
                 if (inputCDKpipelineFile == '') {                
-                    inputCDKpipelineFile = `./output/${inputCDKpipelineName}-cdk.js`;
+                    inputCDKpipelineFile = `${outputFolderPath}/${inputCDKpipelineName}-cdk.js`;
                 }
 
                 await createAWSpipelineCDK( inputCDKpipelineName, 
@@ -549,7 +556,7 @@ async function main() {
     if ( removePipelineName != '') {
         if (!quiet) console.log('\nRemoving pipeline AWS resources, name: ' + yellow(removePipelineName))        
         let resourcesToRemove = null;
-        let resourcesFile = `./output/${removePipelineName}-resources.json`;
+        let resourcesFile = `${outputFolderPath}/${removePipelineName}-resources.json`;
         if (!quiet) console.log('Using file: ' + yellow(resourcesFile));
         try {
             resourcesToRemove = readFileSync(resourcesFile, 'utf8');
