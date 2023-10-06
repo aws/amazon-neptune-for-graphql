@@ -21,7 +21,7 @@ Run the Neptune GraphQL Utility to generate the resolver code for the Lambda, an
 
 Starting from an existing Neptune database.
 Run the command below passing your Neptune cluster endpoint and port.
-You can run the utility from a personal computer where you setup an SSH tunnel to an EC2 instance in the same VPC of your Neptune DB (VPC), or run the utility from an EC2 instance in the same Neptune VPC (VPC), or with a Neptune IAM role (IAM).
+You can run the utility from a personal computer where you setup an SSH tunnel to an EC2 instance in the same VPC of your Neptune DB (VPC), or run the utility from an EC2 instance in the same Neptune VPC (if VPC), or with a Neptune IAM role (if IAM).
 
 `neptune-for-graphql --input-graphdb-schema-neptune-endpoint` *your-database-endpoint:port*
 
@@ -31,14 +31,19 @@ The default output location of Lambda resolver file is: ./output/output.resolver
 <br>
 The default output location of the Lambda zip: is: ./output/output.lambda.zip
 
-## 2. Create IAM roles
-1. Create the Lambda execution role for the Lambda
-3. Create the Lambda invocation role for the AppSync API
 
 ## 3. Create the Lambda
 
 Create the AWS Lambda that will receive the AppSync query requests, resolve it into a Neptune graph query, query the Neptune database and return the result to AppSync.
 To create the Lambda you have two options:
+
+### Create Lambda IAM execution role
+1. Create the Lambda execution role for the Lambda
+    1. Create a new IAM Role for the Lambda function
+    2. Attach the policy `AWSLambdaBasicExecutionRole`
+    3. (if VPC) Attach the policy `AWSLambdaVPCAccessExecutionRole`
+    3. (if IAM) Attach the polucy `NeptuneFullAccess`
+
 
 1. go to the Neptune documentation here https://docs.aws.amazon.com/neptune/latest/userguide/get-started-cfn-lambda.html, can run the CloudFormation template that creates the Lambda. Lambda runtime is Node.js 18x.
      (NOTE: the Neptune CloudFormation to create the Lambda is outdated, the nodejs12.x is no longer supported by Lambda)

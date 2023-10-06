@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { schemaParser, schemaStringify } from './schemaParser.js';
+import { schemaStringify } from './schemaParser.js';
 import {gql} from 'graphql-tag'
 
 let quiet = false;
@@ -239,6 +239,8 @@ function addFilterOptionsArguments(field) {
 function inferGraphDatabaseDirectives(schemaModel) {
     
     var currentType = '';
+    let referencedType = '';
+    let edgeName = '';
 
     schemaModel.definitions.forEach(def => {
         if (def.kind == 'ObjectTypeDefinition') {
@@ -271,14 +273,13 @@ function inferGraphDatabaseDirectives(schemaModel) {
                             catch {}
 
                             try {
-                                var referencedType = field.type.type.name.value;
-                                var edgeName = referencedType + 'Edge';
+                                referencedType = field.type.type.name.value;
+                                edgeName = referencedType + 'Edge';
                                 if (!quiet) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));                                
                                 addRelationshipDirective(field, edgeName, 'OUT');
                                 addEdge(currentType, referencedType, edgeName);
                                 if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);                                
                             }                 
-                            
                             catch {}
                         }
                     } else if (field.type.name.value !== 'String' && 
@@ -286,8 +287,8 @@ function inferGraphDatabaseDirectives(schemaModel) {
                                field.type.name.value !== 'Float' && 
                                field.type.name.value !== 'Boolean') {
                             
-                        var referencedType = field.type.name.value;
-                        var edgeName = referencedType + 'Edge';
+                        referencedType = field.type.name.value;
+                        edgeName = referencedType + 'Edge';
                         if (!quiet) console.log("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));
                         addRelationshipDirective(field, edgeName, 'OUT');
                         addEdge(currentType, referencedType, edgeName);
@@ -316,11 +317,11 @@ function inferGraphDatabaseDirectives(schemaModel) {
 }
 
 
-function validatedSchemaModel (schemaModel, quiet) {
-    quiet = quiet;    
+function validatedSchemaModel (schemaModel, quietInput) {
+    quiet = quietInput;    
     
     if (!isGraphDBDirectives(schemaModel)) {
-        console.log("The schema model does not contain any graph database directives.");
+        if (!quiet) console.log("The schema model does not contain any graph database directives.");
         schemaModel = inferGraphDatabaseDirectives(schemaModel);
     }    
  

@@ -1,0 +1,18 @@
+
+type Todo {
+    name: String
+    description: String
+    priority: Int
+    status: String
+    comments: [Comment]
+    bestComment: Comment
+}
+
+type Comment {
+    id: ID
+    content: String
+}
+
+input Options {
+    limit: Int
+}

@@ -10,7 +10,6 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "graphql-tag": "2.12.6",
-    "ora": "^7.0.1"
+    "graphql-tag": "2.12.6"
   }
 }

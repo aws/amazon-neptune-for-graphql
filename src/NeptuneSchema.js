@@ -218,7 +218,7 @@ function CastGraphQLType(value) {
     }
 
     if (typeof value === 'boolean') propertyType = 'Boolean';
-    if (typeof value === 'date') propertyType = 'Date';
+    if (value instanceof Date) propertyType = 'Date';
     return propertyType;
 }
 

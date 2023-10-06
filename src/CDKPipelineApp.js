@@ -12,7 +12,7 @@ permissions and limitations under the License.
 
 import { getNeptuneClusterinfoBy } from './pipelineResources.js'
 import { readFile, writeFile } from 'fs/promises';
-import semver from 'semver';
+//import semver from 'semver';
 import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
@@ -24,8 +24,8 @@ let NEPTUNE_DB_NAME = '';
 let NEPTUNE_HOST = null;
 let NEPTUNE_PORT = null;
 let NEPTUNE_DBSubnetGroup = null;
-let NEPTUNE_DBSubnetIds = [];
-let NEPTUNE_VpcSecurityGroupId = null;
+//let NEPTUNE_DBSubnetIds = [];
+//let NEPTUNE_VpcSecurityGroupId = null;
 
 let LAMBDA_ZIP_FILE = '';
 
@@ -81,6 +81,8 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     NEPTUNE_DB_NAME = neptuneDBName;
     APPSYNC_SCHEMA = appSyncSchema;
     SCHEMA_MODEL = schemaModel;
+    NEPTUNE_HOST = neptuneHost;
+    NEPTUNE_PORT = neptunePort;
     
     LAMBDA_ZIP_FILE = `./output/${NAME}.zip`;
     let spinner = null;
@@ -95,13 +97,13 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
             if (!neptuneClusterInfo.isIAMauth) {
                 console.error("The Neptune database authentication is set to VPC.");
                 console.error("Remove the --output-aws-pipeline-cdk-neptune-IAM option.");
-                exit(1);
+                process.exit(1);
             }                
         } else {
             if (neptuneClusterInfo.isIAMauth) {
                 console.error("The Neptune database authentication is set to IAM.");
                 console.error("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
-                exit(1);
+                process.exit(1);
             } else {
                 if (!quiet) console.log(`Subnet Group: ` + yellow(neptuneClusterInfo.dbSubnetGroup));
             }
@@ -113,27 +115,27 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
                 (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {                     
                 console.error("Neptune SDK query is supported starting with Neptune versions 1.2.1.0.R5");
                 console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
-                exit(1);
+                process.exit(1);
             }
         }
 
+        NEPTUNE_HOST = neptuneClusterInfo.host;
+        NEPTUNE_PORT = neptuneClusterInfo.port;
+        NEPTUNE_DBSubnetGroup = neptuneClusterInfo.dbSubnetGroup.replace('default-', '');       
+        //NEPTUNE_DBSubnetIds = neptuneClusterInfo.dbSubnetIds;
+        //NEPTUNE_VpcSecurityGroupId = neptuneClusterInfo.vpcSecurityGroupId;    
+    
     } catch (error) {
         if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
         if (!isNeptuneIAMAuth) {
             spinner.clear();
             console.error("VPC data is not available to proceed.");
-            exit(1);
+            process.exit(1);
         } else {
             if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
         }
     }
-    
-    NEPTUNE_HOST = neptuneClusterInfo.host;
-    NEPTUNE_PORT = neptuneClusterInfo.port;
-    NEPTUNE_DBSubnetGroup = neptuneClusterInfo.dbSubnetGroup.replace('default-', '');        
-    NEPTUNE_DBSubnetIds = neptuneClusterInfo.dbSubnetIds;
-    NEPTUNE_VpcSecurityGroupId = neptuneClusterInfo.vpcSecurityGroupId;    
-        
+         
     if (!quiet) spinner = ora('Creating ZIP ...').start();
     await createDeploymentFile(lambdaFilesPath, LAMBDA_ZIP_FILE);
     if (!quiet) spinner.succeed('Created ZIP File: ' + yellow(LAMBDA_ZIP_FILE));
@@ -141,7 +143,7 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     APPSYNC_ATTACH_QUERY = await getSchemaFields('Query');
     APPSYNC_ATTACH_MUTATION = await getSchemaFields('Mutation');
     
-    let CDKFile = await readFile(__dirname + '/templates/CDKTemplate.js', 'utf8');
+    let CDKFile = await readFile(__dirname + '/../templates/CDKTemplate.js', 'utf8');
 
     CDKFile = CDKFile.replace( "const NAME = '';",                           `const NAME = '${NAME}';` );
     CDKFile = CDKFile.replace( "const REGION = '';",                         `const REGION = '${REGION}';` );
@@ -154,8 +156,8 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     CDKFile = CDKFile.replace( "const LAMBDA_ZIP_FILE = '';",                `const LAMBDA_ZIP_FILE = '${NAME}.zip';` );
 
     CDKFile = CDKFile.replace( "const APPSYNC_SCHEMA = '';",                 `const APPSYNC_SCHEMA = \`${APPSYNC_SCHEMA}\`;` );
-    CDKFile = CDKFile.replace( "const APPSYNC_ATTACH_QUERY = [];",            `const APPSYNC_ATTACH_QUERY = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_QUERY, null, 2)}\`);` );
-    CDKFile = CDKFile.replace( "const APPSYNC_ATTACH_MUTATION = [];",         `const APPSYNC_ATTACH_MUTATION = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_MUTATION, null, 2)}\`);` );
+    CDKFile = CDKFile.replace( "const APPSYNC_ATTACH_QUERY = [];",           `const APPSYNC_ATTACH_QUERY = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_QUERY, null, 2)}\`);` );
+    CDKFile = CDKFile.replace( "const APPSYNC_ATTACH_MUTATION = [];",        `const APPSYNC_ATTACH_MUTATION = JSON.parse(\`${JSON.stringify(APPSYNC_ATTACH_MUTATION, null, 2)}\`);` );
 
     if (!quiet) spinner = ora('Creating CDK File ...').start();
     await writeFile(outputFile, CDKFile);

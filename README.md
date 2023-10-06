@@ -7,7 +7,7 @@
 
 # **Amazon Neptune utility for GraphQL&trade; schemas and resolvers**
 
-The Amazon Neptune utility for GraphQL&trade; is a Node.js command-line utility to help you with the creation and maintenance of a GraphQL API for the Amazon Neptune database. It is a no-code solution for a GraphQL resolver when GraphQL queries have a variable number of input parameters and return a variable number of nested fields.
+The Amazon Neptune utility for GraphQL&trade; is a Node.js command-line utility to help with the creation and maintenance of a GraphQL API for the Amazon Neptune database. It is a no-code solution for a GraphQL resolver when GraphQL queries have a variable number of input parameters and return a variable number of nested fields.
 
 If you **start from a Neptune database with data**, the utility discover the graph database schema including nodes, edges, properties and edges cardinality, generate the GraphQL schema with the directives required to map the GraphQL types to the graph databases nodes and edges, and auto-generate the resolver code. We optimized the resolver code to reduce the latency of querying Amazon Neptune by returning only the data requested by the GraphQL query. *(Note: the utility works only for Property Graph databases, not RDF yet)*
 
@@ -23,12 +23,12 @@ If you have a **few queries** with a static number of input parameters and retur
 <br>
 
 Index:
+- [Install and Setup](#install-and-setup)
 - [Starting from a Neptune database with data](#starting-from-a-neptune-database-with-data)
 - [Starting from a Neptune database with data: Air Routes Example](/doc/routesExample.md)
 - [Starting from a GraphQL schema and an empty Neptune database](#starting-from-a-graphql-schema-and-an-empty-neptune-database)
 - [Starting from a GraphQL schema and an empty Neptune database: Todo Example](/doc/todoExample.md)
 - [Starting from GraphQL schema with directives](#starting-from-a-graphql-schema-with-directives)
-- [Install and Setup](#install-and-setup)
 - [Customize the GraphQL schema with directives](#customize-the-graphql-schema-with-directives)
 - [AWS resources for the GraphQL API](#aws-resources-for-the-graphql-api)
 - [Commands reference: utility CLI options](/doc/cliReference.md)
@@ -38,6 +38,36 @@ Index:
 - [Contributing](#contributing)
 
 <br>
+
+# Install and Setup 
+The utility requires Node.js to be executed. Some features require reaching to a Neptune database, and having access to the AWS CLI with permissions to create AWS resources. You can also run the utility just to process input files without the need to connect it directly to a Neptune database or to create AWS resources. In this case you will find the GraphQL schemas and the resolver code in the local *output* directory.
+
+### Node.js is required in any scenario
+Node.js is required to run the utility, v18 or above. 
+- To install it on macOS or Windows go to the [Node.js website](https://nodejs.org/) to download the installer.
+- To install on an EC2-Instance follow the [AWS documentation](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html).
+
+### Install the Amazon Neptune utility for GraphQL
+The utility is available as NPM package. To install it:
+
+`npm install @aws/neptune-for-graphql -g`
+
+After the installation run the utility `--help`` command to check if runs:
+
+`neptune-for-graphql --help` 
+
+### Reach to a Neptune database endpoint
+If you are starting from a Neptune database with data, you need to enable the utility to reach the database endpoint. By default Neptune databases are accessible only within a VPC.
+
+The easiet way is to run the utility from an EC2 instance which network is configured within your Neptune database VPC. The minimum size instance to run the utility is ***t2.micro*** (free of charge). During the creation of the instance select the Neptune database VPC using the *Common Security Groups* pulldown menu.
+
+
+#### Next Step
+- Install Node.js
+- [Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) if you need to create the AWS resources, or you need an IAM role to access the Neptune database.
+
+<br>
+
 
 # Starting from a Neptune database with data
 Independently if you are familiar with GraphQL or not, the command below is the fastest way to create a GraphQL API. Starting from an existing Neptune database endpoint, the utility scans the Neptune database discovering the schema of the existing nodes, edges and properties. Based on the graph database schema, it inferences a GraphQL schema, queries and mutations. Then, it creates an AppSync GraphQL API, and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility complete the execution, you will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu. (*Note: follow the setup instructions below to enable your environment to reach the Neptune database and create AWS resources.*)
@@ -75,38 +105,6 @@ You can start from a GraphQL schema with directives for a graph database. For th
 
 `neptune-for-graphql --input-schema-file `*your-graphql-schema-file-with-directives*` --create-update-aws-pipeline --create-update-aws-pipeline-name` *your-new-GraphQL-API-name* `--create-update-aws-pipeline-neptune-endpoint` *your-neptune-database-endpoint:port*  ` --output-resolver-query-https`
 
-
-<br>
-
-# Install and Setup 
-The utility requires Node.js to be executed. Some features require reaching to a Neptune database, and having access to the AWS CLI with permissions to create AWS resources. You can also run the utility just to process input files without the need to connect it directly to a Neptune database or by creating AWS resources. In this can you will find the GraphQL schemas and resolver code in the local *output* directory.
-
-### Node.js is required in any scenario
-Node.js is required to run the utility, v18 or above. 
-- To install it on macOS or Windows go to the [Node.js website](https://nodejs.org/) to download the installer.
-- To install on an EC2-Instance follow the [AWS documentation](https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html).
-
-### Install the Amazon Neptune utility for GraphQL
-The utility is available as NPM package. To install it:
-
-`npm install @aws/neptune-for-graphql -g`
-
-After the installation run the utility `--help`` command to check if runs:
-
-`neptune-for-graphql --help` 
-
-### Reach to a Neptune database endpoint
-If you are starting from a Neptune database with data, you need to enable the utility to reach the database endpoint. By default Neptune databases are accessible only within a VPC. Starting with version 1.2.2.0 the Neptune database endpoint can be made public giving us a second option.
-
-#### Option 1: Run the utility within the VPC
-The easiet way is to run the utility from an EC2 instance which network is configured within your Neptune database VPC. The minimum size instance to run the utility is ***t2.micro***. During the creation of the instance select the Neptune database VPC using from the *Common Security Groups* pulldown menu.
-
-#### Option 2: Run the utility anywhere
-With Neptune engine version 1.2.2.0 you can enable public endpoints. This will allow you to access the Neptune database data outside the VPC. Follow the Amazon Neptune documentation to set it up and test it.
-
-#### Next Step
-- Install Node.js
-- [Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) if you need to create the AWS resources, or you need an IAM role to access the Neptune database
 
 <br>
 
@@ -266,12 +264,12 @@ The utility creates a file with the list of resources named *pipeline-name.resou
 The code of the utiliy uses the JavaScript AWS sdk v3, if you'd like to review the code is only in [this file](/src/pipelineResources.js).
 
 ### I prefer a CDK file
-No problem, the option to trigger the creation of the CDK file starts with the command option `--output-aws-pipeline-cdk`, and its accessory options ([see the commands reference](/doc/cliReference.md)). <br> 
-After you ran it you will find in the *output* folder the file *CDK-pipeline-name-cdk.js* and *CDK-pipeline-name.zip*. The ZIP file is the code for the Lambda function.
+To option to trigger the creation of the CDK file starts with `--output-aws-pipeline-cdk`, and its accessory options ([see the commands reference](/doc/cliReference.md)). <br> 
+After you ran it, you will find in the *output* folder the file *CDK-pipeline-name-cdk.js* and *CDK-pipeline-name.zip*. The ZIP file is the code for the Lambda function.
 See CDK end to end example [here](/doc/cdk.md).
 
 ### Let me setup the resources manually or with my favorite DevOps toolchain
-Sure, [here](/doc/resources.md) the detailed list of resorces needed to configure the GraphQL API pipeline.
+[Here](/doc/resources.md) the detailed list of resorces needed to configure the GraphQL API pipeline.
 <br>
 
 # Known limitations
@@ -283,7 +281,7 @@ Sure, [here](/doc/resources.md) the detailed list of resorces needed to configur
 - Resolver generates Gremlin queries instead of openCypher.
 - Gremlin resolver.
 - SPARQL resolver for RDF database.
-- Generate GraphQL resolver and configurations for Apollo Server
+- Generate GraphQL resolver and configurations for Apollo Server.
 <br>
 
 # License

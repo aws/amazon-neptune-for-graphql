@@ -4,5 +4,8 @@ package-lock.json
 node_modules/**
 templates/Lambda4AppSyncHTTP/node_modules/**
 templates/Lambda4AppSyncSDK/node_modules/**
+coverage/**
 test/node_modules/**
-test/output/**
+test/TestCases/Case01/output/**
+test/TestCases/Case02/output/**
+test/TestCases/Case03/output/**

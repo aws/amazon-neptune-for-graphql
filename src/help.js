@@ -126,6 +126,7 @@ Parameters
 [--output-lambda-resolver-file <value>]                      default: output.lambda.index.mjs
 [--output-lambda-resolver-zip-name <value>]                  default: output.lambda.zip
 [--output-lambda-resolver-zip-file <value>]                  default: output.lambda.zip
+[--output-no-lambda-zip]
 [--output-resolver-language-gremlin |                        TODO
  --output-resolver-language-opencypher |                     default: openCypher
  --output-resolver-query-sparql]                             TODO
@@ -144,6 +145,7 @@ Parameters
 [--output-aws-pipeline-cdk-region <value>]                   default: us-east-1 or from --input-graphdb-schema-neptune-endpoint if exists
 [--output-aws-pipeline-cdk-file <value>]                     default: --output-aws-pipeline-cdk-name <value>-cdk.js
 [--output-aws-pipeline-cdk-neptune-IAM]                      default: is Neptune VPC
+[--output-folder-path]                                       default: ./output
 `
 
 export { helpTxt };
