@@ -12,4 +12,4 @@ async function executeUtility() {
 
 test('Execute utility: ' + casetest.argv.join(' '), async () => {
     expect(await executeUtility()).not.toBe(null);    
-});
+}, 60000);

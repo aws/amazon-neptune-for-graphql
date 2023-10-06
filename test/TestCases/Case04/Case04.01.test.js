@@ -3,7 +3,7 @@ import { jest } from '@jest/globals';
 import { readJSONFile } from '../../testLib';
 import { main } from "../../../src/main";
 
-const casetest = readJSONFile('./test/TestCases/Case03/case.json');
+const casetest = readJSONFile('./test/TestCases/Case04/case.json');
 
 async function executeUtility() {    
     process.argv = casetest.argv;
@@ -12,4 +12,4 @@ async function executeUtility() {
 
 test('Execute utility: ' + casetest.argv.join(' '), async () => {
     expect(await executeUtility()).not.toBe(null);    
-}, 60000);
+}, 30000);

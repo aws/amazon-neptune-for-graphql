@@ -6,6 +6,8 @@ templates/Lambda4AppSyncHTTP/node_modules/**
 templates/Lambda4AppSyncSDK/node_modules/**
 coverage/**
 test/node_modules/**
-test/TestCases/Case01/output/**
-test/TestCases/Case02/output/**
-test/TestCases/Case03/output/**
+test/TestCases/Case01/output
+test/TestCases/Case01/output
+test/TestCases/Case02/output
+test/TestCases/Case03/output
+test/TestCases/Case04/output
