@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2023-10-06T22:09:15.350Z
+// 2023-10-06T23:04:04.203Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -1449,6 +1449,44 @@ const schemaDataModelJSON = `{
             }
           },
           "directives": []
+        },
+        {
+          "kind": "FieldDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "outboundRoutesCountAdd"
+          },
+          "arguments": [],
+          "type": {
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Int"
+            }
+          },
+          "directives": [
+            {
+              "kind": "Directive",
+              "name": {
+                "kind": "Name",
+                "value": "graphQuery"
+              },
+              "arguments": [
+                {
+                  "kind": "Argument",
+                  "name": {
+                    "kind": "Name",
+                    "value": "statement"
+                  },
+                  "value": {
+                    "kind": "StringValue",
+                    "value": "MATCH (this)-[r:route]->(a) RETURN count(r)",
+                    "block": false
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -2851,41 +2889,6 @@ const schemaDataModelJSON = `{
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
-            "value": "createNodeVersion"
-          },
-          "arguments": [
-            {
-              "kind": "InputValueDefinition",
-              "name": {
-                "kind": "Name",
-                "value": "input"
-              },
-              "type": {
-                "kind": "NonNullType",
-                "type": {
-                  "kind": "NamedType",
-                  "name": {
-                    "kind": "Name",
-                    "value": "VersionInput"
-                  }
-                }
-              },
-              "directives": []
-            }
-          ],
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "Version"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "FieldDefinition",
-          "name": {
-            "kind": "Name",
             "value": "updateNodeVersion"
           },
           "arguments": [
@@ -2913,41 +2916,6 @@ const schemaDataModelJSON = `{
             "name": {
               "kind": "Name",
               "value": "Version"
-            }
-          },
-          "directives": []
-        },
-        {
-          "kind": "FieldDefinition",
-          "name": {
-            "kind": "Name",
-            "value": "deleteNodeVersion"
-          },
-          "arguments": [
-            {
-              "kind": "InputValueDefinition",
-              "name": {
-                "kind": "Name",
-                "value": "_id"
-              },
-              "type": {
-                "kind": "NonNullType",
-                "type": {
-                  "kind": "NamedType",
-                  "name": {
-                    "kind": "Name",
-                    "value": "ID"
-                  }
-                }
-              },
-              "directives": []
-            }
-          ],
-          "type": {
-            "kind": "NamedType",
-            "name": {
-              "kind": "Name",
-              "value": "Boolean"
             }
           },
           "directives": []
@@ -3497,7 +3465,7 @@ const schemaDataModelJSON = `{
   ],
   "loc": {
     "start": 0,
-    "end": 4915
+    "end": 4710
   }
 }`;
     

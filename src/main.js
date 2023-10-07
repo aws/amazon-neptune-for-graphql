@@ -179,6 +179,9 @@ function processArgs() {
             case '--output-aws-pipeline-cdk-neptume-endpoint':
                 inputCDKpipelineEnpoint = array[index + 1];
             break;
+            case '--output-aws-pipeline-cdk-neptume-database-name':
+                inputCDKpipelineDatabaseName = array[index + 1];
+            break;
             case '--output-aws-pipeline-cdk-name':
                 inputCDKpipelineName = array[index + 1];
             break;

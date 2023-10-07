@@ -1,0 +1,17 @@
+{
+    "name": "Unit Test (Air Routes) CDK Pipeline",
+    "description":"Create CDK pipeline",
+    "argv":["--quiet", 
+            "--input-schema-file", "./test/TestCases/Case06/input/airports.source.schema.graphql",                        
+            "--output-folder-path", "./test/TestCases/Case06/output",
+            "--output-aws-pipeline-cdk",
+            "--output-aws-pipeline-cdk-name", "AirportCDKTestJest",
+            "--output-aws-pipeline-cdk-neptume-database-name", "airport00",
+            "--output-aws-pipeline-cdk-region", "us-east-1",
+            "--output-aws-pipeline-cdk-neptume-endpoint", "airport00.cluster-ccbtmrye8gfu.us-east-1.neptune.amazonaws.com:8182",            
+            "--output-resolver-query-https"],
+    "host": "",
+    "port": "",
+    "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
+    "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
+}

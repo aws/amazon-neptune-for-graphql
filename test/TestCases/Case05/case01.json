@@ -1,0 +1,10 @@
+{
+    "name": "Unit Test (Air Routes) Remove Pipeline",
+    "description":"Remove pipeline",
+    "argv":["--quiet",             
+            "--remove-aws-pipeline-name", "AirportsJestTest"],
+    "host": "",
+    "port": "",
+    "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
+    "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
+}

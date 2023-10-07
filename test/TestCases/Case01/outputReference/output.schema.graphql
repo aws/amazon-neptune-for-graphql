@@ -69,6 +69,7 @@ type Airport {
   airportRoutesIn(filter: AirportInput, options: Options): [Airport]
   contains: Contains
   route: Route
+  outboundRoutesCountAdd: Int
 }
 
 input AirportInput {
@@ -130,9 +131,7 @@ type Mutation {
   createNodeCountry(input: CountryInput!): Country
   updateNodeCountry(input: CountryInput!): Country
   deleteNodeCountry(_id: ID!): Boolean
-  createNodeVersion(input: VersionInput!): Version
   updateNodeVersion(input: VersionInput!): Version
-  deleteNodeVersion(_id: ID!): Boolean
   createNodeAirport(input: AirportInput!): Airport
   updateNodeAirport(input: AirportInput!): Airport
   deleteNodeAirport(_id: ID!): Boolean
