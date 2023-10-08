@@ -2,6 +2,7 @@
     "name": "getAirport _id",
     "description": "Get neptune _id",
     "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n _id\n }\n }",
+    "parameters": {},
     "resolved": "MATCH (getAirport_Airport:airport{code:'SEA'})\nRETURN {_id:ID(getAirport_Airport)} LIMIT 1",
     "result":{
         "_id": "22"

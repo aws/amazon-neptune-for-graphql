@@ -374,13 +374,15 @@ function getOptionsInSchemaInfo(fields, schemaInfo) {
     fields.forEach( field => {
         if (field.name.value == 'limit') {            
             schemaInfo.argOptionsLimit = field.value.value;
-        }        
+        }
+        /* TODO        
         if (field.name.value == 'offset') {            
             schemaInfo.argOptionsOffset = field.value.value;
         }
         if (field.name.value == 'orderBy') {            
             schemaInfo.argOptionsOrderBy = field.value.value;
-        }        
+        }
+        */        
     });    
 }
 
@@ -1003,7 +1005,8 @@ function getFieldsAlias(typeName) {
 function resolveGremlinQuery(obj, querySchemaInfo) {
     let gremlinQuery = { 
         query:'', 
-        language: 'gremlin', 
+        language: 'gremlin',
+        parameters: {}, 
         refactorOutput: null, 
         fieldsAlias: getFieldsAlias(querySchemaInfo.returnType) };
 

@@ -1,0 +1,17 @@
+{
+    "name": "Get different type of fields",
+    "description": "",
+    "graphql": "query MyQuery {\n getNodeAirport(filter: {code: \"SEA\"}) {\n _id\n city\n elev\n runways\n lat\n lon\n }\n }",
+    "parameters": {
+        "getNodeAirport_Airport_code": "SEA"
+    },
+    "resolved": "MATCH (getNodeAirport_Airport:airport{code: $getNodeAirport_Airport_code})\nRETURN {_id:ID(getNodeAirport_Airport), city: getNodeAirport_Airport.city, elev: getNodeAirport_Airport.elev, runways: getNodeAirport_Airport.runways, lat: getNodeAirport_Airport.lat, lon: getNodeAirport_Airport.lon} LIMIT 1",
+    "result":{
+        "city": "Seattle",
+        "elev": 432,
+        "lon": -122.30899810791,
+        "_id": "22",
+        "runways": 3,
+        "lat": 47.4490013122559
+    }
+}

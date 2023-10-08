@@ -1,0 +1,13 @@
+{
+    "name": "Mutation: update node",
+    "description": "",
+    "graphql": "mutation MyMutation {\n updateNodeAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }",
+    "parameters": {
+        "updateNodeAirport_Airport_city": "Seattle",
+        "updateNodeAirport_Airport_whereId": "22"
+    },
+    "resolved": "MATCH (updateNodeAirport_Airport)\nWHERE ID(updateNodeAirport_Airport) = $updateNodeAirport_Airport_whereId\nSET  updateNodeAirport_Airport.city = $updateNodeAirport_Airport_city\nRETURN {city: updateNodeAirport_Airport.city}",
+    "result":{
+        "city": "Seattle"
+    }
+}

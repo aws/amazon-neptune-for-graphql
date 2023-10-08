@@ -1,0 +1,14 @@
+{
+    "name": "Limit option",
+    "description": "",
+    "graphql": "query MyQuery {\n getNodeAirports(options: {limit: 1}, filter: {code: \"SEA\"}) {\n city }\n }",
+    "parameters": {
+        "getNodeAirports_Airport_code": "SEA"
+      },
+    "resolved": "MATCH (getNodeAirports_Airport:airport{code: $getNodeAirports_Airport_code})\nWITH getNodeAirports_Airport LIMIT 1\nRETURN collect({city: getNodeAirports_Airport.city})[..1]",
+    "result":[
+        {
+          "city": "Seattle"
+        }
+      ]
+}

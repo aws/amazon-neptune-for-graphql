@@ -2,6 +2,7 @@
     "name": "Type graph query 1",
     "description": "Type with graph query returning a scalar",
     "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n outboundRoutesCount\n }\n }\n",
+    "parameters": {},
     "resolved": "MATCH (getAirport_Airport:airport{code:'SEA'})\nOPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_outboundRoutesCount_r:route]->(getAirport_Airport_outboundRoutesCount_a)\nWITH getAirport_Airport, count(getAirport_Airport_outboundRoutesCount_r) AS getAirport_Airport_outboundRoutesCount\nRETURN {outboundRoutesCount:getAirport_Airport_outboundRoutesCount} LIMIT 1",
     "result": {
         "outboundRoutesCount": 122

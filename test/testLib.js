@@ -4,11 +4,11 @@ import fs  from 'fs';
 
 
 
-async function queryNeptune(q, language, host, port) {    
+async function queryNeptune(q, language, host, port, param) {    
     try {
         let response = null;
         if (language == 'opencypher')
-            response = await axios.get(`https://${host}:${port}/opencypher?query=${encodeURIComponent(q)}`);
+            response = await axios.get(`https://${host}:${port}/opencypher?query=${encodeURIComponent(q)}&parameters=${encodeURIComponent(JSON.stringify(param))}`);
         else 
             //response = await axios.get(`https://${host}:${port}?gremlin=${encodeURIComponent(q)}`);
             response = await axios.post(`https://${host}:${port}/gremlin`, `{"gremlin":"${q}"}`)
@@ -60,7 +60,12 @@ async function testResolverQueries(resolverFile, queriesReferenceFolder) {
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" + queryFile));
         if (query.graphql != "") {            
             const result = resolverModule.resolveGraphDBQuery(query.graphql);
-            test('Resolver query: ' + query.name, async () => {    
+            
+            if (result.query != query.resolved || JSON.stringify(result.parameters, null, 2) != JSON.stringify(query.parameters, null, 2) )
+                console.log(JSON.stringify(result.parameters, null, 2) + '\n' + result.query)
+            
+            test(`Resolver query, ${queryFile}: ${query.name}`, async () => { 
+                expect(JSON.stringify(result.parameters, null, 2)).toBe(JSON.stringify(query.parameters, null, 2));   
                 expect(result.query).toBe(query.resolved);
             });
         }
@@ -77,7 +82,7 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" +queryFile));
         if (query.graphql != "") {
             const result = resolverModule.resolveGraphDBQuery(query.graphql);
-            const httpResult = await queryNeptune(query.resolved, result.language, host, port);
+            const httpResult = await queryNeptune(query.resolved, result.language, host, port, result.parameters);
                 
             let data = null;
             if (result.language == 'opencypher')
@@ -86,8 +91,11 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
                 const input = httpResult.result.data;
                 data = JSON.parse(resolverModule.refactorGremlinqueryOutput(input, result.fieldsAlias));                                            
             }
+
+            if (JSON.stringify(data, null, 2) != JSON.stringify(query.result, null, 2))
+                console.log(JSON.stringify(data, null, 2));
             
-            test('Resolver Neptune result: ' + query.name, async () => {    
+            test(`Resolver Neptune result, ${queryFile}: ${query.name}`, async () => {    
                 expect(JSON.stringify(data, null, 2)).toBe(JSON.stringify(query.result, null, 2));
             });            
         }

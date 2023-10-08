@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2023-10-06T23:04:04.203Z
+// 2023-10-08T12:58:15.036Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3825,13 +3825,15 @@ function getOptionsInSchemaInfo(fields, schemaInfo) {
     fields.forEach( field => {
         if (field.name.value == 'limit') {            
             schemaInfo.argOptionsLimit = field.value.value;
-        }        
+        }
+        /* TODO        
         if (field.name.value == 'offset') {            
             schemaInfo.argOptionsOffset = field.value.value;
         }
         if (field.name.value == 'orderBy') {            
             schemaInfo.argOptionsOrderBy = field.value.value;
-        }        
+        }
+        */        
     });    
 }
 
@@ -4454,7 +4456,8 @@ function getFieldsAlias(typeName) {
 function resolveGremlinQuery(obj, querySchemaInfo) {
     let gremlinQuery = { 
         query:'', 
-        language: 'gremlin', 
+        language: 'gremlin',
+        parameters: {}, 
         refactorOutput: null, 
         fieldsAlias: getFieldsAlias(querySchemaInfo.returnType) };
 

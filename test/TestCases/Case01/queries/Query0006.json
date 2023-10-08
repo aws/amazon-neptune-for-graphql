@@ -2,6 +2,7 @@
     "name": "Field alias",
     "description": "Map type name to different graph db property name",
     "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n desc2\n }\n }\n",
+    "parameters": {},
     "resolved": "MATCH (getAirport_Airport:airport{code:'SEA'})\nRETURN {desc2: getAirport_Airport.desc} LIMIT 1",
     "result":{
         "desc2": "Seattle-Tacoma"
