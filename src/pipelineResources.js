@@ -57,6 +57,7 @@ let SCHEMA_MODEL = null;
 let LAMBDA_FILES_PATH = '';
 let ADD_MUTATIONS = true;
 let quiet = false;
+let thisOutputFolderPath = './output';
 
 // Computed
 let pipelineExists = false;
@@ -253,12 +254,12 @@ async function createLambdaRole() {
 
 
 async function createDeploymentPackage(folderPath) {       
-    const zipFilePath = `./output/${NAME}.zip`;
+    const zipFilePath = `${thisOutputFolderPath}/${NAME}.zip`;
     const output = fs.createWriteStream(zipFilePath);
     const archive = archiver('zip', { zlib: { level: 9 } });
     archive.pipe(output);
     archive.directory(folderPath, false);
-    archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
+    archive.file(`${thisOutputFolderPath}/output.resolver.graphql.js`, { name: 'output.resolver.graphql.js' })
     await archive.finalize();
     await sleep(2000);
     const fileContent = await fs.readFileSync(zipFilePath);
@@ -759,7 +760,7 @@ async function updateAppSyncAPI(resources) {
 }
 
 
-async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort) {    
+async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath) {    
 
     NAME = pipelineName;    
     REGION = neptuneDBregion;
@@ -767,12 +768,13 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
     APPSYNC_SCHEMA = appSyncSchema;
     SCHEMA_MODEL = schemaModel;
     LAMBDA_FILES_PATH = lambdaFilesPath;
-    RESOURCES_FILE = `./output/${NAME}-resources.json`;
+    RESOURCES_FILE = `${outputFolderPath}/${NAME}-resources.json`;
     ADD_MUTATIONS = addMutations;
     quiet = quietI;
     NEPTUME_IAM_AUTH = isNeptuneIAMAuth;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
+    thisOutputFolderPath = outputFolderPath;
 
     if (!quiet) console.log('\nCheck if the pipeline resources have been created');    
     await checkPipeline();

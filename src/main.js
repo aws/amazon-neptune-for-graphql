@@ -511,7 +511,8 @@ async function main() {
                                                 __dirname,
                                                 isNeptuneIAMAuth,
                                                 neptuneHost,
-                                                neptunePort );            
+                                                neptunePort,
+                                                outputFolderPath );            
             } catch (err) {
                 console.error('Error creating AWS pipeline: ' + err);            
             }
@@ -546,7 +547,8 @@ async function main() {
                                             quiet,
                                             isNeptuneIAMAuth,
                                             neptuneHost,
-                                            neptunePort );
+                                            neptunePort,
+                                            outputFolderPath );
             } catch (err) {
                 console.error('Error creating CDK File: ' + err);            
             }

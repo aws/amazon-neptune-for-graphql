@@ -1,7 +1,7 @@
 {
     "name": "Unit Test (Air Routes) Pipeline",
     "description":"Create pipeline",
-    "argv":["--quiet", 
+    "argv":["--quiet",
             "--input-schema-file", "./test/TestCases/Case05/input/airports.source.schema.graphql",                        
             "--output-folder-path", "./test/TestCases/Case05/output",
             "--create-update-aws-pipeline",
