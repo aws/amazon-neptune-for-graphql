@@ -33,6 +33,7 @@ let APPSYNC_SCHEMA = '';
 let APPSYNC_ATTACH_QUERY = [];
 let APPSYNC_ATTACH_MUTATION = [];
 let SCHEMA_MODEL = null;
+let thisOutputFolderPath = './output';
 
 
 function yellow(text) {
@@ -74,7 +75,7 @@ async function createDeploymentFile(folderPath, zipFilePath) {
 }
 
 
-async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, outputFile, __dirname, quiet, isNeptuneIAMAuth, neptuneHost, neptunePort ) {    
+async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, outputFile, __dirname, quiet, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath ) {    
 
     NAME = pipelineName;    
     REGION = neptuneDBregion;
@@ -83,8 +84,9 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     SCHEMA_MODEL = schemaModel;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
-    
-    LAMBDA_ZIP_FILE = `./output/${NAME}.zip`;
+    thisOutputFolderPath = outputFolderPath;
+
+    LAMBDA_ZIP_FILE = `${thisOutputFolderPath}/${NAME}.zip`;
     let spinner = null;
     let neptuneClusterInfo = null;
 
