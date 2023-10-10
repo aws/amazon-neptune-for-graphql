@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2023-10-06T23:04:04.203Z
+// 2023-10-10T23:49:35.621Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3825,20 +3825,22 @@ function getOptionsInSchemaInfo(fields, schemaInfo) {
     fields.forEach( field => {
         if (field.name.value == 'limit') {            
             schemaInfo.argOptionsLimit = field.value.value;
-        }        
+        }
+        /* TODO        
         if (field.name.value == 'offset') {            
             schemaInfo.argOptionsOffset = field.value.value;
         }
         if (field.name.value == 'orderBy') {            
             schemaInfo.argOptionsOrderBy = field.value.value;
-        }        
+        }
+        */        
     });    
 }
 
   
 function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo) {        
     if (querySchemaInfo.graphQuery != null) {
-        var gq = querySchemaInfo.graphQuery.replace('this', querySchemaInfo.pathName);
+        var gq = querySchemaInfo.graphQuery.replaceAll('this', querySchemaInfo.pathName);
         obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
             gq = gq.replace('$' + arg.name.value, arg.value.value);
         });
@@ -3988,7 +3990,7 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
     
         if (fieldSchemaInfo.graphQuery !=null ) {
             if (useCallSubquery) {
-                matchStatements.push(` CALL { WITH ${lastNamePath} ${fieldSchemaInfo.graphQuery.replace('this', lastNamePath)} AS ${lastNamePath + '_' + fieldSchemaInfo.name} }`);                  
+                matchStatements.push(` CALL { WITH ${lastNamePath} ${fieldSchemaInfo.graphQuery.replaceAll('this', lastNamePath)} AS ${lastNamePath + '_' + fieldSchemaInfo.name} }`);                  
                 withStatements[i].content += ' ' + lastNamePath + '_' + fieldSchemaInfo.name;
             } else {
                 createQueryFieldMatchStatement(fieldSchemaInfo, lastNamePath);
@@ -4454,7 +4456,8 @@ function getFieldsAlias(typeName) {
 function resolveGremlinQuery(obj, querySchemaInfo) {
     let gremlinQuery = { 
         query:'', 
-        language: 'gremlin', 
+        language: 'gremlin',
+        parameters: {}, 
         refactorOutput: null, 
         fieldsAlias: getFieldsAlias(querySchemaInfo.returnType) };
 

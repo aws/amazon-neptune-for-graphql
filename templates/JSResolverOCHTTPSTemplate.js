@@ -389,7 +389,7 @@ function getOptionsInSchemaInfo(fields, schemaInfo) {
   
 function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo) {        
     if (querySchemaInfo.graphQuery != null) {
-        var gq = querySchemaInfo.graphQuery.replace('this', querySchemaInfo.pathName);
+        var gq = querySchemaInfo.graphQuery.replaceAll('this', querySchemaInfo.pathName);
         obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
             gq = gq.replace('$' + arg.name.value, arg.value.value);
         });
@@ -539,7 +539,7 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
     
         if (fieldSchemaInfo.graphQuery !=null ) {
             if (useCallSubquery) {
-                matchStatements.push(` CALL { WITH ${lastNamePath} ${fieldSchemaInfo.graphQuery.replace('this', lastNamePath)} AS ${lastNamePath + '_' + fieldSchemaInfo.name} }`);                  
+                matchStatements.push(` CALL { WITH ${lastNamePath} ${fieldSchemaInfo.graphQuery.replaceAll('this', lastNamePath)} AS ${lastNamePath + '_' + fieldSchemaInfo.name} }`);                  
                 withStatements[i].content += ' ' + lastNamePath + '_' + fieldSchemaInfo.name;
             } else {
                 createQueryFieldMatchStatement(fieldSchemaInfo, lastNamePath);
