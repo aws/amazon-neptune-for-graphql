@@ -64,7 +64,12 @@ async function queryNeptune(q) {
         return response; 
     } else {
         try {
-        const response = await axios.get(`https://${HOST}:${PORT}/${language}?query=${encodeURIComponent(q)}`);        
+        //console.log('START: ' + q);
+        //let startTime = performance.now();
+        const response = await axios.get(`https://${HOST}:${PORT}/${language}?query=${encodeURIComponent(q)}`);
+        //let endTime = performance.now();
+        //console.log('END: ' + q);
+        //console.log(`  Query took ${endTime - startTime}ms`);
         return response.data;    
         } catch (error) {
             console.error("Http query request failed: ", error.message);
@@ -97,85 +102,38 @@ async function queryNeptuneSDK(q) {
 }
 
 
-async function getNodesNamesRecurse () {
-    let nodes = '';
-    schema.nodeStructures.forEach(node => {
-        nodes += ' n:' + node.label + ' OR';
-    });
-    nodes = nodes.substring(0, nodes.length - 3);
-    let query = `MATCH (n) WHERE NOT (${nodes}) RETURN labels(n) as labels LIMIT 1`
-    let response = await queryNeptune(query);    
-    let result = response.results[0];
-
-    try {
-        schema.nodeStructures.push({ label: result['labels'][0], properties: []});
-        consoleOut('  Found Node: ' + yellow(result['labels'][0]));
-        
-        await getNodesNamesRecurse();
-    }
-    catch (e) {     
-        return;
-    }
-}
-
-
 async function getNodesNames() {
-    let query = `MATCH (a) RETURN labels(a) as labels LIMIT 1`;
+    let query = `MATCH (a) RETURN labels(a), count(a)`;
     let response = await queryNeptune(query);    
-    let result = response.results[0];
 
     try {
-        schema.nodeStructures.push({ label: result['labels'][0], properties: []});
-        consoleOut('  Found Node: ' + yellow(result['labels'][0]));
+        response.results.forEach(result => {
+            schema.nodeStructures.push({ label: result['labels(a)'][0], properties: []});
+            consoleOut('  Found Node: ' + yellow(result['labels(a)'][0]));
+        });        
     }
     catch (e)  {
         consoleOut("  No nodes found");
-        return;
-    }
-
-    await getNodesNamesRecurse();
-
-}
-
-
-async function getEdgesNamesRecurse () {
-    let edges = '';
-    schema.edgeStructures.forEach(edge => {
-        edges += ` type(r)<>'${edge.label}' AND`;
-    });    
-    edges = edges.substring(0, edges.length - 4);
-    
-    let query = `MATCH ()-[r]->() WHERE ${edges} RETURN type(r) as type LIMIT 1`
-
-    let response = await queryNeptune(query);    
-    let result = response.results[0];
-
-    try {
-        schema.edgeStructures.push({ label: result['type'], directions: [], properties:[]});
-        consoleOut('  Found Edge: ' + yellow(result['type']));
-        await getEdgesNamesRecurse();
-    }
-    catch (e)  {
         return;
     }
 }
 
 
 async function getEdgesNames() {
-    let query = `MATCH ()-[r]->() RETURN type(r) as type LIMIT 1`;
-    let response = await queryNeptune(query);    
-    let result = response.results[0];
+    let query = `MATCH ()-[e]->() RETURN type(e), count(e)`;
+    let response = await queryNeptune(query);
 
     try {
-        schema.edgeStructures.push({ label: result['type'], directions: [], properties:[]});
-        consoleOut('  Found Edge: ' + yellow(result['type']));
+        response.results.forEach(result => {
+            schema.edgeStructures.push({ label: result['type(e)'], directions: [], properties:[]});
+            consoleOut('  Found Edge: ' + yellow(result['type(e)']));
+        });
     }
     catch (e)  {
         consoleOut("  No edges found");
         return;
     }
 
-    await getEdgesNamesRecurse();
 }
 
 
@@ -375,8 +333,9 @@ async function getNeptuneSchema(quiet) {
     if (await getSchemaViaSummaryAPI()) {
         consoleOut("Got nodes and edges via Neptune Summary API.");        
     } else {
-        consoleOut("Getting nodes and edges via queries.");
+        consoleOut("Getting nodes via queries.");        
         await getNodesNames();
+        consoleOut("Getting edges via queries.");
         await getEdgesNames();
     }
                 

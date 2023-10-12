@@ -8,11 +8,6 @@ const config = {
 };
 
 let client;
-//try {
-//    client = new NeptunedataClient(config);
-//} catch (error) {
-//    onError('new NeptunedataClient: ', error);
-//}
 
 function getClient() {
     if (client) {
