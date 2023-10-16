@@ -198,6 +198,7 @@ async function getNeptuneClusterinfo() {
 async function createLambdaRole() {
     const iamClient = new IAMClient({region: REGION});
     
+    // Create Lambda principal role
     if (!quiet) spinner = ora('Creating Lambda principal role ...').start();
     const params = {
         AssumeRolePolicyDocument: JSON.stringify({
@@ -219,6 +220,7 @@ async function createLambdaRole() {
     storeResource({LambdaExecutionRole: NAME +"LambdaExecutionRole"});    
     if (!quiet) spinner.succeed('Role ARN: ' + yellow(LAMBDA_ROLE));    
 
+    // Attach to Lambda role the AWSLambdaBasicExecutionRole 
     if (!quiet) spinner = ora('Attaching policies to the Lambda principal role ...').start();
     let input = {
         RoleName: NAME +"LambdaExecutionRole",
@@ -227,18 +229,53 @@ async function createLambdaRole() {
     let command = new AttachRolePolicyCommand(input);
     await iamClient.send(command);    
     storeResource({LambdaExecutionPolicy1: input.PolicyArn});
+    if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaBasicExecutionRole')} to Lambda Role`);
+
 
     if (NEPTUME_IAM_AUTH) {
+        // Create Neptune query policy
+        if (!quiet) spinner = ora('Creating policy for Neptune queries ...').start();
+        let command = new CreatePolicyCommand({
+            PolicyDocument: JSON.stringify({
+            Version: "2012-10-17",
+            Statement: [
+                {
+                    Effect: "Allow",
+                    Action: [
+                        "neptune-db:DeleteDataViaQuery",
+                        "neptune-db:connect",
+                        "neptune-db:ReadDataViaQuery",
+                        "neptune-db:WriteDataViaQuery"
+                    ],
+                    Resource: "*"            
+                },
+            ],
+            }),
+            PolicyName: NAME+"NeptuneQueryPolicy",
+        });
+    
+        let response = await iamClient.send(command);
+        const policyARN = response.Policy.Arn;
+        storeResource({NeptuneQueryPolicy: policyARN});
+        await sleep(5000);
+        if (!quiet) spinner.succeed('Neptune query policy ARN: ' + yellow(policyARN));
+        
+        // Attach to Lambda role the Neptune query policy. 
+        if (!quiet) spinner = ora('Attaching policy for Neptune queries to Lambda role ...').start();
         input = {
             RoleName: NAME +"LambdaExecutionRole",
-            PolicyArn: "arn:aws:iam::aws:policy/NeptuneFullAccess",
+            PolicyArn: policyARN,
         };
         command = new AttachRolePolicyCommand(input);
         await iamClient.send(command);    
         storeResource({LambdaExecutionPolicy2: input.PolicyArn});    
         await sleep(10000);
-        if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaBasicExecutionRole')} and ${yellow('NeptuneFullAccess')} policies to role`);
+        if (!quiet) spinner.succeed(`Attached ${yellow('Neptune Query Policy')} policies to Lambda Role`);
+        
     } else {
+
+
+        if (!quiet) spinner = ora('Attaching policy for Neptune VPC to Lambda role ...').start();
         input = {
             RoleName: NAME +"LambdaExecutionRole",
             PolicyArn: "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
@@ -247,7 +284,7 @@ async function createLambdaRole() {
         await iamClient.send(command);    
         storeResource({LambdaExecutionPolicy2: input.PolicyArn});    
         await sleep(10000);
-        if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaBasicExecutionRole')} and ${yellow('AWSLambdaVPCAccessExecutionRole')} policies to role`);
+        if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaVPCAccessExecutionRole')} policies to role`);
     }
 
 }
@@ -604,31 +641,27 @@ async function removeAWSpipelineResources(resources, quietI) {
     // Appsync API
     if (!quiet) spinner = ora('Deleting AppSync API ...').start();
     try {
-        const input = { // DeleteGraphqlApiRequest
-            apiId:  resources.AppSyncAPI // required
+        const input = { 
+            apiId:  resources.AppSyncAPI
         };
         const command = new DeleteGraphqlApiCommand(input);
-        //const response = await appSyncClient.send(command);
         await appSyncClient.send(command);
         if (!quiet) spinner.succeed('Deleted API id: ' + yellow(resources.AppSyncAPI));
     } catch (error) { 
-        if (!quiet) spinner.fail('AppSync API delete failed: ' + error);
-        //return; 
+        if (!quiet) spinner.fail('AppSync API delete failed: ' + error);        
     }
     
     // Lambda
     if (!quiet) spinner = ora('Deleting Lambda function ...').start();
     try {
-        const input = { // DeleteFunctionRequest
+        const input = {
             FunctionName: resources.LambdaFunction 
         };
-        const command = new DeleteFunctionCommand(input);
-        //const response = await lambdaClient.send(command);
+        const command = new DeleteFunctionCommand(input);        
         await lambdaClient.send(command);
         if (!quiet) spinner.succeed('Lambda function deleted: ' + yellow(resources.LambdaFunction));
     } catch (error) {
-        if (!quiet) spinner.fail('Lambda function fail to delete: ' + error);
-        //return;    
+        if (!quiet) spinner.fail('Lambda function fail to delete: ' + error);        
     }    
     
     // Lambda execution role
@@ -638,13 +671,11 @@ async function removeAWSpipelineResources(resources, quietI) {
             PolicyArn: resources.LambdaExecutionPolicy1,
             RoleName: resources.LambdaExecutionRole
         };
-        let command = new DetachRolePolicyCommand(input);
-        //let response = await iamClient.send(command);
+        let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);
-        //return;    
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
     }
 
     if (!quiet) spinner = ora('Detaching IAM policies from role ...').start();
@@ -653,28 +684,39 @@ async function removeAWSpipelineResources(resources, quietI) {
             PolicyArn: resources.LambdaExecutionPolicy2,
             RoleName: resources.LambdaExecutionRole
         };
-        let command = new DetachRolePolicyCommand(input);
-        //let response = await iamClient.send(command);
+        let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);
-        //return;    
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
     }
     
+    // Delete Neptune query Policy
+    if (resources.NeptuneQueryPolicy != undefined) {
+        if (!quiet) spinner = ora('Deleting policy ...').start();
+        try {
+            const input = {
+                PolicyArn: resources.NeptuneQueryPolicy,
+            };
+            const command = new DeletePolicyCommand(input);     
+            await iamClient.send(command);
+            if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.NeptuneQueryPolicy));
+        } catch (error) {
+            if (!quiet) spinner.fail('Delete policy failed: ' + error);        
+        }
+    }
+
     // Delete Role
     if (!quiet) spinner = ora('Deleting role ...').start();
     try {
         const input = {
             RoleName: resources.LambdaExecutionRole,
         };
-        const command = new DeleteRoleCommand(input);
-        //const response = await iamClient.send(command);
+        const command = new DeleteRoleCommand(input);        
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);
-        //return;    
+        if (!quiet) spinner.fail('Delete role failed: ' + error);        
     }
     
     // AppSync Lambda role
@@ -684,13 +726,11 @@ async function removeAWSpipelineResources(resources, quietI) {
             PolicyArn: resources.LambdaInvokePolicy,
             RoleName: resources.LambdaInvokeRole
         };
-        let command = new DetachRolePolicyCommand(input);
-        //let response = await iamClient.send(command);
+        let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaInvokePolicy) + " from role: " + yellow(resources.LambdaInvokeRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);
-        //return;    
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
     }
 
     // Delete Policy
@@ -699,13 +739,11 @@ async function removeAWSpipelineResources(resources, quietI) {
         const input = {
             PolicyArn: resources.LambdaInvokePolicy,
         };
-        const command = new DeletePolicyCommand(input);
-        //const response = await iamClient.send(command);
+        const command = new DeletePolicyCommand(input);     
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.LambdaInvokePolicy));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete policy failed: ' + error);
-        //return;    
+        if (!quiet) spinner.fail('Delete policy failed: ' + error);        
     }
    
     // Delete Role
@@ -714,13 +752,11 @@ async function removeAWSpipelineResources(resources, quietI) {
         const input = {
             RoleName: resources.LambdaInvokeRole,
         };
-        const command = new DeleteRoleCommand(input);
-        //const response = await iamClient.send(command);
+        const command = new DeleteRoleCommand(input);        
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaInvokeRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);
-        //return;    
+        if (!quiet) spinner.fail('Delete role failed: ' + error);        
     }    
 }
 

@@ -16,6 +16,7 @@ function getClient() {
   
     try {
         client = new NeptunedataClient(config);
+        return client;
     } catch (error) {
         onError('new NeptunedataClient: ', error);
     }
