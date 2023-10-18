@@ -42,23 +42,7 @@ To create the Lambda you have two options:
     1. Create a new IAM Role for the Lambda function
     2. Attach the policy `AWSLambdaBasicExecutionRole`
     3. (if VPC) Attach the policy `AWSLambdaVPCAccessExecutionRole`
-    3. (if IAM) Create and attach the policy:
-    ```{
-            Version: "2012-10-17",
-            Statement: [
-                {
-                    Effect: "Allow",
-                    Action: [
-                        "neptune-db:DeleteDataViaQuery",
-                        "neptune-db:connect",
-                        "neptune-db:ReadDataViaQuery",
-                        "neptune-db:WriteDataViaQuery"
-                    ],
-                    Resource: "*"            
-                },
-            ],
-            }
-    ```
+    3. (if IAM) Attach the polucy `NeptuneFullAccess`
 
 
 1. go to the Neptune documentation here https://docs.aws.amazon.com/neptune/latest/userguide/get-started-cfn-lambda.html, can run the CloudFormation template that creates the Lambda. Lambda runtime is Node.js 18x.
