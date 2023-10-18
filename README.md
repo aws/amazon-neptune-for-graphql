@@ -249,7 +249,8 @@ You have three option to created the GraphQL API pipeline:
 Independently of the method you or the utility will need to create the following resources:
 - Create a IAM role for Lambda called LambdaExecutionRole
 - Attach to the LambdaExecutionRole the IAM policy AWSLambdaBasicExecutionRole
-- Attach to the LambdaExecutionRole the IAM policy AWSLambdaVPCAccessExecutionRole
+- For VPC (default) attach to the LambdaExecutionRole the IAM policy AWSLambdaVPCAccessExecutionRole
+- For IAM create and attach to the LambdaExecutionRole a new IAM policy that only allow to connect and query Neptune
 - Create a Lambda function with the LambdaExecutionRole
 - Create a IAM for AppSync API to call the Lambda called LambdaInvocationRole
 - Attach to the LambdaInvocationRole the policy LambdaInvokePolicy

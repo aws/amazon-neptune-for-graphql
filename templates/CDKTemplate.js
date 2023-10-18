@@ -52,11 +52,10 @@ class AppSyncNeptuneStack extends Stack {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com') 
         });
 
-        if (NEPTUNE_IAM_AUTH) {
-            // is IAM auth
-            lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
-            lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('NeptuneFullAccess'));
+        lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));   
 
+        if (NEPTUNE_IAM_AUTH) {                        
+            // is IAM auth
             echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, {
                 functionName: LAMBDA_FUNCTION_NAME,
                 description: 'Neptune GraphQL Resolver for AppSync',
@@ -70,18 +69,27 @@ class AppSyncNeptuneStack extends Stack {
                     NEPTUNE_PORT: NEPTUNE_PORT,
                     NEPTUNE_IAM_AUTH_ENABLED: 'true',
                     LOGGING_ENABLED: 'false'
-                },                
+                },
+                initialPolicy: [new iam.PolicyStatement({
+                    sid: NAME + "NeptuneQueryPolicy",
+                    effect: iam.Effect.ALLOW,
+                    actions: [
+                        "neptune-db:connect",
+                        "neptune-db:DeleteDataViaQuery",                        
+                        "neptune-db:ReadDataViaQuery",
+                        "neptune-db:WriteDataViaQuery"
+                    ],
+                    resources: ["*"]
+                })],
                 roleArn: lambda_role.roleArn
             });
-
+                        
         } else {
             // is VPC auth
-     
             const neptune_vpc = ec2.Vpc.fromLookup(this, 'Neptune_VPC', {
                 vpcId: NEPTUNE_DBSubnetGroup
             });
-
-            lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
+            
             lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'));
         
             echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, {
@@ -101,13 +109,11 @@ class AppSyncNeptuneStack extends Stack {
                 vpc: neptune_vpc,
                 allowPublicSubnet: 'true',
                 roleArn: lambda_role.roleArn
-            });
-
+            });            
         }
         
-        LAMBDA_ARN = echoLambda.functionArn;
         echoLambda.node.addDependency(lambda_role);
-        
+        LAMBDA_ARN = echoLambda.functionArn;        
 
         // Appsync: GraphQL API
         const itemsGraphQLApi = new CfnGraphQLApi(this, NAME + 'API', {
