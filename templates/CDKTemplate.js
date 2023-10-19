@@ -23,7 +23,7 @@ const NEPTUNE_HOST = '';
 const NEPTUNE_PORT = '';
 const NEPTUNE_DBSubnetGroup = null;
 const NEPTUNE_IAM_AUTH = false;
-
+const NEPTUNE_IAM_POLICY_RESOURCE = '*';
 const LAMBDA_FUNCTION_NAME = '';
 const LAMBDA_ZIP_FILE = '';
 let LAMBDA_ARN = '';
@@ -79,7 +79,7 @@ class AppSyncNeptuneStack extends Stack {
                         "neptune-db:ReadDataViaQuery",
                         "neptune-db:WriteDataViaQuery"
                     ],
-                    resources: ["*"]
+                    resources: [NEPTUNE_IAM_POLICY_RESOURCE]
                 })],
                 roleArn: lambda_role.roleArn
             });

@@ -69,6 +69,7 @@ let NEPTUNE_VpcSecurityGroupId = null;
 let NEPTUME_IAM_AUTH = false;
 let NEPTUNE_CURRENT_VERSION = '';
 let NEPTUNE_CURRENT_IAM = false;
+let NEPTUNE_IAM_POLICY_RESOURCE = '*';
 let LAMBDA_ROLE = '';
 let LAMBDA_ARN = '';
 //let APPSYNC_API_ID = '';
@@ -164,7 +165,8 @@ async function getNeptuneClusterinfoBy(name, region) {
         version : NEPTUNE_CURRENT_VERSION,
         dbSubnetGroup: NEPTUNE_DBSubnetGroup, 
         dbSubnetIds: NEPTUNE_DBSubnetIds, 
-        vpcSecurityGroupId: NEPTUNE_VpcSecurityGroupId };
+        vpcSecurityGroupId: NEPTUNE_VpcSecurityGroupId,
+        iamPolicyResource: NEPTUNE_IAM_POLICY_RESOURCE };
 }
 
 
@@ -189,6 +191,7 @@ async function getNeptuneClusterinfo() {
     NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
     NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
     NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
+    NEPTUNE_IAM_POLICY_RESOURCE = `${data.DBClusters[0].DBClusterArn.substring(0, data.DBClusters[0].DBClusterArn.lastIndexOf(':cluster')).replace('rds', 'neptune-db')}:${data.DBClusters[0].DbClusterResourceId}/*`;    
     response.DBSubnetGroups[0].Subnets.forEach(element => { 
         NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
     });    
@@ -247,7 +250,7 @@ async function createLambdaRole() {
                         "neptune-db:ReadDataViaQuery",
                         "neptune-db:WriteDataViaQuery"
                     ],
-                    Resource: "*"            
+                    Resource: NEPTUNE_IAM_POLICY_RESOURCE            
                 },
             ],
             }),
@@ -856,6 +859,7 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
                     console.error("VPC data is not available to proceed.");
                     exit(1);
                 } else {
+                    if (!quiet) console.log("Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.")
                     if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
                 }
             }

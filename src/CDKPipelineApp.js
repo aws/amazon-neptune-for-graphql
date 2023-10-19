@@ -26,7 +26,7 @@ let NEPTUNE_PORT = null;
 let NEPTUNE_DBSubnetGroup = null;
 //let NEPTUNE_DBSubnetIds = [];
 //let NEPTUNE_VpcSecurityGroupId = null;
-
+let NEPTUNE_IAM_POLICY_RESOURCE = '*';
 let LAMBDA_ZIP_FILE = '';
 
 let APPSYNC_SCHEMA = '';
@@ -125,7 +125,8 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
         NEPTUNE_PORT = neptuneClusterInfo.port;
         NEPTUNE_DBSubnetGroup = neptuneClusterInfo.dbSubnetGroup.replace('default-', '');       
         //NEPTUNE_DBSubnetIds = neptuneClusterInfo.dbSubnetIds;
-        //NEPTUNE_VpcSecurityGroupId = neptuneClusterInfo.vpcSecurityGroupId;    
+        //NEPTUNE_VpcSecurityGroupId = neptuneClusterInfo.vpcSecurityGroupId; 
+        NEPTUNE_IAM_POLICY_RESOURCE = neptuneClusterInfo.iamPolicyResource;      
     
     } catch (error) {
         if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
@@ -153,6 +154,7 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     CDKFile = CDKFile.replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );    
     CDKFile = CDKFile.replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
+    CDKFile = CDKFile.replace( "const NEPTUNE_IAM_POLICY_RESOURCE = '*';",   `const NEPTUNE_IAM_POLICY_RESOURCE = '${NEPTUNE_IAM_POLICY_RESOURCE}';` );
 
     CDKFile = CDKFile.replace( "const LAMBDA_FUNCTION_NAME = '';",           `const LAMBDA_FUNCTION_NAME = '${NAME + 'LambdaFunction'}';` );
     CDKFile = CDKFile.replace( "const LAMBDA_ZIP_FILE = '';",                `const LAMBDA_ZIP_FILE = '${NAME}.zip';` );
