@@ -1,3 +1,4 @@
+TEST
 **BEFORE THE UTILITY IS PUBLIC:** Until the utility is available in the NPM store, you can install it by downloading aws-neptune-for-graphql-1.0.0.tgz and install it with:
 `npm install aws-neptune-for-graphql-1.0.0.tgz -g`
 
