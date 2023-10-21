@@ -109,44 +109,46 @@ Create the CDK Files
 
 Parameters
 ***********
-[--help|--h|-help|-h]
-[--version|--v|-version|-v]
-[--quiet]
-[--input-schema <value>]
-[--input-schema-file <value>]
-[--input-schema-changes-file <value>]   
-[--input-graphdb-schema <value>]
-[--input-graphdb-schema-file <value>]
-[--input-graphdb-schema-neptune-endpoint]
-[--output-schema-file <value>]                               default: output.schema.graphql
-[--output-source-schema-file <value>]                        default: output.source.schema.graphql
-[--output-schema-no-mutations]
-[--output-neptune-schema-file]                               default: output.neptune.schema.json
-[--output-js-resolver-file <value>]                          default: output.resolver.graphql.js
-[--output-lambda-resolver-file <value>]                      default: output.lambda.index.mjs
-[--output-lambda-resolver-zip-name <value>]                  default: output.lambda.zip
-[--output-lambda-resolver-zip-file <value>]                  default: output.lambda.zip
-[--output-no-lambda-zip]
-[--output-resolver-language-gremlin |                        TODO
- --output-resolver-language-opencypher |                     default: openCypher
- --output-resolver-query-sparql]                             TODO
-[--output-resolver-query-client |                            TODO
- --output-resolver-query-https |                             default: SDK, this is the Neptune query menthod
- --output-resolver-query-sdk]                                
-[--create-update-aws-pipeline]      
-[--create-update-aws-pipeline-name <value>]                  default: Neptune DB name from --input-graphdb-schema-neptune-endpoint if exists
-[--create-update-aws-pipeline-region <value>]                default: us-east-1 or from --input-graphdb-schema-neptune-endpoint if exists
-[--create-update-aws-pipeline-neptune-endpoint <value>]      default: --input-graphdb-schema-neptune-endpoint if exists
-[--create-update-aws-pipeline-neptune-IAM]                   default: is Neptune VPC
-[--remove-aws-pipeline-name <value>]                         
-[--output-aws-pipeline-cdk]
-[--output-aws-pipeline-cdk-neptume-endpoint <value>]         default: --input-graphdb-schema-neptune-endpoint if exists
-[--output-aws-pipeline-cdk-neptume-database-name <value>]
-[--output-aws-pipeline-cdk-name <value>                      default: Neptune DB name from --input-graphdb-schema-neptune-endpoint if exists
-[--output-aws-pipeline-cdk-region <value>]                   default: us-east-1 or from --input-graphdb-schema-neptune-endpoint if exists
-[--output-aws-pipeline-cdk-file <value>]                     default: --output-aws-pipeline-cdk-name <value>-cdk.js
-[--output-aws-pipeline-cdk-neptune-IAM]                      default: is Neptune VPC
-[--output-folder-path]                                       default: ./output
+[--help                                                     -h   ]
+[--version                                                  -v   ]
+[--quiet                                                    -q   ]
+
+[--input-schema <value>                                     -is  ]
+[--input-schema-file <value>                                -isf ]
+[--input-schema-changes-file <value>                        -isc ]   
+[--input-graphdb-schema <value>                             -ig  ]
+[--input-graphdb-schema-file <value>                        -igf ]
+[--input-graphdb-schema-neptune-endpoint <value>            -ie  ]
+
+[--output-folder-path <value>                               -o   ]  default: ./output
+[--output-schema-file <value>                               -os  ]  default: output.schema.graphql
+[--output-source-schema-file <value>                        -oss ]  default: output.source.schema.graphql
+[--output-schema-no-mutations                               -onm ]  default: false
+[--output-neptune-schema-file                               -og  ]  default: output.neptune.schema.json
+[--output-js-resolver-file <value>                          -or  ]  default: output.resolver.graphql.js
+[--output-lambda-resolver-file <value>                      -olr ]  default: output.lambda.index.mjs
+[--output-lambda-resolver-zip-name <value>                  -oln ]  default: output.lambda.zip
+[--output-lambda-resolver-zip-file <value>                  -olf ]  default: output.lambda.zip
+[--output-no-lambda-zip                                     -onl ]
+[--output-resolver-query-https |                            -orh ]  default: SDK, this is the Neptune query menthod
+ --output-resolver-query-sdk]                               -ors ]
+
+[--create-update-aws-pipeline                               -p   ]
+[--create-update-aws-pipeline-name <value>                  -pn  ]  default: Neptune DB name from --input-graphdb-schema-neptune-endpoint if exists
+[--create-update-aws-pipeline-region <value>                -pr  ]  default: us-east-1 or from --input-graphdb-schema-neptune-endpoint if exists
+[--create-update-aws-pipeline-neptune-endpoint <value>      -pe  ]  default: --input-graphdb-schema-neptune-endpoint if exists
+[--create-update-aws-pipeline-neptune-database-name <value> -pd  ]
+[--create-update-aws-pipeline-neptune-IAM                   -pi  ]  default: is Neptune VPC
+[--remove-aws-pipeline-name <value>                         -rp  ]  
+
+[--output-aws-pipeline-cdk                                  -c   ]
+[--output-aws-pipeline-cdk-name <value>                     -cn  ]  default: Neptune DB name from --input-graphdb-schema-neptune-endpoint if exists
+[--output-aws-pipeline-cdk-neptume-endpoint <value>         -ce  ]  default: --input-graphdb-schema-neptune-endpoint if exists
+[--output-aws-pipeline-cdk-neptume-database-name <value>    -cd  ]
+[--output-aws-pipeline-cdk-region <value>                   -cr  ]  default: us-east-1 or from --input-graphdb-schema-neptune-endpoint if exists
+[--output-aws-pipeline-cdk-file <value>                     -cf  ]  default: --output-aws-pipeline-cdk-name <value>-cdk.js
+[--output-aws-pipeline-cdk-neptune-IAM                      -ci  ]  default: is Neptune VPC
+
 `
 
 export { helpTxt };
