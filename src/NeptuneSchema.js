@@ -63,13 +63,8 @@ async function queryNeptune(q) {
         const response = await queryNeptuneSDK(q);
         return response; 
     } else {
-        try {
-        //console.log('START: ' + q);
-        //let startTime = performance.now();
-        const response = await axios.get(`https://${HOST}:${PORT}/${language}?query=${encodeURIComponent(q)}`);
-        //let endTime = performance.now();
-        //console.log('END: ' + q);
-        //console.log(`  Query took ${endTime - startTime}ms`);
+        try {        
+        const response = await axios.post(`https://${HOST}:${PORT}/${language}`, `query=${encodeURIComponent(q)}`);
         return response.data;    
         } catch (error) {
             console.error("Http query request failed: ", error.message);
