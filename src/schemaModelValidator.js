@@ -27,10 +27,10 @@ function lowercaseFirstCharacter(inputString) {
     if (inputString.length === 0) {     
       return inputString;
     }  
-    const firstChar = inputString.charAt(0); // Get the first character
-    const restOfString = inputString.slice(1); // Get the rest of the string
-    const lowercasedFirstChar = firstChar.toLowerCase(); // Lowercase the first character
-    return lowercasedFirstChar + restOfString; // Combine the lowercased first character with the rest of the string
+    const firstChar = inputString.charAt(0);
+    const restOfString = inputString.slice(1);
+    const lowercasedFirstChar = firstChar.toLowerCase();
+    return lowercasedFirstChar + restOfString;
   }
   
 

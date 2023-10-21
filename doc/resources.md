@@ -23,7 +23,7 @@ Starting from an existing Neptune database.
 Run the command below passing your Neptune cluster endpoint and port.
 You can run the utility from a personal computer where you setup an SSH tunnel to an EC2 instance in the same VPC of your Neptune DB (VPC), or run the utility from an EC2 instance in the same Neptune VPC (if VPC), or with a Neptune IAM role (if IAM).
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint` *your-database-endpoint:port*
+`neptune-for-graphql --input-graphdb-schema-neptune-endpoint` <*your-database-endpoint:port*>
 
 The default output location for the GraphQL schema file to use in AppSync schema is: ./output/output.schema.graphql
 <br>
@@ -51,7 +51,7 @@ To create the Lambda you have two options:
         "neptune-db:ReadDataViaQuery",
         "neptune-db:WriteDataViaQuery"
     ],
-    "Resource": "*"
+    "Resource": "arn:aws:neptune-db:region:account-id:cluster-resource-id/*"
     ```
 
 

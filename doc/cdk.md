@@ -7,11 +7,11 @@ Note: likely your organization has a CDK application that deploy other AWS resou
 ## Create the CDK assets
 Example starting from an Amazon Neptune database endpoint. In this case the utility uses the Neptune endpoint to discover the region and database name.
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `*your-neptune-database-endpoint:port*` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` *your-new-GraphQL-API-name* `--output-resolver-query-https`
+`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `<*your-neptune-database-endpoint:port*>` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` <*your-new-GraphQL-API-name*> `--output-resolver-query-https`
 
 Example starting from a GraphQL schema.
 
-`neptune-for-graphql --input-schema-file `*your-graphql-schema-file*` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` *your-new-GraphQL-API-name*` --output-aws-pipeline-cdk-neptume-endpoint` *your-neptune-database-endpoint:port*` --output-resolver-query-https` 
+`neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` <*your-new-GraphQL-API-name*>` --output-aws-pipeline-cdk-neptume-endpoint` <*your-neptune-database-endpoint:port*>` --output-resolver-query-https` 
 
 
 
@@ -93,11 +93,11 @@ new AppSyncNeptuneStack(app, 'your-CdkStack-name', {
 
 ### Run the CDK application
 
-To create CloudFormantion template
+To create CloudFormantion template:
 
 `cdk synth`
 
-To deploy the CloudFormation template
+To deploy the CloudFormation template:
 
 `cdk deploy`
 

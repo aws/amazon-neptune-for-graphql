@@ -24,8 +24,6 @@ let NEPTUNE_DB_NAME = '';
 let NEPTUNE_HOST = null;
 let NEPTUNE_PORT = null;
 let NEPTUNE_DBSubnetGroup = null;
-//let NEPTUNE_DBSubnetIds = [];
-//let NEPTUNE_VpcSecurityGroupId = null;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
 let LAMBDA_ZIP_FILE = '';
 
@@ -123,9 +121,7 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
 
         NEPTUNE_HOST = neptuneClusterInfo.host;
         NEPTUNE_PORT = neptuneClusterInfo.port;
-        NEPTUNE_DBSubnetGroup = neptuneClusterInfo.dbSubnetGroup.replace('default-', '');       
-        //NEPTUNE_DBSubnetIds = neptuneClusterInfo.dbSubnetIds;
-        //NEPTUNE_VpcSecurityGroupId = neptuneClusterInfo.vpcSecurityGroupId; 
+        NEPTUNE_DBSubnetGroup = neptuneClusterInfo.dbSubnetGroup.replace('default-', '');                
         NEPTUNE_IAM_POLICY_RESOURCE = neptuneClusterInfo.iamPolicyResource;      
     
     } catch (error) {

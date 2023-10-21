@@ -1,7 +1,3 @@
-**BEFORE THE UTILITY IS PUBLIC:** Until the utility is available in the NPM store, you can install it by downloading aws-neptune-for-graphql-1.0.0.tgz and install it with:
-`npm install aws-neptune-for-graphql-1.0.0.tgz -g`
-
-===================================================================
 <br>
 <img src="./doc/images/utilityRunning.gif" width="180" height="100">
 
@@ -34,7 +30,7 @@ Index:
 - [Commands reference: utility CLI options](/doc/cliReference.md)
 - [Known Limitations](#known-limitations)
 - [Roadmap](#roadmap)
-- [Licence](#licence)
+- [License](#license)
 - [Contributing](#contributing)
 
 <br>
@@ -72,13 +68,13 @@ The easiet way is to run the utility from an EC2 instance which network is confi
 # Starting from a Neptune database with data
 Independently if you are familiar with GraphQL or not, the command below is the fastest way to create a GraphQL API. Starting from an existing Neptune database endpoint, the utility scans the Neptune database discovering the schema of the existing nodes, edges and properties. Based on the graph database schema, it inferences a GraphQL schema, queries and mutations. Then, it creates an AppSync GraphQL API, and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility complete the execution, you will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu. (*Note: follow the setup instructions below to enable your environment to reach the Neptune database and create AWS resources.*)
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `*your-neptune-database-endpoint:port*` --create-update-aws-pipeline --create-update-aws-pipeline-name` *your-new-GraphQL-API-name* ` --output-resolver-query-https`
+`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `<*your-neptune-database-endpoint:port*>` --create-update-aws-pipeline --create-update-aws-pipeline-name` <*your-new-GraphQL-API-name*>` --output-resolver-query-https`
 
 If you run the command above a second time, it will look again at the Neptune database data and update the AppSync API and the Lambda code.
 
 To rollback, removing all the AWS resources run:
 
-`neptune-for-graphql --remove-aws-pipeline-name` *your-new-GraphQL-API-name*
+`neptune-for-graphql --remove-aws-pipeline-name` <*your-new-GraphQL-API-name*>
 
 #### References:
 - [here](/doc/routesExample.md) an example using the Air Routes data on Amazon Neptune, showing the outputs of the utility.
@@ -90,7 +86,7 @@ To rollback, removing all the AWS resources run:
 # Starting from a GraphQL schema and an empty Neptune database
 You can start from an empty Neptune database and use a GraphQL API to create the data and query it. Running the command below, the utility will automate the creation of the AWS resources. Your *your-graphql-schema-file* must include the GraphQL schema types, like in the TODO example [here](/doc/todoExample.md). The utility will analyze your schema and create an extended version based on your types. It will add queries and mutations for the nodes stored in the graph database, and in case your schema have nested types, it will add relationships between the types stored as edges in the graph database, again see the TODO example [here](/doc/todoExample.md). The utility creates an AppSync GraphQL API, and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility complete the execution, you will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu. (*Note: follow the setup instructions below to enable your environment to reach the Neptune database and create AWS resources.*)
 
-`neptune-for-graphql --input-schema-file `*your-graphql-schema-file*` --create-update-aws-pipeline --create-update-aws-pipeline-name` *your-new-GraphQL-API-name* `--create-update-aws-pipeline-neptune-endpoint` *your-neptune-database-endpoint:port*  ` --output-resolver-query-https`
+`neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>` --create-update-aws-pipeline --create-update-aws-pipeline-name` <*your-new-GraphQL-API-name*>` --create-update-aws-pipeline-neptune-endpoint` <*your-neptune-database-endpoint:port*>  ` --output-resolver-query-https`
 
 #### References:
 - [here](/doc/todoExample.md) an example using a TODO GraphQL schema, showing the outputs of the utility.
@@ -103,7 +99,7 @@ You can start from an empty Neptune database and use a GraphQL API to create the
 You can start from a GraphQL schema with directives for a graph database. For the list of supported directives see the section below [Customize the GraphQL schema with directives](#customize-the-graphql-schema-with-directives). 
 
 
-`neptune-for-graphql --input-schema-file `*your-graphql-schema-file-with-directives*` --create-update-aws-pipeline --create-update-aws-pipeline-name` *your-new-GraphQL-API-name* `--create-update-aws-pipeline-neptune-endpoint` *your-neptune-database-endpoint:port*  ` --output-resolver-query-https`
+`neptune-for-graphql --input-schema-file `<*your-graphql-schema-file-with-directives*>` --create-update-aws-pipeline --create-update-aws-pipeline-name` <*your-new-GraphQL-API-name*> `--create-update-aws-pipeline-neptune-endpoint` <*your-neptune-database-endpoint:port*>` --output-resolver-query-https`
 
 
 <br>
@@ -127,7 +123,9 @@ type Airport @alias(property: "airport") {
 ```
 
 ### @relationship
-This directive maps nested GraphQL types to a graph databases edges. The syntax is *@relationship(edgeType: graphdb-edge-name, direction: IN|OUT)*. See the [Todo Example](/doc/todoExample.md) and the [Air Routes Example](/doc/routesExample.md).
+This directive maps nested GraphQL types to a graph databases edges. The syntax is *@relationship(edgeType: graphdb-edge-name, direction: IN|OUT)*. 
+<br>
+See the [Todo Example](/doc/todoExample.md) and the [Air Routes Example](/doc/routesExample.md).
 
 ```graphql
 type Airport @alias(property: "airport") {
@@ -217,7 +215,7 @@ type Mutation {
 ```
 
 ### Re-apply your changes with --input-schema-changes-file
-You might want to modify the GraphQL source schema and run the utility again getting the latest schema from your Neptune database. Every time the utity discover the a new graphdb schema it generates a new GraphQL schema. To inject your changes, you can manually edit the GraphQL source schema, and run the utility again using it as input instead of the Neptune datamabe endpoint, or write your changes the file format below. As you run the utility with the option `--input-schema-changes-file <value>`, your changes will be applied at once.
+You might want to modify the GraphQL source schema and run the utility again getting the latest schema from your Neptune database. Every time the utility discover the a new graphdb schema it generates a new GraphQL schema. To inject your changes, you can manually edit the GraphQL source schema, and run the utility again using it as input instead of the Neptune database endpoint, or write your changes the file format below. As you run the utility with the option `--input-schema-changes-file <value>`, your changes will be applied at once.
 ```json
 [
      { "type": "graphQLTypeName",
@@ -279,7 +277,6 @@ See CDK end to end example [here](/doc/cdk.md).
 <br>
 
 # Roadmap
-- Resolver generates Gremlin queries instead of openCypher.
 - Gremlin resolver.
 - SPARQL resolver for RDF database.
 - Generate GraphQL resolver and configurations for Apollo Server.
@@ -303,5 +300,3 @@ Follow AWS open source practices.
 <br>
 [Code of conduct page.](/CODE_OF_CONDUCT.md)
 <br>
-
-# Get Support

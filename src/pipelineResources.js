@@ -421,7 +421,7 @@ async function createAppSyncAPI() {
     if (!quiet) spinner = ora('Attaching policy ...').start();
     params = {
         RoleName: NAME +"LambdaInvocationRole",
-        PolicyArn: policyARN, // required
+        PolicyArn: policyARN,
     };
     command = new AttachRolePolicyCommand(params);
     await iamClient.send(command);
@@ -431,9 +431,9 @@ async function createAppSyncAPI() {
     const appSyncClient = new AppSyncClient({region: REGION});
 
     if (!quiet) spinner = ora('Creating AppSync API ...').start();
-    params = { // CreateGraphqlApiRequest
-        name: NAME + 'API', // required
-        authenticationType: "API_KEY", // required        
+    params = {
+        name: NAME + 'API',
+        authenticationType: "API_KEY",      
         visibility: "GLOBAL",
         apiType: "GRAPHQL"        
     };
@@ -454,13 +454,13 @@ async function createAppSyncAPI() {
 
     // create datasource
     if (!quiet) spinner = ora('Creating DataSource ...').start();
-    params = { // CreateDataSourceRequest
+    params = {
         apiId: apiId,
         name: NAME + 'DataSource',       
         type: "AWS_LAMBDA",
         serviceRoleArn: LAMBDA_INVOCATION_ROLE,
-        lambdaConfig: { // LambdaDataSourceConfig
-            lambdaFunctionArn: LAMBDA_ARN, // required
+        lambdaConfig: {
+            lambdaFunctionArn: LAMBDA_ARN, 
         },
     };    
     command = new CreateDataSourceCommand(params);
@@ -470,14 +470,13 @@ async function createAppSyncAPI() {
 
     // create function
     if (!quiet) spinner = ora('Creating Function ...').start();
-    params = { // CreateFunctionRequest
-        apiId: apiId, // required
-        name: NAME+'Function', // required        
-        dataSourceName: NAME+'DataSource', // required
-        //functionVersion: '2018-05-29',
-        runtime: { // AppSyncRuntime
-            name: "APPSYNC_JS", // required
-            runtimeVersion: "1.0.0", // required
+    params = {
+        apiId: apiId,
+        name: NAME+'Function',       
+        dataSourceName: NAME+'DataSource',
+        runtime: {
+            name: "APPSYNC_JS",
+            runtimeVersion: "1.0.0",
         },
         code:
 `import { util } from '@aws-appsync/utils';
@@ -501,7 +500,7 @@ export function response(ctx) {
     };
     command = new AppSyncCreateFunctionCommand(params);
     response = await appSyncClient.send(command);
-    await sleep(5000); // wait for function
+    await sleep(5000);
     let functionId = response.functionConfiguration.functionId;    
     storeResource({AppSyncAPIFunction: functionId});
     if (!quiet) spinner.succeed('Created Function: ' + yellow(NAME+'Function'));
@@ -516,7 +515,7 @@ export function response(ctx) {
       };
     command = new StartSchemaCreationCommand(params);
     response = await appSyncClient.send(command);    
-    await sleep(5000); // wait for schema
+    await sleep(5000);
     if (!quiet) spinner.succeed('Added schema');
     
     await attachResolvers(appSyncClient, apiId, functionId);
@@ -549,9 +548,9 @@ async function attachResolvers(client, apiId, functionId) {
     let response = null;
 
     // Queries
-    let input = { // ListResolversRequest
-        apiId: apiId, // required
-        typeName: "Query", // required
+    let input = {
+        apiId: apiId,
+        typeName: "Query",
     };
     let command = new ListResolversCommand(input);
     response = await client.send(command);
@@ -566,15 +565,14 @@ async function attachResolvers(client, apiId, functionId) {
     for (const query of queries) {
         if (!existingQueries.includes(query)) {                
             await attachResolverToSchemaField(client, apiId, functionId, "Query", query);
-            //await sleep(200);
         }
     }      
     
     // Mutations    
     if (ADD_MUTATIONS) {
-        input = { // ListResolversRequest
-            apiId: apiId, // required
-            typeName: "Mutation", // required
+        input = {
+            apiId: apiId,
+            typeName: "Mutation",
         };
         command = new ListResolversCommand(input);
         response = await client.send(command); 
@@ -600,19 +598,19 @@ async function attachResolverToSchemaField (client, apiId, functionId, typeName,
     
     // attach resolvers to schema
     if (!quiet) spinner = ora('Attaching resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName) + ' ...').start();
-    const input = { // CreateResolverRequest
-        apiId: apiId, // required
-        typeName: typeName, // required
-        fieldName: fieldName, // required       
+    const input = {
+        apiId: apiId,
+        typeName: typeName,
+        fieldName: fieldName,    
         kind: "PIPELINE",
-        pipelineConfig: { // PipelineConfig
-          functions: [ // FunctionsIds
+        pipelineConfig: {
+          functions: [
             functionId
           ],
         },        
-        runtime: { // AppSyncRuntime
-          name: "APPSYNC_JS", // required
-          runtimeVersion: "1.0.0", // required
+        runtime: {
+          name: "APPSYNC_JS",
+          runtimeVersion: "1.0.0",
         },
         code:
 `
@@ -628,7 +626,6 @@ export function response(ctx) {
 `,
       };
       const command = new CreateResolverCommand(input);
-      //const response = await client.send(command);
       await client.send(command);
       await sleep(200);
       if (!quiet) spinner.succeed('Attached resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName));      
@@ -772,7 +769,6 @@ async function updateLambdaFunction(resources) {
         ZipFile: ZIP,
     };
     const command = new UpdateFunctionCodeCommand(input);
-    //const response = await lambdaClient.send(command);
     await lambdaClient.send(command);
     if (!quiet) spinner.succeed('Lambda function code updated: ' + yellow(resources.LambdaFunction));
 }
@@ -790,7 +786,6 @@ async function updateAppSyncAPI(resources) {
         definition: definition,
       };
     let command = new StartSchemaCreationCommand(params);
-    //let response = await appSyncClient.send(command);
     await appSyncClient.send(command);    
     await sleep(5000);
     if (!quiet) spinner.succeed('Schema updated');
@@ -910,9 +905,6 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
         if (!quiet) console.log('Update AppSync API');
         await updateAppSyncAPI(resources);
     }
-
-
-  
 }
 
 export { createUpdateAWSpipeline, getNeptuneClusterinfoBy, removeAWSpipelineResources }

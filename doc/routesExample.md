@@ -1,11 +1,11 @@
 # Air Routes Example: Starting from a Neptune database with data
-Amazon Neptune uses the Air Routes dataset in several Notebook tutorials. If you don't have a Neptune database with the Air Route data you can create a new database, and follow one of  the Notebook tutorials to seed it with the Air Route data.
+Amazon Neptune uses the Air Routes dataset in several Notebook tutorials. If you don't have a Neptune database with the Air Route data you can create a new database, and follow one of the Notebook tutorials to seed it with the Air Route data.
 
 Then you can run this Neptune GraphQL Utility command to create an AppSync GraphQL API.
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `*your-neptune-database-endpoint:port*` --create-update-aws-pipeline --create-update-aws-pipeline-name AriRoutesExample`
+`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `<*your-neptune-database-endpoint:port*>` --create-update-aws-pipeline --create-update-aws-pipeline-name AriRoutesExample`
 
-The command will log during the execution the graph database schema it finds, the files it creates and the AWS resouces it creates or modifies. If you ever want to run the command logging only errors use the `--quite` CLI option.
+The command will log during the execution the graph database schema it finds, the files it creates and the AWS resouces it creates or modifies. If you ever want to run the command logging only errors use the `--quiet` CLI option.
 
 ![Running](/doc/images/utilityRunning.gif)
 
@@ -18,10 +18,10 @@ The utility creates these files naming them based on the `--create-update-aws-pi
 | AirRoutesExample.schema.graphql | the GraphQL schema|
 | AirRoutesExample.resolver.graphql.js | the JavaScript resolver |
 | AirRoutesExample.neptune.schema.json | the graph schema it discovered |
-| AirportNGU-resources.json | the list of AWS Resources it created |
+| AirRoutesExample-resources.json | the list of AWS Resources it created |
 
 ## The graph schema it discovered
-The picture below show the content of the file AirRoutesExample.neptune.schema.json.
+Below the content of the file AirRoutesExample.neptune.schema.json.
 The files contains nodes, edges, properties, and edges cardinality. 
 The utility then use this data to inference the GraphQL schema.
 
@@ -86,10 +86,10 @@ The utility then use this data to inference the GraphQL schema.
 ```
 
 ## The GraphQL schema with directives
-The picture below show the GraphQL schema with directives, inferenced by the utility.
+Below the GraphQL schema with directives, inferenced by the utility.
 
 - The Air Routes nodes labels are lower case, and GraphQL type names are typically in Pascal case, so the utility added the *@alias* directive to map the names between GraphQL and the Neptune Database.
-- Because the node labelled *continent* is connected to the *airport* using the edge *contains* and the cardinality is one to many, you can see the directive *@relationship* in the GraphQL type *Continent* and new field names *AirportOut* returning an array of *Airport*. The type Airport has an opposite field called *continentIn* as single *Continent*. This tuple declaration will enable you to query the *Continent* from the *Airport* and the list of *Airport*/s from a *Continent*.
+- Because the node labelled *continent* is connected to the *airport* using the edge *contains* and the cardinality is one to many, you can see the directive *@relationship* in the GraphQL type *Continent* and new field names *airportContainssOut* returning an array of *Airport*. The type Airport has an opposite field called *continentContainsIn* as single *Continent*. This tuple declaration will enable you to query the *Continent* from the *Airport* and the list of *Airport*/s from a *Continent*.
 - The edge *route* that connect an *airport* to another *airport* has a property called *dist*. You can find it in the type *Route*, and is added to the type *Airport* as well. We will see later how to query it.
 - For each type the utility also added input, which are used as helpers for queries and mutations.
 - For each node label the utility added two queries. One to retrive a single node/type using an id or any of the type fields listed in the input, and the second to retrive multiple values, again filtered using the input of that node/type.

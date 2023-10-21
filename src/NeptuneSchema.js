@@ -154,9 +154,6 @@ async function getEdgesDirections() {
     }
 
     await Promise.all(possibleDirections.map(checkEdgeDirection))
-    //await Promise.all(possibleDirections.map(async (direction) => {
-    //    await checkEdgeDirection(direction);
-    //  }));
 }
 
 

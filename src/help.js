@@ -126,8 +126,6 @@ Parameters
 [--output-schema-no-mutations                               -onm ]  default: false
 [--output-neptune-schema-file                               -og  ]  default: output.neptune.schema.json
 [--output-js-resolver-file <value>                          -or  ]  default: output.resolver.graphql.js
-[--output-lambda-resolver-file <value>                      -olr ]  default: output.lambda.index.mjs
-[--output-lambda-resolver-zip-name <value>                  -oln ]  default: output.lambda.zip
 [--output-lambda-resolver-zip-file <value>                  -olf ]  default: output.lambda.zip
 [--output-no-lambda-zip                                     -onl ]
 [--output-resolver-query-https |                            -orh ]  default: SDK, this is the Neptune query menthod
