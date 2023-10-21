@@ -7,7 +7,7 @@ Then you can run this Neptune GraphQL Utility command to create an AppSync Graph
 
 The command will log during the execution the graph database schema it finds, the files it creates and the AWS resouces it creates or modifies. If you ever want to run the command logging only errors use the `--quiet` CLI option.
 
-![Running](https://github.com/aws/amazon-neptune-for-graphql/doc/images/utilityRunning.gif)
+![Running](https://github.com/aws/amazon-neptune-for-graphql/tree/main/doc/images/utilityRunning.gif)
 
 The utility creates these files naming them based on the `--create-update-aws-pipeline-name` option, in our case `AirRoutesExample`:
 
@@ -252,6 +252,6 @@ In this case it formed a GrahQL query that is looking for one *Airport*, with *c
 
 You can then follow the AppSync documentation on how to call the GraphQL API from your application, enable caching and other AppSync API features.
 
-![AppSync Queries UI](https://github.com/aws/amazon-neptune-for-graphql/doc/images/AppSyncQuery.jpg)
+![AppSync Queries UI](https://github.com/aws/amazon-neptune-for-graphql/tree/main/doc/images/AppSyncQuery.jpg)
 
 

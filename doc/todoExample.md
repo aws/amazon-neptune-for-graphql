@@ -1,7 +1,7 @@
 # TODO Example: Starting from a GraphQL schema with no directives
 You can start from a GraphQL schema without directives and an empty Neptune database. The utility will inference directives, input, queries and mutations, and create the the GraphQL API. Then, you can use GraphQL to create, mutate and query the data stored in a Neptune database without the need to know how to use a graph query language. 
 
-In this example we start from a TODO GraphQL schema, that you can find in the [samples](https://github.com/aws/amazon-neptune-for-graphql/samples/todo.schema.graphql). Includes two types: *Todo* and *Comment*. The *Todo* has a field *comments* as list of *Comment* type.
+In this example we start from a TODO GraphQL schema, that you can find in the [samples](https://github.com/aws/amazon-neptune-for-graphql/tree/main/samples/todo.schema.graphql). Includes two types: *Todo* and *Comment*. The *Todo* has a field *comments* as list of *Comment* type.
 
 ```graphql
 type Todo {    
@@ -29,7 +29,7 @@ Te utility created a new file in the *output* folder called *TodoExample.source.
 - For each type three mutations: create, update and delete. Selecting the type to delete using an id or the input for that type. These mutation affect the data stored in The Neptune database.
 - For connections two mutations: connect and delete. They take as input the ids of the from and to. The ids are of used by Neptune, and the connection are edges in the graph database as mention earlier.
 
-Note: the queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: [Customize the GraphQL schema with directives](https://github.com/aws/amazon-neptune-for-graphql/README.md/#customize-the-graphql-schema-with-directives).
+Note: the queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: [Customize the GraphQL schema with directives](https://github.com/aws/amazon-neptune-for-graphql/tree/main/README.md/#customize-the-graphql-schema-with-directives).
 
 ```graphql
 type Todo {
@@ -103,16 +103,16 @@ In the middle window, the Explorer shows you the queries and mutations. You can 
 
 The picture shows the creation of a node type *Todo*, using *createNodeTodo* mutation.
 
-![Create](https://github.com/aws/amazon-neptune-for-graphql/doc/images/todoCreate.jpg)
+![Create](https://github.com/aws/amazon-neptune-for-graphql/tree/main/doc/images/todoCreate.jpg)
 
 Here quering all the Todos with *getNodeTodos* query.
 
-![Query](https://github.com/aws/amazon-neptune-for-graphql/doc/images/todoGetTodos.jpg)
+![Query](https://github.com/aws/amazon-neptune-for-graphql/tree/main/doc/images/todoGetTodos.jpg)
 
 After having created one *Comment* using *createNodeComment*, we used the Ids connect them using the mutation *connectNodeTodoToNodeCommentEdgeCommentEdge*
 
 Here a nested query to retreive Todos and their attached comments.
 
-![Query](https://github.com/aws/amazon-neptune-for-graphql/doc/images/todoNestedQuery.JPG)
+![Query](https://github.com/aws/amazon-neptune-for-graphql/tree/main/doc/images/todoNestedQuery.JPG)
 
 The solution illustrated in this example if functional and can be used as is. If you wish you can make changes to the *TodoExample.source.graphql* following the direction in the section: *Customize the GraphQL schema with directives*. The edited schema can then be use as `--input-schema-file` running the utility again. The utility will then modify the GraphQL API.
