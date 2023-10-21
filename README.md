@@ -1,5 +1,5 @@
 <br>
-<img src="./doc/images/utilityRunning.gif" width="180" height="100">
+<img src="https://github.com/aws/amazon-neptune-for-graphql/doc/images/utilityRunning.gif" width="180" height="100">
 
 # **Amazon Neptune utility for GraphQL&trade; schemas and resolvers**
 
@@ -21,13 +21,13 @@ If you have a **few queries** with a static number of input parameters and retur
 Index:
 - [Install and Setup](#install-and-setup)
 - [Starting from a Neptune database with data](#starting-from-a-neptune-database-with-data)
-- [Starting from a Neptune database with data: Air Routes Example](/doc/routesExample.md)
+- [Starting from a Neptune database with data: Air Routes Example](https://github.com/aws/amazon-neptune-for-graphql/doc/routesExample.md)
 - [Starting from a GraphQL schema and an empty Neptune database](#starting-from-a-graphql-schema-and-an-empty-neptune-database)
-- [Starting from a GraphQL schema and an empty Neptune database: Todo Example](/doc/todoExample.md)
+- [Starting from a GraphQL schema and an empty Neptune database: Todo Example](https://github.com/aws/amazon-neptune-for-graphql/doc/todoExample.md)
 - [Starting from GraphQL schema with directives](#starting-from-a-graphql-schema-with-directives)
 - [Customize the GraphQL schema with directives](#customize-the-graphql-schema-with-directives)
 - [AWS resources for the GraphQL API](#aws-resources-for-the-graphql-api)
-- [Commands reference: utility CLI options](/doc/cliReference.md)
+- [Commands reference: utility CLI options](https://github.com/aws/amazon-neptune-for-graphql/doc/cliReference.md)
 - [Known Limitations](#known-limitations)
 - [Roadmap](#roadmap)
 - [License](#license)
@@ -89,7 +89,7 @@ You can start from an empty Neptune database and use a GraphQL API to create the
 `neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>` --create-update-aws-pipeline --create-update-aws-pipeline-name` <*your-new-GraphQL-API-name*>` --create-update-aws-pipeline-neptune-endpoint` <*your-neptune-database-endpoint:port*>  ` --output-resolver-query-https`
 
 #### References:
-- [here](/doc/todoExample.md) an example using a TODO GraphQL schema, showing the outputs of the utility.
+- [here](https://github.com/aws/amazon-neptune-for-graphql/doc/todoExample.md) an example using a TODO GraphQL schema, showing the outputs of the utility.
 - If you are wondering which AWS resources the utility is creating, look at the section below.
 - To customize the GraphQL schema, look at the section below.
 
@@ -113,7 +113,7 @@ In case you don't want your Graph API having the option of updating your databas
 
 
 ### @alias
-This directive can be applied to GraphQL schema types or fields. It maps different names between the graph database and the GraphQL schema. The syntax is *@alias(property: your-name)*. In the example below *airport* is the graph database node label mapped to the *Airport* GraphQL type, and *desc* is the property of the graph database node mapped to the field *description*. See the [Air Routes Example](/doc/routesExample.md). The GraphQL guidence is pascal case for types and camel case for fields.
+This directive can be applied to GraphQL schema types or fields. It maps different names between the graph database and the GraphQL schema. The syntax is *@alias(property: your-name)*. In the example below *airport* is the graph database node label mapped to the *Airport* GraphQL type, and *desc* is the property of the graph database node mapped to the field *description*. See the [Air Routes Example](https://github.com/aws/amazon-neptune-for-graphql/doc/routesExample.md). The GraphQL guidence is pascal case for types and camel case for fields.
 
 ```graphql
 type Airport @alias(property: "airport") {  
@@ -125,7 +125,7 @@ type Airport @alias(property: "airport") {
 ### @relationship
 This directive maps nested GraphQL types to a graph databases edges. The syntax is *@relationship(edgeType: graphdb-edge-name, direction: IN|OUT)*. 
 <br>
-See the [Todo Example](/doc/todoExample.md) and the [Air Routes Example](/doc/routesExample.md).
+See the [Todo Example](https://github.com/aws/amazon-neptune-for-graphql/doc/todoExample.md) and the [Air Routes Example](https://github.com/aws/amazon-neptune-for-graphql/doc/routesExample.md).
 
 ```graphql
 type Airport @alias(property: "airport") {
@@ -257,18 +257,18 @@ Independently of the method you or the utility will need to create the following
 
 
 ### Let the utility create the resources
-With the CLI option `--create-update-aws-pipeline`, and its accesory options ([see the commands reference](/doc/cliReference.md)), the utility automatically creates the resources.<br>
+With the CLI option `--create-update-aws-pipeline`, and its accesory options ([see the commands reference](https://github.com/aws/amazon-neptune-for-graphql/doc/cliReference.md)), the utility automatically creates the resources.<br>
 You need to run the utility from a shell in which you installed the AWS CLI, and it is configured for a user with the permission of creating AWS resources. <br>
 The utility creates a file with the list of resources named *pipeline-name.resources.json*. Then it uses the file to modify the existing resources when the user runs the command again, or when the user wants to delete the AWS resources with the command option `--remove-aws-pipeline-name <value>`.
-The code of the utiliy uses the JavaScript AWS sdk v3, if you'd like to review the code is only in [this file](/src/pipelineResources.js).
+The code of the utiliy uses the JavaScript AWS sdk v3, if you'd like to review the code is only in [this file](https://github.com/aws/amazon-neptune-for-graphql/src/pipelineResources.js).
 
 ### I prefer a CDK file
-To option to trigger the creation of the CDK file starts with `--output-aws-pipeline-cdk`, and its accessory options ([see the commands reference](/doc/cliReference.md)). <br> 
+To option to trigger the creation of the CDK file starts with `--output-aws-pipeline-cdk`, and its accessory options ([see the commands reference](https://github.com/aws/amazon-neptune-for-graphql/doc/cliReference.md)). <br> 
 After you ran it, you will find in the *output* folder the file *CDK-pipeline-name-cdk.js* and *CDK-pipeline-name.zip*. The ZIP file is the code for the Lambda function.
-See CDK end to end example [here](/doc/cdk.md).
+See CDK end to end example [here](https://github.com/aws/amazon-neptune-for-graphql/doc/cdk.md).
 
 ### Let me setup the resources manually or with my favorite DevOps toolchain
-[Here](/doc/resources.md) the detailed list of resorces needed to configure the GraphQL API pipeline.
+[Here](https://github.com/aws/amazon-neptune-for-graphql/doc/resources.md) the detailed list of resorces needed to configure the GraphQL API pipeline.
 <br>
 
 # Known limitations
