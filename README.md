@@ -1,5 +1,5 @@
 <br>
-<img src="https://github.com/aws/amazon-neptune-for-graphql/tree/main/doc/images/utilityRunning.gif" width="180" height="100">
+<img src="https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/utilityRunning.gif" width="180" height="100">
 
 # **Amazon Neptune utility for GraphQL&trade; schemas and resolvers**
 
