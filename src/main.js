@@ -101,111 +101,147 @@ function processArgs() {
                 console.log(version);
                 process.exit(0);
             break;
+            case '-q':
             case '--quiet':
                 quiet = true;
             break;
+            case '-is':
             case '--input-schema':
                 inputGraphQLSchema = array[index + 1];
             break;
+            case '-isf':
             case '--input-schema-file':
                 inputGraphQLSchemaFile = array[index + 1];
             break;
+            case '-ig':
             case '--input-graphdb-schema':
                 inputGraphDBSchema = array[index + 1];
             break;
+            case '-igf':
             case '--input-graphdb-schema-file':
                 inputGraphDBSchemaFile = array[index + 1];
             break;
+            case '-isc':
             case '--input-schema-changes-file':
                 inputGraphQLSchemaChangesFile = array[index + 1];
             break;
+            case '-ie':
             case '--input-graphdb-schema-neptune-endpoint':
                 inputGraphDBSchemaNeptuneEndpoint = array[index + 1];
             break;
+            case '-os':
             case '--output-schema-file':
                 outputSchemaFile = array[index + 1];
             break;
+            case '-oss':
             case '--output-source-schema-file':
                 outputSourceSchemaFile = array[index + 1];
             break;
+            case '-onm':
             case '--output-schema-no-mutations':
                 outputSchemaMutations = false;
             break;
+            case '-olr':
             case '--output-lambda-resolver-file':
                 outputLambdaResolverFile = array[index + 1];
             break;
+            case '-or':
             case '--output-js-resolver-file':
                 outputJSResolverFile = array[index + 1];
-            break;  
+            break;
+            case '-og':
             case '--output-neptune-schema-file':
                 outputNeptuneSchemaFile = array[index + 1];
             break;
+            case '-org':
             case '--output-resolver-query-gremlin':
                 queryLanguage = 'gremlin';
             break;
+            case '-oro':
             case '--output-resolver-query-opencypher':
                 queryLanguage = 'opencypher';
             break;
+            case '-orc':
             case '--output-resolver-query-client':
                 queryClient = 'client';
             break;
+            case '-orh':
             case '--output-resolver-query-https':
                 queryClient = 'http';
             break;
+            case '-ors':
             case '--output-resolver-query-sdk':
                 queryClient = 'sdk';
             break;
+            case '-p':
             case '--create-update-aws-pipeline':
                 createUpdatePipeline = true;
             break;
+            case '-pn':
             case '--create-update-aws-pipeline-name':
                 createUpdatePipelineName = array[index + 1];
             break;
+            case '-pr':
             case '--create-update-aws-pipeline-region':
                 createUpdatePipelineRegion = array[index + 1];
             break;
+            case '-pe':
             case '--create-update-aws-pipeline-neptune-endpoint':
                 createUpdatePipelineEndpoint = array[index + 1];
             break;
+            case '-pd':
             case '--create-update-aws-pipeline-neptune-database-name':
                 createUpdatePipelineNeptuneDatabaseName = array[index + 1];
             break;
+            case '-rp':
             case '--remove-aws-pipeline-name':
                 removePipelineName = array[index + 1];
             break;
+            case '-c':
             case '--output-aws-pipeline-cdk':
                 inputCDKpipeline = true;            
             break;
+            case '-ce':
             case '--output-aws-pipeline-cdk-neptume-endpoint':
                 inputCDKpipelineEnpoint = array[index + 1];
             break;
+            case '-cd':
             case '--output-aws-pipeline-cdk-neptume-database-name':
                 inputCDKpipelineDatabaseName = array[index + 1];
             break;
+            case '-cn':
             case '--output-aws-pipeline-cdk-name':
                 inputCDKpipelineName = array[index + 1];
             break;
+            case '-cr':
             case '--output-aws-pipeline-cdk-region':
                 inputCDKpipelineRegion = array[index + 1];
             break;
+            case '-cf':
             case '--output-aws-pipeline-cdk-file':
                 inputCDKpipelineFile = array[index + 1];
             break;
+            case '-oln':
             case '--output-lambda-resolver-zip-name':
                 outputLambdaResolverZipName = array[index + 1];
             break;
+            case '-olf':
             case '--output-lambda-resolver-zip-file':
                 outputLambdaResolverZipFile = array[index + 1];
             break;
+            case '-pi':
             case '--create-update-aws-pipeline-neptune-IAM':
                 isNeptuneIAMAuth = true;
             break;
+            case '-ci':
             case '--output-aws-pipeline-cdk-neptune-IAM':
                 isNeptuneIAMAuth = true;
             break;
+            case '-onl':
             case '--output-no-lambda-zip':
                 createLambdaZip = false;
             break;
+            case '-o':
             case '--output-folder-path':
                 outputFolderPath = array[index + 1];
             break;
