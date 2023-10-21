@@ -8,9 +8,8 @@ async function queryNeptune(q, language, host, port, param) {
     try {
         let response = null;
         if (language == 'opencypher')
-            response = await axios.get(`https://${host}:${port}/opencypher?query=${encodeURIComponent(q)}&parameters=${encodeURIComponent(JSON.stringify(param))}`);
-        else 
-            //response = await axios.get(`https://${host}:${port}?gremlin=${encodeURIComponent(q)}`);
+            response = await axios.post(`https://${host}:${port}/opencypher`, `query=${encodeURIComponent(q)}&parameters=${encodeURIComponent(JSON.stringify(param))}`);
+        else             
             response = await axios.post(`https://${host}:${port}/gremlin`, `{"gremlin":"${q}"}`)
 
         return response.data;    
