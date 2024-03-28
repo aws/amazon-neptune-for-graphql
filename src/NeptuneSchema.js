@@ -157,33 +157,23 @@ async function getEdgesNames() {
 }
 
 
-async function checkEdgeDirection(direction) {
-    let query = `MATCH(from)-[r]->(to)
-                WHERE $from in labels(from)
-                    AND type(r) = $edge
-                    AND $to in labels(to)
-                RETURN r as edge LIMIT 1`;
-    let parameters = `{"from": "${direction.from}", "edge": "${direction.edge.label}", "to": "${direction.to}"}`;
+async function findFromAndToLabels(edgeStructure) {
+    let query = `MATCH (from)-[r]->(to) WHERE type(r) = $edge RETURN DISTINCT labels(from) as fromLabel, labels(to) as toLabel`;
+    let parameters = `{"edge": "${edgeStructure.label}"}`;
     let response = await queryNeptune(query, parameters);
-    let result = response.results[0];
-    if (result !== undefined) {                    
-        direction.edge.directions.push({from:direction.from, to:direction.to});
-        consoleOut('  Found edge: ' + yellow(direction.edge.label) + '  direction: ' + yellow(direction.from) + ' -> ' + yellow(direction.to));
+    for (let result of response.results) {
+        for (let fromLabel of result.fromLabel) {
+            for (let toLabel of result.toLabel) {
+                edgeStructure.directions.push({from:fromLabel, to:toLabel});
+                consoleOut('  Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel));
+            }
+        }
     }
 }
 
 
 async function getEdgesDirections() {
-    let possibleDirections = [];
-    for (const edge of schema.edgeStructures) {        
-        for (const fromNode of schema.nodeStructures) {
-            for (const toNode of schema.nodeStructures) {
-                possibleDirections.push({edge:edge, from:fromNode.label, to:toNode.label});            
-            }
-        }
-    }
-
-    await Promise.all(possibleDirections.map(checkEdgeDirection))
+    await Promise.all(schema.edgeStructures.map(findFromAndToLabels))
 }
 
 
