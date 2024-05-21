@@ -19,7 +19,8 @@ let HOST = '';
 let PORT = 8182;
 let REGION = ''
 let SAMPLE = 5000;
-let VERBOSE = false; 
+let VERBOSE = false;
+let NEPTUNE_TYPE = 'neptune-db';
 let language = 'openCypher';
 let useSDK = false;
 
@@ -31,7 +32,7 @@ async function getAWSCredentials() {
     const interceptor = aws4Interceptor({
         options: {
             region: REGION,
-            service: "neptune-db",
+            service: NEPTUNE_TYPE,
         },
         credentials: cred
     });
@@ -68,10 +69,16 @@ async function queryNeptune(q) {
         return response.data;    
         } catch (error) {
             console.error("Http query request failed: ", error.message);
-            consoleOut("Trying with the AWS SDK");            
-            const response = await queryNeptuneSDK(q);
-            useSDK = true;
-            return response;             
+            consoleOut("Trying with the AWS SDK");
+
+            if (NEPTUNE_TYPE == 'neptune-db') {
+                consoleOut("Trying with the AWS SDK");
+                const response = await queryNeptuneSDK(q);
+                useSDK = true;
+                return response;
+            }
+
+            throw new Error('AWS SDK for Neptune Analytics is not available, yet.');
         }
     } 
 }
@@ -277,11 +284,12 @@ async function getEdgesDirectionsCardinality() {
 }
 
 
-function setGetNeptuneSchemaParameters(host, port, region, verbose = false) {
+function setGetNeptuneSchemaParameters(host, port, region, verbose = false, neptuneType) {
     HOST = host;
     PORT = port;
     REGION = region;
     VERBOSE = verbose;
+    NEPTUNE_TYPE = neptuneType;
 }
 
 

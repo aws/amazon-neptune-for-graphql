@@ -52,7 +52,7 @@ let isNeptuneIAMAuth = false;
 let createUpdatePipeline = false;
 let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
-let createUpdatePipelineRegion = 'us-east-1';
+let createUpdatePipelineRegion = '';
 let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
@@ -63,6 +63,7 @@ let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
 let createLambdaZip = true;
 let outputFolderPath = './output';
+let neptuneType = 'neptune-db'; // or neptune-graph
 
 
 // Outputs
@@ -269,6 +270,12 @@ async function main() {
         }
     }
 
+    // Check if Neptune target is db or graph
+    if ( inputGraphDBSchemaNeptuneEndpoint.includes('neptune-graph') || 
+         createUpdatePipelineEndpoint.includes('neptune-graph') ||
+         inputCDKpipelineEnpoint.includes('neptune-graph'))
+         neptuneType = 'neptune-graph';
+
     // Get Neptune schema from endpoint
     if (inputGraphDBSchemaNeptuneEndpoint != '' && inputGraphDBSchema == '' && inputGraphDBSchemaFile == '') {
         let endpointParts = inputGraphDBSchemaNeptuneEndpoint.split(':');
@@ -279,8 +286,12 @@ async function main() {
         let neptuneHost = endpointParts[0];
         let neptunePort = endpointParts[1];
         
-        let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');        
-        let neptuneRegion = neptuneRegionParts[2];                
+        let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');
+        let neptuneRegion = '';
+        if (neptuneType == 'neptune-db')
+            neptuneRegion = neptuneRegionParts[2];
+        else
+            neptuneRegion = neptuneRegionParts[1];
         
         if (!quiet) console.log('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
         setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, true);
@@ -341,7 +352,7 @@ async function main() {
             console.error('AWS pipeline: a Neptune database region is required.');
             process.exit(1);
         }        
-        if (createUpdatePipelineEndpoint != '') {
+        if (createUpdatePipelineEndpoint != '' && createUpdatePipelineRegion == '') {
             let parts = createUpdatePipelineEndpoint.split('.');
             createUpdatePipelineNeptuneDatabaseName = parts[0];
             createUpdatePipelineRegion = parts[2];
@@ -548,7 +559,8 @@ async function main() {
                                                 isNeptuneIAMAuth,
                                                 neptuneHost,
                                                 neptunePort,
-                                                outputFolderPath );            
+                                                outputFolderPath,
+                                                neptuneType );            
             } catch (err) {
                 console.error('Error creating AWS pipeline: ' + err);            
             }
@@ -584,7 +596,8 @@ async function main() {
                                             isNeptuneIAMAuth,
                                             neptuneHost,
                                             neptunePort,
-                                            outputFolderPath );
+                                            outputFolderPath,
+                                            neptuneType);
             } catch (err) {
                 console.error('Error creating CDK File: ' + err);            
             }

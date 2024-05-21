@@ -72,7 +72,7 @@ let NEPTUNE_CURRENT_IAM = false;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
 let LAMBDA_ROLE = '';
 let LAMBDA_ARN = '';
-//let APPSYNC_API_ID = '';
+let NEPTUNE_TYPE = 'neptune-db';
 let ZIP = null;
 let RESOURCES = {};
 let RESOURCES_FILE = '';
@@ -98,8 +98,7 @@ async function checkPipeline() {
 
     if (!quiet) spinner = ora('Checking pipeline resources...').start();
     try {
-        const command = new GetFunctionCommand({FunctionName: NAME +'LambdaFunction'});
-        //const response = await lambdaClient.send(command);
+        const command = new GetFunctionCommand({FunctionName: NAME +'LambdaFunction'});        
         await lambdaClient.send(command);
         lambdaExists = true;
     } catch (error) {
@@ -170,31 +169,35 @@ async function getNeptuneClusterinfoBy(name, region) {
 }
 
 
-async function getNeptuneClusterinfo() {    
-    const neptuneClient = new NeptuneClient({region: REGION});
+async function getNeptuneClusterinfo() {
+    if (NEPTUNE_TYPE == 'neptune-db') {
+        const neptuneClient = new NeptuneClient({region: REGION});
 
-    const params = {
-        DBClusterIdentifier: NEPTUNE_DB_NAME
-    };
+        const params = {
+            DBClusterIdentifier: NEPTUNE_DB_NAME
+        };
 
-    const data = await neptuneClient.send(new DescribeDBClustersCommand(params));
-    
-    const input = { // DescribeDBSubnetGroupsMessage
-        DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,        
-    };
-    const command = new DescribeDBSubnetGroupsCommand(input);
-    const response = await neptuneClient.send(command);
+        const data = await neptuneClient.send(new DescribeDBClustersCommand(params));
         
-    NEPTUNE_HOST = data.DBClusters[0].Endpoint;
-    NEPTUNE_PORT = data.DBClusters[0].Port.toString();
-    NEPTUNE_DBSubnetGroup = data.DBClusters[0].DBSubnetGroup;
-    NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
-    NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
-    NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
-    NEPTUNE_IAM_POLICY_RESOURCE = `${data.DBClusters[0].DBClusterArn.substring(0, data.DBClusters[0].DBClusterArn.lastIndexOf(':cluster')).replace('rds', 'neptune-db')}:${data.DBClusters[0].DbClusterResourceId}/*`;    
-    response.DBSubnetGroups[0].Subnets.forEach(element => { 
-        NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
-    });    
+        const input = { // DescribeDBSubnetGroupsMessage
+            DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,        
+        };
+        const command = new DescribeDBSubnetGroupsCommand(input);
+        const response = await neptuneClient.send(command);
+            
+        NEPTUNE_HOST = data.DBClusters[0].Endpoint;
+        NEPTUNE_PORT = data.DBClusters[0].Port.toString();
+        NEPTUNE_DBSubnetGroup = data.DBClusters[0].DBSubnetGroup;
+        NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
+        NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
+        NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
+        NEPTUNE_IAM_POLICY_RESOURCE = `${data.DBClusters[0].DBClusterArn.substring(0, data.DBClusters[0].DBClusterArn.lastIndexOf(':cluster')).replace('rds', 'neptune-db')}:${data.DBClusters[0].DbClusterResourceId}/*`;    
+        response.DBSubnetGroups[0].Subnets.forEach(element => { 
+            NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
+        });
+    } else {
+        throw new Error('AWS SDK for Neptune Analytics is not available, yet.');
+    }    
 }
 
 
@@ -221,7 +224,7 @@ async function createLambdaRole() {
     await sleep(10000);
     LAMBDA_ROLE = data.Role.Arn;
     storeResource({LambdaExecutionRole: NAME +"LambdaExecutionRole"});    
-    if (!quiet) spinner.succeed('Role ARN: ' + yellow(LAMBDA_ROLE));    
+    if (!quiet) spinner.succeed('Role ARN: ' + yellow(LAMBDA_ROLE));
 
     // Attach to Lambda role the AWSLambdaBasicExecutionRole 
     if (!quiet) spinner = ora('Attaching policies to the Lambda principal role ...').start();
@@ -236,6 +239,19 @@ async function createLambdaRole() {
 
 
     if (NEPTUME_IAM_AUTH) {
+
+        let action = [];
+        if (NEPTUNE_TYPE == 'neptune-db') {
+            action = [
+                "neptune-db:DeleteDataViaQuery",
+                "neptune-db:connect",
+                "neptune-db:ReadDataViaQuery",
+                "neptune-db:WriteDataViaQuery"
+            ];
+        } else {
+            action = "neptune-graph:*"
+        }
+
         // Create Neptune query policy
         if (!quiet) spinner = ora('Creating policy for Neptune queries ...').start();
         let command = new CreatePolicyCommand({
@@ -244,12 +260,7 @@ async function createLambdaRole() {
             Statement: [
                 {
                     Effect: "Allow",
-                    Action: [
-                        "neptune-db:DeleteDataViaQuery",
-                        "neptune-db:connect",
-                        "neptune-db:ReadDataViaQuery",
-                        "neptune-db:WriteDataViaQuery"
-                    ],
+                    Action: action,
                     Resource: NEPTUNE_IAM_POLICY_RESOURCE            
                 },
             ],
@@ -330,7 +341,8 @@ async function createLambdaFunction() {
                     "NEPTUNE_HOST": NEPTUNE_HOST,
                     "NEPTUNE_PORT": NEPTUNE_PORT,
                     "NEPTUNE_IAM_AUTH_ENABLED": "true",
-                    "LOGGING_ENABLED": "false"
+                    "LOGGING_ENABLED": "false",
+                    "NEPTUNE_TYPE": NEPTUNE_TYPE
                 },
             },
         };
@@ -365,7 +377,7 @@ async function createLambdaFunction() {
     //await sleep(5000);    
     LAMBDA_ARN = data.FunctionArn;
     storeResource({LambdaFunction: NAME +'LambdaFunction'});
-    if (!quiet) spinner.succeed('Lambda Name: ' + yellow(NAME +'LambdaFunction') + ' ARN: ' + yellow(LAMBDA_ARN));    
+    if (!quiet) spinner.succeed('Lambda Name: ' + yellow(NAME +'LambdaFunction') + ' ARN: ' + yellow(LAMBDA_ARN));
 }
 
 
@@ -628,7 +640,7 @@ export function response(ctx) {
       const command = new CreateResolverCommand(input);
       await client.send(command);
       await sleep(200);
-      if (!quiet) spinner.succeed('Attached resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName));      
+      if (!quiet) spinner.succeed('Attached resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName));
 }
 
 
@@ -648,7 +660,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await appSyncClient.send(command);
         if (!quiet) spinner.succeed('Deleted API id: ' + yellow(resources.AppSyncAPI));
     } catch (error) { 
-        if (!quiet) spinner.fail('AppSync API delete failed: ' + error);        
+        if (!quiet) spinner.fail('AppSync API delete failed: ' + error);
     }
     
     // Lambda
@@ -661,7 +673,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await lambdaClient.send(command);
         if (!quiet) spinner.succeed('Lambda function deleted: ' + yellow(resources.LambdaFunction));
     } catch (error) {
-        if (!quiet) spinner.fail('Lambda function fail to delete: ' + error);        
+        if (!quiet) spinner.fail('Lambda function fail to delete: ' + error);
     }    
     
     // Lambda execution role
@@ -675,7 +687,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);
     }
 
     if (!quiet) spinner = ora('Detaching IAM policies from role ...').start();
@@ -686,9 +698,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         };
         let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole));
+        if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy2) + " from role: " + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);
     }
     
     // Delete Neptune query Policy
@@ -702,7 +714,7 @@ async function removeAWSpipelineResources(resources, quietI) {
             await iamClient.send(command);
             if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.NeptuneQueryPolicy));
         } catch (error) {
-            if (!quiet) spinner.fail('Delete policy failed: ' + error);        
+            if (!quiet) spinner.fail('Delete policy failed: ' + error);
         }
     }
 
@@ -716,7 +728,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);        
+        if (!quiet) spinner.fail('Delete role failed: ' + error);
     }
     
     // AppSync Lambda role
@@ -730,7 +742,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaInvokePolicy) + " from role: " + yellow(resources.LambdaInvokeRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);
     }
 
     // Delete Policy
@@ -743,7 +755,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.LambdaInvokePolicy));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete policy failed: ' + error);        
+        if (!quiet) spinner.fail('Delete policy failed: ' + error);
     }
    
     // Delete Role
@@ -756,7 +768,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaInvokeRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);        
+        if (!quiet) spinner.fail('Delete role failed: ' + error);
     }    
 }
 
@@ -794,7 +806,7 @@ async function updateAppSyncAPI(resources) {
 }
 
 
-async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath) {    
+async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath, neptuneType) {    
 
     NAME = pipelineName;    
     REGION = neptuneDBregion;
@@ -809,8 +821,9 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
     thisOutputFolderPath = outputFolderPath;
+    NEPTUNE_TYPE = neptuneType;
 
-    if (!quiet) console.log('\nCheck if the pipeline resources have been created');    
+    if (!quiet) console.log('\nCheck if the pipeline resources have been created');
     await checkPipeline();
 
     if (!pipelineExists) {
@@ -873,7 +886,7 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
             if (!quiet) console.log('Create AppSync API');
             await createAppSyncAPI();            
             
-            if (!quiet) console.log('Saved resorces to file: ' + yellow(RESOURCES_FILE));            
+            if (!quiet) console.log('Saved resorces to file: ' + yellow(RESOURCES_FILE));
 
         } catch (error) {
             if (!quiet) spinner.fail('Error creating resources: ' + error);
