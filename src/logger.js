@@ -4,7 +4,7 @@ let LOG_FILE = './output/log.txt';
 
 function loggerInit(file) {
     LOG_FILE = file;
-    fs.writeFile(LOG_FILE, '', (err) => {
+    fs.writeFileSync(LOG_FILE, '', (err) => {
         return console.log(err);
     });
 }

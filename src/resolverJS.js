@@ -11,6 +11,9 @@ permissions and limitations under the License.
 */
 
 import { readFileSync} from 'fs';
+import { loggerLog } from "./logger.js";
+
+let msg = '';
 
 function resolverJS (schemaModel, queryLanguage, queryClient, __dirname) {
     let code = '';
@@ -22,7 +25,9 @@ function resolverJS (schemaModel, queryLanguage, queryClient, __dirname) {
             code = code.toString().replace('TIMESTAMP HERE', (new Date()).toISOString());
             code = code.toString().replace('INSERT SCHEMA DATA MODEL HERE', queryDataModelJSON);
         } catch (err) {
-            console.log('ERROR: No resolver template found.');
+            msg = 'ERROR: No resolver template found.';
+            console.log(msg);
+            loggerLog(msg + ' : ' + JSON.stringify(err));
         }
     }
     return code;
