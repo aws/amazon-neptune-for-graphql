@@ -16,6 +16,7 @@ import { readFile, writeFile } from 'fs/promises';
 import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
+import { loggerLog } from "./logger.js";
 
 let NAME = '';
 let REGION = '';
@@ -32,7 +33,7 @@ let APPSYNC_ATTACH_QUERY = [];
 let APPSYNC_ATTACH_MUTATION = [];
 let SCHEMA_MODEL = null;
 let thisOutputFolderPath = './output';
-
+let msg = '';
 
 function yellow(text) {
     return '\x1b[33m' + text + '\x1b[0m';
@@ -68,7 +69,9 @@ async function createDeploymentFile(folderPath, zipFilePath) {
         archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
         await archive.finalize();
     } catch (err) {
-        console.error('Creating deployment zip file: ' + err); 
+        msg = 'Creating deployment zip file: ' + err;
+        console.error(msg); 
+        loggerLog(msg);
     }
 }
 
@@ -125,6 +128,8 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
         NEPTUNE_IAM_POLICY_RESOURCE = neptuneClusterInfo.iamPolicyResource;      
     
     } catch (error) {
+        msg = 'Error getting Neptune Cluster Info: ' + JSON.stringify(error);
+        loggerLog(msg);
         if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
         if (!isNeptuneIAMAuth) {
             spinner.clear();

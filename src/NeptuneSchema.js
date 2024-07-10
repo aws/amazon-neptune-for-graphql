@@ -72,7 +72,7 @@ async function queryNeptune(q) {
         } catch (error) {
             msg = `Http query request failed: ${error.message}`;
             consoleOut.error(msg);
-            loggerLog(msg);
+            loggerLog(msg + ': ' + JSON.stringify(error));
             
             if (NEPTUNE_TYPE == 'neptune-db') {
                 consoleOut("Trying with the AWS SDK");            
@@ -103,7 +103,7 @@ async function queryNeptuneSDK(q) {
     } catch (error) {        
         msg = `SDK query request failed: ${error.message}`;
         consoleOut.error(msg);
-        loggerLog(msg);        
+        loggerLog(msg + ': ' + JSON.stringify(error));        
         process.exit(1);
     }
 }
@@ -121,7 +121,9 @@ async function getNodesNames() {
         });        
     }
     catch (e)  {
-        consoleOut("  No nodes found");
+        msg = "  No nodes found";
+        consoleOut(msg);
+        loggerLog(msg + ': ' + JSON.stringify(e));
         return;
     }
 }
@@ -139,7 +141,9 @@ async function getEdgesNames() {
         });
     }
     catch (e)  {
-        consoleOut("  No edges found");
+        msg = "  No edges found";
+        consoleOut(msg);
+        loggerLog(msg + ': ' + JSON.stringify(e));
         return;
     }
 
@@ -216,7 +220,9 @@ async function getEdgeProperties(edge) {
         });            
     }
     catch (e)  {
-        consoleOut("  No properties found for edge: " + edge.label);
+        msg = "  No properties found for edge: " + edge.label;
+        consoleOut(msg);
+        loggerLog(msg + ': ' + JSON.stringify(e));
     }    
 }
 
@@ -241,7 +247,9 @@ async function getNodeProperties(node) {
         });            
     }
     catch (e)  {
-        consoleOut("  No properties found for node: " + node.label);
+        msg = "  No properties found for node: " + node.label;
+        consoleOut(msg);
+        loggerLog(msg + ': ' + JSON.stringify(e));
     }    
 }
 
@@ -320,6 +328,7 @@ async function getSchemaViaSummaryAPI() {
         return true;
 
     } catch (error) {
+        loggerLog(`Getting the schema via Neptune Summary API failed: ${JSON.stringify(error)}`);
         return false;
     }    
 }
@@ -331,8 +340,10 @@ async function getNeptuneSchema(quiet) {
     
     try {
         await getAWSCredentials();
-    } catch (error) {        
-        consoleOut("There are no AWS credetials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.");
+    } catch (error) {
+        msg = "There are no AWS credetials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.";        
+        consoleOut(msg);
+        loggerLog(msg + ': ' + JSON.stringify(error));
     }
 
     if (await getSchemaViaSummaryAPI()) {

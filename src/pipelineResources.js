@@ -64,6 +64,8 @@ let thisOutputFolderPath = './output';
 let pipelineExists = false;
 let NEPTUNE_HOST = null;
 let NEPTUNE_PORT = null;
+let NEPTUNE_HOST_RO = null;
+let NEPTUNE_PORT_RO = null;
 let NEPTUNE_DBSubnetGroup = null;
 let NEPTUNE_DBSubnetIds = [];
 let NEPTUNE_VpcSecurityGroupId = null;
@@ -71,13 +73,14 @@ let NEPTUME_IAM_AUTH = false;
 let NEPTUNE_CURRENT_VERSION = '';
 let NEPTUNE_CURRENT_IAM = false;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
+let DUAL_LAMBDA = false;
 let LAMBDA_ROLE = '';
 let LAMBDA_ARN = '';
 let NEPTUNE_TYPE = 'neptune-db';
 let ZIP = null;
 let RESOURCES = {};
 let RESOURCES_FILE = '';
-
+let msg = '';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms)); // alternative: import { setTimeout } from timers/promises
 let spinner = null;
@@ -86,7 +89,6 @@ function yellow(text) {
     return '\x1b[33m' + text + '\x1b[0m';
 }
 
-let msg = '';
 
 async function checkPipeline() {
     // Checking if Role, Lambda and AppSync API is already created.
@@ -105,9 +107,8 @@ async function checkPipeline() {
         const command = new GetFunctionCommand({FunctionName: NAME +'LambdaFunction'});        
         await lambdaClient.send(command);
         lambdaExists = true;
-    } catch (error) {
-        // output message:JSON(error)
-        loggerLog(error.message);
+    } catch (error) {        
+        loggerLog("checkPipeline GetFunctionCommand: " + JSON.stringify(error));
         lambdaExists = false;
     }
     
@@ -121,7 +122,7 @@ async function checkPipeline() {
             }
         });
     } catch (error) {
-        loggerLog(error.message);
+        loggerLog("checkPipeline ListGraphqlApisCommand : " + JSON.stringify(error));
         appSyncExists = false;
     }
 
@@ -131,7 +132,7 @@ async function checkPipeline() {
         LAMBDA_ROLE = response.Role.Arn;
         roleExists = true;
     } catch (error) {
-        loggerLog(error.message);
+        loggerLog("checkPipeline GetRoleCommand: " + JSON.stringify(error));
         roleExists = false;
     }
     
@@ -726,9 +727,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);
     } catch (error) {
-        msg = 'AppSync API delete failed: ' + error; 
+        msg = 'AppSync API delete failed: ' + error.message; 
         if (!quiet) spinner.fail(msg);
-        loggerLog(msg);        
+        loggerLog(msg + " : " + JSON.stringify(error));        
     }
     
     // Lambda
@@ -745,9 +746,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);
     } catch (error) {
-        msg = 'Lambda function fail to delete: ' + error;
+        msg = 'Lambda function fail to delete: ' + error.message;
         if (!quiet) spinner.fail(msg);
-        loggerLog(msg);        
+        loggerLog(msg + " : " + JSON.stringify(error));        
     }    
     
     // Lambda execution role
@@ -765,9 +766,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);
     } catch (error) {
-        msg = 'Detach policy failed: ' + error;
+        msg = 'Detach policy failed: ' + error.error;
         if (!quiet) spinner.fail(msg);
-        loggerLog(msg);        
+        loggerLog(msg + " : " + JSON.stringify(error));        
     }
 
     msg = 'Detaching IAM policies from role ...';
@@ -784,9 +785,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);
     } catch (error) {
-        msg = 'Detach policy failed: ' + error;
+        msg = 'Detach policy failed: ' + error.message;
         if (!quiet) spinner.fail(msg);        
-        loggerLog(msg);
+        loggerLog(msg + " : " + JSON.stringify(error));
     }
     
     // Delete Neptune query Policy
@@ -804,9 +805,9 @@ async function removeAWSpipelineResources(resources, quietI) {
             if (!quiet) spinner.succeed(msg);
             loggerLog(msg);
         } catch (error) {
-            msg = 'Delete policy failed: ' + error;
+            msg = 'Delete policy failed: ' + error.message;
             if (!quiet) spinner.fail(msg);
-            loggerLog(msg);        
+            loggerLog(msg + " : " + JSON.stringify(error));        
         }
     }
 
@@ -824,9 +825,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);
     } catch (error) {
-        msg = 'Delete role failed: ' + error;
+        msg = 'Delete role failed: ' + error.message;
         if (!quiet) spinner.fail(msg);
-        loggerLog(msg);
+        loggerLog(msg + " : " + JSON.stringify(error));
     }
     
     // AppSync Lambda role
@@ -844,9 +845,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);        
     } catch (error) {
-        msg = 'Detach policy failed: ' + error;
+        msg = 'Detach policy failed: ' + error.message;
         if (!quiet) spinner.fail(msg);
-        loggerLog(msg);
+        loggerLog(msg + " : " + JSON.stringify(error));
     }
 
     // Delete Policy
@@ -863,9 +864,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);
     } catch (error) {
-        msg = 'Delete policy failed: ' + error;
+        msg = 'Delete policy failed: ' + error.message;
         if (!quiet) spinner.fail(msg);
-        loggerLog(msg);
+        loggerLog(msg + " : " + JSON.stringify(error));
     }
    
     // Delete Role
@@ -882,9 +883,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         if (!quiet) spinner.succeed(msg);
         loggerLog(msg);
     } catch (error) {
-        msg = 'Delete role failed: ' + error;
+        msg = 'Delete role failed: ' + error.message;
         if (!quiet) spinner.fail(msg);
-        loggerLog(msg);
+        loggerLog(msg + " : " + JSON.stringify(error));
     }    
 }
 
@@ -930,7 +931,23 @@ async function updateAppSyncAPI(resources) {
 }
 
 
-async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath, neptuneType) {    
+async function createUpdateAWSpipeline (    pipelineName, 
+                                            neptuneDBName, 
+                                            neptuneDBregion, 
+                                            appSyncSchema, 
+                                            schemaModel, 
+                                            lambdaFilesPath, 
+                                            addMutations, 
+                                            quietI, 
+                                            __dirname, 
+                                            isNeptuneIAMAuth, 
+                                            neptuneHost, 
+                                            neptunePort, 
+                                            neptuneHostRO,
+                                            neptunePortRO,
+                                            dualLambda,
+                                            outputFolderPath, 
+                                            neptuneType) {    
 
     NAME = pipelineName;    
     REGION = neptuneDBregion;
@@ -944,6 +961,9 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
     NEPTUME_IAM_AUTH = isNeptuneIAMAuth;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
+    NEPTUNE_HOST_RO = neptuneHostRO;
+    NEPTUNE_PORT_RO = neptunePortRO;
+    DUAL_LAMBDA = dualLambda;
     thisOutputFolderPath = outputFolderPath;
     NEPTUNE_TYPE = neptuneType;
 
@@ -1005,7 +1025,7 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
             } catch (error) {
                 msg = 'Error getting Neptune Cluster Info.';
                 if (!quiet) spinner.fail(msg);
-                loggerLog(msg);
+                loggerLog(msg + " : " + JSON.stringify(error));
                 if (!isNeptuneIAMAuth) {
                     msg = "VPC data is not available to proceed.";
                     console.error(msg);
@@ -1052,9 +1072,9 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
             loggerLog(msg); 
 
         } catch (error) {
-            msg = 'Error creating resources: ' + error;
+            msg = 'Error creating resources: ' + error.message;
             if (!quiet) spinner.fail(msg);
-            loggerLog(msg);
+            loggerLog(msg + " : " + JSON.stringify(error));
             msg = 'Rolling back resources.';
             console.error(msg);
             loggerLog(msg);
@@ -1076,9 +1096,9 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
             if (!quiet) spinner.succeed(msg);
             loggerLog(msg);
         } catch (error) {
-            msg = 'Error loading resources file: ' + RESOURCES_FILE + ' ' + error;
+            msg = 'Error loading resources file: ' + RESOURCES_FILE + ' ' + error.message;
             if (!quiet) spinner.warn(msg);
-            loggerLog(msg);
+            loggerLog(msg + " : " + JSON.stringify(error));
             return;
         }  
         

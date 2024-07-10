@@ -54,12 +54,16 @@ let isNeptuneIAMAuth = false;
 let createUpdatePipeline = false;
 let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
+let createUpdatePipelineEndpointRO = '';
+let createUpdatePipelineDualLambdas = false;
 let createUpdatePipelineRegion = 'us-east-1';
 let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
 let inputCDKpipelineName = '';
 let inputCDKpipelineEnpoint = '';
+let inputCDKpipelineEnpointRO = '';
+let inputCDKpipelineDualLambdas = false;
 let inputCDKpipelineFile = '';
 let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
@@ -192,6 +196,14 @@ function processArgs() {
             case '--create-update-aws-pipeline-neptune-endpoint':
                 createUpdatePipelineEndpoint = array[index + 1];
             break;
+            case 'pro':                
+            case '--create-update-aws-pipeline-neptune-endpoint-ro':
+                createUpdatePipelineEndpointRO = array[index + 1];
+            break;
+            case '-p2l':
+            case '--create-update-aws-pipeline-dual-lambdas':
+                createUpdatePipelineDualLambdas = true;
+            break;
             case '-pd':
             case '--create-update-aws-pipeline-neptune-database-name':
                 createUpdatePipelineNeptuneDatabaseName = array[index + 1];
@@ -208,6 +220,13 @@ function processArgs() {
             case '--output-aws-pipeline-cdk-neptume-endpoint':
                 inputCDKpipelineEnpoint = array[index + 1];
             break;
+            case 'cro':
+            case '--output-aws-pipeline-cdk-neptume-endpoint-ro':
+                inputCDKpipelineEnpointRO = array[index + 1];
+            break;
+            case '-c2l':
+            case '--output-aws-pipeline-cdk-neptume-dual-lambas':
+                inputCDKpipelineDualLambdas = true;
             case '-cd':
             case '--output-aws-pipeline-cdk-neptume-database-name':
                 inputCDKpipelineDatabaseName = array[index + 1];
@@ -261,7 +280,10 @@ async function main() {
 
     processArgs();
 
-    // Init the logger
+    // Init output folder
+    mkdirSync(outputFolderPath, { recursive: true });
+
+    // Init the logger    
     loggerInit(outputFolderPath + '/log_' + (new Date()).toISOString() + '.txt');
     loggerLog('Starting neptune-for-graphql version: ' + version);
     loggerLog('Input arguments: ' + process.argv);
@@ -276,7 +298,7 @@ async function main() {
         } catch (err) {
             msg = 'Error reading graphDB schema file: ' + yellow(inputGraphDBSchemaFile);
             console.error(msg);
-            loggerLog(msg);            
+            loggerLog(msg +": " + JSON.stringify(err));            
             process.exit(1);
         }
     }
@@ -339,7 +361,7 @@ async function main() {
         } catch (err) {
             msg = 'Error reading GraphQL schema file: ' + yellow(inputGraphQLSchemaFile);
             console.error(msg);
-            loggerLog(msg);            
+            loggerLog(msg + ": " + JSON.stringify(err));            
             process.exit(1);
         }    
     }
@@ -354,7 +376,7 @@ async function main() {
         } catch (err) {
             msg = 'Error reading GraphQL schema changes file: ' + yellow(inputGraphQLSchemaChangesFile);
             console.error(msg);
-            loggerLog(msg);            
+            loggerLog(msg + ": " + JSON.stringify(err));            
             process.exit(1);
         }    
     }
@@ -454,8 +476,6 @@ async function main() {
     // Outputs
     // ****************************************************************************
 
-    mkdirSync(outputFolderPath, { recursive: true });
-
     // Output GraphQL schema no directives
     if (inputGraphQLSchema != '') {
     
@@ -476,6 +496,7 @@ async function main() {
         } catch (err) {
             msg = 'Error writing GraphQL schema to file: ' + yellow(outputSchemaFile);
             console.error(msg);
+            loggerLog(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -497,6 +518,7 @@ async function main() {
         } catch (err) {
             msg = 'Error writing GraphQL schema to file: ' + yellow(outputSourceSchemaFile);
             console.error(msg);
+            loggerLog(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -517,7 +539,7 @@ async function main() {
         } catch (err) {
             msg = 'Error writing Neptune schema to file: ' + yellow(outputNeptuneSchemaFile);
             console.error(msg);
-            loggerLog(msg);
+            loggerLog(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -534,7 +556,7 @@ async function main() {
         } catch (err) {
             msg = 'Error writing Lambda resolver to file: ' + yellow(outputLambdaResolverFile);
             console.error(msg);
-            loggerLog(msg);            
+            loggerLog(msg + ": " + JSON.stringify(err));            
         }
 
 
@@ -555,7 +577,7 @@ async function main() {
         } catch (err) {
             msg = 'Error writing Javascript resolver to file: ' + yellow(outputJSResolverFile);
             console.error(msg);
-            loggerLog(msg);            
+            loggerLog(msg + ": " + JSON.stringify(err));            
         }
 
 
@@ -589,7 +611,7 @@ async function main() {
             } catch (err) {
                 msg = 'Error creating Lambda ZIP file: ' + yellow(err);
                 console.error(msg);
-                loggerLog(msg);
+                loggerLog(msg + ": " + JSON.stringify(err));
             }
            
         }
@@ -608,6 +630,20 @@ async function main() {
                 let neptuneHost = endpointParts[0];
                 let neptunePort = endpointParts[1];
 
+                let neptuneHostRO = '';
+                let neptunePortRO = '';
+                if (createUpdatePipelineEndpointRO != '') {
+                    let endpointPartsRO = createUpdatePipelineEndpointRO.split(':');
+                    if (endpointPartsRO.length < 2) {
+                        msg = 'Neptune read only endpoint must be in the form of host:port';
+                        console.error(msg);
+                        loggerLog(msg);
+                        process.exit(1);
+                    }
+                    neptuneHostRO = endpointPartsRO[0];
+                    neptunePortRO = endpointPartsRO[1];
+                }
+
                 msg = 'Creating AWS pipeline resources';
                 if (!quiet) console.log('\n' + msg);
                 loggerLog(msg);
@@ -623,12 +659,15 @@ async function main() {
                                                 isNeptuneIAMAuth,
                                                 neptuneHost,
                                                 neptunePort,
+                                                neptuneHostRO,
+                                                neptunePortRO,
+                                                createUpdatePipelineDualLambdas,
                                                 outputFolderPath,
                                                 neptuneType );            
             } catch (err) {
                 msg = 'Error creating AWS pipeline: ' + err;
                 console.error(msg);
-                loggerLog(msg);                
+                loggerLog(msg + ": " + JSON.stringify(err));                
             }
         }
 
@@ -671,7 +710,7 @@ async function main() {
             } catch (err) {
                 msg = 'Error creating CDK File: ' + yellow(err);
                 console.error(msg);
-                loggerLog(msg);
+                loggerLog(msg + ": " + JSON.stringify(err));
             }
         }
 
@@ -695,7 +734,7 @@ async function main() {
         } catch (err) {
             msg = 'Error reading AWS pipeline resources file: ' + yellow(resourcesFile + ' ' + err);
             console.error(msg);
-            loggerLog(msg);            
+            loggerLog(msg + ": " + JSON.stringify(err));            
             process.exit(1);
         }
         await removeAWSpipelineResources(JSON.parse(resourcesToRemove), quiet);
