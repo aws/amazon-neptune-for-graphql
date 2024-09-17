@@ -146,9 +146,8 @@ async function getEdgesNames() {
 }
 
 
-async function checkEdgeDirection(direction) {
-    let query = `MATCH (from:${direction.from})-[r:${direction.edge.label}]->(to:${direction.to}) RETURN r as edge LIMIT 1`;
-    loggerLog(`Checking edge direction: ${query}`);
+async function findFromAndToLabels(edgeStructure) {
+    let query = `MATCH (from)-[r:${edgeStructure.label}]->(to) RETURN DISTINCT labels(from) as fromLabel, labels(to) as toLabel`;
     let response = await queryNeptune(query);
     for (let result of response.results) {
         for (let fromLabel of result.fromLabel) {
