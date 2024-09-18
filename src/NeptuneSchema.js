@@ -71,7 +71,7 @@ async function queryNeptune(q) {
         return response.data;    
         } catch (error) {
             msg = `Http query request failed: ${error.message}`;
-            consoleOut.error(msg);
+            console.error(msg);
             loggerLog(msg + ': ' + JSON.stringify(error));
             
             if (NEPTUNE_TYPE == 'neptune-db') {
@@ -102,7 +102,7 @@ async function queryNeptuneSDK(q) {
 
     } catch (error) {        
         msg = `SDK query request failed: ${error.message}`;
-        consoleOut.error(msg);
+        console.error(msg);
         loggerLog(msg + ': ' + JSON.stringify(error));        
         process.exit(1);
     }
