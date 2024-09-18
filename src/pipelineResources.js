@@ -223,7 +223,7 @@ async function createLambdaRole() {
     //await waitUntilRoleExists({ client: iamClient, maxWaitTime: 180 }, { RoleName: data.Role.RoleName }); // does not work :(, using sleep
     await sleep(10000);
     LAMBDA_ROLE = data.Role.Arn;
-    storeResource({LambdaExecutionRole: NAME +"LambdaExecutionRole"});    
+    storeResource({LambdaExecutionRole: NAME +"LambdaExecutionRole"});
     if (!quiet) spinner.succeed('Role ARN: ' + yellow(LAMBDA_ROLE));
 
     // Attach to Lambda role the AWSLambdaBasicExecutionRole 
@@ -659,7 +659,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         const command = new DeleteGraphqlApiCommand(input);
         await appSyncClient.send(command);
         if (!quiet) spinner.succeed('Deleted API id: ' + yellow(resources.AppSyncAPI));
-    } catch (error) { 
+    } catch (error) {
         if (!quiet) spinner.fail('AppSync API delete failed: ' + error);
     }
     
@@ -806,7 +806,7 @@ async function updateAppSyncAPI(resources) {
 }
 
 
-async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath, neptuneType) {    
+async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath, neptuneType) {
 
     NAME = pipelineName;    
     REGION = neptuneDBregion;
@@ -829,49 +829,50 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
     if (!pipelineExists) {
         try {
             storeResource({region: REGION});
-            
-            try {
-                if (!quiet) console.log('Get Neptune Cluster Info');
-                if (!quiet) spinner = ora('Getting ...').start();
-                await getNeptuneClusterinfo();
-                if (!quiet) spinner.succeed('Got Neptune Cluster Info');
-                if (isNeptuneIAMAuth) {
-                    if (!NEPTUNE_CURRENT_IAM) {
-                        console.error("The Neptune database authentication is set to VPC.");
-                        console.error("Remove the --create-update-aws-pipeline-neptune-IAM option.");
-                        exit(1);
-                    }                
-                } else {
-                    if (NEPTUNE_CURRENT_IAM) {
-                        console.error("The Neptune database authentication is set to IAM.");
-                        console.error("Add the --create-update-aws-pipeline-neptune-IAM option.");
+
+            if (NEPTUNE_TYPE === 'neptune-db') {
+                try {
+                    if (!quiet) console.log('Get Neptune Cluster Info');
+                    if (!quiet) spinner = ora('Getting ...').start();
+                    await getNeptuneClusterinfo();
+                    if (!quiet) spinner.succeed('Got Neptune Cluster Info');
+                    if (isNeptuneIAMAuth) {
+                        if (!NEPTUNE_CURRENT_IAM) {
+                            console.error("The Neptune database authentication is set to VPC.");
+                            console.error("Remove the --create-update-aws-pipeline-neptune-IAM option.");
+                            exit(1);
+                        }
+                    } else {
+                        if (NEPTUNE_CURRENT_IAM) {
+                            console.error("The Neptune database authentication is set to IAM.");
+                            console.error("Add the --create-update-aws-pipeline-neptune-IAM option.");
+                            exit(1);
+                        } else {
+                            if (!quiet) console.log(`Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup));
+                        }
+                    }
+
+                    if (NEPTUNE_CURRENT_VERSION != '') {
+                        const v = NEPTUNE_CURRENT_VERSION;
+                        if (lambdaFilesPath.includes('SDK') == true &&
+                            (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' || v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
+                            console.error("Neptune SDK query is supported starting with Neptune versions 1.2.2.0");
+                            console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
+                            exit(1);
+                        }
+                    }
+
+                } catch (error) {
+                    if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
+                    if (!isNeptuneIAMAuth) {
+                        console.error("VPC data is not available to proceed.");
                         exit(1);
                     } else {
-                        if (!quiet) console.log(`Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup));
+                        if (!quiet) console.log("Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.")
+                        if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
                     }
-                }
-
-                if (NEPTUNE_CURRENT_VERSION != '') {
-                    const v = NEPTUNE_CURRENT_VERSION;
-                    if (lambdaFilesPath.includes('SDK') == true && 
-                        (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {                     
-                        console.error("Neptune SDK query is supported starting with Neptune versions 1.2.2.0");
-                        console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
-                        exit(1);
-                    }
-                }
-
-            } catch (error) {
-                if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
-                if (!isNeptuneIAMAuth) {
-                    console.error("VPC data is not available to proceed.");
-                    exit(1);
-                } else {
-                    if (!quiet) console.log("Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.")
-                    if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
                 }
             }
-
             if (!quiet) console.log('Create ZIP');
             if (!quiet) spinner = ora('Creating ZIP ...').start();
             ZIP = await createDeploymentPackage(LAMBDA_FILES_PATH)
