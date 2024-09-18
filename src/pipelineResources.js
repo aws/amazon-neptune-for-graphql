@@ -976,68 +976,70 @@ async function createUpdateAWSpipeline (    pipelineName,
     if (!pipelineExists) {
         try {
             storeResource({region: REGION});
-            
-            try {
-                if (!quiet) console.log('Get Neptune Cluster Info');
-                if (!quiet) spinner = ora('Getting ...').start();
-                await getNeptuneClusterinfo();
-                if (!quiet) spinner.succeed('Got Neptune Cluster Info');
-                if (isNeptuneIAMAuth) {
-                    if (!NEPTUNE_CURRENT_IAM) {
-                        msg = 'The Neptune database authentication is set to VPC.';
-                        console.error(msg);
-                        loggerLog(msg);
-                        msg = 'Remove the --create-update-aws-pipeline-neptune-IAM option.';
-                        console.error(msg);
-                        loggerLog(msg);
-                        exit(1);
-                    }                
-                } else {
-                    if (NEPTUNE_CURRENT_IAM) {
-                        msg = 'The Neptune database authentication is set to IAM.';
-                        console.error(msg);
-                        loggerLog(msg);
-                        msg = 'Add the --create-update-aws-pipeline-neptune-IAM option.';
+
+            if (NEPTUNE_TYPE === 'neptune-db') {
+                try {
+                    if (!quiet) console.log('Get Neptune Cluster Info');
+                    if (!quiet) spinner = ora('Getting ...').start();
+                    await getNeptuneClusterinfo();
+                    if (!quiet) spinner.succeed('Got Neptune Cluster Info');
+                    if (isNeptuneIAMAuth) {
+                        if (!NEPTUNE_CURRENT_IAM) {
+                            msg = 'The Neptune database authentication is set to VPC.';
+                            console.error(msg);
+                            loggerLog(msg);
+                            msg = 'Remove the --create-update-aws-pipeline-neptune-IAM option.';
+                            console.error(msg);
+                            loggerLog(msg);
+                            exit(1);
+                        }
+                    } else {
+                        if (NEPTUNE_CURRENT_IAM) {
+                            msg = 'The Neptune database authentication is set to IAM.';
+                            console.error(msg);
+                            loggerLog(msg);
+                            msg = 'Add the --create-update-aws-pipeline-neptune-IAM option.';
+                            console.error(msg);
+                            loggerLog(msg);
+                            exit(1);
+                        } else {
+                            msg = `Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup);
+                            if (!quiet) console.log(msg);
+                            loggerLog(msg);
+                        }
+                    }
+
+                    if (NEPTUNE_CURRENT_VERSION != '') {
+                        const v = NEPTUNE_CURRENT_VERSION;
+                        if (lambdaFilesPath.includes('SDK') == true &&
+                            (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' || v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
+                            msg = "Neptune SDK query is supported starting with Neptune versions 1.2.2.0";
+                            console.error(msg);
+                            loggerLog(msg);
+                            msg = "Switch to Neptune HTTPS query with option --output-resolver-query-https";
+                            console.error(msg);
+                            loggerLog(msg);
+                            exit(1);
+                        }
+                    }
+
+                } catch (error) {
+                    msg = 'Error getting Neptune Cluster Info.';
+                    if (!quiet) spinner.fail(msg);
+                    loggerLog(msg + " : " + JSON.stringify(error));
+                    if (!isNeptuneIAMAuth) {
+                        msg = "VPC data is not available to proceed.";
                         console.error(msg);
                         loggerLog(msg);
                         exit(1);
                     } else {
-                        msg = `Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup);
+                        msg = "Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.";
+                        if (!quiet) console.log(msg);
+                        loggerLog(msg);
+                        msg = "Proceeding without getting Neptune Cluster info.";
                         if (!quiet) console.log(msg);
                         loggerLog(msg);
                     }
-                }
-
-                if (NEPTUNE_CURRENT_VERSION != '') {
-                    const v = NEPTUNE_CURRENT_VERSION;
-                    if (lambdaFilesPath.includes('SDK') == true && 
-                        (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {   
-                        msg = "Neptune SDK query is supported starting with Neptune versions 1.2.2.0";
-                        console.error(msg);
-                        loggerLog(msg);
-                        msg = "Switch to Neptune HTTPS query with option --output-resolver-query-https";
-                        console.error(msg);
-                        loggerLog(msg);
-                        exit(1);
-                    }
-                }
-
-            } catch (error) {
-                msg = 'Error getting Neptune Cluster Info.';
-                if (!quiet) spinner.fail(msg);
-                loggerLog(msg + " : " + JSON.stringify(error));
-                if (!isNeptuneIAMAuth) {
-                    msg = "VPC data is not available to proceed.";
-                    console.error(msg);
-                    loggerLog(msg);
-                    exit(1);
-                } else {
-                    msg = "Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.";
-                    if (!quiet) console.log(msg);
-                    loggerLog(msg);
-                    msg = "Proceeding without getting Neptune Cluster info.";
-                    if (!quiet) console.log(msg);
-                    loggerLog(msg);
                 }
             }
 
