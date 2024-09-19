@@ -296,7 +296,8 @@ async function main() {
             loggerLog(msg, !quiet);
         } catch (err) {
             msg = 'Error reading graphDB schema file: ' + yellow(inputGraphDBSchemaFile);
-            loggerError(msg +": " + JSON.stringify(err));
+            console.error(msg);
+            loggerLog(msg +": " + JSON.stringify(err));
             process.exit(1);
         }
     }
