@@ -10,8 +10,8 @@
             "--output-aws-pipeline-cdk-region", "us-east-1",
             "--output-aws-pipeline-cdk-neptume-endpoint", "airport00.cluster-ccbtmrye8gfu.us-east-1.neptune.amazonaws.com:8182",            
             "--output-resolver-query-https"],
-    "host": "<your-airroutes-db-host>",
-    "port": "<your-airroutes-db-port>",
+    "host": "<ENDPOINT>",
+    "port": "<PORT>",
     "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }
