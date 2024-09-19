@@ -9,8 +9,8 @@ function loggerInit(file) {
     });
 }
 
-function loggerLog(text) {
-    // remove yellow escape from text 
+function logToFile(text) {
+    // remove yellow escape from text
     text = text.replaceAll(/\x1b\[33m/g, '');
     text = text.replaceAll(/\x1b\[0m/g, '');
 
@@ -19,4 +19,16 @@ function loggerLog(text) {
     })
 }
 
-export { loggerInit, loggerLog };
+function loggerLog(text, logToConsole = false) {
+    if (logToConsole) {
+        console.log(text);
+    }
+    logToFile(text);
+}
+
+function loggerError(text) {
+    console.error(text);
+    logToFile(text);
+}
+
+export { loggerInit, loggerLog, loggerError };
