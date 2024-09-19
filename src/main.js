@@ -494,7 +494,7 @@ async function main() {
             if (!quiet) console.log(msg);
             loggerLog(msg);
         } catch (err) {
-            msg = 'Error writing GraphQL schema to file: ' + yellow(outputSchemaFile);
+            msg = 'Error writing GraphQL schema to file: ' + yellow(outputSchemaFile) + ': ' + err;
             console.error(msg);
             loggerLog(msg + ": " + JSON.stringify(err));
         }
@@ -516,7 +516,7 @@ async function main() {
             if (!quiet) console.log(msg);
             loggerLog(msg);
         } catch (err) {
-            msg = 'Error writing GraphQL schema to file: ' + yellow(outputSourceSchemaFile);
+            msg = 'Error writing GraphQL schema to file: ' + yellow(outputSourceSchemaFile) + ': ' + err;
             console.error(msg);
             loggerLog(msg + ": " + JSON.stringify(err));
         }

@@ -8,7 +8,7 @@
             "--output-folder-path", "./test/TestCases/Case01/output",
             "--output-no-lambda-zip"],
     "host": "<your-airroutes-db-host>",
-   "port": "<your-airroutes-db-port>"
+    "port": "<your-airroutes-db-port>",
     "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }
