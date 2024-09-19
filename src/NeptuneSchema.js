@@ -347,7 +347,7 @@ async function getNeptuneSchema(quiet) {
     try {
         await getAWSCredentials();
     } catch (error) {
-        msg = "There are no AWS credetials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.";        
+        msg = "There are no AWS credentials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.";        
         consoleOut(msg);
         loggerLog(msg + ': ' + JSON.stringify(error));
     }
