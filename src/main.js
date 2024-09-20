@@ -56,7 +56,7 @@ let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
 let createUpdatePipelineEndpointRO = '';
 let createUpdatePipelineDualLambdas = false;
-let createUpdatePipelineRegion = 'us-east-1';
+let createUpdatePipelineRegion = '';
 let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
@@ -400,7 +400,11 @@ async function main() {
         if (createUpdatePipelineEndpoint != '' && createUpdatePipelineRegion == '') {
             let parts = createUpdatePipelineEndpoint.split('.');
             createUpdatePipelineNeptuneDatabaseName = parts[0];
-            createUpdatePipelineRegion = parts[2];
+            if (neptuneType === 'neptune-db') {
+                createUpdatePipelineRegion = parts[2];
+            } else {
+                createUpdatePipelineRegion = parts[1];
+            }
         }
         if (createUpdatePipelineName == '') {
             createUpdatePipelineName = createUpdatePipelineNeptuneDatabaseName;
