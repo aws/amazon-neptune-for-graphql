@@ -263,7 +263,7 @@ async function main() {
     if (inputGraphDBSchemaFile != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
         try {
             inputGraphDBSchema = readFileSync(inputGraphDBSchemaFile, 'utf8');
-            if (!quiet) console.log('Loaded graphDB schema from file: ' + inputGraphDBSchemaFile);        
+            if (!quiet) console.log('Loaded graphDB schema from file: ' + inputGraphDBSchemaFile);
         } catch (err) {
             console.error('Error reading graphDB schema file: ' + inputGraphDBSchemaFile);
             process.exit(1);
@@ -355,7 +355,11 @@ async function main() {
         if (createUpdatePipelineEndpoint != '' && createUpdatePipelineRegion == '') {
             let parts = createUpdatePipelineEndpoint.split('.');
             createUpdatePipelineNeptuneDatabaseName = parts[0];
-            createUpdatePipelineRegion = parts[2];
+            if (neptuneType === 'neptune-db') {
+                createUpdatePipelineRegion = parts[2];
+            } else {
+                createUpdatePipelineRegion = parts[1];
+            }
         }
         if (createUpdatePipelineName == '') {
             createUpdatePipelineName = createUpdatePipelineNeptuneDatabaseName;
@@ -433,7 +437,7 @@ async function main() {
             writeFileSync(outputSchemaFile, outputSchema);
             if (!quiet) console.log('Wrote GraphQL schema to file: ' + yellow(outputSchemaFile));
         } catch (err) {
-            console.error('Error writing GraphQL schema to file: ' + outputSchemaFile);    
+            console.error('Error writing GraphQL schema to file: ' + outputSchemaFile);
         }
 
 
@@ -451,7 +455,7 @@ async function main() {
             writeFileSync(outputSourceSchemaFile, outputSourceSchema);
             if (!quiet) console.log('Wrote GraphQL schema to file: ' + yellow(outputSourceSchemaFile));
         } catch (err) {
-            console.error('Error writing GraphQL schema to file: ' + outputSourceSchemaFile);    
+            console.error('Error writing GraphQL schema to file: ' + outputSourceSchemaFile);
         }
 
 
@@ -468,7 +472,7 @@ async function main() {
             writeFileSync(outputNeptuneSchemaFile, inputGraphDBSchema);
             if (!quiet) console.log('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile));
         } catch (err) {
-            console.error('Error writing Neptune schema to file: ' + outputNeptuneSchemaFile);    
+            console.error('Error writing Neptune schema to file: ' + outputNeptuneSchemaFile);
         }
 
 
@@ -481,7 +485,7 @@ async function main() {
             writeFileSync(outputLambdaResolverFile, outputLambdaResolver);
             if (!quiet) console.log('Wrote Lambda resolver to file: ' + yellow(outputLambdaResolverFile));
         } catch (err) {
-            console.error('Error writing Lambda resolver to file: ' + outputLambdaResolverFile);    
+            console.error('Error writing Lambda resolver to file: ' + outputLambdaResolverFile);
         }
 
 
@@ -499,7 +503,7 @@ async function main() {
             //writeFileSync('./test/output.resolver.graphql.js', outputJSResolver); // Remove, for development and test only
             if (!quiet) console.log('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile));
         } catch (err) {
-            console.error('Error writing Javascript resolver to file: ' + outputJSResolverFile);    
+            console.error('Error writing Javascript resolver to file: ' + outputJSResolverFile);
         }
 
 
@@ -546,7 +550,7 @@ async function main() {
                 let neptuneHost = endpointParts[0];
                 let neptunePort = endpointParts[1];
 
-                if (!quiet) console.log('\nCreating AWS pipeline resources')            
+                if (!quiet) console.log('\nCreating AWS pipeline resources')
                 await createUpdateAWSpipeline(  createUpdatePipelineName, 
                                                 createUpdatePipelineNeptuneDatabaseName, 
                                                 createUpdatePipelineRegion,
@@ -562,7 +566,7 @@ async function main() {
                                                 outputFolderPath,
                                                 neptuneType );            
             } catch (err) {
-                console.error('Error creating AWS pipeline: ' + err);            
+                console.error('Error creating AWS pipeline: ' + err);
             }
         }
 
@@ -599,16 +603,16 @@ async function main() {
                                             outputFolderPath,
                                             neptuneType);
             } catch (err) {
-                console.error('Error creating CDK File: ' + err);            
+                console.error('Error creating CDK File: ' + err);
             }
         }
 
-        if (!quiet) console.log('\nDone\n'); 
+        if (!quiet) console.log('\nDone\n');
     }
 
     // Remove AWS Pipeline
     if ( removePipelineName != '') {
-        if (!quiet) console.log('\nRemoving pipeline AWS resources, name: ' + yellow(removePipelineName))        
+        if (!quiet) console.log('\nRemoving pipeline AWS resources, name: ' + yellow(removePipelineName))
         let resourcesToRemove = null;
         let resourcesFile = `${outputFolderPath}/${removePipelineName}-resources.json`;
         if (!quiet) console.log('Using file: ' + yellow(resourcesFile));
