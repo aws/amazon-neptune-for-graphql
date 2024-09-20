@@ -47,7 +47,7 @@ import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
 import { exit } from "process";
-import { loggerLog } from "./logger.js";
+import { loggerError, loggerLog } from "./logger.js";
 
 // Input
 let NEPTUNE_DB_NAME = '';
@@ -151,25 +151,21 @@ async function checkPipeline() {
     if (!lambdaExists && !appSyncExists && !roleExists) return;
     
     msg = 'One or more pipeline resources are missing.';
-    if (!quiet) console.log("One or more pipeline resources are missing.");
-    loggerLog(msg);
+    loggerLog(msg, !quiet);
 
     if (!lambdaExists && !quiet) {
         msg = '  Lambda ' + yellow(NAME) + 'LambdaFunction' + ' is  missing.';
-        console.log(msg);
-        loggerLog(msg);
+        loggerLog(msg, true);
     }
 
     if (!roleExists && !quiet) {
         msg = '  Role ' + yellow(NAME) + 'LambdaExecutionRole' + ' is  missing.';
-        console.log(msg);
-        loggerLog(msg);
+        loggerLog(msg, true);
     }
 
     if (!appSyncExists && !quiet) {
         msg = '  AppSync ' + yellow(NAME) + 'API' + ' is  missing.';
-        console.log(msg);
-        loggerLog(msg);
+        loggerLog(msg, true);
     }
 
     msg = 'Fix the issue manually or create the pipeline resources with a new name.';
@@ -969,8 +965,7 @@ async function createUpdateAWSpipeline (    pipelineName,
 
     msg = '\nCreating or updating AWS pipeline resources ...\n';
     //if (!quiet) spinner = ora(msg).start();
-    console.log(msg);
-    loggerLog(msg);
+    loggerLog(msg, true);
     await checkPipeline();
 
     if (!pipelineExists) {
@@ -986,26 +981,21 @@ async function createUpdateAWSpipeline (    pipelineName,
                     if (isNeptuneIAMAuth) {
                         if (!NEPTUNE_CURRENT_IAM) {
                             msg = 'The Neptune database authentication is set to VPC.';
-                            console.error(msg);
-                            loggerLog(msg);
+                            loggerError(msg);
                             msg = 'Remove the --create-update-aws-pipeline-neptune-IAM option.';
-                            console.error(msg);
-                            loggerLog(msg);
+                            loggerError(msg);
                             exit(1);
                         }
                     } else {
                         if (NEPTUNE_CURRENT_IAM) {
                             msg = 'The Neptune database authentication is set to IAM.';
-                            console.error(msg);
-                            loggerLog(msg);
+                            loggerError(msg);
                             msg = 'Add the --create-update-aws-pipeline-neptune-IAM option.';
-                            console.error(msg);
-                            loggerLog(msg);
+                            loggerError(msg);
                             exit(1);
                         } else {
                             msg = `Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup);
-                            if (!quiet) console.log(msg);
-                            loggerLog(msg);
+                            loggerLog(msg, !quiet);
                         }
                     }
 
@@ -1014,11 +1004,9 @@ async function createUpdateAWSpipeline (    pipelineName,
                         if (lambdaFilesPath.includes('SDK') == true &&
                             (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' || v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
                             msg = "Neptune SDK query is supported starting with Neptune versions 1.2.2.0";
-                            console.error(msg);
-                            loggerLog(msg);
+                            loggerError(msg);
                             msg = "Switch to Neptune HTTPS query with option --output-resolver-query-https";
-                            console.error(msg);
-                            loggerLog(msg);
+                            loggerError(msg);
                             exit(1);
                         }
                     }
@@ -1029,23 +1017,19 @@ async function createUpdateAWSpipeline (    pipelineName,
                     loggerLog(msg + " : " + JSON.stringify(error));
                     if (!isNeptuneIAMAuth) {
                         msg = "VPC data is not available to proceed.";
-                        console.error(msg);
-                        loggerLog(msg);
+                        loggerError(msg);
                         exit(1);
                     } else {
                         msg = "Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.";
-                        if (!quiet) console.log(msg);
-                        loggerLog(msg);
+                        loggerLog(msg, !quiet);
                         msg = "Proceeding without getting Neptune Cluster info.";
-                        if (!quiet) console.log(msg);
-                        loggerLog(msg);
+                        loggerLog(msg, !quiet);
                     }
                 }
             }
 
             msg = 'Create ZIP';
-            if (!quiet) console.log(msg);
-            loggerLog(msg);
+            loggerLog(msg, !quiet);
             msg = 'Creating ZIP ...';
             if (!quiet) spinner = ora(msg).start();
             loggerLog(msg);
@@ -1055,39 +1039,33 @@ async function createUpdateAWSpipeline (    pipelineName,
             loggerLog(msg);
 
             msg = 'Create Lambda execution role';
-            if (!quiet) console.log(msg);
-            loggerLog(msg);
+            loggerLog(msg, !quiet);
             await createLambdaRole();            
 
             msg = 'Create Lambda function';
-            if (!quiet) console.log(msg);
-            loggerLog(msg);
+            loggerLog(msg, !quiet);
             await createLambdaFunction();            
 
             msg = 'Create AppSync API';
-            if (!quiet) console.log(msg);
-            loggerLog(msg);
+            loggerLog(msg, !quiet);
             await createAppSyncAPI();            
             
             msg = 'Saved resorces to file: ' + yellow(RESOURCES_FILE);
-            if (!quiet) console.log(msg);
-            loggerLog(msg); 
+            loggerLog(msg, !quiet);
 
         } catch (error) {
             msg = 'Error creating resources: ' + error.message;
             if (!quiet) spinner.fail(msg);
             loggerLog(msg + " : " + JSON.stringify(error));
             msg = 'Rolling back resources.';
-            console.error(msg);
-            loggerLog(msg);
+            loggerError(msg);
             await removeAWSpipelineResources(RESOURCES, quiet);            
             return;                    
         }
 
     } else {
         msg = 'Update resources';
-        if (!quiet) console.log(msg);
-        loggerLog(msg);
+        loggerLog(msg, !quiet);
         let resources = null;
         try {
             msg = 'Loading resources file ...';            
@@ -1105,8 +1083,7 @@ async function createUpdateAWSpipeline (    pipelineName,
         }  
         
         msg = 'Create ZIP';
-        if (!quiet) console.log(msg);
-        loggerLog(msg);
+        loggerLog(msg, !quiet);
         msg = 'Creating ZIP ...';
         if (!quiet) spinner = ora(msg).start();
         loggerLog(msg);
@@ -1116,13 +1093,11 @@ async function createUpdateAWSpipeline (    pipelineName,
         loggerLog(msg);
 
         msg = 'Update Lambda function';
-        if (!quiet) console.log(msg);
-        loggerLog(msg);
+        loggerLog(msg, !quiet);
         await updateLambdaFunction(resources);
 
         msg = 'Update AppSync API';
-        if (!quiet) console.log(msg);
-        loggerLog(msg);
+        loggerLog(msg, !quiet);
         await updateAppSyncAPI(resources);
     }
 }

@@ -16,7 +16,7 @@ import { readFile, writeFile } from 'fs/promises';
 import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
-import { loggerLog } from "./logger.js";
+import { loggerError, loggerLog } from "./logger.js";
 
 let NAME = '';
 let REGION = '';
@@ -70,8 +70,7 @@ async function createDeploymentFile(folderPath, zipFilePath) {
         await archive.finalize();
     } catch (err) {
         msg = 'Creating deployment zip file: ' + err;
-        console.error(msg); 
-        loggerLog(msg);
+        loggerError(msg);
     }
 }
 

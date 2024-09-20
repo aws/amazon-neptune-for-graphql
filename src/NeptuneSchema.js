@@ -54,10 +54,7 @@ function yellow(text) {
 
 
 function consoleOut(text) {
-    if (VERBOSE) {
-        console.log(text);
-    }
-    loggerLog(text);
+    loggerLog(text, VERBOSE);
 }
 
 
