@@ -297,7 +297,7 @@ async function main() {
         } catch (err) {
             msg = 'Error reading graphDB schema file: ' + yellow(inputGraphDBSchemaFile);
             console.error(msg);
-            loggerLog(msg +": " + JSON.stringify(err));
+            loggerLog(msg + ": " + JSON.stringify(err));
             process.exit(1);
         }
     }
@@ -311,7 +311,7 @@ async function main() {
     // Get Neptune schema from endpoint
     if (inputGraphDBSchemaNeptuneEndpoint != '' && inputGraphDBSchema == '' && inputGraphDBSchemaFile == '') {
         let endpointParts = inputGraphDBSchemaNeptuneEndpoint.split(':');
-        if (endpointParts.length < 2) {
+        if (endpointParts.length != 2) {
             msg = 'Neptune endpoint must be in the form of host:port';
             loggerError(msg);
             process.exit(1);
