@@ -54,16 +54,12 @@ let isNeptuneIAMAuth = false;
 let createUpdatePipeline = false;
 let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
-let createUpdatePipelineEndpointRO = '';
-let createUpdatePipelineDualLambdas = false;
 let createUpdatePipelineRegion = '';
 let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
 let inputCDKpipelineName = '';
 let inputCDKpipelineEnpoint = '';
-let inputCDKpipelineEnpointRO = '';
-let inputCDKpipelineDualLambdas = false;
 let inputCDKpipelineFile = '';
 let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
@@ -196,14 +192,8 @@ function processArgs() {
             case '--create-update-aws-pipeline-neptune-endpoint':
                 createUpdatePipelineEndpoint = array[index + 1];
             break;
-            case 'pro':                
-            case '--create-update-aws-pipeline-neptune-endpoint-ro':
-                createUpdatePipelineEndpointRO = array[index + 1];
-            break;
+            case 'pro':
             case '-p2l':
-            case '--create-update-aws-pipeline-dual-lambdas':
-                createUpdatePipelineDualLambdas = true;
-            break;
             case '-pd':
             case '--create-update-aws-pipeline-neptune-database-name':
                 createUpdatePipelineNeptuneDatabaseName = array[index + 1];
@@ -221,12 +211,7 @@ function processArgs() {
                 inputCDKpipelineEnpoint = array[index + 1];
             break;
             case 'cro':
-            case '--output-aws-pipeline-cdk-neptume-endpoint-ro':
-                inputCDKpipelineEnpointRO = array[index + 1];
-            break;
             case '-c2l':
-            case '--output-aws-pipeline-cdk-neptume-dual-lambas':
-                inputCDKpipelineDualLambdas = true;
             case '-cd':
             case '--output-aws-pipeline-cdk-neptume-database-name':
                 inputCDKpipelineDatabaseName = array[index + 1];
@@ -321,7 +306,7 @@ async function main() {
         
         let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');
         let neptuneRegion = '';
-        if (neptuneType == 'neptune-db') 
+        if (neptuneType == 'neptune-db')
             neptuneRegion = neptuneRegionParts[2];
         else
             neptuneRegion = neptuneRegionParts[1];
@@ -614,19 +599,6 @@ async function main() {
                 let neptuneHost = endpointParts[0];
                 let neptunePort = endpointParts[1];
 
-                let neptuneHostRO = '';
-                let neptunePortRO = '';
-                if (createUpdatePipelineEndpointRO != '') {
-                    let endpointPartsRO = createUpdatePipelineEndpointRO.split(':');
-                    if (endpointPartsRO.length < 2) {
-                        msg = 'Neptune read only endpoint must be in the form of host:port';
-                        loggerError(msg);
-                        process.exit(1);
-                    }
-                    neptuneHostRO = endpointPartsRO[0];
-                    neptunePortRO = endpointPartsRO[1];
-                }
-
                 msg = '\nCreating AWS pipeline resources';
                 loggerLog(msg, !quiet);
                 await createUpdateAWSpipeline(  createUpdatePipelineName, 
@@ -641,9 +613,6 @@ async function main() {
                                                 isNeptuneIAMAuth,
                                                 neptuneHost,
                                                 neptunePort,
-                                                neptuneHostRO,
-                                                neptunePortRO,
-                                                createUpdatePipelineDualLambdas,
                                                 outputFolderPath,
                                                 neptuneType );            
             } catch (err) {

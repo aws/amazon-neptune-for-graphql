@@ -64,8 +64,6 @@ let thisOutputFolderPath = './output';
 let pipelineExists = false;
 let NEPTUNE_HOST = null;
 let NEPTUNE_PORT = null;
-let NEPTUNE_HOST_RO = null;
-let NEPTUNE_PORT_RO = null;
 let NEPTUNE_DBSubnetGroup = null;
 let NEPTUNE_DBSubnetIds = [];
 let NEPTUNE_VpcSecurityGroupId = null;
@@ -73,7 +71,6 @@ let NEPTUME_IAM_AUTH = false;
 let NEPTUNE_CURRENT_VERSION = '';
 let NEPTUNE_CURRENT_IAM = false;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
-let DUAL_LAMBDA = false;
 let LAMBDA_ROLE = '';
 let LAMBDA_ARN = '';
 let NEPTUNE_TYPE = 'neptune-db';
@@ -938,10 +935,7 @@ async function createUpdateAWSpipeline (    pipelineName,
                                             __dirname, 
                                             isNeptuneIAMAuth, 
                                             neptuneHost, 
-                                            neptunePort, 
-                                            neptuneHostRO,
-                                            neptunePortRO,
-                                            dualLambda,
+                                            neptunePort,
                                             outputFolderPath, 
                                             neptuneType) {    
 
@@ -957,9 +951,6 @@ async function createUpdateAWSpipeline (    pipelineName,
     NEPTUME_IAM_AUTH = isNeptuneIAMAuth;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
-    NEPTUNE_HOST_RO = neptuneHostRO;
-    NEPTUNE_PORT_RO = neptunePortRO;
-    DUAL_LAMBDA = dualLambda;
     thisOutputFolderPath = outputFolderPath;
     NEPTUNE_TYPE = neptuneType;
 
