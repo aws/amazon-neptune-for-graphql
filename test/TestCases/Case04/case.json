@@ -2,7 +2,7 @@
     "name": "Get Database Schema",
     "description":"",
     "argv":["--quiet",
-            "--input-graphdb-schema-neptune-endpoint", "airport00.cluster-ccbtmrye8gfu.us-east-1.neptune.amazonaws.com:8183",            
+            "--input-graphdb-schema-neptune-endpoint", "<neptune-endpoint>",
             "--output-folder-path", "./test/TestCases/Case04/output",
             "--output-no-lambda-zip"],
     "host": "",
