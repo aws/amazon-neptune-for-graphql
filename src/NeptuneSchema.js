@@ -57,34 +57,54 @@ function consoleOut(text) {
     }
 }
 
+function sanitize(text) {
+    // TODO implement sanitization logic
+    // placeholder for sanitization of query text that cannot be parameterized
+    return text;
+}
 
-async function queryNeptune(q) {    
+/**
+ * Executes a neptune query
+ * @param query the query to execute
+ * @param params optional query params
+ * @returns {Promise<ExecuteOpenCypherQueryCommandOutput|any>}
+ */
+async function queryNeptune(query, params = {}) {
     if (useSDK) {
-        const response = await queryNeptuneSDK(q);
-        return response; 
+        const response = await queryNeptuneSDK(query, params);
+        return response;
     } else {
-        try {        
-        const response = await axios.post(`https://${HOST}:${PORT}/${language}`, `query=${encodeURIComponent(q)}`);
-        return response.data;    
+        try {
+            let data = {
+                query: query,
+                parameters: JSON.stringify(params)
+            };
+            const response = await axios.post(`https://${HOST}:${PORT}/${language}`, data, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        return response.data;
         } catch (error) {
             console.error("Http query request failed: ", error.message);
-            consoleOut("Trying with the AWS SDK");            
-            const response = await queryNeptuneSDK(q);
+            consoleOut("Trying with the AWS SDK");
+            const response = await queryNeptuneSDK(query, params);
             useSDK = true;
-            return response;             
+            return response;
         }
     } 
 }
 
 
-async function queryNeptuneSDK(q) {
+async function queryNeptuneSDK(query, params = {}) {
     try {
         const config = {            
             endpoint: `https://${HOST}:${PORT}`
         };
         const client = new NeptunedataClient(config);
         const input = {
-            openCypherQuery: q            
+            openCypherQuery: query,
+            parameters: JSON.stringify(params)
         };
         const command = new ExecuteOpenCypherQueryCommand(input);
         const response = await client.send(command);        
@@ -133,7 +153,7 @@ async function getEdgesNames() {
 
 
 async function checkEdgeDirection(direction) {
-    let query = `MATCH (from:${direction.from})-[r:${direction.edge.label}]->(to:${direction.to}) RETURN r as edge LIMIT 1`;
+    let query = `MATCH(from:${sanitize(direction.from)})-[r:${sanitize(direction.edge.label)}]->(to:${sanitize(direction.to)}) RETURN r as edge LIMIT 1`;
     let response = await queryNeptune(query);
     let result = response.results[0];
     if (result !== undefined) {                    
@@ -196,9 +216,10 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 
 
 async function getEdgeProperties(edge) {
-    let query = `MATCH ()-[n:${edge.label}]->() RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
+    let query = `MATCH ()-[n:${sanitize(edge.label)}]->() RETURN properties(n) as properties LIMIT $sample`;
+    let parameters = {sample: SAMPLE};
     try {
-        let response = await queryNeptune(query);            
+        let response = await queryNeptune(query, parameters);
         let result = response.results;
         result.forEach(e => {                                
             Object.keys(e.properties).forEach(key => {
@@ -220,9 +241,10 @@ async function getEdgesProperties() {
 
 
 async function getNodeProperties(node) {
-    let query = `MATCH (n:${node.label}) RETURN properties(n) as properties LIMIT ${SAMPLE}`;        
+    let query = `MATCH (n:${sanitize(node.label)}) RETURN properties(n) as properties LIMIT $sample`;
+    let parameters = {sample: SAMPLE};
     try {
-        let response = await queryNeptune(query);            
+        let response = await queryNeptune(query, parameters);
         let result = response.results;
         result.forEach(e => {                                
             Object.keys(e.properties).forEach(key => {
@@ -244,10 +266,10 @@ async function getNodesProperties() {
 
 
 async function checkEdgeDirectionCardinality(d) {
-    let queryFrom = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;     
+    let queryFrom = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
     let responseFrom = await queryNeptune(queryFrom);
     let resultFrom = responseFrom.results[0];
-    let queryTo = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;            
+    let queryTo = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
     let responseTo = await queryNeptune(queryTo);
     let resultTo = responseTo.results[0];
     let c = '';
