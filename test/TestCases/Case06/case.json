@@ -8,7 +8,7 @@
             "--output-aws-pipeline-cdk-name", "AirportCDKTestJest",
             "--output-aws-pipeline-cdk-neptume-database-name", "airport00",
             "--output-aws-pipeline-cdk-region", "us-east-1",
-            "--output-aws-pipeline-cdk-neptume-endpoint", "airport00.cluster-ccbtmrye8gfu.us-east-1.neptune.amazonaws.com:8182",            
+            "--output-aws-pipeline-cdk-neptume-endpoint", "<neptune-endpoint>",
             "--output-resolver-query-https"],
     "host": "<your-airroutes-db-host>",
     "port": "<your-airroutes-db-port>",
