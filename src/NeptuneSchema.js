@@ -57,41 +57,51 @@ function consoleOut(text) {
     loggerLog(text, VERBOSE);
 }
 
-
-async function queryNeptune(q) {    
+/**
+ * Executes a neptune query
+ * @param query the query to execute
+ * @param params optional query params
+ * @returns {Promise<ExecuteOpenCypherQueryCommandOutput|any>}
+ */
+async function queryNeptune(query, params) {
     if (useSDK) {
-        const response = await queryNeptuneSDK(q);
-        return response; 
+        const response = await queryNeptuneSDK(query, params);
+        return response;
     } else {
-        try {        
-        const response = await axios.post(`https://${HOST}:${PORT}/${language}`, `query=${encodeURIComponent(q)}`);
-        return response.data;    
+        try {
+            let data = {
+                ...{query: query},
+                ...(params) && {parameters: params}
+            };
+            const response = await axios.post(`https://${HOST}:${PORT}/${language}`, data);
+        return response.data;
         } catch (error) {
             msg = `Http query request failed: ${error.message}`;
             console.error(msg);
             loggerLog(msg + ': ' + JSON.stringify(error));
-            
+
             if (NEPTUNE_TYPE == 'neptune-db') {
-                consoleOut("Trying with the AWS SDK");            
-                const response = await queryNeptuneSDK(q);
+                consoleOut("Trying with the AWS SDK");
+                const response = await queryNeptuneSDK(query, params);
                 useSDK = true;
-                return response; 
+                return response;
             }
-            
+
             throw new Error('AWS SDK for Neptune Analytics is not available, yet.');
         }
     } 
 }
 
 
-async function queryNeptuneSDK(q) {
+async function queryNeptuneSDK(query, params) {
     try {
         const config = {            
             endpoint: `https://${HOST}:${PORT}`
         };
         const client = new NeptunedataClient(config);
         const input = {
-            openCypherQuery: q            
+            ...{openCypherQuery: query},
+            ...(params) && {parameters: params}
         };
         const command = new ExecuteOpenCypherQueryCommand(input);
         const response = await client.send(command);        
@@ -100,7 +110,7 @@ async function queryNeptuneSDK(q) {
     } catch (error) {        
         msg = `SDK query request failed: ${error.message}`;
         console.error(msg);
-        loggerLog(msg + ': ' + JSON.stringify(error));        
+        loggerLog(msg + ': ' + JSON.stringify(error));
         process.exit(1);
     }
 }
@@ -109,11 +119,11 @@ async function queryNeptuneSDK(q) {
 async function getNodesNames() {
     let query = `MATCH (a) RETURN labels(a), count(a)`;
     let response = await queryNeptune(query);    
-    loggerLog('Getting nodes names');    
+    loggerLog('Getting nodes names');
 
     try {
         response.results.forEach(result => {
-            schema.nodeStructures.push({ label: result['labels(a)'][0], properties: []});            
+            schema.nodeStructures.push({ label: result['labels(a)'][0], properties: []});
             consoleOut('  Found Node: ' + yellow(result['labels(a)'][0]));
         });        
     }
@@ -212,7 +222,7 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 
 async function getEdgeProperties(edge) {
     let query = `MATCH ()-[n:${edge.label}]->() RETURN properties(n) as properties LIMIT ${SAMPLE}`;
-    loggerLog(`Getting properties for edge: ${query}`);        
+    loggerLog(`Getting properties for edge: ${query}`);
     try {
         let response = await queryNeptune(query);            
         let result = response.results;
@@ -238,10 +248,10 @@ async function getEdgesProperties() {
 
 
 async function getNodeProperties(node) {
-    let query = `MATCH (n:${node.label}) RETURN properties(n) as properties LIMIT ${SAMPLE}`;
-    loggerLog(`Getting properties for node: ${query}`);
+    let query = `MATCH (n) WHERE $label IN LABELS(n) RETURN properties(n) as properties LIMIT $sample`;
+    let parameters = `{"label": "${node.label}", "sample": ${SAMPLE}}`;
     try {
-        let response = await queryNeptune(query);            
+        let response = await queryNeptune(query, parameters);
         let result = response.results;
         result.forEach(e => {                                
             Object.keys(e.properties).forEach(key => {
@@ -266,7 +276,7 @@ async function getNodesProperties() {
 
 async function checkEdgeDirectionCardinality(d) {
     let queryFrom = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
-    loggerLog(`Checking edge direction cardinality: ${queryFrom}`);     
+    loggerLog(`Checking edge direction cardinality: ${queryFrom}`);
     let responseFrom = await queryNeptune(queryFrom);
     let resultFrom = responseFrom.results[0];
     let queryTo = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
@@ -344,7 +354,7 @@ async function getNeptuneSchema(quiet) {
     try {
         await getAWSCredentials();
     } catch (error) {
-        msg = "There are no AWS credentials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.";        
+        msg = "There are no AWS credentials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.";
         consoleOut(msg);
         loggerLog(msg + ': ' + JSON.stringify(error));
     }
