@@ -158,8 +158,13 @@ async function getEdgesNames() {
 
 
 async function checkEdgeDirection(direction) {
-    let query = `MATCH (from:${direction.from})-[r:${direction.edge.label}]->(to:${direction.to}) RETURN r as edge LIMIT 1`;
-    let response = await queryNeptune(query);
+    let query = `MATCH(from)-[r]->(to)
+                WHERE $from in labels(from)
+                    AND type(r) = $edge
+                    AND $to in labels(to)
+                RETURN r as edge LIMIT 1`;
+    let parameters = `{"from": "${direction.from}", "edge": "${direction.edge.label}", "to": "${direction.to}"}`;
+    let response = await queryNeptune(query, parameters);
     let result = response.results[0];
     if (result !== undefined) {                    
         direction.edge.directions.push({from:direction.from, to:direction.to});
@@ -221,7 +226,7 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 
 
 async function getEdgeProperties(edge) {
-    let query = `MATCH ()-[n]->() WHERE n = $label RETURN properties(n) as properties LIMIT $sample`;
+    let query = `MATCH ()-[n]->() WHERE type(n) = $label RETURN properties(n) as properties LIMIT $sample`;
     let parameters = `{"label": "${edge.label}", "sample": ${SAMPLE}}`;
     loggerLog(`Getting properties for edge: ${query}`);
     try {
@@ -249,7 +254,7 @@ async function getEdgesProperties() {
 
 
 async function getNodeProperties(node) {
-    let query = `MATCH (n) WHERE $label IN LABELS(n) RETURN properties(n) as properties LIMIT $sample`;
+    let query = `MATCH (n) WHERE $label in labels(n) RETURN properties(n) as properties LIMIT $sample`;
     let parameters = `{"label": "${node.label}", "sample": ${SAMPLE}}`;
     try {
         let response = await queryNeptune(query, parameters);
@@ -276,13 +281,26 @@ async function getNodesProperties() {
 
 
 async function checkEdgeDirectionCardinality(d) {
-    let queryFrom = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
+    let parameters = `{"from": "${d.from}", "edge": "${d.edge.label}", "to": "${d.to}"}`;
+    let queryFrom = `MATCH(from)-[r]->(to)
+                    WHERE $from in labels(from)
+                        AND type(r) = $edge
+                        AND $to in labels(to)
+                    WITH to, count(from) as rels
+                    WHERE rels > 1
+                    RETURN rels LIMIT 1`;
     loggerLog(`Checking edge direction cardinality: ${queryFrom}`);
-    let responseFrom = await queryNeptune(queryFrom);
+    let responseFrom = await queryNeptune(queryFrom, parameters);
     let resultFrom = responseFrom.results[0];
-    let queryTo = `MATCH (from:${d.from})-[r:${d.edge.label}]->(to:${d.to}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
+    let queryTo = `MATCH(from)-[r]->(to)
+                    WHERE $from in labels(from)
+                        AND type(r) = $edge
+                        AND $to in labels(to)
+                    WITH from, count(to) as rels
+                    WHERE rels > 1
+                    RETURN rels LIMIT 1`;
     loggerLog(`Checking edge direction cardinality: ${queryTo}`);
-    let responseTo = await queryNeptune(queryTo);
+    let responseTo = await queryNeptune(queryTo, parameters);
     let resultTo = responseTo.results[0];
     let c = '';
     
