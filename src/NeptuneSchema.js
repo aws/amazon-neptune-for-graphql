@@ -221,10 +221,11 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 
 
 async function getEdgeProperties(edge) {
-    let query = `MATCH ()-[n:${edge.label}]->() RETURN properties(n) as properties LIMIT ${SAMPLE}`;
+    let query = `MATCH ()-[n]->() WHERE n = $label RETURN properties(n) as properties LIMIT $sample`;
+    let parameters = `{"label": "${edge.label}", "sample": ${SAMPLE}}`;
     loggerLog(`Getting properties for edge: ${query}`);
     try {
-        let response = await queryNeptune(query);            
+        let response = await queryNeptune(query, parameters);            
         let result = response.results;
         result.forEach(e => {                                
             Object.keys(e.properties).forEach(key => {
