@@ -164,7 +164,7 @@ async function getEdgesNames() {
 
 async function findFromAndToLabels(edgeStructure) {
     let query = `MATCH (from)-[r:${sanitize(edgeStructure.label)}]->(to) RETURN DISTINCT labels(from) as fromLabel, labels(to) as toLabel`;
-    let response = await queryNeptune(query, parameters);
+    let response = await queryNeptune(query);
     for (let result of response.results) {
         for (let fromLabel of result.fromLabel) {
             for (let toLabel of result.toLabel) {
@@ -275,10 +275,10 @@ async function getNodesProperties() {
 
 async function checkEdgeDirectionCardinality(d) {
     let queryFrom = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
-    let responseFrom = await queryNeptune(queryFrom, parameters);
+    let responseFrom = await queryNeptune(queryFrom);
     let resultFrom = responseFrom.results[0];
     let queryTo = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
-    let responseTo = await queryNeptune(queryTo, parameters);
+    let responseTo = await queryNeptune(queryTo);
     let resultTo = responseTo.results[0];
     let c = '';
     
