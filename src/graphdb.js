@@ -9,6 +9,7 @@ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
+import { loggerInfo } from './logger.js';
 
 let changeCase = true;
 
@@ -33,7 +34,7 @@ function checkForDuplicateNames(schema) {
     });
 
     if (!changeCase)
-        console.log('Pascal case is not applicable, duplicate names types.');                        
+        loggerInfo('Pascal case is not applicable, duplicate names types.');
 }
 
 
