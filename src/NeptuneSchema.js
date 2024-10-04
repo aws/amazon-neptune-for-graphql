@@ -50,12 +50,6 @@ function yellow(text) {
     return '\x1b[33m' + text + '\x1b[0m';
 }
 
-
-function sanitize(text) {
-    // TODO implement sanitization logic
-    return text;
-}
-
 function sanitize(text) {
     // TODO implement sanitization logic
     return text;
