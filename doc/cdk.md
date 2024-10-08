@@ -11,7 +11,7 @@ Example starting from an Amazon Neptune database endpoint. In this case the util
 
 Example starting from a GraphQL schema.
 
-`neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` <*your-new-GraphQL-API-name*>` --output-aws-pipeline-cdk-neptume-endpoint` <*your-neptune-database-endpoint:port*>` --output-resolver-query-https` 
+`neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` <*your-new-GraphQL-API-name*>` --output-aws-pipeline-cdk-neptune-endpoint` <*your-neptune-database-endpoint:port*>` --output-resolver-query-https` 
 
 
 

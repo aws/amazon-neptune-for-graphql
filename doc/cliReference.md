@@ -135,7 +135,7 @@ It removes the pipeline created with `--create-update-aws-pipeline`. The resourc
 <br>
 This trigger the creation of a CDK file to be use to create the AWS resources for the GraphQL API, including the AppSync GraphQL API and the Lambda that run the resolver.
 
-`--output-aws-pipeline-cdk-neptume-endpoint <value>, -ce <value>`
+`--output-aws-pipeline-cdk-neptune-endpoint <value>, -ce <value>`
 <br>
 This set the Neptune database endpoint used by the Lambda function to query the Neptune database. If not set it used the endpoint set with `--input-graphdb-schema-neptune-endpoint`.
 

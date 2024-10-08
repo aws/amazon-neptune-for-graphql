@@ -1,37 +1,37 @@
-type Continent @alias(property: "continent") {
-  id: ID! @id
+type Continent {
+  id: ID!
   code: String
   type: String
   desc: String
-  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+  airportContainssOut(filter: AirportInput, options: Options): [Airport]
   contains: Contains
 }
 
 input ContinentInput {
-  id: ID @id
+  id: ID
   code: String
   type: String
   desc: String
 }
 
-type Country @alias(property: "country") {
-  _id: ID! @id
+type Country {
+  _id: ID!
   code: String
   type: String
   desc: String
-  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+  airportContainssOut(filter: AirportInput, options: Options): [Airport]
   contains: Contains
 }
 
 input CountryInput {
-  _id: ID @id
+  _id: ID
   code: String
   type: String
   desc: String
 }
 
-type Version @alias(property: "version") {
-  _id: ID! @id
+type Version {
+  _id: ID!
   date: String
   code: String
   author: String
@@ -40,7 +40,7 @@ type Version @alias(property: "version") {
 }
 
 input VersionInput {
-  _id: ID @id
+  _id: ID
   date: String
   code: String
   author: String
@@ -48,8 +48,8 @@ input VersionInput {
   desc: String
 }
 
-type Airport @alias(property: "airport") {
-  _id: ID! @id
+type Airport {
+  _id: ID!
   country: String
   longest: Float
   code: String
@@ -61,18 +61,18 @@ type Airport @alias(property: "airport") {
   region: String
   type: String
   lat: Float
-  desc2: String @alias(property: "desc")
-  outboundRoutesCount: Int @graphQuery(statement: "MATCH (this)-[r:route]->(a) RETURN count(r)")
-  continentContainsIn: Continent @relationship(edgeType: "contains", direction: IN)
-  countryContainsIn: Country @relationship(edgeType: "contains", direction: IN)
-  airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: OUT)
-  airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: IN)
+  desc2: String
+  outboundRoutesCount: Int
+  continentContainsIn: Continent
+  countryContainsIn: Country
+  airportRoutesOut(filter: AirportInput, options: Options): [Airport]
+  airportRoutesIn(filter: AirportInput, options: Options): [Airport]
   contains: Contains
   route: Route
 }
 
 input AirportInput {
-  _id: ID @id
+  _id: ID
   country: String
   longest: Float
   code: String
@@ -87,12 +87,12 @@ input AirportInput {
   desc: String
 }
 
-type Contains @alias(property: "contains") {
-  _id: ID! @id
+type Contains {
+  _id: ID!
 }
 
-type Route @alias(property: "route") {
-  _id: ID! @id
+type Route {
+  _id: ID!
   dist: Int
 }
 
@@ -106,11 +106,10 @@ input Options {
 
 type Query {
   getAirport(code: String): Airport
-  getAirportConnection(fromCode: String!, toCode: String!): Airport @cypher(statement: "MATCH (:airport{code: '$fromCode'})-[:route]->(this:airport)-[:route]->(:airport{code:'$toCode'})")
-  getAirportWithGremlin(code:String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
-  getContinentsWithGremlin: [Continent] @graphQuery(statement: "g.V().hasLabel('continent').elementMap().fold()")    
-  getCountriesCountGremlin: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
-
+  getAirportConnection(fromCode: String!, toCode: String!): Airport
+  getAirportWithGremlin(code: String): Airport
+  getContinentsWithGremlin: [Continent]
+  getCountriesCountGremlin: Int
   getNodeContinent(filter: ContinentInput): Continent
   getNodeContinents(filter: ContinentInput, options: Options): [Continent]
   getNodeCountry(filter: CountryInput): Country
@@ -122,10 +121,9 @@ type Query {
 }
 
 type Mutation {
-  createAirport(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
-  addRoute(fromAirportCode:String, toAirportCode:String, dist:Int): Route @graphQuery(statement: "MATCH (from:airport{code:'$fromAirportCode'}), (to:airport{code:'$toAirportCode'}) CREATE (from)-[this:route{dist:$dist}]->(to) RETURN this")
-  deleteAirport(id: ID): Int @graphQuery(statement: "MATCH (this:airport) WHERE ID(this) = '$id' DETACH DELETE this")
-
+  createAirport(input: AirportInput!): Airport
+  addRoute(fromAirportCode: String, toAirportCode: String, dist: Int): Route
+  deleteAirport(id: ID): Int
   createNodeContinent(input: ContinentInput!): Continent
   updateNodeContinent(input: ContinentInput!): Continent
   deleteNodeContinent(_id: ID!): Boolean

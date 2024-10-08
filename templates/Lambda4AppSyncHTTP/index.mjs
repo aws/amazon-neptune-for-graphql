@@ -17,7 +17,7 @@ if (process.env.NEPTUNE_IAM_AUTH_ENABLED === 'true') {
     const interceptor = aws4Interceptor({
         options: {
             region: AWS_REGION,
-            service: "neptune-db",
+            service: process.env.NEPTUNE_TYPE,
         },
         credentials: {
             accessKeyId: AWS_ACCESS_KEY_ID,

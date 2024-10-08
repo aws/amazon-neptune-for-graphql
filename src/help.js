@@ -141,8 +141,8 @@ Parameters
 
 [--output-aws-pipeline-cdk                                  -c   ]
 [--output-aws-pipeline-cdk-name <value>                     -cn  ]  default: Neptune DB name from --input-graphdb-schema-neptune-endpoint if exists
-[--output-aws-pipeline-cdk-neptume-endpoint <value>         -ce  ]  default: --input-graphdb-schema-neptune-endpoint if exists
-[--output-aws-pipeline-cdk-neptume-database-name <value>    -cd  ]
+[--output-aws-pipeline-cdk-neptune-endpoint <value>         -ce  ]  default: --input-graphdb-schema-neptune-endpoint if exists
+[--output-aws-pipeline-cdk-neptune-database-name <value>    -cd  ]
 [--output-aws-pipeline-cdk-region <value>                   -cr  ]  default: us-east-1 or from --input-graphdb-schema-neptune-endpoint if exists
 [--output-aws-pipeline-cdk-file <value>                     -cf  ]  default: --output-aws-pipeline-cdk-name <value>-cdk.js
 [--output-aws-pipeline-cdk-neptune-IAM                      -ci  ]  default: is Neptune VPC

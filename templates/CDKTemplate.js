@@ -14,6 +14,7 @@ const { Stack, Duration, App } = require('aws-cdk-lib');
 const lambda  = require( 'aws-cdk-lib/aws-lambda');
 const iam  = require( 'aws-cdk-lib/aws-iam');
 const ec2  = require( 'aws-cdk-lib/aws-ec2');
+const { parseNeptuneDomain } = require('../src/util.js');
 const { CfnGraphQLApi, CfnApiKey, CfnGraphQLSchema, CfnDataSource, CfnResolver, CfnFunctionConfiguration }  = require( 'aws-cdk-lib/aws-appsync');
 
 const NAME = '';
@@ -21,6 +22,7 @@ const REGION = '';
 
 const NEPTUNE_HOST = '';
 const NEPTUNE_PORT = '';
+const NEPTUNE_DB_NAME = '';
 const NEPTUNE_DBSubnetGroup = null;
 const NEPTUNE_IAM_AUTH = false;
 const NEPTUNE_IAM_POLICY_RESOURCE = '*';
@@ -52,9 +54,18 @@ class AppSyncNeptuneStack extends Stack {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com') 
         });
 
-        lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));   
+        lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
 
-        if (NEPTUNE_IAM_AUTH) {                        
+       let env = {
+           NEPTUNE_HOST: NEPTUNE_HOST,
+           NEPTUNE_PORT: NEPTUNE_PORT,
+           NEPTUNE_IAM_AUTH_ENABLED: NEPTUNE_IAM_AUTH,
+           LOGGING_ENABLED: 'false',
+           NEPTUNE_DB_NAME: NEPTUNE_DB_NAME,
+           NEPTUNE_REGION: REGION,
+           NEPTUNE_DOMAIN: parseNeptuneDomain(NEPTUNE_HOST),
+       };
+       if (NEPTUNE_IAM_AUTH) {
             // is IAM auth
             echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, {
                 functionName: LAMBDA_FUNCTION_NAME,
@@ -64,12 +75,7 @@ class AppSyncNeptuneStack extends Stack {
                 runtime: lambda.Runtime.NODEJS_18_X,
                 timeout: Duration.seconds(15), 
                 memorySize: 128, 
-                environment: {            
-                    NEPTUNE_HOST: NEPTUNE_HOST,
-                    NEPTUNE_PORT: NEPTUNE_PORT,
-                    NEPTUNE_IAM_AUTH_ENABLED: 'true',
-                    LOGGING_ENABLED: 'false'
-                },
+                environment: env,
                 initialPolicy: [new iam.PolicyStatement({
                     sid: NAME + "NeptuneQueryPolicy",
                     effect: iam.Effect.ALLOW,
@@ -100,12 +106,7 @@ class AppSyncNeptuneStack extends Stack {
                 runtime: lambda.Runtime.NODEJS_18_X,
                 timeout: Duration.seconds(15), 
                 memorySize: 128, 
-                environment: {            
-                    NEPTUNE_HOST: NEPTUNE_HOST,
-                    NEPTUNE_PORT: NEPTUNE_PORT,
-                    NEPTUNE_IAM_AUTH_ENABLED: 'false',
-                    LOGGING_ENABLED: 'false'
-                },
+                environment: env,
                 vpc: neptune_vpc,
                 allowPublicSubnet: 'true',
                 roleArn: lambda_role.roleArn

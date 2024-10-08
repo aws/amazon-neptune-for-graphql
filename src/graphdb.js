@@ -9,6 +9,7 @@ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
+import { loggerInfo } from './logger.js';
 
 let changeCase = true;
 
@@ -33,7 +34,7 @@ function checkForDuplicateNames(schema) {
     });
 
     if (!changeCase)
-        console.log('Pascal case is not applicable, duplicate names types.');                        
+        loggerInfo('Pascal case is not applicable, duplicate names types.');
 }
 
 
@@ -69,12 +70,16 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         }
         
         r += '\t_id: ID! @id\n';
-
+        
+        let properties = [];
         node.properties.forEach(property => {
+            properties.push(property.name);
+
             if (property.name == 'id')                
                 r+= `\tid: ID\n`;
             else
                 r+= `\t${property.name}: ${property.type}\n`;
+
         });
         
         let edgeTypes = [];
@@ -127,11 +132,15 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         });
 
         // Add edge types        
-        edgeTypes.forEach(edgeType => {
+        edgeTypes.forEach(edgeType => {            
+            let collision = '';
+            if (properties.includes(edgeType))
+                collision = '_';
+
             if (changeCase) {
-                r += `\t${edgeType}:${toPascalCase(edgeType)}`
+                r += `\t${collision + edgeType}:${toPascalCase(edgeType)}`
             } else {
-                r += `\t${edgeType}:${edgeType}`
+                r += `\t${collision + edgeType}:${edgeType}`
             }
         });
 

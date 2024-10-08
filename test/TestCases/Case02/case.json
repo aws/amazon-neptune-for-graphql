@@ -6,8 +6,8 @@
             "--output-js-resolver-file", "./test/TestCases/Case02/output/output.resolver.graphql.cjs",
             "--output-folder-path", "./test/TestCases/Case02/output",
             "--output-no-lambda-zip"],
-    "host": "<your-airroutes-db-host>",
-   "port": "<your-airroutes-db-port>"
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>",
     "testOutputFilesSize": ["output.lambda.zip", "output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }

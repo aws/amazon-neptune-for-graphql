@@ -1,6 +1,6 @@
 {
   "name": "@aws/neptune-for-graphql",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "CLI utility to create and maintain a GraphQL API for Amazon Neptune",
   "keywords": [
     "Amazon Neptune",
@@ -21,8 +21,9 @@
   "scripts": {
     "postinstall": "cd templates/Lambda4AppSyncHTTP && npm install && cd ../Lambda4AppSyncSDK && npm install",
     "lint": "eslint neptune-for-graphql.mjs ./src",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.json",
-    "test:resolver": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.json --testPathPattern=test/TestCases/Case01"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js",
+    "test:sdk": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case07",
+    "test:resolver": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case01"
   },
   "jest": {
     "collectCoverage": true,
@@ -53,6 +54,7 @@
     "@aws-sdk/client-lambda": "3.387.0",
     "@aws-sdk/client-neptune": "3.387.0",
     "@aws-sdk/client-neptunedata": "3.403.0",
+    "@aws-sdk/client-neptune-graph": "3.662.0",
     "@aws-sdk/credential-providers": "3.414.0",
     "archiver": "5.3.1",
     "aws4-axios": "3.3.0",
@@ -65,6 +67,8 @@
   "devDependencies": {
     "@jest/test-sequencer": "^29.7.0",
     "eslint": "^8.50.0",
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "pino": "9.4.0",
+    "pino-pretty": "11.2.2"
   }
 }

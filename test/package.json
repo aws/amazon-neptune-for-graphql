@@ -10,6 +10,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "graphql-tag": "2.12.6"
+    "graphql-tag": "2.12.6",
+    "adm-zip": "0.5.16"
   }
 }

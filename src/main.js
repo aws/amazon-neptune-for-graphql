@@ -11,7 +11,7 @@ permissions and limitations under the License.
 */
 
 import { readFileSync, writeFileSync, mkdirSync}  from 'fs';
-import { helpTxt }  from './help.js';
+import { helpTxt } from './help.js';
 import { graphDBInferenceSchema } from './graphdb.js';
 import { changeGraphQLSchema } from './changes.js';
 import { schemaParser, schemaStringify } from './schemaParser.js';
@@ -21,6 +21,7 @@ import { getNeptuneSchema, setGetNeptuneSchemaParameters } from './NeptuneSchema
 import { createUpdateAWSpipeline, removeAWSpipelineResources } from './pipelineResources.js'
 import { createAWSpipelineCDK } from './CDKPipelineApp.js'
 import { createLambdaDeploymentPackage } from './lambdaZip.js'
+import { loggerInit, loggerError, loggerInfo } from './logger.js';
 
 import ora from 'ora';
 let spinner = null;
@@ -33,6 +34,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let msg = '';
 
 // get version
 const version = JSON.parse(readFileSync(__dirname + '/../package.json')).version;
@@ -52,7 +54,7 @@ let isNeptuneIAMAuth = false;
 let createUpdatePipeline = false;
 let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
-let createUpdatePipelineRegion = 'us-east-1';
+let createUpdatePipelineRegion = '';
 let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
@@ -63,6 +65,7 @@ let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
 let createLambdaZip = true;
 let outputFolderPath = './output';
+let neptuneType = 'neptune-db'; // or neptune-graph
 
 
 // Outputs
@@ -189,6 +192,8 @@ function processArgs() {
             case '--create-update-aws-pipeline-neptune-endpoint':
                 createUpdatePipelineEndpoint = array[index + 1];
             break;
+            case 'pro':
+            case '-p2l':
             case '-pd':
             case '--create-update-aws-pipeline-neptune-database-name':
                 createUpdatePipelineNeptuneDatabaseName = array[index + 1];
@@ -202,11 +207,13 @@ function processArgs() {
                 inputCDKpipeline = true;            
             break;
             case '-ce':
-            case '--output-aws-pipeline-cdk-neptume-endpoint':
+            case '--output-aws-pipeline-cdk-neptune-endpoint':
                 inputCDKpipelineEnpoint = array[index + 1];
             break;
+            case 'cro':
+            case '-c2l':
             case '-cd':
-            case '--output-aws-pipeline-cdk-neptume-database-name':
+            case '--output-aws-pipeline-cdk-neptune-database-name':
                 inputCDKpipelineDatabaseName = array[index + 1];
             break;
             case '-cn':
@@ -258,54 +265,78 @@ async function main() {
 
     processArgs();
 
+    // Init output folder
+    mkdirSync(outputFolderPath, { recursive: true });
+
+    // Init the logger    
+    loggerInit(outputFolderPath, quiet);
+    loggerInfo('Starting neptune-for-graphql version: ' + version);
+    loggerInfo('Input arguments: ' + process.argv);
+
     // Get graphDB schema from file
     if (inputGraphDBSchemaFile != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
         try {
             inputGraphDBSchema = readFileSync(inputGraphDBSchemaFile, 'utf8');
-            if (!quiet) console.log('Loaded graphDB schema from file: ' + inputGraphDBSchemaFile);        
+            loggerInfo('Loaded graphDB schema from file: ' + yellow(inputGraphDBSchemaFile));
         } catch (err) {
-            console.error('Error reading graphDB schema file: ' + inputGraphDBSchemaFile);
+            msg = 'Error reading graphDB schema file: ' + yellow(inputGraphDBSchemaFile);
+            loggerError(msg + ": " + JSON.stringify(err));
             process.exit(1);
         }
+    }
+
+    // Check if Neptune target is db or graph
+    if (inputGraphDBSchemaNeptuneEndpoint.includes('neptune-graph') ||
+        createUpdatePipelineEndpoint.includes('neptune-graph') ||
+        inputCDKpipelineEnpoint.includes('neptune-graph')) {
+        neptuneType = 'neptune-graph';
+        // neptune analytics requires IAM
+        loggerInfo("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
+        isNeptuneIAMAuth = true;
     }
 
     // Get Neptune schema from endpoint
     if (inputGraphDBSchemaNeptuneEndpoint != '' && inputGraphDBSchema == '' && inputGraphDBSchemaFile == '') {
         let endpointParts = inputGraphDBSchemaNeptuneEndpoint.split(':');
-        if (endpointParts.length < 2) {
-            console.error('Neptune endpoint must be in the form of host:port');
+        if (endpointParts.length != 2) {
+            msg = 'Neptune endpoint must be in the form of host:port';
+            loggerError(msg);
             process.exit(1);
         }
         let neptuneHost = endpointParts[0];
         let neptunePort = endpointParts[1];
         
-        let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');        
-        let neptuneRegion = neptuneRegionParts[2];                
-        
-        if (!quiet) console.log('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
-        setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, true);
+        let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');
+        let neptuneRegion = '';
+        if (neptuneType === 'neptune-db')
+            neptuneRegion = neptuneRegionParts[2];
+        else
+            neptuneRegion = neptuneRegionParts[1];
+
+        loggerInfo('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
+
+        setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, neptuneType);
         let startTime = performance.now();
-        inputGraphDBSchema = await getNeptuneSchema(quiet);
+        inputGraphDBSchema = await getNeptuneSchema();
         let endTime = performance.now();
         let executionTime = endTime - startTime;
-        if (!quiet) console.log(`Execution time: ${(executionTime/1000).toFixed(2)} seconds`);
-        if (!quiet) console.log('');
+        loggerInfo(msg = 'Execution time: ' + (executionTime/1000).toFixed(2) + ' seconds');
     }
 
     // Option 2: inference GraphQL schema from graphDB schema
     if (inputGraphDBSchema != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
-        if (!quiet) console.log('Inferencing GraphQL schema from graphDB schema');
+        loggerInfo('Inferencing GraphQL schema from graphDB schema');
         inputGraphQLSchema = graphDBInferenceSchema(inputGraphDBSchema, outputSchemaMutations);
-        if (!quiet) console.log('');
     }
 
     // Option 1: load
     if (inputGraphQLSchema == '' && inputGraphQLSchemaFile != '') {
         try {
             inputGraphQLSchema = readFileSync(inputGraphQLSchemaFile, 'utf8');
-            if (!quiet) console.log('Loaded GraphQL schema from file: ' + inputGraphQLSchemaFile);
+            loggerInfo('Loaded GraphQL schema from file: ' + yellow(inputGraphQLSchemaFile));
         } catch (err) {
-            console.error('Error reading GraphQL schema file: ' + inputGraphQLSchemaFile);
+            msg = 'Error reading GraphQL schema file: ' + yellow(inputGraphQLSchemaFile);
+            loggerError(msg + ": " + JSON.stringify(err));
             process.exit(1);
         }    
     }
@@ -314,9 +345,10 @@ async function main() {
     if (inputGraphQLSchemaChangesFile != '') {
         try {
             inputGraphQLSchemaChanges = readFileSync(inputGraphQLSchemaChangesFile, 'utf8');
-            if (!quiet) console.log('Loaded GraphQL schema changes from file: ' + inputGraphQLSchemaChangesFile);
+            loggerInfo('Loaded GraphQL schema changes from file: ' + yellow(inputGraphQLSchemaChangesFile));
         } catch (err) {
-            console.error('Error reading GraphQL schema changes file: ' + inputGraphQLSchemaChangesFile);
+            msg = 'Error reading GraphQL schema changes file: ' + yellow(inputGraphQLSchemaChangesFile);
+            loggerError(msg + ": " + JSON.stringify(err));
             process.exit(1);
         }    
     }
@@ -328,23 +360,30 @@ async function main() {
         }
         if (createUpdatePipelineEndpoint == '' &&
             createUpdatePipelineRegion == '' && createUpdatePipelineNeptuneDatabaseName == '') {
-            console.error('AWS pipeline: is required a Neptune endpoint, or a Neptune database name and region.');
+            msg = 'AWS pipeline: is required a Neptune endpoint, or a Neptune database name and region.';
+            loggerError(msg);
             process.exit(1);
         }
         if (createUpdatePipelineEndpoint == '' &&
             !createUpdatePipelineRegion == '' && createUpdatePipelineNeptuneDatabaseName == '') {
-            console.error('AWS pipeline: a Neptune database name is required.');
+            msg = 'AWS pipeline: a Neptune database name is required.';
+            loggerError(msg);
             process.exit(1);
         }
         if (createUpdatePipelineEndpoint == '' &&
             createUpdatePipelineRegion == '' && !createUpdatePipelineNeptuneDatabaseName == '') {
-            console.error('AWS pipeline: a Neptune database region is required.');
+            msg = 'AWS pipeline: a Neptune database region is required.';
+            loggerError(msg);
             process.exit(1);
         }        
-        if (createUpdatePipelineEndpoint != '') {
+        if (createUpdatePipelineEndpoint != '' && createUpdatePipelineRegion == '') {
             let parts = createUpdatePipelineEndpoint.split('.');
             createUpdatePipelineNeptuneDatabaseName = parts[0];
-            createUpdatePipelineRegion = parts[2];
+            if (neptuneType === 'neptune-db') {
+                createUpdatePipelineRegion = parts[2];
+            } else {
+                createUpdatePipelineRegion = parts[1];
+            }
         }
         if (createUpdatePipelineName == '') {
             createUpdatePipelineName = createUpdatePipelineNeptuneDatabaseName;
@@ -358,17 +397,20 @@ async function main() {
         }
         if (inputCDKpipelineEnpoint == '' &&
             inputCDKpipelineRegion == '' && inputCDKpipelineDatabaseName == '') {
-            console.error('AWS CDK: is required a Neptune endpoint, or a Neptune database name and region.');
+            msg = 'AWS CDK: is required a Neptune endpoint, or a Neptune database name and region.';
+            loggerError(msg);
             process.exit(1);
         }
         if (inputCDKpipelineEnpoint == '' &&
             !inputCDKpipelineRegion == '' && inputCDKpipelineDatabaseName == '') {
-            console.error('AWS CDK: a Neptune database name is required.');
+            msg = 'AWS CDK: a Neptune database name is required.';
+            loggerError(msg);
             process.exit(1);
         }
         if (inputCDKpipelineEnpoint == '' &&
             inputCDKpipelineRegion == '' && !inputCDKpipelineDatabaseName == '') {
-            console.error('AWS CDK: a Neptune database region is required.');
+            msg = 'AWS CDK: a Neptune database region is required.';
+            loggerError(msg);
             process.exit(1);
         }    
         if (inputCDKpipelineEnpoint != '') {
@@ -404,8 +446,6 @@ async function main() {
     // Outputs
     // ****************************************************************************
 
-    mkdirSync('./output', { recursive: true });
-
     // Output GraphQL schema no directives
     if (inputGraphQLSchema != '') {
     
@@ -420,9 +460,10 @@ async function main() {
 
         try {
             writeFileSync(outputSchemaFile, outputSchema);
-            if (!quiet) console.log('Wrote GraphQL schema to file: ' + yellow(outputSchemaFile));
+            loggerInfo('Wrote GraphQL schema to file: ' + yellow(outputSchemaFile));
         } catch (err) {
-            console.error('Error writing GraphQL schema to file: ' + outputSchemaFile);    
+            msg = 'Error writing GraphQL schema to file: ' + yellow(outputSchemaFile);
+            loggerError(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -438,9 +479,10 @@ async function main() {
 
         try {
             writeFileSync(outputSourceSchemaFile, outputSourceSchema);
-            if (!quiet) console.log('Wrote GraphQL schema to file: ' + yellow(outputSourceSchemaFile));
+            loggerInfo('Wrote GraphQL schema to file: ' + yellow(outputSourceSchemaFile));
         } catch (err) {
-            console.error('Error writing GraphQL schema to file: ' + outputSourceSchemaFile);    
+            msg = 'Error writing GraphQL schema to file: ' + yellow(outputSourceSchemaFile);
+            loggerError(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -455,9 +497,10 @@ async function main() {
 
         try {
             writeFileSync(outputNeptuneSchemaFile, inputGraphDBSchema);
-            if (!quiet) console.log('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile));
+            loggerInfo('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile));
         } catch (err) {
-            console.error('Error writing Neptune schema to file: ' + outputNeptuneSchemaFile);    
+            msg = 'Error writing Neptune schema to file: ' + yellow(outputNeptuneSchemaFile);
+            loggerError(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -468,9 +511,10 @@ async function main() {
 
         try {
             writeFileSync(outputLambdaResolverFile, outputLambdaResolver);
-            if (!quiet) console.log('Wrote Lambda resolver to file: ' + yellow(outputLambdaResolverFile));
+            loggerInfo('Wrote Lambda resolver to file: ' + yellow(outputLambdaResolverFile));
         } catch (err) {
-            console.error('Error writing Lambda resolver to file: ' + outputLambdaResolverFile);    
+            msg = 'Error writing Lambda resolver to file: ' + yellow(outputLambdaResolverFile);
+            loggerError(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -485,10 +529,10 @@ async function main() {
 
         try {
             writeFileSync(outputJSResolverFile, outputJSResolver);
-            //writeFileSync('./test/output.resolver.graphql.js', outputJSResolver); // Remove, for development and test only
-            if (!quiet) console.log('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile));
+            loggerInfo('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile));
         } catch (err) {
-            console.error('Error writing Javascript resolver to file: ' + outputJSResolverFile);    
+            msg = 'Error writing Javascript resolver to file: ' + yellow(outputJSResolverFile);
+            loggerError(msg + ": " + JSON.stringify(err));
         }
 
 
@@ -498,7 +542,11 @@ async function main() {
                 outputLambdaPackagePath = '/../templates/Lambda4AppSyncHTTP';
             break;
             case 'sdk':
-                outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
+                if (neptuneType === 'neptune-db') {
+                    outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
+                } else {
+                    outputLambdaPackagePath = '/../templates/Lambda4AppSyncGraphSDK';
+                }
             break;
         }
 
@@ -515,10 +563,11 @@ async function main() {
                 await createLambdaDeploymentPackage(__dirname + outputLambdaPackagePath, outputLambdaResolverZipFile);                                
                 if (!quiet) {
                     spinner.stop();
-                    console.log('Wrote Lambda ZIP file: ' + yellow(outputLambdaResolverZipFile));
                 }
+                loggerInfo('Wrote Lambda ZIP file: ' + yellow(outputLambdaResolverZipFile));
             } catch (err) {
-                console.error('Error creating Lambda ZIP file: ' + err);
+                msg = 'Error creating Lambda ZIP file: ' + yellow(outputLambdaResolverZipFile);
+                loggerError(msg + ": " + JSON.stringify(err));
             }
            
         }
@@ -529,13 +578,14 @@ async function main() {
             try {
                 let endpointParts = createUpdatePipelineEndpoint.split(':');
                 if (endpointParts.length < 2) {
-                    console.error('Neptune endpoint must be in the form of host:port');
+                    msg = 'Neptune endpoint must be in the form of host:port';
+                    loggerError(msg);
                     process.exit(1);
                 }
                 let neptuneHost = endpointParts[0];
                 let neptunePort = endpointParts[1];
 
-                if (!quiet) console.log('\nCreating AWS pipeline resources')            
+                loggerInfo('Creating AWS pipeline resources');
                 await createUpdateAWSpipeline(  createUpdatePipelineName, 
                                                 createUpdatePipelineNeptuneDatabaseName, 
                                                 createUpdatePipelineRegion,
@@ -548,20 +598,22 @@ async function main() {
                                                 isNeptuneIAMAuth,
                                                 neptuneHost,
                                                 neptunePort,
-                                                outputFolderPath );            
+                                                outputFolderPath,
+                                                neptuneType );            
             } catch (err) {
-                console.error('Error creating AWS pipeline: ' + err);            
+                loggerError('Error creating AWS pipeline: ' + JSON.stringify(err));
             }
         }
 
         // Output CDK
         if (inputCDKpipeline) {
             try {
-                if (!quiet) console.log('\nCreating CDK File')
+                loggerInfo('Creating CDK File');
 
                 let endpointParts = inputCDKpipelineEnpoint.split(':');
                 if (endpointParts.length < 2) {
-                    console.error('Neptune endpoint must be in the form of host:port');
+                    msg = 'Neptune endpoint must be in the form of host:port';
+                    loggerError(msg);
                     process.exit(1);
                 }
                 let neptuneHost = endpointParts[0];
@@ -572,37 +624,41 @@ async function main() {
                     inputCDKpipelineFile = `${outputFolderPath}/${inputCDKpipelineName}-cdk.js`;
                 }
 
-                await createAWSpipelineCDK( inputCDKpipelineName, 
-                                            inputCDKpipelineDatabaseName,
-                                            inputCDKpipelineRegion,
-                                            outputSchema,
-                                            schemaModel,
-                                            __dirname + outputLambdaPackagePath,
-                                            inputCDKpipelineFile,
-                                            __dirname,
-                                            quiet,
-                                            isNeptuneIAMAuth,
-                                            neptuneHost,
-                                            neptunePort,
-                                            outputFolderPath );
+                await createAWSpipelineCDK({
+                    pipelineName: inputCDKpipelineName,
+                    neptuneDBName: inputCDKpipelineDatabaseName,
+                    neptuneDBregion: inputCDKpipelineRegion,
+                    appSyncSchema: outputSchema,
+                    schemaModel: schemaModel,
+                    lambdaFilesPath: __dirname + outputLambdaPackagePath,
+                    outputFile: inputCDKpipelineFile,
+                    __dirname: __dirname,
+                    quiet: quiet,
+                    isNeptuneIAMAuth: isNeptuneIAMAuth,
+                    neptuneHost: neptuneHost,
+                    neptunePort: neptunePort,
+                    outputFolderPath: outputFolderPath,
+                    neptuneType: neptuneType
+                });
             } catch (err) {
-                console.error('Error creating CDK File: ' + err);            
+                loggerError('Error creating CDK File: ' + JSON.stringify(err));
             }
         }
 
-        if (!quiet) console.log('\nDone\n'); 
+        loggerInfo('Done');
     }
 
     // Remove AWS Pipeline
     if ( removePipelineName != '') {
-        if (!quiet) console.log('\nRemoving pipeline AWS resources, name: ' + yellow(removePipelineName))        
+        loggerInfo('Removing pipeline AWS resources, name: ' + yellow(removePipelineName));
         let resourcesToRemove = null;
         let resourcesFile = `${outputFolderPath}/${removePipelineName}-resources.json`;
-        if (!quiet) console.log('Using file: ' + yellow(resourcesFile));
+        loggerInfo('Using file: ' + yellow(resourcesFile));
         try {
             resourcesToRemove = readFileSync(resourcesFile, 'utf8');
         } catch (err) {
-            console.error('Error reading AWS pipeline resources file: ' + resourcesFile + ' ' + err);
+            msg = 'Error reading AWS pipeline resources file: ' + yellow(resourcesFile);
+            loggerError(msg + ": " + JSON.stringify(err));
             process.exit(1);
         }
         await removeAWSpipelineResources(JSON.parse(resourcesToRemove), quiet);
