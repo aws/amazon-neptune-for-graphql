@@ -37,6 +37,12 @@ const __dirname = path.dirname(__filename);
 // get version
 const version = JSON.parse(readFileSync(__dirname + '/../package.json')).version;
 
+/**
+ * neptune-graph is neptune analytics
+ */
+const NEPTUNE_GRAPH = 'neptune-graph';
+const NEPTUNE_DB = 'neptune-db';
+
 // Input
 let quiet = false;
 let inputGraphQLSchema = '';
@@ -63,8 +69,7 @@ let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
 let createLambdaZip = true;
 let outputFolderPath = './output';
-let neptuneType = 'neptune-db'; // or neptune-graph
-
+let neptuneType = NEPTUNE_DB; // or neptune-graph
 
 // Outputs
 let outputSchema = '';
@@ -248,6 +253,7 @@ function processArgs() {
             break;
         }
     });
+
 }
 
 async function main() {
@@ -259,6 +265,8 @@ async function main() {
 
     processArgs();
 
+    // Init output folder
+    mkdirSync(outputFolderPath, { recursive: true });
     // Get graphDB schema from file
     if (inputGraphDBSchemaFile != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
         try {
@@ -271,10 +279,14 @@ async function main() {
     }
 
     // Check if Neptune target is db or graph
-    if ( inputGraphDBSchemaNeptuneEndpoint.includes('neptune-graph') || 
-         createUpdatePipelineEndpoint.includes('neptune-graph') ||
-         inputCDKpipelineEnpoint.includes('neptune-graph'))
-         neptuneType = 'neptune-graph';
+    if (inputGraphDBSchemaNeptuneEndpoint.includes(NEPTUNE_GRAPH) ||
+        createUpdatePipelineEndpoint.includes(NEPTUNE_GRAPH) ||
+        inputCDKpipelineEnpoint.includes(NEPTUNE_GRAPH)) {
+        neptuneType = NEPTUNE_GRAPH;
+        // neptune analytics requires IAM
+        console.log("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
+        isNeptuneIAMAuth = true;
+    }
 
     // Get Neptune schema from endpoint
     if (inputGraphDBSchemaNeptuneEndpoint != '' && inputGraphDBSchema == '' && inputGraphDBSchemaFile == '') {
@@ -288,11 +300,11 @@ async function main() {
         
         let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');
         let neptuneRegion = '';
-        if (neptuneType == 'neptune-db')
+        if (neptuneType === NEPTUNE_DB)
             neptuneRegion = neptuneRegionParts[2];
         else
             neptuneRegion = neptuneRegionParts[1];
-        
+
         if (!quiet) console.log('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
         setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, true);
         let startTime = performance.now();
@@ -351,14 +363,16 @@ async function main() {
             createUpdatePipelineRegion == '' && !createUpdatePipelineNeptuneDatabaseName == '') {
             console.error('AWS pipeline: a Neptune database region is required.');
             process.exit(1);
-        }        
-        if (createUpdatePipelineEndpoint != '' && createUpdatePipelineRegion == '') {
+        }
+        if (createUpdatePipelineEndpoint != '') {
             let parts = createUpdatePipelineEndpoint.split('.');
             createUpdatePipelineNeptuneDatabaseName = parts[0];
-            if (neptuneType === 'neptune-db') {
-                createUpdatePipelineRegion = parts[2];
-            } else {
-                createUpdatePipelineRegion = parts[1];
+            if (createUpdatePipelineRegion === '') {
+                if (neptuneType === NEPTUNE_DB) {
+                    createUpdatePipelineRegion = parts[2];
+                } else {
+                    createUpdatePipelineRegion = parts[1];
+                }
             }
         }
         if (createUpdatePipelineName == '') {
@@ -418,8 +432,6 @@ async function main() {
     // ****************************************************************************
     // Outputs
     // ****************************************************************************
-
-    mkdirSync(outputFolderPath, { recursive: true });
 
     // Output GraphQL schema no directives
     if (inputGraphQLSchema != '') {
@@ -500,7 +512,6 @@ async function main() {
 
         try {
             writeFileSync(outputJSResolverFile, outputJSResolver);
-            //writeFileSync('./test/output.resolver.graphql.js', outputJSResolver); // Remove, for development and test only
             if (!quiet) console.log('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile));
         } catch (err) {
             console.error('Error writing Javascript resolver to file: ' + outputJSResolverFile);
@@ -513,7 +524,11 @@ async function main() {
                 outputLambdaPackagePath = '/../templates/Lambda4AppSyncHTTP';
             break;
             case 'sdk':
-                outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
+                if (neptuneType === NEPTUNE_DB) {
+                    outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
+                } else {
+                    outputLambdaPackagePath = '/../templates/Lambda4AppSyncGraphSDK';
+                }
             break;
         }
 
@@ -588,20 +603,22 @@ async function main() {
                     inputCDKpipelineFile = `${outputFolderPath}/${inputCDKpipelineName}-cdk.js`;
                 }
 
-                await createAWSpipelineCDK( inputCDKpipelineName, 
-                                            inputCDKpipelineDatabaseName,
-                                            inputCDKpipelineRegion,
-                                            outputSchema,
-                                            schemaModel,
-                                            __dirname + outputLambdaPackagePath,
-                                            inputCDKpipelineFile,
-                                            __dirname,
-                                            quiet,
-                                            isNeptuneIAMAuth,
-                                            neptuneHost,
-                                            neptunePort,
-                                            outputFolderPath,
-                                            neptuneType);
+                await createAWSpipelineCDK({
+                    pipelineName: inputCDKpipelineName,
+                    neptuneDBName: inputCDKpipelineDatabaseName,
+                    neptuneDBregion: inputCDKpipelineRegion,
+                    appSyncSchema: outputSchema,
+                    schemaModel: schemaModel,
+                    lambdaFilesPath: __dirname + outputLambdaPackagePath,
+                    outputFile: inputCDKpipelineFile,
+                    __dirname: __dirname,
+                    quiet: quiet,
+                    isNeptuneIAMAuth: isNeptuneIAMAuth,
+                    neptuneHost: neptuneHost,
+                    neptunePort: neptunePort,
+                    outputFolderPath: outputFolderPath,
+                    neptuneType: neptuneType
+                });
             } catch (err) {
                 console.error('Error creating CDK File: ' + err);
             }

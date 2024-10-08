@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { getNeptuneClusterinfoBy } from './pipelineResources.js'
+import { getNeptuneClusterDbInfoBy } from './pipelineResources.js'
 import { readFile, writeFile } from 'fs/promises';
 //import semver from 'semver';
 import fs from 'fs';
@@ -73,7 +73,22 @@ async function createDeploymentFile(folderPath, zipFilePath) {
 }
 
 
-async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, outputFile, __dirname, quiet, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath ) {    
+async function createAWSpipelineCDK({
+                                        pipelineName,
+                                        neptuneDBName,
+                                        neptuneDBregion,
+                                        appSyncSchema,
+                                        schemaModel,
+                                        lambdaFilesPath,
+                                        outputFile,
+                                        __dirname,
+                                        quiet,
+                                        isNeptuneIAMAuth,
+                                        neptuneHost,
+                                        neptunePort,
+                                        outputFolderPath,
+                                        neptuneType
+                                    }) {
 
     NAME = pipelineName;    
     REGION = neptuneDBregion;
@@ -88,50 +103,52 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     let spinner = null;
     let neptuneClusterInfo = null;
 
-    try {
-        if (!quiet) console.log('Get Neptune Cluster Info');
-        if (!quiet) spinner = ora('Getting ...').start();
-        neptuneClusterInfo = await getNeptuneClusterinfoBy(NEPTUNE_DB_NAME, REGION);
-        if (!quiet) spinner.succeed('Got Neptune Cluster Info');
-        if (isNeptuneIAMAuth) {
-            if (!neptuneClusterInfo.isIAMauth) {
-                console.error("The Neptune database authentication is set to VPC.");
-                console.error("Remove the --output-aws-pipeline-cdk-neptune-IAM option.");
-                process.exit(1);
-            }                
-        } else {
-            if (neptuneClusterInfo.isIAMauth) {
-                console.error("The Neptune database authentication is set to IAM.");
-                console.error("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
+    if (neptuneType === 'neptune-db') {
+        try {
+            if (!quiet) console.log('Get Neptune Cluster Info');
+            if (!quiet) spinner = ora('Getting ...').start();
+            neptuneClusterInfo = await getNeptuneClusterDbInfoBy(NEPTUNE_DB_NAME, REGION);
+            if (!quiet) spinner.succeed('Got Neptune Cluster Info');
+            if (isNeptuneIAMAuth) {
+                if (!neptuneClusterInfo.isIAMauth) {
+                    console.error("The Neptune database authentication is set to VPC.");
+                    console.error("Remove the --output-aws-pipeline-cdk-neptune-IAM option.");
+                    process.exit(1);
+                }
+            } else {
+                if (neptuneClusterInfo.isIAMauth) {
+                    console.error("The Neptune database authentication is set to IAM.");
+                    console.error("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
+                    process.exit(1);
+                } else {
+                    if (!quiet) console.log(`Subnet Group: ` + yellow(neptuneClusterInfo.dbSubnetGroup));
+                }
+            }
+
+            if (neptuneClusterInfo.version != '') {
+                const v = neptuneClusterInfo.version;
+                if (lambdaFilesPath.includes('SDK') == true && //semver.satisfies(v, '>=1.2.1.0') ) {
+                    (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
+                    console.error("Neptune SDK query is supported starting with Neptune versions 1.2.1.0.R5");
+                    console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
+                    process.exit(1);
+                }
+            }
+
+            NEPTUNE_HOST = neptuneClusterInfo.host;
+            NEPTUNE_PORT = neptuneClusterInfo.port;
+            NEPTUNE_DBSubnetGroup = neptuneClusterInfo.dbSubnetGroup.replace('default-', '');
+            NEPTUNE_IAM_POLICY_RESOURCE = neptuneClusterInfo.iamPolicyResource;
+
+        } catch (error) {
+            if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
+            if (!isNeptuneIAMAuth) {
+                spinner.clear();
+                console.error("VPC data is not available to proceed.");
                 process.exit(1);
             } else {
-                if (!quiet) console.log(`Subnet Group: ` + yellow(neptuneClusterInfo.dbSubnetGroup));
+                if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
             }
-        }
-
-        if (neptuneClusterInfo.version != '') {
-            const v = neptuneClusterInfo.version;            
-            if (lambdaFilesPath.includes('SDK') == true && //semver.satisfies(v, '>=1.2.1.0') ) {
-                (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {                     
-                console.error("Neptune SDK query is supported starting with Neptune versions 1.2.1.0.R5");
-                console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
-                process.exit(1);
-            }
-        }
-
-        NEPTUNE_HOST = neptuneClusterInfo.host;
-        NEPTUNE_PORT = neptuneClusterInfo.port;
-        NEPTUNE_DBSubnetGroup = neptuneClusterInfo.dbSubnetGroup.replace('default-', '');                
-        NEPTUNE_IAM_POLICY_RESOURCE = neptuneClusterInfo.iamPolicyResource;      
-    
-    } catch (error) {
-        if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
-        if (!isNeptuneIAMAuth) {
-            spinner.clear();
-            console.error("VPC data is not available to proceed.");
-            process.exit(1);
-        } else {
-            if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
         }
     }
          
@@ -147,7 +164,8 @@ async function createAWSpipelineCDK (pipelineName, neptuneDBName, neptuneDBregio
     CDKFile = CDKFile.replace( "const NAME = '';",                           `const NAME = '${NAME}';` );
     CDKFile = CDKFile.replace( "const REGION = '';",                         `const REGION = '${REGION}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_HOST = '';",                   `const NEPTUNE_HOST = '${NEPTUNE_HOST}';` );
-    CDKFile = CDKFile.replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );    
+    CDKFile = CDKFile.replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );
+    CDKFile = CDKFile.replace( "const NEPTUNE_DB_NAME = '';",                `const NEPTUNE_DB_NAME = '${NEPTUNE_DB_NAME}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_POLICY_RESOURCE = '*';",   `const NEPTUNE_IAM_POLICY_RESOURCE = '${NEPTUNE_IAM_POLICY_RESOURCE}';` );

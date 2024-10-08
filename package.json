@@ -22,6 +22,7 @@
     "postinstall": "cd templates/Lambda4AppSyncHTTP && npm install && cd ../Lambda4AppSyncSDK && npm install",
     "lint": "eslint neptune-for-graphql.mjs ./src",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js",
+    "test:sdk": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case07",
     "test:resolver": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case01"
   },
   "jest": {
@@ -53,6 +54,7 @@
     "@aws-sdk/client-lambda": "3.387.0",
     "@aws-sdk/client-neptune": "3.387.0",
     "@aws-sdk/client-neptunedata": "3.403.0",
+    "@aws-sdk/client-neptune-graph": "3.662.0",
     "@aws-sdk/credential-providers": "3.414.0",
     "archiver": "5.3.1",
     "aws4-axios": "3.3.0",

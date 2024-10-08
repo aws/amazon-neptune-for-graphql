@@ -1,0 +1,15 @@
+{
+  "name": "lambda4appsyncgraphsdk",
+  "version": "1.0.0",
+  "description": "AWS Lambda function to bridge AppSync to Neptune Analytics",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "AWS",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@aws-sdk/client-neptune-graph": "3.662.0",
+    "graphql-tag": "2.12.6"
+  }
+}
