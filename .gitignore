@@ -4,6 +4,7 @@ package-lock.json
 node_modules/**
 templates/Lambda4AppSyncHTTP/node_modules/**
 templates/Lambda4AppSyncSDK/node_modules/**
+templates/Lambda4AppSyncGraphSDK/node_modules/**
 coverage/**
 test/node_modules/**
 test/TestCases/Case01/output/**
@@ -13,4 +14,5 @@ test/TestCases/Case03/output/**
 test/TestCases/Case04/output/**
 test/TestCases/Case05/output/**
 test/TestCases/Case06/output/**
+test/TestCases/Case07/output/**
 *.iml

@@ -107,10 +107,9 @@ input Options {
 type Query {
   getAirport(code: String): Airport
   getAirportConnection(fromCode: String!, toCode: String!): Airport @cypher(statement: "MATCH (:airport{code: '$fromCode'})-[:route]->(this:airport)-[:route]->(:airport{code:'$toCode'})")
-  getAirportWithGremlin(code:String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
-  getContinentsWithGremlin: [Continent] @graphQuery(statement: "g.V().hasLabel('continent').elementMap().fold()")    
+  getAirportWithGremlin(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
+  getContinentsWithGremlin: [Continent] @graphQuery(statement: "g.V().hasLabel('continent').elementMap().fold()")
   getCountriesCountGremlin: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
-
   getNodeContinent(filter: ContinentInput): Continent
   getNodeContinents(filter: ContinentInput, options: Options): [Continent]
   getNodeCountry(filter: CountryInput): Country
@@ -123,9 +122,8 @@ type Query {
 
 type Mutation {
   createAirport(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
-  addRoute(fromAirportCode:String, toAirportCode:String, dist:Int): Route @graphQuery(statement: "MATCH (from:airport{code:'$fromAirportCode'}), (to:airport{code:'$toAirportCode'}) CREATE (from)-[this:route{dist:$dist}]->(to) RETURN this")
+  addRoute(fromAirportCode: String, toAirportCode: String, dist: Int): Route @graphQuery(statement: "MATCH (from:airport{code:'$fromAirportCode'}), (to:airport{code:'$toAirportCode'}) CREATE (from)-[this:route{dist:$dist}]->(to) RETURN this")
   deleteAirport(id: ID): Int @graphQuery(statement: "MATCH (this:airport) WHERE ID(this) = '$id' DETACH DELETE this")
-
   createNodeContinent(input: ContinentInput!): Continent
   updateNodeContinent(input: ContinentInput!): Continent
   deleteNodeContinent(_id: ID!): Boolean

@@ -15,15 +15,22 @@ import { aws4Interceptor } from "aws4-axios";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
 import { loggerError, loggerInfo } from "./logger.js";
+import { parseNeptuneDomain, parseNeptuneGraphName } from "./util.js";
+import { ExecuteQueryCommand, GetGraphSummaryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 
 let HOST = '';
 let PORT = 8182;
 let REGION = ''
 let SAMPLE = 5000;
-let NEPTUNE_TYPE = 'neptune-db'; 
-let language = 'openCypher';
+let NEPTUNE_TYPE = 'neptune-db';
+let NAME = '';
 let useSDK = false;
 let msg = '';
+let neptuneGraphClient;
+let neptunedataClient;
+const NEPTUNE_GRAPH_PROTOCOL = 'https';
+const HTTP_LANGUAGE = 'openCypher';
+const NEPTUNE_GRAPH_LANGUAGE = 'OPEN_CYPHER';
 
 async function getAWSCredentials() {
     const credentialProvider = fromNodeProviderChain();
@@ -56,48 +63,53 @@ function sanitize(text) {
 }
 
 /**
- * Executes a neptune query
+ * Executes a neptune query using HTTP or SDK.
  * @param query the query to execute
  * @param params optional query params
  * @returns {Promise<ExecuteOpenCypherQueryCommandOutput|any>}
  */
-async function queryNeptune(query, params) {
+async function queryNeptune(query, params = '{}') {
     if (useSDK) {
-        const response = await queryNeptuneSDK(query, params);
-        return response;
+        return await queryNeptuneSdk(query, params);
     } else {
         try {
             let data = {
-                ...{query: query},
-                ...(params) && {parameters: params}
+                query: query,
+                parameters: params
             };
-            const response = await axios.post(`https://${HOST}:${PORT}/${language}`, data);
+            const response = await axios.post(`https://${HOST}:${PORT}/${HTTP_LANGUAGE}`, data);
         return response.data;
         } catch (error) {
             loggerError(`Http query request failed` + ': ' + JSON.stringify(error));
-
-            if (NEPTUNE_TYPE == 'neptune-db') {
-                loggerInfo("Trying with the AWS SDK");
-                const response = await queryNeptuneSDK(query, params);
-                useSDK = true;
-                return response;
-            }
-
-            throw new Error('AWS SDK for Neptune Analytics is not available, yet.');
+            loggerInfo('Trying with the AWS SDK');
+            const response = await queryNeptuneSdk(query, params);
+            loggerInfo('Querying via AWS SDK was successful, will use SDK for future queries')
+            useSDK = true;
+            return response;
         }
-    } 
+    }
 }
 
+/**
+ * Queries neptune using an SDK.
+ */
+async function queryNeptuneSdk(query, params = '{}') {
+    if (NEPTUNE_TYPE === 'neptune-db') {
+        return await queryNeptuneDbSDK(query, params);
+    } else {
+        return await queryNeptuneGraphSDK(query, params);
+    }
+}
 
-async function queryNeptuneSDK(query, params) {
+/**
+ * Queries neptune db using SDK (not to be used for neptune analytics).
+ */
+async function queryNeptuneDbSDK(query, params = '{}') {
     try {
-        const config = {            
-            endpoint: `https://${HOST}:${PORT}`
-        };
-        const client = new NeptunedataClient(config);
+        const client = getNeptunedataClient();
         const input = {
-            ...{openCypherQuery: query},
-            ...(params) && {parameters: params}
+            openCypherQuery: query,
+            parameters: params
         };
         const command = new ExecuteOpenCypherQueryCommand(input);
         const response = await client.send(command);        
@@ -105,6 +117,26 @@ async function queryNeptuneSDK(query, params) {
 
     } catch (error) {
         loggerError('SDK query request failed: ' + JSON.stringify(error));
+        process.exit(1);
+    }
+}
+
+/**
+ * Queries neptune analytics graph using SDK (not to be used for neptune db).
+ */
+async function queryNeptuneGraphSDK(query, params = '{}') {
+    try {
+        const client = getNeptuneGraphClient();
+        const command = new ExecuteQueryCommand({
+            graphIdentifier: NAME,
+            queryString: query,
+            language: NEPTUNE_GRAPH_LANGUAGE,
+            parameters: JSON.parse(params)
+        });
+        const response = await client.send(command);
+        return await new Response(response.payload).json();
+    } catch (error) {
+        loggerError('Graph SDK query request failed:' + JSON.stringify(error));
         process.exit(1);
     }
 }
@@ -300,18 +332,78 @@ function setGetNeptuneSchemaParameters(host, port, region, neptuneType) {
     PORT = port;
     REGION = region;
     NEPTUNE_TYPE = neptuneType;
+    NAME = parseNeptuneGraphName(host);
 }
 
+function getNeptunedataClient() {
+    if (!neptunedataClient) {
+        loggerInfo('Instantiating NeptunedataClient')
+        neptunedataClient = new NeptunedataClient({
+            endpoint: `https://${HOST}:${PORT}`
+        });
+    }
+    return neptunedataClient;
+}
 
-async function getSchemaViaSummaryAPI() {
+function getNeptuneGraphClient() {
+    if (!neptuneGraphClient) {
+        loggerInfo('Instantiating NeptuneGraphClient')
+        neptuneGraphClient = new NeptuneGraphClient({
+            port: PORT,
+            host: parseNeptuneDomain(HOST),
+            region: REGION,
+            protocol: NEPTUNE_GRAPH_PROTOCOL,
+        });
+    }
+    return neptuneGraphClient;
+}
+
+/**
+ * Get a summary of a neptune analytics graph
+ */
+async function getNeptuneGraphSummary() {
+    loggerInfo('Retrieving neptune graph summary')
+    const client = getNeptuneGraphClient();
+    const command = new GetGraphSummaryCommand({
+        graphIdentifier: NAME,
+        mode: 'detailed'
+    });
+    const response = await client.send(command);
+    loggerInfo('Retrieved neptune graph summary')
+    return response.graphSummary;
+}
+
+/**
+ * Get a summary of a neptune db graph
+ */
+async function getNeptuneDbSummary() {
+    loggerInfo('Retrieving neptune db summary')
+    let response = await axios.get(`https://${HOST}:${PORT}/propertygraph/statistics/summary`, {
+        params: {
+            mode: 'detailed'
+        }
+    });
+    loggerInfo('Retrieved neptune db summary')
+    return response.data.payload.graphSummary;
+}
+
+/**
+ * Load the neptune schema by querying the summary API
+ */
+async function loadSchemaViaSummary() {
     try {
-        const response = await axios.get(`https://${HOST}:${PORT}/propertygraph/statistics/summary?mode=detailed`);
-        response.data.payload.graphSummary.nodeLabels.forEach(label => {
+        let graphSummary;
+        if (NEPTUNE_TYPE === 'neptune-db') {
+            graphSummary = await getNeptuneDbSummary();
+        } else {
+            graphSummary = await getNeptuneGraphSummary();
+        }
+        graphSummary.nodeLabels.forEach(label => {
             schema.nodeStructures.push({label:label, properties:[]});
             loggerInfo('Found node: ' + yellow(label));
         });
 
-        response.data.payload.graphSummary.edgeLabels.forEach(label => {
+        graphSummary.edgeLabels.forEach(label => {
             schema.edgeStructures.push({label:label, properties:[], directions:[]});
             loggerInfo('Found edge: ' + yellow(label));
         });
@@ -334,7 +426,7 @@ async function getNeptuneSchema() {
         loggerError(msg + ': ' + JSON.stringify(error));
     }
 
-    if (await getSchemaViaSummaryAPI()) {
+    if (await loadSchemaViaSummary()) {
         loggerInfo("Got nodes and edges via Neptune Summary API.");
     } else {
         loggerInfo("Getting nodes via queries.");

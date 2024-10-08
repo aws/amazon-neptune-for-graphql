@@ -207,13 +207,13 @@ function processArgs() {
                 inputCDKpipeline = true;            
             break;
             case '-ce':
-            case '--output-aws-pipeline-cdk-neptume-endpoint':
+            case '--output-aws-pipeline-cdk-neptune-endpoint':
                 inputCDKpipelineEnpoint = array[index + 1];
             break;
             case 'cro':
             case '-c2l':
             case '-cd':
-            case '--output-aws-pipeline-cdk-neptume-database-name':
+            case '--output-aws-pipeline-cdk-neptune-database-name':
                 inputCDKpipelineDatabaseName = array[index + 1];
             break;
             case '-cn':
@@ -286,10 +286,14 @@ async function main() {
     }
 
     // Check if Neptune target is db or graph
-    if ( inputGraphDBSchemaNeptuneEndpoint.includes('neptune-graph') || 
-         createUpdatePipelineEndpoint.includes('neptune-graph') ||
-         inputCDKpipelineEnpoint.includes('neptune-graph'))
-         neptuneType = 'neptune-graph';
+    if (inputGraphDBSchemaNeptuneEndpoint.includes('neptune-graph') ||
+        createUpdatePipelineEndpoint.includes('neptune-graph') ||
+        inputCDKpipelineEnpoint.includes('neptune-graph')) {
+        neptuneType = 'neptune-graph';
+        // neptune analytics requires IAM
+        loggerInfo("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
+        isNeptuneIAMAuth = true;
+    }
 
     // Get Neptune schema from endpoint
     if (inputGraphDBSchemaNeptuneEndpoint != '' && inputGraphDBSchema == '' && inputGraphDBSchemaFile == '') {
@@ -304,7 +308,7 @@ async function main() {
         
         let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');
         let neptuneRegion = '';
-        if (neptuneType == 'neptune-db')
+        if (neptuneType === 'neptune-db')
             neptuneRegion = neptuneRegionParts[2];
         else
             neptuneRegion = neptuneRegionParts[1];
@@ -538,7 +542,11 @@ async function main() {
                 outputLambdaPackagePath = '/../templates/Lambda4AppSyncHTTP';
             break;
             case 'sdk':
-                outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
+                if (neptuneType === 'neptune-db') {
+                    outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
+                } else {
+                    outputLambdaPackagePath = '/../templates/Lambda4AppSyncGraphSDK';
+                }
             break;
         }
 
@@ -616,20 +624,22 @@ async function main() {
                     inputCDKpipelineFile = `${outputFolderPath}/${inputCDKpipelineName}-cdk.js`;
                 }
 
-                await createAWSpipelineCDK( inputCDKpipelineName, 
-                                            inputCDKpipelineDatabaseName,
-                                            inputCDKpipelineRegion,
-                                            outputSchema,
-                                            schemaModel,
-                                            __dirname + outputLambdaPackagePath,
-                                            inputCDKpipelineFile,
-                                            __dirname,
-                                            quiet,
-                                            isNeptuneIAMAuth,
-                                            neptuneHost,
-                                            neptunePort,
-                                            outputFolderPath,
-                                            neptuneType );
+                await createAWSpipelineCDK({
+                    pipelineName: inputCDKpipelineName,
+                    neptuneDBName: inputCDKpipelineDatabaseName,
+                    neptuneDBregion: inputCDKpipelineRegion,
+                    appSyncSchema: outputSchema,
+                    schemaModel: schemaModel,
+                    lambdaFilesPath: __dirname + outputLambdaPackagePath,
+                    outputFile: inputCDKpipelineFile,
+                    __dirname: __dirname,
+                    quiet: quiet,
+                    isNeptuneIAMAuth: isNeptuneIAMAuth,
+                    neptuneHost: neptuneHost,
+                    neptunePort: neptunePort,
+                    outputFolderPath: outputFolderPath,
+                    neptuneType: neptuneType
+                });
             } catch (err) {
                 loggerError('Error creating CDK File: ' + JSON.stringify(err));
             }

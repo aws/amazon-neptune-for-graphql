@@ -48,6 +48,7 @@ import archiver from 'archiver';
 import ora from 'ora';
 import { exit } from "process";
 import { loggerError, loggerInfo } from "./logger.js";
+import { parseNeptuneDomain } from "./util.js";
 
 // Input
 let NEPTUNE_DB_NAME = '';
@@ -67,7 +68,7 @@ let NEPTUNE_PORT = null;
 let NEPTUNE_DBSubnetGroup = null;
 let NEPTUNE_DBSubnetIds = [];
 let NEPTUNE_VpcSecurityGroupId = null;
-let NEPTUME_IAM_AUTH = false;
+let NEPTUNE_IAM_AUTH = false;
 let NEPTUNE_CURRENT_VERSION = '';
 let NEPTUNE_CURRENT_IAM = false;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
@@ -174,12 +175,14 @@ function storeResource(resource) {
     fs.writeFileSync(RESOURCES_FILE, JSON.stringify(RESOURCES, null, 2));
 }
 
-
-async function getNeptuneClusterinfoBy(name, region) {
+/**
+ * Retrieves information about the neptune db cluster for the given db name and region. Should not be used for neptune analytics graphs.
+ */
+async function getNeptuneClusterDbInfoBy(name, region) {
     NEPTUNE_DB_NAME = name;
     REGION = region;
 
-    await getNeptuneClusterinfo();
+    await setNeptuneDbClusterInfo();
 
     return {
         host: NEPTUNE_HOST, 
@@ -192,37 +195,34 @@ async function getNeptuneClusterinfoBy(name, region) {
         iamPolicyResource: NEPTUNE_IAM_POLICY_RESOURCE };
 }
 
+/**
+ * Retrieves information about the neptune db cluster and sets module-level variable values based on response data. Should not be used for neptune analytics graphs.
+ */
+async function setNeptuneDbClusterInfo() {
+    const neptuneClient = new NeptuneClient({region: REGION});
 
-async function getNeptuneClusterinfo() {
-    if (NEPTUNE_TYPE == 'neptune-db') {
-        const neptuneClient = new NeptuneClient({region: REGION});
+    const params = {
+        DBClusterIdentifier: NEPTUNE_DB_NAME
+    };
 
-        const params = {
-            DBClusterIdentifier: NEPTUNE_DB_NAME
-        };
+    const data = await neptuneClient.send(new DescribeDBClustersCommand(params));
 
-        const data = await neptuneClient.send(new DescribeDBClustersCommand(params));
-        
-        const input = { // DescribeDBSubnetGroupsMessage
-            DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,        
-        };
-        const command = new DescribeDBSubnetGroupsCommand(input);
-        const response = await neptuneClient.send(command);
-            
-        NEPTUNE_HOST = data.DBClusters[0].Endpoint;
-        NEPTUNE_PORT = data.DBClusters[0].Port.toString();
-        NEPTUNE_DBSubnetGroup = data.DBClusters[0].DBSubnetGroup;
-        NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
-        NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
-        NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
-        NEPTUNE_IAM_POLICY_RESOURCE = `${data.DBClusters[0].DBClusterArn.substring(0, data.DBClusters[0].DBClusterArn.lastIndexOf(':cluster')).replace('rds', 'neptune-db')}:${data.DBClusters[0].DbClusterResourceId}/*`;    
-        response.DBSubnetGroups[0].Subnets.forEach(element => { 
-            NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
-        });
-    } else {
-        loggerInfo('AWS SDK for Neptune Analytics is not available, yet.');
-        throw new Error(msg);            
-    }    
+    const input = { // DescribeDBSubnetGroupsMessage
+        DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,
+    };
+    const command = new DescribeDBSubnetGroupsCommand(input);
+    const response = await neptuneClient.send(command);
+
+    NEPTUNE_HOST = data.DBClusters[0].Endpoint;
+    NEPTUNE_PORT = data.DBClusters[0].Port.toString();
+    NEPTUNE_DBSubnetGroup = data.DBClusters[0].DBSubnetGroup;
+    NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
+    NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
+    NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
+    NEPTUNE_IAM_POLICY_RESOURCE = `${data.DBClusters[0].DBClusterArn.substring(0, data.DBClusters[0].DBClusterArn.lastIndexOf(':cluster')).replace('rds', 'neptune-db')}:${data.DBClusters[0].DbClusterResourceId}/*`;
+    response.DBSubnetGroups[0].Subnets.forEach(element => {
+        NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
+    });
 }
 
 
@@ -272,7 +272,7 @@ async function createLambdaRole() {
     loggerInfo(msg);
 
 
-    if (NEPTUME_IAM_AUTH) {
+    if (NEPTUNE_IAM_AUTH) {
 
         let action = [];
         if (NEPTUNE_TYPE == 'neptune-db') {
@@ -363,66 +363,41 @@ async function createDeploymentPackage(folderPath) {
     return fileContent;    
 }
 
-
 async function createLambdaFunction() {
-    const lambdaClient = new LambdaClient({region: REGION});
-    
-    msg = 'Creating Lambda function ...';
-    if (!quiet) spinner = ora(msg).start();
-    
-    let params;
+    if (!quiet) spinner = ora('Creating Lambda function ...').start();
     let lambdaName = NAME +'LambdaFunction';
-    if (NEPTUME_IAM_AUTH) {
-        params = {
-            Code: {          
-                ZipFile: ZIP
+    let params = {
+        Code: {
+            ZipFile: ZIP
+        },
+        FunctionName: lambdaName,
+        Handler: 'index.handler',
+        Role: LAMBDA_ROLE,
+        Runtime: 'nodejs18.x',
+        Description: 'Neptune GraphQL Resolver for AppSync',
+        Timeout: 15,
+        MemorySize: 128,
+        Environment: {
+            Variables: {
+                "NEPTUNE_HOST": NEPTUNE_HOST,
+                "NEPTUNE_PORT": NEPTUNE_PORT,
+                "NEPTUNE_IAM_AUTH_ENABLED": NEPTUNE_IAM_AUTH.toString(),
+                "LOGGING_ENABLED": "false",
+                "NEPTUNE_DB_NAME": NEPTUNE_DB_NAME,
+                "NEPTUNE_REGION": REGION,
+                "NEPTUNE_DOMAIN": parseNeptuneDomain(NEPTUNE_HOST),
             },
-            FunctionName: lambdaName,
-            Handler: 'index.handler',
-            Role: LAMBDA_ROLE,        
-            Runtime: 'nodejs18.x',
-            Description: 'Neptune GraphQL Resolver for AppSync',
-            Timeout: 15,
-            MemorySize: 128,            
-            Environment: {
-                Variables: {
-                    "NEPTUNE_HOST": NEPTUNE_HOST,
-                    "NEPTUNE_PORT": NEPTUNE_PORT,
-                    "NEPTUNE_IAM_AUTH_ENABLED": "true",
-                    "LOGGING_ENABLED": "false",
-                    "NEPTUNE_TYPE": NEPTUNE_TYPE
-                },
-            },
-        };
-    } else {
-        params = {
-            Code: {          
-                ZipFile: ZIP
-            },
-            FunctionName: lambdaName,
-            Handler: 'index.handler',
-            Role: LAMBDA_ROLE,        
-            Runtime: 'nodejs18.x',
-            Description: 'Neptune GraphQL Resolver for AppSync',
-            Timeout: 15,
-            MemorySize: 128,
-            VpcConfig: {
-                SubnetIds: NEPTUNE_DBSubnetIds,
-                SecurityGroupIds: [NEPTUNE_VpcSecurityGroupId]
-            },
-            Environment: {
-                Variables: {
-                    "NEPTUNE_HOST": NEPTUNE_HOST,
-                    "NEPTUNE_PORT": NEPTUNE_PORT,
-                    "NEPTUNE_IAM_AUTH_ENABLED": "false",
-                    "LOGGING_ENABLED": "false"
-                },
-            },
-        };
-    }
+        },
+    };
 
-    const data = await lambdaClient.send(new LambdaCreateFunctionCommand(params));    
-    //await sleep(5000);    
+    if (!NEPTUNE_IAM_AUTH) {
+        params.VpcConfig = {
+            SubnetIds: NEPTUNE_DBSubnetIds,
+            SecurityGroupIds: [NEPTUNE_VpcSecurityGroupId]
+        }
+    }
+    const lambdaClient = new LambdaClient({region: REGION});
+    const data = await lambdaClient.send(new LambdaCreateFunctionCommand(params));
     LAMBDA_ARN = data.FunctionArn;
     storeResource({LambdaFunction: lambdaName});
     msg = 'Lambda created: ' + yellow(lambdaName);
@@ -941,7 +916,7 @@ async function createUpdateAWSpipeline (    pipelineName,
                                             outputFolderPath, 
                                             neptuneType) {    
 
-    NAME = pipelineName;    
+    NAME = pipelineName;
     REGION = neptuneDBregion;
     NEPTUNE_DB_NAME = neptuneDBName;
     APPSYNC_SCHEMA = appSyncSchema;
@@ -950,7 +925,7 @@ async function createUpdateAWSpipeline (    pipelineName,
     RESOURCES_FILE = `${outputFolderPath}/${NAME}-resources.json`;
     ADD_MUTATIONS = addMutations;
     quiet = quietI;
-    NEPTUME_IAM_AUTH = isNeptuneIAMAuth;
+    NEPTUNE_IAM_AUTH = isNeptuneIAMAuth;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
     thisOutputFolderPath = outputFolderPath;
@@ -968,7 +943,7 @@ async function createUpdateAWSpipeline (    pipelineName,
                 try {
                     loggerInfo('Get Neptune Cluster Info');
                     if (!quiet) spinner = ora('Getting ...').start();
-                    await getNeptuneClusterinfo();
+                    await setNeptuneDbClusterInfo();
                     if (!quiet) spinner.succeed('Got Neptune Cluster Info');
                     if (isNeptuneIAMAuth) {
                         if (!NEPTUNE_CURRENT_IAM) {
@@ -1009,7 +984,7 @@ async function createUpdateAWSpipeline (    pipelineName,
                     }
                 }
             }
-            
+
             loggerInfo('Create ZIP');
             msg = 'Creating ZIP ...';
             if (!quiet) spinner = ora(msg).start();
@@ -1074,5 +1049,5 @@ async function createUpdateAWSpipeline (    pipelineName,
     }
 }
 
-export { createUpdateAWSpipeline, getNeptuneClusterinfoBy, removeAWSpipelineResources }
+export { createUpdateAWSpipeline, getNeptuneClusterDbInfoBy, removeAWSpipelineResources }
 

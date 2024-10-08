@@ -1,8 +1,7 @@
 
 import axios from 'axios';
 import fs  from 'fs';
-
-
+import AdmZip from 'adm-zip';
 
 async function queryNeptune(q, language, host, port, param) {    
     try {
@@ -20,7 +19,10 @@ async function queryNeptune(q, language, host, port, param) {
 
 
 function readJSONFile(fileName) {
-    return JSON.parse(fs.readFileSync(fileName, 'utf8'));
+    let text = fs.readFileSync(fileName, 'utf8');
+    text = text.replace('<AIR_ROUTES_DB_HOST>', process.env.AIR_ROUTES_DB_HOST);
+    text = text.replace('<AIR_ROUTES_DB_PORT>', process.env.AIR_ROUTES_DB_PORT);
+    return JSON.parse(text);
 }
 
 
@@ -46,6 +48,19 @@ function checkOutputFilesContent(outputFolder, files, referenceFolder) {
     });
 }
 
+/**
+ * Unzips the given zip file and checks that the lambda uses the aws sdk
+ */
+function checkOutputZipLambdaUsesSdk(outputFolder, zipFile) {
+    const zip = new AdmZip(zipFile);
+    const lambdaFile = 'index.mjs';
+    zip.extractEntryTo(lambdaFile, outputFolder + '/unzip', true, true);
+
+    const lambdaContent = fs.readFileSync(outputFolder + '/unzip/' + lambdaFile, 'utf8');
+    test('Lambda uses SDK: ' + lambdaFile, async () => {
+        expect(lambdaContent).toContain('@aws-sdk/client-neptune')
+    });
+}
 
 async function loadResolver(file) {
     return await import(file);
@@ -102,4 +117,4 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
 }
 
 
-export { readJSONFile, checkOutputFilesSize, checkOutputFilesContent, testResolverQueries, testResolverQueriesResults };
+export { readJSONFile, checkOutputFilesSize, checkOutputFilesContent, testResolverQueries, testResolverQueriesResults, checkOutputZipLambdaUsesSdk };
