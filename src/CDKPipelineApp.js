@@ -23,6 +23,7 @@ let REGION = '';
 let NEPTUNE_DB_NAME = '';
 let NEPTUNE_HOST = null;
 let NEPTUNE_PORT = null;
+let NEPTUNE_TYPE = null;
 let NEPTUNE_DBSubnetGroup = null;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
 let LAMBDA_ZIP_FILE = '';
@@ -93,6 +94,7 @@ async function createAWSpipelineCDK({
     NAME = pipelineName;    
     REGION = neptuneDBregion;
     NEPTUNE_DB_NAME = neptuneDBName;
+    NEPTUNE_TYPE = neptuneType;
     APPSYNC_SCHEMA = appSyncSchema;
     SCHEMA_MODEL = schemaModel;
     NEPTUNE_HOST = neptuneHost;
@@ -166,6 +168,7 @@ async function createAWSpipelineCDK({
     CDKFile = CDKFile.replace( "const NEPTUNE_HOST = '';",                   `const NEPTUNE_HOST = '${NEPTUNE_HOST}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_DB_NAME = '';",                `const NEPTUNE_DB_NAME = '${NEPTUNE_DB_NAME}';` );
+    CDKFile = CDKFile.replace( "const NEPTUNE_TYPE = '';",                   `const NEPTUNE_TYPE = '${NEPTUNE_TYPE}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_POLICY_RESOURCE = '*';",   `const NEPTUNE_IAM_POLICY_RESOURCE = '${NEPTUNE_IAM_POLICY_RESOURCE}';` );
