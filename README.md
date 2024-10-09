@@ -215,7 +215,7 @@ type Mutation {
 ```
 
 ### Re-apply your changes with --input-schema-changes-file
-You might want to modify the GraphQL source schema and run the utility again getting the latest schema from your Neptune database. Every time the utility discover the a new graphdb schema it generates a new GraphQL schema. To inject your changes, you can manually edit the GraphQL source schema, and run the utility again using it as input instead of the Neptune database endpoint, or write your changes the file format below. As you run the utility with the option `--input-schema-changes-file <value>`, your changes will be applied at once.
+You might want to modify the GraphQL source schema and run the utility again getting the latest schema from your Neptune database. Every time the utility discovers a new graphdb schema it generates a new GraphQL schema. To inject your changes, you can manually edit the GraphQL source schema, and run the utility again using it as input instead of the Neptune database endpoint, or write your changes the file format below. As you run the utility with the option `--input-schema-changes-file <value>`, your changes will be applied at once.
 ```json
 [
      { "type": "graphQLTypeName",
