@@ -20,7 +20,7 @@ The GraphQL schema with or without directives as data or file name.
 
 `--input-schema-changes-file <value>, -isc <value>`
 <br>
-The file that contains your GraphQL schema changes to be applied when you run the utility multiple time. When you run the utility poiniting to a database multiple times, and you manually changed the GraphQL source schema, maybe adding a custom query, your chnages will be lost. To avoid it, add your changes to the a json file and pass it to this option. See section [*Re-apply your changes*](#re-apply-your-changes-with---input-schema-changes-file) for the file format.
+The file that contains your GraphQL schema changes to be applied when you run the utility multiple time. When you run the utility pointing to a database multiple times, and you manually changed the GraphQL source schema, maybe adding a custom query, your changes will be lost. To avoid it, add your changes to the a json file and pass it to this option. See section [*Re-apply your changes*](#re-apply-your-changes-with---input-schema-changes-file) for the file format.
 
 ```json
 [
@@ -64,7 +64,7 @@ The graphdb schema as data or file name. Instead of pointing to a Neptune databa
 
 `--input-graphdb-schema-neptune-endpoint <value>, -ie <value>`
 <br>
-The Neptune database enpoint from which the utility extract the graphdb schema. Format: `host:port`
+The Neptune database endpoint from which the utility extract the graphdb schema. Format: `host:port`
 
 ## Output options
 `--output-folder-path <value>, -o <value>`
@@ -81,7 +81,7 @@ The file name output for the GraphQL schema with directives. If not specified th
 
 `--output-schema-no-mutations, -onm`
 <br>
-The inferred GraphQL schema will not have mutuations, just queries.
+The inferred GraphQL schema will not have mutations, just queries.
 
 `--output-neptune-schema-file <value>, -og <value>`
 <br>
