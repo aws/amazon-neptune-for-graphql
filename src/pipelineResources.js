@@ -66,7 +66,7 @@ let NEPTUNE_PORT = null;
 let NEPTUNE_DBSubnetGroup = null;
 let NEPTUNE_DBSubnetIds = [];
 let NEPTUNE_VpcSecurityGroupId = null;
-let NEPTUME_IAM_AUTH = false;
+let NEPTUNE_IAM_AUTH = false;
 let NEPTUNE_CURRENT_VERSION = '';
 let NEPTUNE_CURRENT_IAM = false;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
@@ -235,7 +235,7 @@ async function createLambdaRole() {
     if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaBasicExecutionRole')} to Lambda Role`);
 
 
-    if (NEPTUME_IAM_AUTH) {
+    if (NEPTUNE_IAM_AUTH) {
         // Create Neptune query policy
         if (!quiet) spinner = ora('Creating policy for Neptune queries ...').start();
         let command = new CreatePolicyCommand({
@@ -313,7 +313,7 @@ async function createLambdaFunction() {
     if (!quiet) spinner = ora('Creating Lambda function ...').start();
     
     let params;
-    if (NEPTUME_IAM_AUTH) {
+    if (NEPTUNE_IAM_AUTH) {
         params = {
             Code: {          
                 ZipFile: ZIP
@@ -805,7 +805,7 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
     RESOURCES_FILE = `${outputFolderPath}/${NAME}-resources.json`;
     ADD_MUTATIONS = addMutations;
     quiet = quietI;
-    NEPTUME_IAM_AUTH = isNeptuneIAMAuth;
+    NEPTUNE_IAM_AUTH = isNeptuneIAMAuth;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
     thisOutputFolderPath = outputFolderPath;
