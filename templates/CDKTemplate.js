@@ -23,6 +23,7 @@ const REGION = '';
 const NEPTUNE_HOST = '';
 const NEPTUNE_PORT = '';
 const NEPTUNE_DB_NAME = '';
+const NEPTUNE_TYPE = '';
 const NEPTUNE_DBSubnetGroup = null;
 const NEPTUNE_IAM_AUTH = false;
 const NEPTUNE_IAM_POLICY_RESOURCE = '*';
@@ -64,6 +65,7 @@ class AppSyncNeptuneStack extends Stack {
            NEPTUNE_DB_NAME: NEPTUNE_DB_NAME,
            NEPTUNE_REGION: REGION,
            NEPTUNE_DOMAIN: parseNeptuneDomain(NEPTUNE_HOST),
+           NEPTUNE_TYPE: NEPTUNE_TYPE,
        };
        if (NEPTUNE_IAM_AUTH) {
             // is IAM auth

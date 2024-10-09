@@ -386,6 +386,7 @@ async function createLambdaFunction() {
                 "NEPTUNE_DB_NAME": NEPTUNE_DB_NAME,
                 "NEPTUNE_REGION": REGION,
                 "NEPTUNE_DOMAIN": parseNeptuneDomain(NEPTUNE_HOST),
+                "NEPTUNE_TYPE": NEPTUNE_TYPE,
             },
         },
     };
