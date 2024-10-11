@@ -113,7 +113,7 @@ In case you don't want your Graph API having the option of updating your databas
 
 
 ### @alias
-This directive can be applied to GraphQL schema types or fields. It maps different names between the graph database and the GraphQL schema. The syntax is *@alias(property: your-name)*. In the example below *airport* is the graph database node label mapped to the *Airport* GraphQL type, and *desc* is the property of the graph database node mapped to the field *description*. See the [Air Routes Example](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/routesExample.md). The GraphQL guidence is pascal case for types and camel case for fields.
+This directive can be applied to GraphQL schema types or fields. It maps different names between the graph database and the GraphQL schema. The syntax is *@alias(property: your-name)*. In the example below *airport* is the graph database node label mapped to the *Airport* GraphQL type, and *desc* is the property of the graph database node mapped to the field *description*. See the [Air Routes Example](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/routesExample.md). The GraphQL guidance is pascal case for types and camel case for fields.
 
 ```graphql
 type Airport @alias(property: "airport") {  
@@ -215,7 +215,7 @@ type Mutation {
 ```
 
 ### Re-apply your changes with --input-schema-changes-file
-You might want to modify the GraphQL source schema and run the utility again getting the latest schema from your Neptune database. Every time the utility discovers a new graphdb schema it generates a new GraphQL schema. To inject your changes, you can manually edit the GraphQL source schema, and run the utility again using it as input instead of the Neptune database endpoint, or write your changes the file format below. As you run the utility with the option `--input-schema-changes-file <value>`, your changes will be applied at once.
+You might want to modify the GraphQL source schema and run the utility again to get the latest schema from your Neptune database. Every time the utility discovers a new graphdb schema, it generates a new GraphQL schema. To inject your changes, you can manually edit the GraphQL source schema and run the utility again, using it as input instead of the Neptune database endpoint, or write your changes in the format below. As you run the utility with the added option `--input-schema-changes-file <your-changes-file>`, your changes will be applied at once.
 ```json
 [
      { "type": "graphQLTypeName",
