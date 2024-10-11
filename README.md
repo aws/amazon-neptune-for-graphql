@@ -77,7 +77,7 @@ To rollback, removing all the AWS resources run:
 `neptune-for-graphql --remove-aws-pipeline-name` <*your-new-GraphQL-API-name*>
 
 #### References:
-- [here](/doc/routesExample.md) an example using the Air Routes data on Amazon Neptune, showing the outputs of the utility.
+- [here](/doc/routesExample.md) is an example using the Air Routes data on Amazon Neptune, showing the outputs of the utility.
 - If you are wondering which AWS resources the utility is creating, look at the section below.
 - To customize the GraphQL schema, look at the section below.
 
@@ -89,7 +89,7 @@ You can start from an empty Neptune database and use a GraphQL API to create the
 `neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>` --create-update-aws-pipeline --create-update-aws-pipeline-name` <*your-new-GraphQL-API-name*>` --create-update-aws-pipeline-neptune-endpoint` <*your-neptune-database-endpoint:port*>  ` --output-resolver-query-https`
 
 #### References:
-- [here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/todoExample.md) an example using a TODO GraphQL schema, showing the outputs of the utility.
+- [here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/todoExample.md) is an example using a TODO GraphQL schema, showing the outputs of the utility.
 - If you are wondering which AWS resources the utility is creating, look at the section below.
 - To customize the GraphQL schema, look at the section below.
 
@@ -160,7 +160,7 @@ type Mutation {
 }
 ```
 
-You can add query or mututation using a Gremlin query. At this time Gremlin queries are limited to return *scalar* values, or *elementMap()* for a single node, or *elementMap().fold()* for a list of nodes.
+You can add a query or mutation using a Gremlin query. At this time Gremlin queries are limited to return *scalar* values, or *elementMap()* for a single node, or *elementMap().fold()* for a list of nodes.
 ```graphql
 type Query {
   getAirportWithGremlin(code:String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()") # single node
@@ -260,7 +260,7 @@ Independently of the method you or the utility will need to create the following
 With the CLI option `--create-update-aws-pipeline`, and its accesory options ([see the commands reference](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/cliReference.md)), the utility automatically creates the resources.<br>
 You need to run the utility from a shell in which you installed the AWS CLI, and it is configured for a user with the permission of creating AWS resources. <br>
 The utility creates a file with the list of resources named *pipeline-name.resources.json*. Then it uses the file to modify the existing resources when the user runs the command again, or when the user wants to delete the AWS resources with the command option `--remove-aws-pipeline-name <value>`.
-The code of the utiliy uses the JavaScript AWS sdk v3, if you'd like to review the code is only in [this file](https://github.com/aws/amazon-neptune-for-graphql/blob/main/src/pipelineResources.js).
+The code of the utility uses the JavaScript AWS sdk v3, if you'd like to review the code is only in [this file](https://github.com/aws/amazon-neptune-for-graphql/blob/main/src/pipelineResources.js).
 
 ### I prefer a CDK file
 To option to trigger the creation of the CDK file starts with `--output-aws-pipeline-cdk`, and its accessory options ([see the commands reference](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/cliReference.md)). <br> 
@@ -268,7 +268,7 @@ After you ran it, you will find in the *output* folder the file *CDK-pipeline-na
 See CDK end to end example [here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/cdk.md).
 
 ### Let me setup the resources manually or with my favorite DevOps toolchain
-[Here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/resources.md) the detailed list of resorces needed to configure the GraphQL API pipeline.
+[Here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/resources.md) the detailed list of resources needed to configure the GraphQL API pipeline.
 <br>
 
 # Known limitations
@@ -290,7 +290,7 @@ A copy of the License is located at http://www.apache.org/licenses/LICENSE-2.0
 or in the "license" file accompanying this file. This file is distributed
 on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 express or implied. See the License for the specific language governing
-permissions and limitations under the License. [Full licence page](/LICENSE.txt).
+permissions and limitations under the License. [Full license page](/LICENSE.txt).
 <br>
 
 # Contributing
