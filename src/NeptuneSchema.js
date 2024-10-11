@@ -14,7 +14,7 @@ import axios from "axios";
 import { aws4Interceptor } from "aws4-axios";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
-import { loggerError, loggerInfo } from "./logger.js";
+import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
 import { parseNeptuneDomain, parseNeptuneGraphName } from "./util.js";
 import { ExecuteQueryCommand, GetGraphSummaryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 
@@ -53,10 +53,6 @@ const schema = {
     edgeStructures:[]
 };
 
-function yellow(text) {
-    return '\x1b[33m' + text + '\x1b[0m';
-}
-
 function sanitize(text) {
     // TODO implement sanitization logic
     return text;
@@ -81,7 +77,7 @@ async function queryNeptune(query, params = '{}') {
         return response.data;
         } catch (error) {
             loggerError(`Http query request failed` + ': ' + JSON.stringify(error));
-            loggerInfo('Trying with the AWS SDK');
+            loggerInfo('Trying with the AWS SDK', {toConsole: true});
             const response = await queryNeptuneSdk(query, params);
             loggerInfo('Querying via AWS SDK was successful, will use SDK for future queries')
             useSDK = true;
@@ -150,7 +146,7 @@ async function getNodesNames() {
     try {
         response.results.forEach(result => {
             schema.nodeStructures.push({ label: result['labels(a)'][0], properties: []});
-            loggerInfo('Found Node: ' + yellow(result['labels(a)'][0]));
+            loggerDebug('Found Node: ' + yellow(result['labels(a)'][0]), {toConsole: true});
         });        
     }
     catch (e)  {
@@ -167,7 +163,7 @@ async function getEdgesNames() {
     try {
         response.results.forEach(result => {
             schema.edgeStructures.push({ label: result['type(e)'], directions: [], properties:[]});
-            loggerInfo('Found Edge: ' + yellow(result['type(e)']));
+            loggerDebug('Found Edge: ' + yellow(result['type(e)']), {toConsole: true});
         });
     }
     catch (e)  {
@@ -184,7 +180,7 @@ async function findFromAndToLabels(edgeStructure) {
         for (let fromLabel of result.fromLabel) {
             for (let toLabel of result.toLabel) {
                 edgeStructure.directions.push({from:fromLabel, to:toLabel});
-                loggerInfo('Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel));
+                loggerDebug('Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel), {toConsole: true});
             }
         }
     }
@@ -218,7 +214,7 @@ function addUpdateNodeProperty(nodeName, name, value) {
     if (property === undefined) {
         let propertyType = CastGraphQLType(value);        
         node.properties.push({name: name, type: propertyType});
-        loggerInfo(`Added property to node: ${yellow(nodeName)} property: ${yellow(name)} type: ${yellow(propertyType)}`);
+        loggerDebug(`Added property to node: ${yellow(nodeName)} property: ${yellow(name)} type: ${yellow(propertyType)}`, {toConsole: true});
     }    
 }
 
@@ -229,7 +225,7 @@ function addUpdateEdgeProperty(edgeName, name, value) {
     if (property === undefined) {
         let propertyType = CastGraphQLType(value);        
         edge.properties.push({name: name, type: propertyType});
-        loggerInfo('Added property to edge: ' + yellow(edgeName) + ' property: ' + yellow(name) + ' type: ' + yellow(propertyType));
+        loggerDebug('Added property to edge: ' + yellow(edgeName) + ' property: ' + yellow(name) + ' type: ' + yellow(propertyType), {toConsole: true});
     }
 }
 
@@ -237,7 +233,7 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 async function getEdgeProperties(edge) {
     let query = `MATCH ()-[n:${sanitize(edge.label)}]->() RETURN properties(n) as properties LIMIT $sample`;
     let parameters = `{"sample": ${SAMPLE}}`;
-    loggerInfo('Getting properties for edge');
+    loggerDebug(`Getting properties for edge: ${query}`);
     try {
         let response = await queryNeptune(query, parameters);            
         let result = response.results;
@@ -254,6 +250,7 @@ async function getEdgeProperties(edge) {
 
 
 async function getEdgesProperties() {
+    loggerInfo('Retrieving edge properties');
     await Promise.all(schema.edgeStructures.map(async (edge) => {
         await getEdgeProperties(edge);
       }));
@@ -263,6 +260,7 @@ async function getEdgesProperties() {
 async function getNodeProperties(node) {
     let query = `MATCH (n:${sanitize(node.label)}) RETURN properties(n) as properties LIMIT $sample`;
     let parameters = `{"sample": ${SAMPLE}}`;
+    loggerDebug(`Getting properties for node: ${query}`);
     try {
         let response = await queryNeptune(query, parameters);
         let result = response.results;
@@ -278,7 +276,8 @@ async function getNodeProperties(node) {
 }
 
 
-async function getNodesProperties() {    
+async function getNodesProperties() {
+    loggerInfo('Retrieving node properties');
     await Promise.all(schema.nodeStructures.map(async (node) => {
         await getNodeProperties(node);
       }));
@@ -287,11 +286,11 @@ async function getNodesProperties() {
 
 async function checkEdgeDirectionCardinality(d) {
     let queryFrom = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
-    loggerInfo('Checking from edge cardinality')
+    loggerDebug(`Checking edge direction cardinality: ${queryFrom}`);
     let responseFrom = await queryNeptune(queryFrom);
     let resultFrom = responseFrom.results[0];
     let queryTo = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
-    loggerInfo('Checking to edge cardinality')
+    loggerDebug(`Checking edge direction cardinality: ${queryTo}`)
     let responseTo = await queryNeptune(queryTo);
     let resultTo = responseTo.results[0];
     let c = '';
@@ -309,7 +308,7 @@ async function checkEdgeDirectionCardinality(d) {
     }
 
     Object.assign(d.direction, {relationship: c});
-    loggerInfo('Found edge: ' + yellow(d.edge.label) + '  direction: ' + yellow(d.from) + ' -> ' + yellow(d.to) + ' relationship: ' + yellow(c));
+    loggerDebug('Found edge: ' + yellow(d.edge.label) + '  direction: ' + yellow(d.from) + ' -> ' + yellow(d.to) + ' relationship: ' + yellow(c), {toConsole: true});
 }
 
 
@@ -400,12 +399,12 @@ async function loadSchemaViaSummary() {
         }
         graphSummary.nodeLabels.forEach(label => {
             schema.nodeStructures.push({label:label, properties:[]});
-            loggerInfo('Found node: ' + yellow(label));
+            loggerDebug('Found node: ' + yellow(label), {toConsole: true});
         });
 
         graphSummary.edgeLabels.forEach(label => {
             schema.edgeStructures.push({label:label, properties:[], directions:[]});
-            loggerInfo('Found edge: ' + yellow(label));
+            loggerDebug('Found edge: ' + yellow(label), {toConsole: true});
         });
 
         return true;
@@ -427,11 +426,11 @@ async function getNeptuneSchema() {
     }
 
     if (await loadSchemaViaSummary()) {
-        loggerInfo("Got nodes and edges via Neptune Summary API.");
+        loggerInfo("Got nodes and edges via Neptune Summary API.", {toConsole: true});
     } else {
-        loggerInfo("Getting nodes via queries.");
+        loggerInfo("Getting nodes via queries.", {toConsole: true});
         await getNodesNames();
-        loggerInfo("Getting edges via queries.");
+        loggerInfo("Getting edges via queries.", {toConsole: true});
         await getEdgesNames();
     }
                 

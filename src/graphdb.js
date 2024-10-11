@@ -34,7 +34,7 @@ function checkForDuplicateNames(schema) {
     });
 
     if (!changeCase)
-        loggerInfo('Pascal case is not applicable, duplicate names types.');
+        loggerInfo('Pascal case is not applicable, duplicate names types.', {toConsole: true});
 }
 
 

@@ -12,17 +12,12 @@ permissions and limitations under the License.
 
 import { schemaStringify } from './schemaParser.js';
 import {gql} from 'graphql-tag'
-import { loggerInfo } from "./logger.js";
+import { loggerInfo, yellow } from "./logger.js";
 
 let quiet = false;
 const typesToAdd = [];
 const queriesToAdd = [];
 const mutationsToAdd = [];
-
-function yellow(text) {
-    return '\x1b[33m' + text + '\x1b[0m';
-}
-
 
 function lowercaseFirstCharacter(inputString) {
     if (inputString.length === 0) {     

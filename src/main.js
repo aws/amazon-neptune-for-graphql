@@ -21,13 +21,10 @@ import { getNeptuneSchema, setGetNeptuneSchemaParameters } from './NeptuneSchema
 import { createUpdateAWSpipeline, removeAWSpipelineResources } from './pipelineResources.js'
 import { createAWSpipelineCDK } from './CDKPipelineApp.js'
 import { createLambdaDeploymentPackage } from './lambdaZip.js'
-import { loggerInit, loggerError, loggerInfo } from './logger.js';
+import { loggerDebug, loggerError, loggerInfo, loggerInit, yellow } from './logger.js';
 
 import ora from 'ora';
 let spinner = null;
-function yellow(text) {
-    return '\x1b[33m' + text + '\x1b[0m';
-}
 
 // find global installation dir
 import path from 'path';
@@ -41,6 +38,7 @@ const version = JSON.parse(readFileSync(__dirname + '/../package.json')).version
 
 // Input
 let quiet = false;
+let logLevel = 'info';
 let inputGraphQLSchema = '';
 let inputGraphQLSchemaFile = '';
 let inputGraphQLSchemaChanges = '';
@@ -107,6 +105,10 @@ function processArgs() {
             case '-q':
             case '--quiet':
                 quiet = true;
+            break;
+            case '-lv':
+            case '--log-verbose':
+                logLevel = 'debug';
             break;
             case '-is':
             case '--input-schema':
@@ -269,15 +271,15 @@ async function main() {
     mkdirSync(outputFolderPath, { recursive: true });
 
     // Init the logger    
-    loggerInit(outputFolderPath, quiet);
+    loggerInit(outputFolderPath, quiet, logLevel);
     loggerInfo('Starting neptune-for-graphql version: ' + version);
-    loggerInfo('Input arguments: ' + process.argv);
+    loggerDebug('Input arguments: ' + process.argv);
 
     // Get graphDB schema from file
     if (inputGraphDBSchemaFile != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
         try {
             inputGraphDBSchema = readFileSync(inputGraphDBSchemaFile, 'utf8');
-            loggerInfo('Loaded graphDB schema from file: ' + yellow(inputGraphDBSchemaFile));
+            loggerInfo('Loaded graphDB schema from file: ' + yellow(inputGraphDBSchemaFile), {toConsole: true});
         } catch (err) {
             msg = 'Error reading graphDB schema file: ' + yellow(inputGraphDBSchemaFile);
             loggerError(msg + ": " + JSON.stringify(err));
@@ -313,19 +315,20 @@ async function main() {
         else
             neptuneRegion = neptuneRegionParts[1];
 
-        loggerInfo('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
+        loggerInfo('Retrieving Neptune schema');
+        loggerDebug('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort), {toConsole: true});
 
         setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, neptuneType);
         let startTime = performance.now();
         inputGraphDBSchema = await getNeptuneSchema();
         let endTime = performance.now();
         let executionTime = endTime - startTime;
-        loggerInfo(msg = 'Execution time: ' + (executionTime/1000).toFixed(2) + ' seconds');
+        loggerInfo(msg = 'Fetch neptune schema execution time: ' + (executionTime/1000).toFixed(2) + ' seconds', {toConsole: true});
     }
 
     // Option 2: inference GraphQL schema from graphDB schema
     if (inputGraphDBSchema != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
-        loggerInfo('Inferencing GraphQL schema from graphDB schema');
+        loggerInfo('Inferencing GraphQL schema from graphDB schema', {toConsole: true});
         inputGraphQLSchema = graphDBInferenceSchema(inputGraphDBSchema, outputSchemaMutations);
     }
 
@@ -333,7 +336,7 @@ async function main() {
     if (inputGraphQLSchema == '' && inputGraphQLSchemaFile != '') {
         try {
             inputGraphQLSchema = readFileSync(inputGraphQLSchemaFile, 'utf8');
-            loggerInfo('Loaded GraphQL schema from file: ' + yellow(inputGraphQLSchemaFile));
+            loggerInfo('Loaded GraphQL schema from file: ' + yellow(inputGraphQLSchemaFile), {toConsole: true});
         } catch (err) {
             msg = 'Error reading GraphQL schema file: ' + yellow(inputGraphQLSchemaFile);
             loggerError(msg + ": " + JSON.stringify(err));
@@ -345,7 +348,7 @@ async function main() {
     if (inputGraphQLSchemaChangesFile != '') {
         try {
             inputGraphQLSchemaChanges = readFileSync(inputGraphQLSchemaChangesFile, 'utf8');
-            loggerInfo('Loaded GraphQL schema changes from file: ' + yellow(inputGraphQLSchemaChangesFile));
+            loggerInfo('Loaded GraphQL schema changes from file: ' + yellow(inputGraphQLSchemaChangesFile), {toConsole: true});
         } catch (err) {
             msg = 'Error reading GraphQL schema changes file: ' + yellow(inputGraphQLSchemaChangesFile);
             loggerError(msg + ": " + JSON.stringify(err));
@@ -460,7 +463,7 @@ async function main() {
 
         try {
             writeFileSync(outputSchemaFile, outputSchema);
-            loggerInfo('Wrote GraphQL schema to file: ' + yellow(outputSchemaFile));
+            loggerInfo('Wrote GraphQL schema to file: ' + yellow(outputSchemaFile), {toConsole: true});
         } catch (err) {
             msg = 'Error writing GraphQL schema to file: ' + yellow(outputSchemaFile);
             loggerError(msg + ": " + JSON.stringify(err));
@@ -479,9 +482,9 @@ async function main() {
 
         try {
             writeFileSync(outputSourceSchemaFile, outputSourceSchema);
-            loggerInfo('Wrote GraphQL schema to file: ' + yellow(outputSourceSchemaFile));
+            loggerInfo('Wrote output GraphQL schema to file: ' + yellow(outputSourceSchemaFile), {toConsole: true});
         } catch (err) {
-            msg = 'Error writing GraphQL schema to file: ' + yellow(outputSourceSchemaFile);
+            msg = 'Error writing output GraphQL schema to file: ' + yellow(outputSourceSchemaFile);
             loggerError(msg + ": " + JSON.stringify(err));
         }
 
@@ -497,7 +500,7 @@ async function main() {
 
         try {
             writeFileSync(outputNeptuneSchemaFile, inputGraphDBSchema);
-            loggerInfo('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile));
+            loggerInfo('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile), {toConsole: true});
         } catch (err) {
             msg = 'Error writing Neptune schema to file: ' + yellow(outputNeptuneSchemaFile);
             loggerError(msg + ": " + JSON.stringify(err));
@@ -511,7 +514,7 @@ async function main() {
 
         try {
             writeFileSync(outputLambdaResolverFile, outputLambdaResolver);
-            loggerInfo('Wrote Lambda resolver to file: ' + yellow(outputLambdaResolverFile));
+            loggerInfo('Wrote Lambda resolver to file: ' + yellow(outputLambdaResolverFile), {toConsole: true});
         } catch (err) {
             msg = 'Error writing Lambda resolver to file: ' + yellow(outputLambdaResolverFile);
             loggerError(msg + ": " + JSON.stringify(err));
@@ -529,7 +532,7 @@ async function main() {
 
         try {
             writeFileSync(outputJSResolverFile, outputJSResolver);
-            loggerInfo('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile));
+            loggerInfo('Wrote Javascript resolver to file: ' + yellow(outputJSResolverFile), {toConsole: true});
         } catch (err) {
             msg = 'Error writing Javascript resolver to file: ' + yellow(outputJSResolverFile);
             loggerError(msg + ": " + JSON.stringify(err));
@@ -562,9 +565,9 @@ async function main() {
                 if (!quiet) spinner = ora('Creating Lambda ZIP ...').start();
                 await createLambdaDeploymentPackage(__dirname + outputLambdaPackagePath, outputLambdaResolverZipFile);                                
                 if (!quiet) {
-                    spinner.stop();
+                    spinner.succeed('Created Lambda ZIP');
                 }
-                loggerInfo('Wrote Lambda ZIP file: ' + yellow(outputLambdaResolverZipFile));
+                loggerInfo('Wrote Lambda ZIP file: ' + yellow(outputLambdaResolverZipFile), {toConsole: true});
             } catch (err) {
                 msg = 'Error creating Lambda ZIP file: ' + yellow(outputLambdaResolverZipFile);
                 loggerError(msg + ": " + JSON.stringify(err));
@@ -585,7 +588,6 @@ async function main() {
                 let neptuneHost = endpointParts[0];
                 let neptunePort = endpointParts[1];
 
-                loggerInfo('Creating AWS pipeline resources');
                 await createUpdateAWSpipeline(  createUpdatePipelineName, 
                                                 createUpdatePipelineNeptuneDatabaseName, 
                                                 createUpdatePipelineRegion,
@@ -608,7 +610,7 @@ async function main() {
         // Output CDK
         if (inputCDKpipeline) {
             try {
-                loggerInfo('Creating CDK File');
+                loggerInfo('Creating CDK File', {toConsole: true});
 
                 let endpointParts = inputCDKpipelineEnpoint.split(':');
                 if (endpointParts.length < 2) {
@@ -645,15 +647,15 @@ async function main() {
             }
         }
 
-        loggerInfo('Done');
+        loggerInfo('Done', {toConsole: true});
     }
 
     // Remove AWS Pipeline
     if ( removePipelineName != '') {
-        loggerInfo('Removing pipeline AWS resources, name: ' + yellow(removePipelineName));
+        loggerInfo('Removing pipeline AWS resources, name: ' + yellow(removePipelineName), {toConsole: true});
         let resourcesToRemove = null;
         let resourcesFile = `${outputFolderPath}/${removePipelineName}-resources.json`;
-        loggerInfo('Using file: ' + yellow(resourcesFile));
+        loggerInfo('Using file: ' + yellow(resourcesFile), {toConsole: true});
         try {
             resourcesToRemove = readFileSync(resourcesFile, 'utf8');
         } catch (err) {

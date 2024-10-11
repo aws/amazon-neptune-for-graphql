@@ -16,7 +16,7 @@ import { readFile, writeFile } from 'fs/promises';
 import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
-import { loggerError, loggerInfo } from "./logger.js";
+import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
 
 let NAME = '';
 let REGION = '';
@@ -35,10 +35,6 @@ let APPSYNC_ATTACH_MUTATION = [];
 let SCHEMA_MODEL = null;
 let thisOutputFolderPath = './output';
 let msg = '';
-
-function yellow(text) {
-    return '\x1b[33m' + text + '\x1b[0m';
-}
 
 async function getSchemaFields(typeName) {
     /*  To be updated as:
@@ -108,7 +104,7 @@ async function createAWSpipelineCDK({
 
     if (neptuneType === 'neptune-db') {
         try {
-            loggerInfo('Get Neptune Cluster Info');
+            loggerInfo('Getting Neptune Cluster Info');
             if (!quiet) spinner = ora('Getting ...').start();
             neptuneClusterInfo = await getNeptuneClusterDbInfoBy(NEPTUNE_DB_NAME, REGION);
             if (!quiet) spinner.succeed('Got Neptune Cluster Info');
@@ -124,7 +120,7 @@ async function createAWSpipelineCDK({
                     loggerError("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
                     process.exit(1);
                 } else {
-                    loggerInfo(`Subnet Group: ` + neptuneClusterInfo.dbSubnetGroup);
+                    loggerDebug(`Subnet Group: ` + neptuneClusterInfo.dbSubnetGroup, {toConsole: true});
                 }
             }
 
@@ -152,7 +148,7 @@ async function createAWSpipelineCDK({
                 loggerError("VPC data is not available to proceed.");
                 process.exit(1);
             } else {
-                loggerInfo("Proceeding without getting Neptune Cluster info.");
+                loggerInfo("Proceeding without getting Neptune Cluster info.", {toConsole: true});
             }
         }
     }
