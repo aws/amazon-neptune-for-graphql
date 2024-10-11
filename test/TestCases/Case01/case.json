@@ -2,13 +2,13 @@
     "name": "Unit Test (Air Routes)",
     "description":"Start from graphql schema with directives, using Air Routes unit test schema",
     "argv":["--quiet", 
-            "--input-schema-file", "./test/TestCases/Case01/input/airports.source.schema.graphql",
+            "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
             "--input-schema-changes-file", "./test/TestCases/Case01/input/changesAirport.json", 
             "--output-js-resolver-file", "./test/TestCases/Case01/output/output.resolver.graphql.cjs",
             "--output-folder-path", "./test/TestCases/Case01/output",
             "--output-no-lambda-zip"],
-    "host": "<your-airroutes-db-host>",
-   "port": "<your-airroutes-db-port>"
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>",
     "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }

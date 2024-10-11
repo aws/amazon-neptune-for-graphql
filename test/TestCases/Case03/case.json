@@ -5,8 +5,8 @@
             "--input-schema-file", "./test/TestCases/Case03/input/todo.schema.graphql",            
             "--output-folder-path", "./test/TestCases/Case03/output",
              "--output-no-lambda-zip"],
-    "host": "",
-    "port": "",
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>",
     "testOutputFilesSize": ["output.lambda.zip", "output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }
