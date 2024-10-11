@@ -404,7 +404,7 @@ async function main() {
     // Outputs
     // ****************************************************************************
 
-    mkdirSync('./output', { recursive: true });
+    mkdirSync(outputFolderPath, { recursive: true });
 
     // Output GraphQL schema no directives
     if (inputGraphQLSchema != '') {

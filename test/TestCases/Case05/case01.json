@@ -1,11 +1,15 @@
 {
-    "name": "Unit Test (Air Routes) Remove Pipeline",
-    "description":"Remove pipeline",
-    "argv":["--quiet",             
-            "--remove-aws-pipeline-name", "AirportsJestTest",
-            "--output-folder-path", "./test/TestCases/Case05/output"],
-    "host": "",
-    "port": "",
+    "name": "Unit Test (Air Routes) Pipeline",
+    "description":"Create pipeline",
+    "argv":["--quiet",
+            "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
+            "--output-folder-path", "./test/TestCases/Case05/output",
+            "--create-update-aws-pipeline",
+            "--create-update-aws-pipeline-name", "AirportsJestTest",
+            "--create-update-aws-pipeline-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
+            "--output-resolver-query-https"],
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>",
     "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }

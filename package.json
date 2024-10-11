@@ -21,8 +21,8 @@
   "scripts": {
     "postinstall": "cd templates/Lambda4AppSyncHTTP && npm install && cd ../Lambda4AppSyncSDK && npm install",
     "lint": "eslint neptune-for-graphql.mjs ./src",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.json",
-    "test:resolver": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.json --testPathPattern=test/TestCases/Case01"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js",
+    "test:resolver": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case01"
   },
   "jest": {
     "collectCoverage": true,
