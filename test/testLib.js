@@ -3,6 +3,9 @@ import axios from 'axios';
 import fs  from 'fs';
 import AdmZip from 'adm-zip';
 
+const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
+const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
+
 async function queryNeptune(q, language, host, port, param) {    
     try {
         let response = null;
@@ -17,11 +20,31 @@ async function queryNeptune(q, language, host, port, param) {
     }
 }
 
+/**
+ * Searches the given text for a placeholder text and if found replaces it with an environment variable value of the same name.
+ * It is expected that the placeholder text is surrounded by angle brackets and the environment variable name is the placeholder text without the angle brackets.
+ *
+ * @param text the text to search and replace the placeholder
+ * @param placeholder the placeholder text to search for
+ * @returns text with replaced placeholder if found
+ * @throws error if the placeholder text is found but the environment variable is not set
+ */
+function replacePlaceholderWithEnvironmentVariable(text, placeholder) {
+    if (text.includes(placeholder)) {
+        // remove angle brackets
+        let envVarName = placeholder.replace(/[<>]/g, '');
+        if (process.env[envVarName]) {
+            return text.replace(placeholder, process.env[envVarName]);
+        }
+        throw new Error('Expected environment variable ' + envVarName + ' is not set');
+    }
+    return text;
+}
 
 function readJSONFile(fileName) {
     let text = fs.readFileSync(fileName, 'utf8');
-    text = text.replace('<AIR_ROUTES_DB_HOST>', process.env.AIR_ROUTES_DB_HOST);
-    text = text.replace('<AIR_ROUTES_DB_PORT>', process.env.AIR_ROUTES_DB_PORT);
+    text = replacePlaceholderWithEnvironmentVariable(text, HOST_PLACEHOLDER);
+    text = replacePlaceholderWithEnvironmentVariable(text, PORT_PLACEHOLDER);
     return JSON.parse(text);
 }
 
