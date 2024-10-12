@@ -279,7 +279,7 @@ async function main() {
     // Get Neptune schema from endpoint
     if (inputGraphDBSchemaNeptuneEndpoint != '' && inputGraphDBSchema == '' && inputGraphDBSchemaFile == '') {
         let endpointParts = inputGraphDBSchemaNeptuneEndpoint.split(':');
-        if (endpointParts.length < 2) {
+        if (endpointParts.length !== 2) {
             console.error('Neptune endpoint must be in the form of host:port');
             process.exit(1);
         }
