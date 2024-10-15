@@ -47,6 +47,9 @@ import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
 import { exit } from "process";
+import { parseNeptuneDomainFromHost } from "./util.js";
+
+const NEPTUNE_DB = 'neptune-db';
 
 // Input
 let NEPTUNE_DB_NAME = '';
@@ -72,7 +75,7 @@ let NEPTUNE_CURRENT_IAM = false;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
 let LAMBDA_ROLE = '';
 let LAMBDA_ARN = '';
-//let APPSYNC_API_ID = '';
+let NEPTUNE_TYPE = NEPTUNE_DB;
 let ZIP = null;
 let RESOURCES = {};
 let RESOURCES_FILE = '';
@@ -99,7 +102,6 @@ async function checkPipeline() {
     if (!quiet) spinner = ora('Checking pipeline resources...').start();
     try {
         const command = new GetFunctionCommand({FunctionName: NAME +'LambdaFunction'});
-        //const response = await lambdaClient.send(command);
         await lambdaClient.send(command);
         lambdaExists = true;
     } catch (error) {
@@ -151,12 +153,14 @@ function storeResource(resource) {
     fs.writeFileSync(RESOURCES_FILE, JSON.stringify(RESOURCES, null, 2));
 }
 
-
-async function getNeptuneClusterinfoBy(name, region) {
+/**
+ * Retrieves information about the neptune db cluster for the given db name and region. Should not be used for neptune analytics graphs.
+ */
+async function getNeptuneClusterDbInfoBy(name, region) {
     NEPTUNE_DB_NAME = name;
     REGION = region;
 
-    await getNeptuneClusterinfo();
+    await setNeptuneDbClusterInfo();
 
     return {
         host: NEPTUNE_HOST, 
@@ -169,8 +173,10 @@ async function getNeptuneClusterinfoBy(name, region) {
         iamPolicyResource: NEPTUNE_IAM_POLICY_RESOURCE };
 }
 
-
-async function getNeptuneClusterinfo() {    
+/**
+ * Retrieves information about the neptune db cluster and sets module-level variable values based on response data. Should not be used for neptune analytics graphs.
+ */
+async function setNeptuneDbClusterInfo() {
     const neptuneClient = new NeptuneClient({region: REGION});
 
     const params = {
@@ -178,23 +184,23 @@ async function getNeptuneClusterinfo() {
     };
 
     const data = await neptuneClient.send(new DescribeDBClustersCommand(params));
-    
+
     const input = { // DescribeDBSubnetGroupsMessage
-        DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,        
+        DBSubnetGroupName: data.DBClusters[0].DBSubnetGroup,
     };
     const command = new DescribeDBSubnetGroupsCommand(input);
     const response = await neptuneClient.send(command);
-        
+
     NEPTUNE_HOST = data.DBClusters[0].Endpoint;
     NEPTUNE_PORT = data.DBClusters[0].Port.toString();
     NEPTUNE_DBSubnetGroup = data.DBClusters[0].DBSubnetGroup;
     NEPTUNE_VpcSecurityGroupId = data.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId;
     NEPTUNE_CURRENT_IAM = data.DBClusters[0].IAMDatabaseAuthenticationEnabled;
     NEPTUNE_CURRENT_VERSION = data.DBClusters[0].EngineVersion;
-    NEPTUNE_IAM_POLICY_RESOURCE = `${data.DBClusters[0].DBClusterArn.substring(0, data.DBClusters[0].DBClusterArn.lastIndexOf(':cluster')).replace('rds', 'neptune-db')}:${data.DBClusters[0].DbClusterResourceId}/*`;    
-    response.DBSubnetGroups[0].Subnets.forEach(element => { 
+    NEPTUNE_IAM_POLICY_RESOURCE = `${data.DBClusters[0].DBClusterArn.substring(0, data.DBClusters[0].DBClusterArn.lastIndexOf(':cluster')).replace('rds', NEPTUNE_DB)}:${data.DBClusters[0].DbClusterResourceId}/*`;
+    response.DBSubnetGroups[0].Subnets.forEach(element => {
         NEPTUNE_DBSubnetIds.push(element.SubnetIdentifier);
-    });    
+    });
 }
 
 
@@ -214,14 +220,14 @@ async function createLambdaRole() {
             },
           ],
         }),
-        RoleName: NAME +"LambdaExecutionRole"        
+        RoleName: NAME +"LambdaExecutionRole"
     };
     const data = await iamClient.send(new CreateRoleCommand(params));
     //await waitUntilRoleExists({ client: iamClient, maxWaitTime: 180 }, { RoleName: data.Role.RoleName }); // does not work :(, using sleep
     await sleep(10000);
     LAMBDA_ROLE = data.Role.Arn;
-    storeResource({LambdaExecutionRole: NAME +"LambdaExecutionRole"});    
-    if (!quiet) spinner.succeed('Role ARN: ' + yellow(LAMBDA_ROLE));    
+    storeResource({LambdaExecutionRole: NAME +"LambdaExecutionRole"});
+    if (!quiet) spinner.succeed('Role ARN: ' + yellow(LAMBDA_ROLE));
 
     // Attach to Lambda role the AWSLambdaBasicExecutionRole 
     if (!quiet) spinner = ora('Attaching policies to the Lambda principal role ...').start();
@@ -236,6 +242,19 @@ async function createLambdaRole() {
 
 
     if (NEPTUNE_IAM_AUTH) {
+
+        let action = [];
+        if (NEPTUNE_TYPE === NEPTUNE_DB) {
+            action = [
+                "neptune-db:DeleteDataViaQuery",
+                "neptune-db:connect",
+                "neptune-db:ReadDataViaQuery",
+                "neptune-db:WriteDataViaQuery"
+            ];
+        } else {
+            action = ["neptune-graph:*"]
+        }
+
         // Create Neptune query policy
         if (!quiet) spinner = ora('Creating policy for Neptune queries ...').start();
         let command = new CreatePolicyCommand({
@@ -244,12 +263,7 @@ async function createLambdaRole() {
             Statement: [
                 {
                     Effect: "Allow",
-                    Action: [
-                        "neptune-db:DeleteDataViaQuery",
-                        "neptune-db:connect",
-                        "neptune-db:ReadDataViaQuery",
-                        "neptune-db:WriteDataViaQuery"
-                    ],
+                    Action: action,
                     Resource: NEPTUNE_IAM_POLICY_RESOURCE            
                 },
             ],
@@ -308,64 +322,44 @@ async function createDeploymentPackage(folderPath) {
 
 
 async function createLambdaFunction() {
-    const lambdaClient = new LambdaClient({region: REGION});
-    
     if (!quiet) spinner = ora('Creating Lambda function ...').start();
-    
-    let params;
-    if (NEPTUNE_IAM_AUTH) {
-        params = {
-            Code: {          
-                ZipFile: ZIP
-            },
-            FunctionName: NAME +'LambdaFunction',
-            Handler: 'index.handler',
-            Role: LAMBDA_ROLE,        
-            Runtime: 'nodejs18.x',
-            Description: 'Neptune GraphQL Resolver for AppSync',
-            Timeout: 15,
-            MemorySize: 128,            
-            Environment: {
-                Variables: {
-                    "NEPTUNE_HOST": NEPTUNE_HOST,
-                    "NEPTUNE_PORT": NEPTUNE_PORT,
-                    "NEPTUNE_IAM_AUTH_ENABLED": "true",
-                    "LOGGING_ENABLED": "false"
-                },
-            },
-        };
-    } else {
-        params = {
-            Code: {          
-                ZipFile: ZIP
-            },
-            FunctionName: NAME +'LambdaFunction',
-            Handler: 'index.handler',
-            Role: LAMBDA_ROLE,        
-            Runtime: 'nodejs18.x',
-            Description: 'Neptune GraphQL Resolver for AppSync',
-            Timeout: 15,
-            MemorySize: 128,
-            VpcConfig: {
-                SubnetIds: NEPTUNE_DBSubnetIds,
-                SecurityGroupIds: [NEPTUNE_VpcSecurityGroupId]
-            },
-            Environment: {
-                Variables: {
-                    "NEPTUNE_HOST": NEPTUNE_HOST,
-                    "NEPTUNE_PORT": NEPTUNE_PORT,
-                    "NEPTUNE_IAM_AUTH_ENABLED": "false",
-                    "LOGGING_ENABLED": "false"
-                },
-            },
-        };
-    }
 
-    const data = await lambdaClient.send(new LambdaCreateFunctionCommand(params));    
-    //await sleep(5000);    
+    let params = {
+        Code: {
+            ZipFile: ZIP
+        },
+            FunctionName: NAME +'LambdaFunction',
+        Handler: 'index.handler',
+        Role: LAMBDA_ROLE,
+        Runtime: 'nodejs18.x',
+        Description: 'Neptune GraphQL Resolver for AppSync',
+        Timeout: 15,
+        MemorySize: 128,
+        Environment: {
+            Variables: {
+                "NEPTUNE_HOST": NEPTUNE_HOST,
+                "NEPTUNE_PORT": NEPTUNE_PORT,
+                "NEPTUNE_IAM_AUTH_ENABLED": NEPTUNE_IAM_AUTH.toString(),
+                "LOGGING_ENABLED": "false",
+                "NEPTUNE_DB_NAME": NEPTUNE_DB_NAME,
+                "NEPTUNE_REGION": REGION,
+                "NEPTUNE_DOMAIN": parseNeptuneDomainFromHost(NEPTUNE_HOST),
+                "NEPTUNE_TYPE": NEPTUNE_TYPE,
+            },
+        },
+    };
+
+    if (!NEPTUNE_IAM_AUTH) {
+        params.VpcConfig = {
+            SubnetIds: NEPTUNE_DBSubnetIds,
+            SecurityGroupIds: [NEPTUNE_VpcSecurityGroupId]
+        }
+    }
+    const lambdaClient = new LambdaClient({region: REGION});
+    const data = await lambdaClient.send(new LambdaCreateFunctionCommand(params));
     LAMBDA_ARN = data.FunctionArn;
     storeResource({LambdaFunction: NAME +'LambdaFunction'});
-    if (!quiet) spinner.succeed('Lambda Name: ' + yellow(NAME +'LambdaFunction') + ' ARN: ' + yellow(LAMBDA_ARN));    
+    if (!quiet) spinner.succeed('Lambda Name: ' + yellow(NAME +'LambdaFunction') + ' ARN: ' + yellow(LAMBDA_ARN));
 }
 
 
@@ -395,7 +389,7 @@ async function createAppSyncAPI() {
     storeResource({LambdaInvokePolicy: policyARN});
     if (!quiet) spinner.succeed('Lambda invocation policy ARN: ' + yellow(policyARN));
 
-    let params = {   
+    let params = {
         AssumeRolePolicyDocument: JSON.stringify({
             Version: "2012-10-17",
             Statement: [                
@@ -408,7 +402,7 @@ async function createAppSyncAPI() {
                 }          
             ]
         }),
-        RoleName: NAME +"LambdaInvocationRole"        
+        RoleName: NAME +"LambdaInvocationRole"
     };
 
     if (!quiet) spinner = ora('Creating role for Lambda invocation ...').start();
@@ -628,7 +622,7 @@ export function response(ctx) {
       const command = new CreateResolverCommand(input);
       await client.send(command);
       await sleep(200);
-      if (!quiet) spinner.succeed('Attached resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName));      
+      if (!quiet) spinner.succeed('Attached resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName));
 }
 
 
@@ -647,8 +641,8 @@ async function removeAWSpipelineResources(resources, quietI) {
         const command = new DeleteGraphqlApiCommand(input);
         await appSyncClient.send(command);
         if (!quiet) spinner.succeed('Deleted API id: ' + yellow(resources.AppSyncAPI));
-    } catch (error) { 
-        if (!quiet) spinner.fail('AppSync API delete failed: ' + error);        
+    } catch (error) {
+        if (!quiet) spinner.fail('AppSync API delete failed: ' + error);
     }
     
     // Lambda
@@ -661,7 +655,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await lambdaClient.send(command);
         if (!quiet) spinner.succeed('Lambda function deleted: ' + yellow(resources.LambdaFunction));
     } catch (error) {
-        if (!quiet) spinner.fail('Lambda function fail to delete: ' + error);        
+        if (!quiet) spinner.fail('Lambda function fail to delete: ' + error);
     }    
     
     // Lambda execution role
@@ -675,7 +669,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);
     }
 
     if (!quiet) spinner = ora('Detaching IAM policies from role ...').start();
@@ -686,9 +680,9 @@ async function removeAWSpipelineResources(resources, quietI) {
         };
         let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole));
+        if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy2) + " from role: " + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);
     }
     
     // Delete Neptune query Policy
@@ -702,7 +696,7 @@ async function removeAWSpipelineResources(resources, quietI) {
             await iamClient.send(command);
             if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.NeptuneQueryPolicy));
         } catch (error) {
-            if (!quiet) spinner.fail('Delete policy failed: ' + error);        
+            if (!quiet) spinner.fail('Delete policy failed: ' + error);
         }
     }
 
@@ -716,7 +710,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaExecutionRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);        
+        if (!quiet) spinner.fail('Delete role failed: ' + error);
     }
     
     // AppSync Lambda role
@@ -730,7 +724,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaInvokePolicy) + " from role: " + yellow(resources.LambdaInvokeRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);        
+        if (!quiet) spinner.fail('Detach policy failed: ' + error);
     }
 
     // Delete Policy
@@ -743,7 +737,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.LambdaInvokePolicy));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete policy failed: ' + error);        
+        if (!quiet) spinner.fail('Delete policy failed: ' + error);
     }
    
     // Delete Role
@@ -756,7 +750,7 @@ async function removeAWSpipelineResources(resources, quietI) {
         await iamClient.send(command);
         if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaInvokeRole));
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);        
+        if (!quiet) spinner.fail('Delete role failed: ' + error);
     }    
 }
 
@@ -794,9 +788,22 @@ async function updateAppSyncAPI(resources) {
 }
 
 
-async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBregion, appSyncSchema, schemaModel, lambdaFilesPath, addMutations, quietI, __dirname, isNeptuneIAMAuth, neptuneHost, neptunePort, outputFolderPath) {    
+async function createUpdateAWSpipeline (    pipelineName,
+                                            neptuneDBName,
+                                            neptuneDBregion,
+                                            appSyncSchema,
+                                            schemaModel,
+                                            lambdaFilesPath,
+                                            addMutations,
+                                            quietI,
+                                            __dirname,
+                                            isNeptuneIAMAuth,
+                                            neptuneHost,
+                                            neptunePort,
+                                            outputFolderPath,
+                                            neptuneType) {
 
-    NAME = pipelineName;    
+    NAME = pipelineName;
     REGION = neptuneDBregion;
     NEPTUNE_DB_NAME = neptuneDBName;
     APPSYNC_SCHEMA = appSyncSchema;
@@ -809,56 +816,58 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
     thisOutputFolderPath = outputFolderPath;
+    NEPTUNE_TYPE = neptuneType;
 
-    if (!quiet) console.log('\nCheck if the pipeline resources have been created');    
+    if (!quiet) console.log('\nCheck if the pipeline resources have been created');
     await checkPipeline();
 
     if (!pipelineExists) {
         try {
             storeResource({region: REGION});
-            
-            try {
-                if (!quiet) console.log('Get Neptune Cluster Info');
-                if (!quiet) spinner = ora('Getting ...').start();
-                await getNeptuneClusterinfo();
-                if (!quiet) spinner.succeed('Got Neptune Cluster Info');
-                if (isNeptuneIAMAuth) {
-                    if (!NEPTUNE_CURRENT_IAM) {
-                        console.error("The Neptune database authentication is set to VPC.");
-                        console.error("Remove the --create-update-aws-pipeline-neptune-IAM option.");
-                        exit(1);
-                    }                
-                } else {
-                    if (NEPTUNE_CURRENT_IAM) {
-                        console.error("The Neptune database authentication is set to IAM.");
-                        console.error("Add the --create-update-aws-pipeline-neptune-IAM option.");
+
+            if (NEPTUNE_TYPE === NEPTUNE_DB) {
+                try {
+                    if (!quiet) console.log('Get Neptune Cluster Info');
+                    if (!quiet) spinner = ora('Getting ...').start();
+                    await setNeptuneDbClusterInfo();
+                    if (!quiet) spinner.succeed('Got Neptune Cluster Info');
+                    if (isNeptuneIAMAuth) {
+                        if (!NEPTUNE_CURRENT_IAM) {
+                            console.error("The Neptune database authentication is set to VPC.");
+                            console.error("Remove the --create-update-aws-pipeline-neptune-IAM option.");
+                            exit(1);
+                        }
+                    } else {
+                        if (NEPTUNE_CURRENT_IAM) {
+                            console.error("The Neptune database authentication is set to IAM.");
+                            console.error("Add the --create-update-aws-pipeline-neptune-IAM option.");
+                            exit(1);
+                        } else {
+                            if (!quiet) console.log(`Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup));
+                        }
+                    }
+
+                    if (NEPTUNE_CURRENT_VERSION != '') {
+                        const v = NEPTUNE_CURRENT_VERSION;
+                        if (lambdaFilesPath.includes('SDK') == true &&
+                            (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' || v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
+                            console.error("Neptune SDK query is supported starting with Neptune versions 1.2.2.0");
+                            console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
+                            exit(1);
+                        }
+                    }
+
+                } catch (error) {
+                    if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
+                    if (!isNeptuneIAMAuth) {
+                        console.error("VPC data is not available to proceed.");
                         exit(1);
                     } else {
-                        if (!quiet) console.log(`Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup));
+                        if (!quiet) console.log("Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.")
+                        if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
                     }
-                }
-
-                if (NEPTUNE_CURRENT_VERSION != '') {
-                    const v = NEPTUNE_CURRENT_VERSION;
-                    if (lambdaFilesPath.includes('SDK') == true && 
-                        (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {                     
-                        console.error("Neptune SDK query is supported starting with Neptune versions 1.2.2.0");
-                        console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
-                        exit(1);
-                    }
-                }
-
-            } catch (error) {
-                if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
-                if (!isNeptuneIAMAuth) {
-                    console.error("VPC data is not available to proceed.");
-                    exit(1);
-                } else {
-                    if (!quiet) console.log("Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.")
-                    if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
                 }
             }
-
             if (!quiet) console.log('Create ZIP');
             if (!quiet) spinner = ora('Creating ZIP ...').start();
             ZIP = await createDeploymentPackage(LAMBDA_FILES_PATH)
@@ -872,14 +881,14 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
 
             if (!quiet) console.log('Create AppSync API');
             await createAppSyncAPI();            
-            
-            if (!quiet) console.log('Saved resorces to file: ' + yellow(RESOURCES_FILE));            
+
+            if (!quiet) console.log('Saved resorces to file: ' + yellow(RESOURCES_FILE));
 
         } catch (error) {
             if (!quiet) spinner.fail('Error creating resources: ' + error);
             console.error('Rolling back resources.');
-            await removeAWSpipelineResources(RESOURCES, quiet);            
-            return;                    
+            await removeAWSpipelineResources(RESOURCES, quiet);
+            return;
         }
 
     } else {
@@ -907,5 +916,5 @@ async function createUpdateAWSpipeline (pipelineName, neptuneDBName, neptuneDBre
     }
 }
 
-export { createUpdateAWSpipeline, getNeptuneClusterinfoBy, removeAWSpipelineResources }
+export { createUpdateAWSpipeline, getNeptuneClusterDbInfoBy, removeAWSpipelineResources }
 

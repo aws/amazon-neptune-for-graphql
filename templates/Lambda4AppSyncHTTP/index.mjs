@@ -14,10 +14,17 @@ const {
 
 
 if (process.env.NEPTUNE_IAM_AUTH_ENABLED === 'true') {
+    let serviceName;
+    if (process.env.NEPTUNE_TYPE) {
+        serviceName = process.env.NEPTUNE_TYPE;
+    } else {
+        console.log('NEPTUNE_TYPE environment variable is not set - defaulting to neptune-db');
+        serviceName = 'neptune-db';
+    }
     const interceptor = aws4Interceptor({
         options: {
             region: AWS_REGION,
-            service: "neptune-db",
+            service: serviceName,
         },
         credentials: {
             accessKeyId: AWS_ACCESS_KEY_ID,

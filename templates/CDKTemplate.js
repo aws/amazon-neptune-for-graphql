@@ -21,6 +21,8 @@ const REGION = '';
 
 const NEPTUNE_HOST = '';
 const NEPTUNE_PORT = '';
+const NEPTUNE_DB_NAME = '';
+const NEPTUNE_TYPE = '';
 const NEPTUNE_DBSubnetGroup = null;
 const NEPTUNE_IAM_AUTH = false;
 const NEPTUNE_IAM_POLICY_RESOURCE = '*';
@@ -33,6 +35,10 @@ const APPSYNC_SCHEMA = '';
 const APPSYNC_ATTACH_QUERY = [];
 
 const APPSYNC_ATTACH_MUTATION = [];
+
+const MIN_HOST_PARTS = 5;
+const NUM_DOMAIN_PARTS = 3;
+const HOST_DELIMITER = '.';
 
 class AppSyncNeptuneStack extends Stack {
    /**
@@ -54,7 +60,17 @@ class AppSyncNeptuneStack extends Stack {
 
         lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));   
 
-        if (NEPTUNE_IAM_AUTH) {                        
+       let env = {
+           NEPTUNE_HOST: NEPTUNE_HOST,
+           NEPTUNE_PORT: NEPTUNE_PORT,
+           NEPTUNE_IAM_AUTH_ENABLED: NEPTUNE_IAM_AUTH.toString(),
+           LOGGING_ENABLED: 'false',
+           NEPTUNE_DB_NAME: NEPTUNE_DB_NAME,
+           NEPTUNE_REGION: REGION,
+           NEPTUNE_DOMAIN: this.parseNeptuneDomainFromHost(NEPTUNE_HOST),
+           NEPTUNE_TYPE: NEPTUNE_TYPE,
+       };
+       if (NEPTUNE_IAM_AUTH) {
             // is IAM auth
             echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, {
                 functionName: LAMBDA_FUNCTION_NAME,
@@ -64,12 +80,7 @@ class AppSyncNeptuneStack extends Stack {
                 runtime: lambda.Runtime.NODEJS_18_X,
                 timeout: Duration.seconds(15), 
                 memorySize: 128, 
-                environment: {            
-                    NEPTUNE_HOST: NEPTUNE_HOST,
-                    NEPTUNE_PORT: NEPTUNE_PORT,
-                    NEPTUNE_IAM_AUTH_ENABLED: 'true',
-                    LOGGING_ENABLED: 'false'
-                },
+                environment: env,
                 initialPolicy: [new iam.PolicyStatement({
                     sid: NAME + "NeptuneQueryPolicy",
                     effect: iam.Effect.ALLOW,
@@ -100,12 +111,7 @@ class AppSyncNeptuneStack extends Stack {
                 runtime: lambda.Runtime.NODEJS_18_X,
                 timeout: Duration.seconds(15), 
                 memorySize: 128, 
-                environment: {            
-                    NEPTUNE_HOST: NEPTUNE_HOST,
-                    NEPTUNE_PORT: NEPTUNE_PORT,
-                    NEPTUNE_IAM_AUTH_ENABLED: 'false',
-                    LOGGING_ENABLED: 'false'
-                },
+                environment: env,
                 vpc: neptune_vpc,
                 allowPublicSubnet: 'true',
                 roleArn: lambda_role.roleArn
@@ -258,6 +264,18 @@ export function response(ctx) {
         });
 
 
+    }
+
+    parseNeptuneDomainFromHost(neptuneHost) {
+        let parts = neptuneHost.split(HOST_DELIMITER);
+        if (parts.length < MIN_HOST_PARTS) {
+            throw Error('Cannot parse neptune host ' + neptuneHost + ' because it has ' + parts.length +
+                ' part(s) delimited by ' + HOST_DELIMITER + ' but expected at least ' + MIN_HOST_PARTS);
+        }
+        // last 3 parts of the host make up the domain
+        // ie. neptune.amazonaws.com or neptune-graph.amazonaws.com
+        let domainParts = parts.splice(parts.length - NUM_DOMAIN_PARTS, NUM_DOMAIN_PARTS);
+        return domainParts.join(HOST_DELIMITER);
     }
 }
 

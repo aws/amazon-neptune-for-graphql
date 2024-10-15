@@ -126,13 +126,21 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             });
         });
 
-        // Add edge types        
-        edgeTypes.forEach(edgeType => {
-            if (changeCase) {
-                r += `\t${edgeType}:${toPascalCase(edgeType)}`
-            } else {
-                r += `\t${edgeType}:${edgeType}`
-            }
+        const nodePropertyNames = new Set(node.properties.map((p) => p.name));
+
+        // Add edge types
+        edgeTypes.forEach((edgeType) => {
+            // resolve any collision with node properties with the same name by adding an underscore prefix
+            const aliasedEdgeType = nodePropertyNames.has(edgeType)
+                ? `_${edgeType}`
+                : edgeType;
+
+            // Modify the case if configured
+            const caseAdjustedEdgeType = changeCase
+                ? toPascalCase(edgeType)
+                : edgeType;
+
+            r += `\t${aliasedEdgeType}:${caseAdjustedEdgeType}`;
         });
 
         r += '}\n\n';

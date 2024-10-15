@@ -1,0 +1,151 @@
+type Continent {
+  id: ID!
+  code: String
+  type: String
+  desc: String
+  airportContainssOut(filter: AirportInput, options: Options): [Airport]
+  contains: Contains
+}
+
+input ContinentInput {
+  id: ID
+  code: String
+  type: String
+  desc: String
+}
+
+type Country {
+  _id: ID!
+  code: String
+  type: String
+  desc: String
+  airportContainssOut(filter: AirportInput, options: Options): [Airport]
+  contains: Contains
+}
+
+input CountryInput {
+  _id: ID
+  code: String
+  type: String
+  desc: String
+}
+
+type Version {
+  _id: ID!
+  date: String
+  code: String
+  author: String
+  type: String
+  desc: String
+}
+
+input VersionInput {
+  _id: ID
+  date: String
+  code: String
+  author: String
+  type: String
+  desc: String
+}
+
+type Airport {
+  _id: ID!
+  country: String
+  longest: Float
+  code: String
+  city: String
+  elev: Float
+  icao: String
+  lon: Float
+  runways: Float
+  region: String
+  type: String
+  lat: Float
+  desc2: String
+  outboundRoutesCount: Int
+  continentContainsIn: Continent
+  countryContainsIn: Country
+  airportRoutesOut(filter: AirportInput, options: Options): [Airport]
+  airportRoutesIn(filter: AirportInput, options: Options): [Airport]
+  contains: Contains
+  route: Route
+}
+
+input AirportInput {
+  _id: ID
+  country: String
+  longest: Float
+  code: String
+  city: String
+  elev: Float
+  icao: String
+  lon: Float
+  runways: Float
+  region: String
+  type: String
+  lat: Float
+  desc: String
+}
+
+type Contains {
+  _id: ID!
+}
+
+type Route {
+  _id: ID!
+  dist: Int
+}
+
+input RouteInput {
+  dist: Int
+}
+
+input Options {
+  limit: Int
+}
+
+type Query {
+  getAirport(code: String): Airport
+  getAirportConnection(fromCode: String!, toCode: String!): Airport
+  getAirportWithGremlin(code: String): Airport
+  getContinentsWithGremlin: [Continent]
+  getCountriesCountGremlin: Int
+  getNodeContinent(filter: ContinentInput): Continent
+  getNodeContinents(filter: ContinentInput, options: Options): [Continent]
+  getNodeCountry(filter: CountryInput): Country
+  getNodeCountrys(filter: CountryInput, options: Options): [Country]
+  getNodeVersion(filter: VersionInput): Version
+  getNodeVersions(filter: VersionInput, options: Options): [Version]
+  getNodeAirport(filter: AirportInput): Airport
+  getNodeAirports(filter: AirportInput, options: Options): [Airport]
+}
+
+type Mutation {
+  createAirport(input: AirportInput!): Airport
+  addRoute(fromAirportCode: String, toAirportCode: String, dist: Int): Route
+  deleteAirport(id: ID): Int
+  createNodeContinent(input: ContinentInput!): Continent
+  updateNodeContinent(input: ContinentInput!): Continent
+  deleteNodeContinent(_id: ID!): Boolean
+  createNodeCountry(input: CountryInput!): Country
+  updateNodeCountry(input: CountryInput!): Country
+  deleteNodeCountry(_id: ID!): Boolean
+  createNodeVersion(input: VersionInput!): Version
+  updateNodeVersion(input: VersionInput!): Version
+  deleteNodeVersion(_id: ID!): Boolean
+  createNodeAirport(input: AirportInput!): Airport
+  updateNodeAirport(input: AirportInput!): Airport
+  deleteNodeAirport(_id: ID!): Boolean
+  connectNodeContinentToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  deleteEdgeContainsFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
+  connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  connectNodeAirportToNodeAirportEdgeRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  deleteEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

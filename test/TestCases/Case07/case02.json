@@ -1,0 +1,9 @@
+{
+  "name": "Unit Test (Air Routes) Remove Pipeline",
+  "description":"Remove SDK pipeline",
+  "argv":["--quiet",
+    "--remove-aws-pipeline-name", "AirportsJestSDKTest",
+    "--output-folder-path", "./test/TestCases/Case07/output"],
+  "host": "<AIR_ROUTES_DB_HOST>",
+  "port": "<AIR_ROUTES_DB_PORT>"
+}
