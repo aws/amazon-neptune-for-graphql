@@ -69,7 +69,7 @@ let NEPTUNE_PORT = null;
 let NEPTUNE_DBSubnetGroup = null;
 let NEPTUNE_DBSubnetIds = [];
 let NEPTUNE_VpcSecurityGroupId = null;
-let NEPTUME_IAM_AUTH = false;
+let NEPTUNE_IAM_AUTH = false;
 let NEPTUNE_CURRENT_VERSION = '';
 let NEPTUNE_CURRENT_IAM = false;
 let NEPTUNE_IAM_POLICY_RESOURCE = '*';
@@ -101,7 +101,7 @@ async function checkPipeline() {
 
     if (!quiet) spinner = ora('Checking pipeline resources...').start();
     try {
-        const command = new GetFunctionCommand({FunctionName: NAME +'LambdaFunction'});        
+        const command = new GetFunctionCommand({FunctionName: NAME +'LambdaFunction'});
         await lambdaClient.send(command);
         lambdaExists = true;
     } catch (error) {
@@ -241,7 +241,7 @@ async function createLambdaRole() {
     if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaBasicExecutionRole')} to Lambda Role`);
 
 
-    if (NEPTUME_IAM_AUTH) {
+    if (NEPTUNE_IAM_AUTH) {
 
         let action = [];
         if (NEPTUNE_TYPE === NEPTUNE_DB) {
@@ -339,7 +339,7 @@ async function createLambdaFunction() {
             Variables: {
                 "NEPTUNE_HOST": NEPTUNE_HOST,
                 "NEPTUNE_PORT": NEPTUNE_PORT,
-                "NEPTUNE_IAM_AUTH_ENABLED": NEPTUME_IAM_AUTH.toString(),
+                "NEPTUNE_IAM_AUTH_ENABLED": NEPTUNE_IAM_AUTH.toString(),
                 "LOGGING_ENABLED": "false",
                 "NEPTUNE_DB_NAME": NEPTUNE_DB_NAME,
                 "NEPTUNE_REGION": REGION,
@@ -349,7 +349,7 @@ async function createLambdaFunction() {
         },
     };
 
-    if (!NEPTUME_IAM_AUTH) {
+    if (!NEPTUNE_IAM_AUTH) {
         params.VpcConfig = {
             SubnetIds: NEPTUNE_DBSubnetIds,
             SecurityGroupIds: [NEPTUNE_VpcSecurityGroupId]
@@ -788,20 +788,20 @@ async function updateAppSyncAPI(resources) {
 }
 
 
-async function createUpdateAWSpipeline (    pipelineName, 
-                                            neptuneDBName, 
-                                            neptuneDBregion, 
-                                            appSyncSchema, 
-                                            schemaModel, 
-                                            lambdaFilesPath, 
-                                            addMutations, 
-                                            quietI, 
-                                            __dirname, 
-                                            isNeptuneIAMAuth, 
-                                            neptuneHost, 
+async function createUpdateAWSpipeline (    pipelineName,
+                                            neptuneDBName,
+                                            neptuneDBregion,
+                                            appSyncSchema,
+                                            schemaModel,
+                                            lambdaFilesPath,
+                                            addMutations,
+                                            quietI,
+                                            __dirname,
+                                            isNeptuneIAMAuth,
+                                            neptuneHost,
                                             neptunePort,
-                                            outputFolderPath, 
-                                            neptuneType) {    
+                                            outputFolderPath,
+                                            neptuneType) {
 
     NAME = pipelineName;
     REGION = neptuneDBregion;
@@ -812,7 +812,7 @@ async function createUpdateAWSpipeline (    pipelineName,
     RESOURCES_FILE = `${outputFolderPath}/${NAME}-resources.json`;
     ADD_MUTATIONS = addMutations;
     quiet = quietI;
-    NEPTUME_IAM_AUTH = isNeptuneIAMAuth;
+    NEPTUNE_IAM_AUTH = isNeptuneIAMAuth;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
     thisOutputFolderPath = outputFolderPath;
