@@ -14,7 +14,7 @@ const { Stack, Duration, App } = require('aws-cdk-lib');
 const lambda  = require( 'aws-cdk-lib/aws-lambda');
 const iam  = require( 'aws-cdk-lib/aws-iam');
 const ec2  = require( 'aws-cdk-lib/aws-ec2');
-const { parseNeptuneDomain } = require('../src/util.js');
+const { parseNeptuneDomainFromHost } = require('../src/util.js');
 const { CfnGraphQLApi, CfnApiKey, CfnGraphQLSchema, CfnDataSource, CfnResolver, CfnFunctionConfiguration }  = require( 'aws-cdk-lib/aws-appsync');
 
 const NAME = '';
@@ -64,7 +64,7 @@ class AppSyncNeptuneStack extends Stack {
            LOGGING_ENABLED: 'false',
            NEPTUNE_DB_NAME: NEPTUNE_DB_NAME,
            NEPTUNE_REGION: REGION,
-           NEPTUNE_DOMAIN: parseNeptuneDomain(NEPTUNE_HOST),
+           NEPTUNE_DOMAIN: parseNeptuneDomainFromHost(NEPTUNE_HOST),
            NEPTUNE_TYPE: NEPTUNE_TYPE,
        };
        if (NEPTUNE_IAM_AUTH) {

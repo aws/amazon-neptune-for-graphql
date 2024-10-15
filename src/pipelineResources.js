@@ -47,7 +47,7 @@ import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
 import { exit } from "process";
-import { parseNeptuneDomain } from "./util.js";
+import { parseNeptuneDomainFromHost } from "./util.js";
 
 const NEPTUNE_DB = 'neptune-db';
 
@@ -343,7 +343,7 @@ async function createLambdaFunction() {
                 "LOGGING_ENABLED": "false",
                 "NEPTUNE_DB_NAME": NEPTUNE_DB_NAME,
                 "NEPTUNE_REGION": REGION,
-                "NEPTUNE_DOMAIN": parseNeptuneDomain(NEPTUNE_HOST),
+                "NEPTUNE_DOMAIN": parseNeptuneDomainFromHost(NEPTUNE_HOST),
                 "NEPTUNE_TYPE": NEPTUNE_TYPE,
             },
         },

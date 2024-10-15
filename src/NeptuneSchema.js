@@ -14,10 +14,11 @@ import axios from "axios";
 import { aws4Interceptor } from "aws4-axios";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
-import { parseNeptuneDomain, parseNeptuneGraphName } from "./util.js";
+import { parseNeptuneDomainFromHost, parseNeptuneGraphName } from "./util.js";
 import { ExecuteQueryCommand, GetGraphSummaryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 
 const NEPTUNE_DB = 'neptune-db';
+const NEPTUNE_GRAPH = 'neptune-graph';
 const NEPTUNE_GRAPH_PROTOCOL = 'https';
 const HTTP_LANGUAGE = 'openCypher';
 const NEPTUNE_GRAPH_LANGUAGE = 'OPEN_CYPHER';
@@ -120,7 +121,7 @@ async function queryNeptuneDbSDK(query, params = '{}') {
         return response;
 
     } catch (error) {
-        console.error("Neptune db SDK query request failed: ", error.message);
+        console.error(NEPTUNE_DB + ' SDK query request failed: ', error.message);
         process.exit(1);
     }
 }
@@ -140,7 +141,7 @@ async function queryNeptuneGraphSDK(query, params = '{}') {
         const response = await client.send(command);
         return await new Response(response.payload).json();
     } catch (error) {
-        console.error('Neptune graph SDK query request failed:' + JSON.stringify(error));
+        console.error(NEPTUNE_GRAPH + ' SDK query request failed:' + JSON.stringify(error));
         process.exit(1);
     }
 }
@@ -350,7 +351,7 @@ function getNeptuneGraphClient() {
         console.log('Instantiating NeptuneGraphClient')
         neptuneGraphClient = new NeptuneGraphClient({
             port: PORT,
-            host: parseNeptuneDomain(HOST),
+            host: parseNeptuneDomainFromHost(HOST),
             region: REGION,
             protocol: NEPTUNE_GRAPH_PROTOCOL,
         });
@@ -362,14 +363,14 @@ function getNeptuneGraphClient() {
  * Get a summary of a neptune analytics graph
  */
 async function getNeptuneGraphSummary() {
-    console.log('Retrieving neptune graph summary')
+    console.log('Retrieving ' + NEPTUNE_GRAPH + ' summary')
     const client = getNeptuneGraphClient();
     const command = new GetGraphSummaryCommand({
         graphIdentifier: NAME,
         mode: 'detailed'
     });
     const response = await client.send(command);
-    console.log('Retrieved neptune graph summary')
+    console.log('Retrieved ' + NEPTUNE_GRAPH + ' summary')
     return response.graphSummary;
 }
 
@@ -377,13 +378,13 @@ async function getNeptuneGraphSummary() {
  * Get a summary of a neptune db graph
  */
 async function getNeptuneDbSummary() {
-    console.log('Retrieving neptune db summary')
+    console.log('Retrieving ' + NEPTUNE_DB + ' summary')
     let response = await axios.get(`https://${HOST}:${PORT}/propertygraph/statistics/summary`, {
         params: {
             mode: 'detailed'
         }
     });
-    console.log('Retrieved neptune db summary')
+    console.log('Retrieved ' + NEPTUNE_DB + ' summary')
     return response.data.payload.graphSummary;
 }
 

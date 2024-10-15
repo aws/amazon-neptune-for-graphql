@@ -31,6 +31,7 @@ function yellow(text) {
 // find global installation dir
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { parseNeptuneDomainFromEndpoint } from "./util.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -279,9 +280,8 @@ async function main() {
     }
 
     // Check if Neptune target is db or graph
-    if (inputGraphDBSchemaNeptuneEndpoint.includes(NEPTUNE_GRAPH) ||
-        createUpdatePipelineEndpoint.includes(NEPTUNE_GRAPH) ||
-        inputCDKpipelineEnpoint.includes(NEPTUNE_GRAPH)) {
+    const nonEmptyEndpoints = [inputGraphDBSchemaNeptuneEndpoint, createUpdatePipelineEndpoint, inputCDKpipelineEnpoint].filter(endpoint => endpoint !== '');
+    if (nonEmptyEndpoints.length > 0 && parseNeptuneDomainFromEndpoint(nonEmptyEndpoints[0]).includes(NEPTUNE_GRAPH)) {
         neptuneType = NEPTUNE_GRAPH;
         // neptune analytics requires IAM
         console.log("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
@@ -306,7 +306,7 @@ async function main() {
             neptuneRegion = neptuneRegionParts[1];
 
         if (!quiet) console.log('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort));
-        setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, true);
+        setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, true, neptuneType);
         let startTime = performance.now();
         inputGraphDBSchema = await getNeptuneSchema(quiet);
         let endTime = performance.now();
