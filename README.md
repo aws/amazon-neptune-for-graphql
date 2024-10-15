@@ -77,7 +77,7 @@ To rollback, removing all the AWS resources run:
 `neptune-for-graphql --remove-aws-pipeline-name` <*your-new-GraphQL-API-name*>
 
 #### References:
-- [here](/doc/routesExample.md) is an example using the Air Routes data on Amazon Neptune, showing the outputs of the utility.
+- [Here](/doc/routesExample.md) is an example using the Air Routes data on Amazon Neptune, showing the outputs of the utility.
 - If you are wondering which AWS resources the utility is creating, look at the section below.
 - To customize the GraphQL schema, look at the section below.
 
@@ -89,7 +89,7 @@ You can start from an empty Neptune database and use a GraphQL API to create the
 `neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>` --create-update-aws-pipeline --create-update-aws-pipeline-name` <*your-new-GraphQL-API-name*>` --create-update-aws-pipeline-neptune-endpoint` <*your-neptune-database-endpoint:port*>  ` --output-resolver-query-https`
 
 #### References:
-- [here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/todoExample.md) is an example using a TODO GraphQL schema, showing the outputs of the utility.
+- [Here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/todoExample.md) is an example using a TODO GraphQL schema, showing the outputs of the utility.
 - If you are wondering which AWS resources the utility is creating, look at the section below.
 - To customize the GraphQL schema, look at the section below.
 

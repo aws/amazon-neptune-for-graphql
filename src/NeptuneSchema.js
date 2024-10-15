@@ -55,6 +55,7 @@ const schema = {
 
 function sanitize(text) {
     // TODO implement sanitization logic
+    // placeholder for sanitization of query text that cannot be parameterized
     return text;
 }
 
@@ -64,17 +65,21 @@ function sanitize(text) {
  * @param params optional query params
  * @returns {Promise<ExecuteOpenCypherQueryCommandOutput|any>}
  */
-async function queryNeptune(query, params = '{}') {
+async function queryNeptune(query, params = {}) {
     if (useSDK) {
         return await queryNeptuneSdk(query, params);
     } else {
         try {
-            let data = {
-                query: query,
-                parameters: params
-            };
-            const response = await axios.post(`https://${HOST}:${PORT}/${HTTP_LANGUAGE}`, data);
-        return response.data;
+        let data = {
+            query: query,
+            parameters: JSON.stringify(params)
+        };
+        const response = await axios.post(`https://${HOST}:${PORT}/${HTTP_LANGUAGE}`, data, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;    
         } catch (error) {
             loggerError(`Http query request failed` + ': ' + JSON.stringify(error));
             loggerInfo('Trying with the AWS SDK', {toConsole: true});
@@ -89,7 +94,7 @@ async function queryNeptune(query, params = '{}') {
 /**
  * Queries neptune using an SDK.
  */
-async function queryNeptuneSdk(query, params = '{}') {
+async function queryNeptuneSdk(query, params = {}) {
     if (NEPTUNE_TYPE === 'neptune-db') {
         return await queryNeptuneDbSDK(query, params);
     } else {
@@ -100,12 +105,12 @@ async function queryNeptuneSdk(query, params = '{}') {
 /**
  * Queries neptune db using SDK (not to be used for neptune analytics).
  */
-async function queryNeptuneDbSDK(query, params = '{}') {
+async function queryNeptuneDbSDK(query, params = {}) {
     try {
         const client = getNeptunedataClient();
         const input = {
             openCypherQuery: query,
-            parameters: params
+            parameters: JSON.stringify(params)
         };
         const command = new ExecuteOpenCypherQueryCommand(input);
         const response = await client.send(command);        
@@ -120,14 +125,14 @@ async function queryNeptuneDbSDK(query, params = '{}') {
 /**
  * Queries neptune analytics graph using SDK (not to be used for neptune db).
  */
-async function queryNeptuneGraphSDK(query, params = '{}') {
+async function queryNeptuneGraphSDK(query, params = {}) {
     try {
         const client = getNeptuneGraphClient();
         const command = new ExecuteQueryCommand({
             graphIdentifier: NAME,
             queryString: query,
             language: NEPTUNE_GRAPH_LANGUAGE,
-            parameters: JSON.parse(params)
+            parameters: params
         });
         const response = await client.send(command);
         return await new Response(response.payload).json();
@@ -232,10 +237,10 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 
 async function getEdgeProperties(edge) {
     let query = `MATCH ()-[n:${sanitize(edge.label)}]->() RETURN properties(n) as properties LIMIT $sample`;
-    let parameters = `{"sample": ${SAMPLE}}`;
+    let parameters = {sample: SAMPLE};
     loggerDebug(`Getting properties for edge: ${query}`);
     try {
-        let response = await queryNeptune(query, parameters);            
+        let response = await queryNeptune(query, parameters);
         let result = response.results;
         result.forEach(e => {                                
             Object.keys(e.properties).forEach(key => {
@@ -259,7 +264,7 @@ async function getEdgesProperties() {
 
 async function getNodeProperties(node) {
     let query = `MATCH (n:${sanitize(node.label)}) RETURN properties(n) as properties LIMIT $sample`;
-    let parameters = `{"sample": ${SAMPLE}}`;
+    let parameters = {sample: SAMPLE};
     loggerDebug(`Getting properties for node: ${query}`);
     try {
         let response = await queryNeptune(query, parameters);
