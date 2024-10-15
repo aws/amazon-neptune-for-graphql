@@ -29,12 +29,19 @@ let spinner = null;
 // find global installation dir
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { parseNeptuneDomainFromEndpoint } from "./util.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 let msg = '';
 
 // get version
 const version = JSON.parse(readFileSync(__dirname + '/../package.json')).version;
+
+/**
+ * neptune-graph is neptune analytics
+ */
+const NEPTUNE_GRAPH = 'neptune-graph';
+const NEPTUNE_DB = 'neptune-db';
 
 // Input
 let quiet = false;
@@ -63,8 +70,7 @@ let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
 let createLambdaZip = true;
 let outputFolderPath = './output';
-let neptuneType = 'neptune-db'; // or neptune-graph
-
+let neptuneType = NEPTUNE_DB; // or neptune-graph
 
 // Outputs
 let outputSchema = '';
@@ -256,6 +262,7 @@ function processArgs() {
             break;
         }
     });
+
 }
 
 async function main() {
@@ -267,10 +274,7 @@ async function main() {
 
     processArgs();
 
-    // Init output folder
-    mkdirSync(outputFolderPath, { recursive: true });
-
-    // Init the logger    
+    // Init the logger
     loggerInit(outputFolderPath, quiet, logLevel);
     loggerInfo('Starting neptune-for-graphql version: ' + version);
     loggerDebug('Input arguments: ' + process.argv);
@@ -287,11 +291,11 @@ async function main() {
         }
     }
 
-    // Check if Neptune target is db or graph
-    if (inputGraphDBSchemaNeptuneEndpoint.includes('neptune-graph') ||
-        createUpdatePipelineEndpoint.includes('neptune-graph') ||
-        inputCDKpipelineEnpoint.includes('neptune-graph')) {
-        neptuneType = 'neptune-graph';
+    // Check if any of the Neptune endpoints are a neptune analytic endpoint and if so, set the neptuneType and IAM to required
+    const nonEmptyEndpoints = [inputGraphDBSchemaNeptuneEndpoint, createUpdatePipelineEndpoint, inputCDKpipelineEnpoint].filter(endpoint => endpoint !== '');
+    const isNeptuneAnalyticsGraph = nonEmptyEndpoints.length > 0 && parseNeptuneDomainFromEndpoint(nonEmptyEndpoints[0]).includes(NEPTUNE_GRAPH);
+    if (isNeptuneAnalyticsGraph) {
+        neptuneType = NEPTUNE_GRAPH;
         // neptune analytics requires IAM
         loggerInfo("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
         isNeptuneIAMAuth = true;
@@ -307,10 +311,10 @@ async function main() {
         }
         let neptuneHost = endpointParts[0];
         let neptunePort = endpointParts[1];
-        
+
         let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');
         let neptuneRegion = '';
-        if (neptuneType === 'neptune-db')
+        if (neptuneType === NEPTUNE_DB)
             neptuneRegion = neptuneRegionParts[2];
         else
             neptuneRegion = neptuneRegionParts[1];
@@ -378,14 +382,25 @@ async function main() {
             msg = 'AWS pipeline: a Neptune database region is required.';
             loggerError(msg);
             process.exit(1);
-        }        
-        if (createUpdatePipelineEndpoint != '' && createUpdatePipelineRegion == '') {
+        }
+        if (createUpdatePipelineEndpoint != '') {
             let parts = createUpdatePipelineEndpoint.split('.');
             createUpdatePipelineNeptuneDatabaseName = parts[0];
-            if (neptuneType === 'neptune-db') {
-                createUpdatePipelineRegion = parts[2];
+
+            let parsedRegion;
+            if (neptuneType === NEPTUNE_DB) {
+                parsedRegion = parts[2];
             } else {
-                createUpdatePipelineRegion = parts[1];
+                parsedRegion = parts[1];
+            }
+
+            if (createUpdatePipelineRegion !== parsedRegion) {
+                if (createUpdatePipelineRegion !== '') {
+                    loggerInfo('Switching region from ' + createUpdatePipelineRegion + ' to region parsed from endpoint: ' + parsedRegion);
+                } else {
+                    loggerInfo('Region parsed from endpoint: ' + parsedRegion);
+                }
+                createUpdatePipelineRegion = parsedRegion;
             }
         }
         if (createUpdatePipelineName == '') {
@@ -448,6 +463,9 @@ async function main() {
     // ****************************************************************************
     // Outputs
     // ****************************************************************************
+
+    // Init output folder
+    mkdirSync(outputFolderPath, { recursive: true });
 
     // Output GraphQL schema no directives
     if (inputGraphQLSchema != '') {
@@ -545,7 +563,7 @@ async function main() {
                 outputLambdaPackagePath = '/../templates/Lambda4AppSyncHTTP';
             break;
             case 'sdk':
-                if (neptuneType === 'neptune-db') {
+                if (neptuneType === NEPTUNE_DB) {
                     outputLambdaPackagePath = '/../templates/Lambda4AppSyncSDK';
                 } else {
                     outputLambdaPackagePath = '/../templates/Lambda4AppSyncGraphSDK';
@@ -601,7 +619,7 @@ async function main() {
                                                 neptuneHost,
                                                 neptunePort,
                                                 outputFolderPath,
-                                                neptuneType );            
+                                                neptuneType );
             } catch (err) {
                 loggerError('Error creating AWS pipeline: ' + JSON.stringify(err));
             }

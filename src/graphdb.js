@@ -70,12 +70,12 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         }
         
         r += '\t_id: ID! @id\n';
-        
+
         let properties = [];
         node.properties.forEach(property => {
             properties.push(property.name);
 
-            if (property.name == 'id')                
+            if (property.name == 'id')
                 r+= `\tid: ID\n`;
             else
                 r+= `\t${property.name}: ${property.type}\n`;
@@ -131,17 +131,21 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             });
         });
 
-        // Add edge types        
-        edgeTypes.forEach(edgeType => {            
-            let collision = '';
-            if (properties.includes(edgeType))
-                collision = '_';
+        const nodePropertyNames = new Set(node.properties.map((p) => p.name));
 
-            if (changeCase) {
-                r += `\t${collision + edgeType}:${toPascalCase(edgeType)}`
-            } else {
-                r += `\t${collision + edgeType}:${edgeType}`
-            }
+        // Add edge types
+        edgeTypes.forEach((edgeType) => {
+            // resolve any collision with node properties with the same name by adding an underscore prefix
+            const aliasedEdgeType = nodePropertyNames.has(edgeType)
+                ? `_${edgeType}`
+                : edgeType;
+
+            // Modify the case if configured
+            const caseAdjustedEdgeType = changeCase
+                ? toPascalCase(edgeType)
+                : edgeType;
+
+            r += `\t${aliasedEdgeType}:${caseAdjustedEdgeType}`;
         });
 
         r += '}\n\n';
