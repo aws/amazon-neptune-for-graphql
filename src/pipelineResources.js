@@ -252,7 +252,7 @@ async function createLambdaRole() {
                 "neptune-db:WriteDataViaQuery"
             ];
         } else {
-            action = "neptune-graph:*"
+            action = ["neptune-graph:*"]
         }
 
         // Create Neptune query policy

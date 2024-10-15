@@ -266,8 +266,6 @@ async function main() {
 
     processArgs();
 
-    // Init output folder
-    mkdirSync(outputFolderPath, { recursive: true });
     // Get graphDB schema from file
     if (inputGraphDBSchemaFile != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
         try {
@@ -432,6 +430,9 @@ async function main() {
     // ****************************************************************************
     // Outputs
     // ****************************************************************************
+
+    // Init output folder
+    mkdirSync(outputFolderPath, { recursive: true });
 
     // Output GraphQL schema no directives
     if (inputGraphQLSchema != '') {
