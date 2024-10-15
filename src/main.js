@@ -59,7 +59,7 @@ let isNeptuneIAMAuth = false;
 let createUpdatePipeline = false;
 let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
-let createUpdatePipelineRegion = '';
+let createUpdatePipelineRegion = 'us-east-1';
 let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
@@ -277,9 +277,10 @@ async function main() {
         }
     }
 
-    // Check if Neptune target is db or graph
+    // Check if any of the Neptune endpoints are a neptune analytic endpoint and if so, set the neptuneType and IAM to required
     const nonEmptyEndpoints = [inputGraphDBSchemaNeptuneEndpoint, createUpdatePipelineEndpoint, inputCDKpipelineEnpoint].filter(endpoint => endpoint !== '');
-    if (nonEmptyEndpoints.length > 0 && parseNeptuneDomainFromEndpoint(nonEmptyEndpoints[0]).includes(NEPTUNE_GRAPH)) {
+    const isNeptuneAnalyticsGraph = nonEmptyEndpoints.length > 0 && parseNeptuneDomainFromEndpoint(nonEmptyEndpoints[0]).includes(NEPTUNE_GRAPH);
+    if (isNeptuneAnalyticsGraph) {
         neptuneType = NEPTUNE_GRAPH;
         // neptune analytics requires IAM
         console.log("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
@@ -365,12 +366,21 @@ async function main() {
         if (createUpdatePipelineEndpoint != '') {
             let parts = createUpdatePipelineEndpoint.split('.');
             createUpdatePipelineNeptuneDatabaseName = parts[0];
-            if (createUpdatePipelineRegion === '') {
-                if (neptuneType === NEPTUNE_DB) {
-                    createUpdatePipelineRegion = parts[2];
+
+            let parsedRegion;
+            if (neptuneType === NEPTUNE_DB) {
+                parsedRegion = parts[2];
+            } else {
+                parsedRegion = parts[1];
+            }
+
+            if (createUpdatePipelineRegion !== parsedRegion) {
+                if (createUpdatePipelineRegion !== '') {
+                    console.log('Switching region from ' + createUpdatePipelineRegion + ' to region parsed from endpoint: ' + parsedRegion);
                 } else {
-                    createUpdatePipelineRegion = parts[1];
+                    console.log('Region parsed from endpoint: ' + parsedRegion);
                 }
+                createUpdatePipelineRegion = parsedRegion;
             }
         }
         if (createUpdatePipelineName == '') {

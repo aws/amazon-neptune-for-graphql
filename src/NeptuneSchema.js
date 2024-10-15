@@ -79,7 +79,7 @@ function sanitize(text) {
  */
 async function queryNeptune(query, params = {}) {
     if (useSDK) {
-        return await queryNeptuneSDK(query, params);
+        return await queryNeptuneSdk(query, params);
     } else {
         try {
             let data = {
@@ -106,7 +106,7 @@ async function queryNeptune(query, params = {}) {
 /**
  * Queries neptune using an SDK.
  */
-async function queryNeptuneSdk(query, params = '{}') {
+async function queryNeptuneSdk(query, params = {}) {
     if (NEPTUNE_TYPE === NEPTUNE_DB) {
         return await queryNeptuneDbSDK(query, params);
     } else {
@@ -137,14 +137,14 @@ async function queryNeptuneDbSDK(query, params = {}) {
 /**
  * Queries neptune analytics graph using SDK (not to be used for neptune db).
  */
-async function queryNeptuneGraphSDK(query, params = '{}') {
+async function queryNeptuneGraphSDK(query, params = {}) {
     try {
         const client = getNeptuneGraphClient();
         const command = new ExecuteQueryCommand({
             graphIdentifier: NAME,
             queryString: query,
             language: NEPTUNE_GRAPH_LANGUAGE,
-            parameters: JSON.parse(params)
+            parameters: params
         });
         const response = await client.send(command);
         return await new Response(response.payload).json();

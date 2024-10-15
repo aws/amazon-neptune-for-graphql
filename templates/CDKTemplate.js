@@ -14,7 +14,6 @@ const { Stack, Duration, App } = require('aws-cdk-lib');
 const lambda  = require( 'aws-cdk-lib/aws-lambda');
 const iam  = require( 'aws-cdk-lib/aws-iam');
 const ec2  = require( 'aws-cdk-lib/aws-ec2');
-const { parseNeptuneDomainFromHost } = require('../src/util.js');
 const { CfnGraphQLApi, CfnApiKey, CfnGraphQLSchema, CfnDataSource, CfnResolver, CfnFunctionConfiguration }  = require( 'aws-cdk-lib/aws-appsync');
 
 const NAME = '';
@@ -36,6 +35,10 @@ const APPSYNC_SCHEMA = '';
 const APPSYNC_ATTACH_QUERY = [];
 
 const APPSYNC_ATTACH_MUTATION = [];
+
+const MIN_HOST_PARTS = 5;
+const NUM_DOMAIN_PARTS = 3;
+const HOST_DELIMITER = '.';
 
 class AppSyncNeptuneStack extends Stack {
    /**
@@ -64,7 +67,7 @@ class AppSyncNeptuneStack extends Stack {
            LOGGING_ENABLED: 'false',
            NEPTUNE_DB_NAME: NEPTUNE_DB_NAME,
            NEPTUNE_REGION: REGION,
-           NEPTUNE_DOMAIN: parseNeptuneDomainFromHost(NEPTUNE_HOST),
+           NEPTUNE_DOMAIN: this.parseNeptuneDomainFromHost(NEPTUNE_HOST),
            NEPTUNE_TYPE: NEPTUNE_TYPE,
        };
        if (NEPTUNE_IAM_AUTH) {
@@ -261,6 +264,18 @@ export function response(ctx) {
         });
 
 
+    }
+
+    parseNeptuneDomainFromHost(neptuneHost) {
+        let parts = neptuneHost.split(HOST_DELIMITER);
+        if (parts.length < MIN_HOST_PARTS) {
+            throw Error('Cannot parse neptune host ' + neptuneHost + ' because it has ' + parts.length +
+                ' part(s) delimited by ' + HOST_DELIMITER + ' but expected at least ' + MIN_HOST_PARTS);
+        }
+        // last 3 parts of the host make up the domain
+        // ie. neptune.amazonaws.com or neptune-graph.amazonaws.com
+        let domainParts = parts.splice(parts.length - NUM_DOMAIN_PARTS, NUM_DOMAIN_PARTS);
+        return domainParts.join(HOST_DELIMITER);
     }
 }
 
