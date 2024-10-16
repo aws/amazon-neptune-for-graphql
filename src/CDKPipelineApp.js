@@ -16,6 +16,7 @@ import { readFile, writeFile } from 'fs/promises';
 import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
+import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
 
 let NAME = '';
 let REGION = '';
@@ -33,11 +34,6 @@ let APPSYNC_ATTACH_QUERY = [];
 let APPSYNC_ATTACH_MUTATION = [];
 let SCHEMA_MODEL = null;
 let thisOutputFolderPath = './output';
-
-
-function yellow(text) {
-    return '\x1b[33m' + text + '\x1b[0m';
-}
 
 async function getSchemaFields(typeName) {
     /*  To be updated as:
@@ -69,7 +65,7 @@ async function createDeploymentFile(folderPath, zipFilePath) {
         archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
         await archive.finalize();
     } catch (err) {
-        console.error('Creating deployment zip file: ' + err); 
+        loggerError('Error creating deployment zip file', err);
     }
 }
 
@@ -107,32 +103,32 @@ async function createAWSpipelineCDK({
 
     if (neptuneType === 'neptune-db') {
         try {
-            if (!quiet) console.log('Get Neptune Cluster Info');
+            loggerInfo('Getting Neptune Cluster Info');
             if (!quiet) spinner = ora('Getting ...').start();
             neptuneClusterInfo = await getNeptuneClusterDbInfoBy(NEPTUNE_DB_NAME, REGION);
             if (!quiet) spinner.succeed('Got Neptune Cluster Info');
             if (isNeptuneIAMAuth) {
                 if (!neptuneClusterInfo.isIAMauth) {
-                    console.error("The Neptune database authentication is set to VPC.");
-                    console.error("Remove the --output-aws-pipeline-cdk-neptune-IAM option.");
+                    loggerError("The Neptune database authentication is set to VPC.");
+                    loggerError("Remove the --output-aws-pipeline-cdk-neptune-IAM option.");
                     process.exit(1);
                 }
             } else {
                 if (neptuneClusterInfo.isIAMauth) {
-                    console.error("The Neptune database authentication is set to IAM.");
-                    console.error("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
+                    loggerError("The Neptune database authentication is set to IAM.");
+                    loggerError("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
                     process.exit(1);
                 } else {
-                    if (!quiet) console.log(`Subnet Group: ` + yellow(neptuneClusterInfo.dbSubnetGroup));
+                    loggerDebug(`Subnet Group: ` + neptuneClusterInfo.dbSubnetGroup, {toConsole: true});
                 }
             }
 
             if (neptuneClusterInfo.version != '') {
                 const v = neptuneClusterInfo.version;
                 if (lambdaFilesPath.includes('SDK') == true && //semver.satisfies(v, '>=1.2.1.0') ) {
-                    (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' ||  v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
-                    console.error("Neptune SDK query is supported starting with Neptune versions 1.2.1.0.R5");
-                    console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
+                    (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' || v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
+                    loggerError("Neptune SDK query is supported starting with Neptune versions 1.2.1.0.R5");
+                    loggerError("Switch to Neptune HTTPS query with option --output-resolver-query-https");
                     process.exit(1);
                 }
             }
@@ -143,13 +139,14 @@ async function createAWSpipelineCDK({
             NEPTUNE_IAM_POLICY_RESOURCE = neptuneClusterInfo.iamPolicyResource;
 
         } catch (error) {
+            loggerError('Error getting Neptune Cluster Info', error);
             if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
             if (!isNeptuneIAMAuth) {
                 spinner.clear();
-                console.error("VPC data is not available to proceed.");
+                loggerError("VPC data is not available to proceed.");
                 process.exit(1);
             } else {
-                if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
+                loggerInfo("Proceeding without getting Neptune Cluster info.", {toConsole: true});
             }
         }
     }

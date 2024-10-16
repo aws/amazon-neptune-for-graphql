@@ -14,6 +14,7 @@ import axios from "axios";
 import { aws4Interceptor } from "aws4-axios";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
+import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
 import { parseNeptuneDomainFromHost, parseNeptuneGraphName } from "./util.js";
 import { ExecuteQueryCommand, GetGraphSummaryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 
@@ -26,7 +27,6 @@ let HOST = '';
 let PORT = 8182;
 let REGION = ''
 let SAMPLE = 5000;
-let VERBOSE = false;
 let NEPTUNE_TYPE = NEPTUNE_DB;
 let NAME = '';
 let useSDK = false;
@@ -53,18 +53,6 @@ const schema = {
     nodeStructures:[],
     edgeStructures:[]
 };
-
-
-function yellow(text) {
-    return '\x1b[33m' + text + '\x1b[0m';
-}
-
-
-function consoleOut(text) {
-    if (VERBOSE) {
-        console.log(text);
-    }
-}
 
 function sanitize(text) {
     // TODO implement sanitization logic
@@ -93,10 +81,10 @@ async function queryNeptune(query, params = {}) {
             });
         return response.data;
         } catch (error) {
-            console.error("Http query request failed: ", error.message);
-            consoleOut("Trying with the AWS SDK");
+            loggerError('Http query request failed', error);
+            loggerInfo('Trying with the AWS SDK', {toConsole: true});
             const response = await queryNeptuneSdk(query, params);
-            console.log('Querying via AWS SDK was successful, will use SDK for future queries');
+            loggerInfo('Querying via AWS SDK was successful, will use SDK for future queries')
             useSDK = true;
             return response;
         }
@@ -129,7 +117,7 @@ async function queryNeptuneDbSDK(query, params = {}) {
         return response;
 
     } catch (error) {
-        console.error(NEPTUNE_DB + ' SDK query request failed: ', error.message);
+        loggerError(NEPTUNE_DB + ' SDK query request failed', error);
         process.exit(1);
     }
 }
@@ -149,7 +137,7 @@ async function queryNeptuneGraphSDK(query, params = {}) {
         const response = await client.send(command);
         return await new Response(response.payload).json();
     } catch (error) {
-        console.error(NEPTUNE_GRAPH + ' SDK query request failed:' + JSON.stringify(error));
+        loggerError(NEPTUNE_GRAPH + ' SDK query request failed', error);
         process.exit(1);
     }
 }
@@ -158,16 +146,16 @@ async function queryNeptuneGraphSDK(query, params = {}) {
 async function getNodesNames() {
     let query = `MATCH (a) RETURN labels(a), count(a)`;
     let response = await queryNeptune(query);
+    loggerInfo('Getting nodes names');
 
     try {
         response.results.forEach(result => {
             schema.nodeStructures.push({ label: result['labels(a)'][0], properties: []});
-            consoleOut('  Found Node: ' + yellow(result['labels(a)'][0]));
+            loggerDebug('Found Node: ' + yellow(result['labels(a)'][0]), {toConsole: true});
         });        
     }
     catch (e)  {
-        consoleOut("  No nodes found");
-        return;
+        loggerError('No nodes found', e);
     }
 }
 
@@ -175,16 +163,16 @@ async function getNodesNames() {
 async function getEdgesNames() {
     let query = `MATCH ()-[e]->() RETURN type(e), count(e)`;
     let response = await queryNeptune(query);
+    loggerInfo('Getting edges names');
 
     try {
         response.results.forEach(result => {
             schema.edgeStructures.push({ label: result['type(e)'], directions: [], properties:[]});
-            consoleOut('  Found Edge: ' + yellow(result['type(e)']));
+            loggerDebug('Found Edge: ' + yellow(result['type(e)']), {toConsole: true});
         });
     }
     catch (e)  {
-        consoleOut("  No edges found");
-        return;
+        loggerError('No edges found', e);
     }
 
 }
@@ -197,7 +185,7 @@ async function findFromAndToLabels(edgeStructure) {
         for (let fromLabel of result.fromLabel) {
             for (let toLabel of result.toLabel) {
                 edgeStructure.directions.push({from:fromLabel, to:toLabel});
-                consoleOut('  Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel));
+                loggerDebug('Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel), {toConsole: true});
             }
         }
     }
@@ -231,7 +219,7 @@ function addUpdateNodeProperty(nodeName, name, value) {
     if (property === undefined) {
         let propertyType = CastGraphQLType(value);        
         node.properties.push({name: name, type: propertyType});
-        consoleOut(`  Added property to node: ${yellow(nodeName)} property: ${yellow(name)} type: ${yellow(propertyType)}`);
+        loggerDebug(`Added property to node: ${yellow(nodeName)} property: ${yellow(name)} type: ${yellow(propertyType)}`, {toConsole: true});
     }    
 }
 
@@ -242,7 +230,7 @@ function addUpdateEdgeProperty(edgeName, name, value) {
     if (property === undefined) {
         let propertyType = CastGraphQLType(value);        
         edge.properties.push({name: name, type: propertyType});
-        consoleOut('  Added property to edge: ' + yellow(edgeName) + ' property: ' + yellow(name) + ' type: ' + yellow(propertyType));
+        loggerDebug('Added property to edge: ' + yellow(edgeName) + ' property: ' + yellow(name) + ' type: ' + yellow(propertyType), {toConsole: true});
     }
 }
 
@@ -250,6 +238,7 @@ function addUpdateEdgeProperty(edgeName, name, value) {
 async function getEdgeProperties(edge) {
     let query = `MATCH ()-[n:${sanitize(edge.label)}]->() RETURN properties(n) as properties LIMIT $sample`;
     let parameters = {sample: SAMPLE};
+    loggerDebug(`Getting properties for edge: ${query}`);
     try {
         let response = await queryNeptune(query, parameters);
         let result = response.results;
@@ -260,12 +249,13 @@ async function getEdgeProperties(edge) {
         });            
     }
     catch (e)  {
-        consoleOut("  No properties found for edge: " + edge.label);
+        loggerError('No properties found for edge: ' + edge.label, e);
     }    
 }
 
 
 async function getEdgesProperties() {
+    loggerInfo('Retrieving edge properties');
     await Promise.all(schema.edgeStructures.map(async (edge) => {
         await getEdgeProperties(edge);
       }));
@@ -275,6 +265,7 @@ async function getEdgesProperties() {
 async function getNodeProperties(node) {
     let query = `MATCH (n:${sanitize(node.label)}) RETURN properties(n) as properties LIMIT $sample`;
     let parameters = {sample: SAMPLE};
+    loggerDebug(`Getting properties for node: ${query}`);
     try {
         let response = await queryNeptune(query, parameters);
         let result = response.results;
@@ -285,12 +276,13 @@ async function getNodeProperties(node) {
         });            
     }
     catch (e)  {
-        consoleOut("  No properties found for node: " + node.label);
+        loggerError('No properties found for node: ' + node.label, e);
     }    
 }
 
 
-async function getNodesProperties() {    
+async function getNodesProperties() {
+    loggerInfo('Retrieving node properties');
     await Promise.all(schema.nodeStructures.map(async (node) => {
         await getNodeProperties(node);
       }));
@@ -299,9 +291,11 @@ async function getNodesProperties() {
 
 async function checkEdgeDirectionCardinality(d) {
     let queryFrom = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH to, count(from) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
+    loggerDebug(`Checking edge direction cardinality: ${queryFrom}`);
     let responseFrom = await queryNeptune(queryFrom);
     let resultFrom = responseFrom.results[0];
     let queryTo = `MATCH (from:${sanitize(d.from)})-[r:${sanitize(d.edge.label)}]->(to:${sanitize(d.to)}) WITH from, count(to) as rels WHERE rels > 1 RETURN rels LIMIT 1`;
+    loggerDebug(`Checking edge direction cardinality: ${queryTo}`)
     let responseTo = await queryNeptune(queryTo);
     let resultTo = responseTo.results[0];
     let c = '';
@@ -319,7 +313,7 @@ async function checkEdgeDirectionCardinality(d) {
     }
 
     Object.assign(d.direction, {relationship: c});
-    consoleOut('  Found edge: ' + yellow(d.edge.label) + '  direction: ' + yellow(d.from) + ' -> ' + yellow(d.to) + ' relationship: ' + yellow(c));
+    loggerDebug('Found edge: ' + yellow(d.edge.label) + '  direction: ' + yellow(d.from) + ' -> ' + yellow(d.to) + ' relationship: ' + yellow(c), {toConsole: true});
 }
 
 
@@ -337,18 +331,17 @@ async function getEdgesDirectionsCardinality() {
 }
 
 
-function setGetNeptuneSchemaParameters(host, port, region, verbose = false, neptuneType) {
+function setGetNeptuneSchemaParameters(host, port, region, neptuneType) {
     HOST = host;
     PORT = port;
     REGION = region;
-    VERBOSE = verbose;
     NEPTUNE_TYPE = neptuneType;
     NAME = parseNeptuneGraphName(host);
 }
 
 function getNeptunedataClient() {
     if (!neptunedataClient) {
-        console.log('Instantiating NeptunedataClient')
+        loggerInfo('Instantiating NeptunedataClient')
         neptunedataClient = new NeptunedataClient({
             endpoint: `https://${HOST}:${PORT}`
         });
@@ -358,7 +351,7 @@ function getNeptunedataClient() {
 
 function getNeptuneGraphClient() {
     if (!neptuneGraphClient) {
-        console.log('Instantiating NeptuneGraphClient')
+        loggerInfo('Instantiating NeptuneGraphClient')
         neptuneGraphClient = new NeptuneGraphClient({
             port: PORT,
             host: parseNeptuneDomainFromHost(HOST),
@@ -373,14 +366,14 @@ function getNeptuneGraphClient() {
  * Get a summary of a neptune analytics graph
  */
 async function getNeptuneGraphSummary() {
-    console.log('Retrieving ' + NEPTUNE_GRAPH + ' summary')
+    loggerInfo('Retrieving ' + NEPTUNE_GRAPH + ' summary')
     const client = getNeptuneGraphClient();
     const command = new GetGraphSummaryCommand({
         graphIdentifier: NAME,
         mode: 'detailed'
     });
     const response = await client.send(command);
-    console.log('Retrieved ' + NEPTUNE_GRAPH + ' summary')
+    loggerInfo('Retrieved ' + NEPTUNE_GRAPH + ' summary')
     return response.graphSummary;
 }
 
@@ -388,13 +381,13 @@ async function getNeptuneGraphSummary() {
  * Get a summary of a neptune db graph
  */
 async function getNeptuneDbSummary() {
-    console.log('Retrieving ' + NEPTUNE_DB + ' summary')
+    loggerInfo('Retrieving ' + NEPTUNE_DB + ' summary')
     let response = await axios.get(`https://${HOST}:${PORT}/propertygraph/statistics/summary`, {
         params: {
             mode: 'detailed'
         }
     });
-    console.log('Retrieved ' + NEPTUNE_DB + ' summary')
+    loggerInfo('Retrieved ' + NEPTUNE_DB + ' summary')
     return response.data.payload.graphSummary;
 }
 
@@ -411,39 +404,37 @@ async function loadSchemaViaSummary() {
         }
         graphSummary.nodeLabels.forEach(label => {
             schema.nodeStructures.push({label:label, properties:[]});
-            consoleOut('  Found node: ' + yellow(label));
+            loggerDebug('Found node: ' + yellow(label), {toConsole: true});
         });
 
         graphSummary.edgeLabels.forEach(label => {
             schema.edgeStructures.push({label:label, properties:[], directions:[]});
-            consoleOut('  Found edge: ' + yellow(label));
+            loggerDebug('Found edge: ' + yellow(label), {toConsole: true});
         });
 
         return true;
 
     } catch (error) {
-        console.error(`Getting the schema via Neptune Summary API failed: ${JSON.stringify(error)}`);
+        loggerError('Getting the schema via Neptune Summary API failed', error);
         return false;
     }    
 }
 
 
-async function getNeptuneSchema(quiet) {
-
-    VERBOSE = !quiet;
+async function getNeptuneSchema() {
     
     try {
         await getAWSCredentials();
     } catch (error) {
-        consoleOut("There are no AWS credetials configured. \nGetting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.");
+        loggerError('There are no AWS credentials configured. Getting the schema from an Amazon Neptune database with IAM authentication works only with AWS credentials.', error);
     }
 
     if (await loadSchemaViaSummary()) {
-        consoleOut("Got nodes and edges via Neptune Summary API.");
+        loggerInfo("Got nodes and edges via Neptune Summary API.", {toConsole: true});
     } else {
-        consoleOut("Getting nodes via queries.");
+        loggerInfo("Getting nodes via queries.", {toConsole: true});
         await getNodesNames();
-        consoleOut("Getting edges via queries.");
+        loggerInfo("Getting edges via queries.", {toConsole: true});
         await getEdgesNames();
     }
                 
