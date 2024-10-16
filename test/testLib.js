@@ -34,7 +34,7 @@ function replacePlaceholderWithEnvironmentVariable(text, placeholder) {
         // remove angle brackets
         let envVarName = placeholder.replace(/[<>]/g, '');
         if (process.env[envVarName]) {
-            return text.replace(placeholder, process.env[envVarName]);
+            return text.replaceAll(placeholder, process.env[envVarName]);
         }
         throw new Error('Expected environment variable ' + envVarName + ' is not set');
     }
@@ -83,6 +83,15 @@ function checkOutputZipLambdaUsesSdk(outputFolder, zipFile) {
     test('Lambda uses SDK: ' + lambdaFile, async () => {
         expect(lambdaContent).toContain('@aws-sdk/client-neptune')
     });
+}
+
+function checkFileContains(outputFile, expectedContent = []) {
+    const fileContent = fs.readFileSync(outputFile, 'utf8');
+    expectedContent.forEach(expected => {
+        test(outputFile + ' contains text ' + expected, async () => {
+            expect(fileContent).toContain(expected);
+        });
+    })
 }
 
 async function loadResolver(file) {
@@ -140,4 +149,4 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
 }
 
 
-export { readJSONFile, checkOutputFilesSize, checkOutputFilesContent, testResolverQueries, testResolverQueriesResults, checkOutputZipLambdaUsesSdk };
+export { readJSONFile, checkFileContains, checkOutputFilesSize, checkOutputFilesContent, testResolverQueries, testResolverQueriesResults, checkOutputZipLambdaUsesSdk };

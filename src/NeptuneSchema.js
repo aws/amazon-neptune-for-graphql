@@ -15,7 +15,6 @@ import { aws4Interceptor } from "aws4-axios";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
 import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
-import { parseNeptuneDomainFromHost, parseNeptuneGraphName } from "./util.js";
 import { ExecuteQueryCommand, GetGraphSummaryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 
 const NEPTUNE_DB = 'neptune-db';
@@ -25,7 +24,8 @@ const HTTP_LANGUAGE = 'openCypher';
 const NEPTUNE_GRAPH_LANGUAGE = 'OPEN_CYPHER';
 let HOST = '';
 let PORT = 8182;
-let REGION = ''
+let REGION = '';
+let DOMAIN = '';
 let SAMPLE = 5000;
 let NEPTUNE_TYPE = NEPTUNE_DB;
 let NAME = '';
@@ -331,12 +331,13 @@ async function getEdgesDirectionsCardinality() {
 }
 
 
-function setGetNeptuneSchemaParameters(host, port, region, neptuneType) {
-    HOST = host;
-    PORT = port;
-    REGION = region;
-    NEPTUNE_TYPE = neptuneType;
-    NAME = parseNeptuneGraphName(host);
+function setGetNeptuneSchemaParameters(neptuneInfo) {
+    HOST = neptuneInfo.host;
+    PORT = neptuneInfo.port;
+    REGION = neptuneInfo.region;
+    NEPTUNE_TYPE = neptuneInfo.neptuneType;
+    NAME = neptuneInfo.graphName;
+    DOMAIN = neptuneInfo.domain;
 }
 
 function getNeptunedataClient() {
@@ -354,7 +355,7 @@ function getNeptuneGraphClient() {
         loggerInfo('Instantiating NeptuneGraphClient')
         neptuneGraphClient = new NeptuneGraphClient({
             port: PORT,
-            host: parseNeptuneDomainFromHost(HOST),
+            host: DOMAIN,
             region: REGION,
             protocol: NEPTUNE_GRAPH_PROTOCOL,
         });

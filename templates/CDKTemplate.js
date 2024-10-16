@@ -24,6 +24,8 @@ const NEPTUNE_PORT = '';
 const NEPTUNE_DB_NAME = '';
 const NEPTUNE_TYPE = '';
 const NEPTUNE_DBSubnetGroup = null;
+const NEPTUNE_DBSubnetIds = null;
+const NEPTUNE_VpcSecurityGroupId = null;
 const NEPTUNE_IAM_AUTH = false;
 const NEPTUNE_IAM_POLICY_RESOURCE = '*';
 const LAMBDA_FUNCTION_NAME = '';
@@ -85,10 +87,10 @@ class AppSyncNeptuneStack extends Stack {
                     sid: NAME + "NeptuneQueryPolicy",
                     effect: iam.Effect.ALLOW,
                     actions: [
-                        "neptune-db:connect",
-                        "neptune-db:DeleteDataViaQuery",                        
-                        "neptune-db:ReadDataViaQuery",
-                        "neptune-db:WriteDataViaQuery"
+                        NEPTUNE_TYPE + ':connect',
+                        NEPTUNE_TYPE + ':DeleteDataViaQuery',
+                        NEPTUNE_TYPE + ':ReadDataViaQuery',
+                        NEPTUNE_TYPE + ':WriteDataViaQuery'
                     ],
                     resources: [NEPTUNE_IAM_POLICY_RESOURCE]
                 })],
@@ -102,20 +104,28 @@ class AppSyncNeptuneStack extends Stack {
             });
             
             lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'));
-        
+
+           let subnets = NEPTUNE_DBSubnetIds.split(',').map((subnetId) => ec2.Subnet.fromSubnetId(this, 'neptuneSubnet-' + subnetId, subnetId));
+
             echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, {
                 functionName: LAMBDA_FUNCTION_NAME,
                 description: 'Neptune GraphQL Resolver for AppSync',
-                code: lambda.Code.fromAsset(LAMBDA_ZIP_FILE), 
+                code: lambda.Code.fromAsset(LAMBDA_ZIP_FILE),
                 handler: 'index.handler',
                 runtime: lambda.Runtime.NODEJS_18_X,
-                timeout: Duration.seconds(15), 
-                memorySize: 128, 
+                timeout: Duration.seconds(15),
+                memorySize: 128,
                 environment: env,
                 vpc: neptune_vpc,
+                vpcSubnets: {
+                    subnets: subnets
+                },
+                securityGroups: [
+                    ec2.SecurityGroup.fromSecurityGroupId(this, 'neptuneSecurityGroup', NEPTUNE_VpcSecurityGroupId)
+                ],
                 allowPublicSubnet: 'true',
                 roleArn: lambda_role.roleArn
-            });            
+            });
         }
         
         echoLambda.node.addDependency(lambda_role);

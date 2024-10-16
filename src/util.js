@@ -13,7 +13,8 @@ permissions and limitations under the License.
 const MIN_HOST_PARTS = 5;
 const NUM_DOMAIN_PARTS = 3;
 const HOST_DELIMITER = '.';
-const ENDPOINT_DELIMITER = ':';
+const NEPTUNE_GRAPH = 'neptune-graph';
+const NEPTUNE_DB = 'neptune-db';
 
 /**
  * Splits a neptune host into its parts, throwing an Error if there are unexpected number of parts.
@@ -29,6 +30,13 @@ function splitHost(neptuneHost) {
     return parts;
 }
 
+function getDomainFromHostParts(hostParts) {
+    // last 3 parts of the host make up the domain
+    // ie. neptune.amazonaws.com or neptune-graph.amazonaws.com
+    let domainParts = hostParts.splice(hostParts.length - NUM_DOMAIN_PARTS, NUM_DOMAIN_PARTS);
+    return domainParts.join(HOST_DELIMITER);
+}
+
 /**
  * Parses the domain from the given neptune db or neptune analytics host.
  *
@@ -38,42 +46,35 @@ function splitHost(neptuneHost) {
  * @param neptuneHost
  */
 function parseNeptuneDomainFromHost(neptuneHost) {
-    let parts = splitHost(neptuneHost);
-    // last 3 parts of the host make up the domain
-    // ie. neptune.amazonaws.com or neptune-graph.amazonaws.com
-    let domainParts = parts.splice(parts.length - NUM_DOMAIN_PARTS, NUM_DOMAIN_PARTS);
-    return domainParts.join(HOST_DELIMITER);
+    return getDomainFromHostParts(splitHost(neptuneHost));
 }
 
 /**
- * Parses the domain from the given neptune db or neptune analytics endpoint.
- *
- * Example: g-abcdef.us-west-2.neptune-graph.amazonaws.com:8182 ==> neptune-graph.amazonaws.com
- * Example: db-neptune-abc-def.cluster-xyz.us-west-2.neptune.amazonaws.com:8182 ==> neptune.amazonaws.com
+ * Parses a neptune endpoint into its parts.
  *
  * @param neptuneEndpoint
+ * @returns {{graphName: (string), port: (string), domain: (string), neptuneType: (string), host: (string), region: (string)}}
  */
-function parseNeptuneDomainFromEndpoint(neptuneEndpoint) {
-    let parts = neptuneEndpoint.split(ENDPOINT_DELIMITER);
-    if (parts.length !== 2) {
-        throw Error('Cannot parse domain from neptune endpoint ' + neptuneEndpoint + ' because it has ' +
-            parts.length + ' part(s) delimited by ' + ENDPOINT_DELIMITER + ' but expected 2');
+function parseNeptuneEndpoint(neptuneEndpoint) {
+    let endpointParts = neptuneEndpoint.split(':');
+    if (endpointParts.length !== 2) {
+        throw Error('Cannot parse neptune endpoint ' + neptuneEndpoint + ' because it is not in expected format of host:port');
     }
-    return parseNeptuneDomainFromHost(parts[0]);
+
+    const host = endpointParts[0];
+    const hostParts = splitHost(host);
+    const domain = getDomainFromHostParts(hostParts);
+    const neptuneType = domain.includes(NEPTUNE_GRAPH) ? NEPTUNE_GRAPH : NEPTUNE_DB;
+    const region = neptuneType === NEPTUNE_DB ? hostParts[2] : hostParts[1];
+
+    return {
+        port: endpointParts[1],
+        host: host,
+        domain: domain,
+        region: region,
+        graphName: hostParts[0],
+        neptuneType: neptuneType
+    };
 }
 
-/**
- * Parses the neptune graph name from the given neptune db or neptune analytics host.
- *
- * Example: g-abcdef.us-west-2.neptune-graph.amazonaws.com ==> g-abcdef
- * Example: db-neptune-abc-def.cluster-xyz.us-west-2.neptune.amazonaws.com ==> db-neptune-abc-def
- *
- * @param neptuneHost
- */
-function parseNeptuneGraphName(neptuneHost) {
-    let parts = splitHost(neptuneHost);
-    // graph name is the first part
-    return parts[0];
-}
-
-export {parseNeptuneDomainFromHost, parseNeptuneDomainFromEndpoint, parseNeptuneGraphName};
+export {parseNeptuneDomainFromHost, parseNeptuneEndpoint};

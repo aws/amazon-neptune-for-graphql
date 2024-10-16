@@ -330,19 +330,6 @@ async function createLambdaRole() {
 
 
     if (NEPTUNE_IAM_AUTH) {
-
-        let action = [];
-        if (NEPTUNE_TYPE === NEPTUNE_DB) {
-            action = [
-                "neptune-db:DeleteDataViaQuery",
-                "neptune-db:connect",
-                "neptune-db:ReadDataViaQuery",
-                "neptune-db:WriteDataViaQuery"
-            ];
-        } else {
-            action = ["neptune-graph:*"]
-        }
-
         // Create Neptune query policy
         startSpinner('Creating policy for Neptune queries', true);
         let policyName = NAME+"NeptuneQueryPolicy";
@@ -352,7 +339,12 @@ async function createLambdaRole() {
             Statement: [
                 {
                     Effect: "Allow",
-                    Action: action,
+                    Action: [
+                        NEPTUNE_TYPE + ':connect',
+                        NEPTUNE_TYPE + ':DeleteDataViaQuery',
+                        NEPTUNE_TYPE + ':ReadDataViaQuery',
+                        NEPTUNE_TYPE + ':WriteDataViaQuery'
+                    ],
                     Resource: NEPTUNE_IAM_POLICY_RESOURCE            
                 },
             ],
