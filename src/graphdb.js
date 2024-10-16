@@ -71,15 +71,11 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         
         r += '\t_id: ID! @id\n';
 
-        let properties = [];
         node.properties.forEach(property => {
-            properties.push(property.name);
-
             if (property.name == 'id')
                 r+= `\tid: ID\n`;
             else
                 r+= `\t${property.name}: ${property.type}\n`;
-
         });
         
         let edgeTypes = [];

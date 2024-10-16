@@ -59,7 +59,7 @@ let isNeptuneIAMAuth = false;
 let createUpdatePipeline = false;
 let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
-let createUpdatePipelineRegion = '';
+let createUpdatePipelineRegion = 'us-east-1';
 let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
@@ -200,8 +200,6 @@ function processArgs() {
             case '--create-update-aws-pipeline-neptune-endpoint':
                 createUpdatePipelineEndpoint = array[index + 1];
             break;
-            case 'pro':
-            case '-p2l':
             case '-pd':
             case '--create-update-aws-pipeline-neptune-database-name':
                 createUpdatePipelineNeptuneDatabaseName = array[index + 1];
@@ -218,8 +216,6 @@ function processArgs() {
             case '--output-aws-pipeline-cdk-neptune-endpoint':
                 inputCDKpipelineEnpoint = array[index + 1];
             break;
-            case 'cro':
-            case '-c2l':
             case '-cd':
             case '--output-aws-pipeline-cdk-neptune-database-name':
                 inputCDKpipelineDatabaseName = array[index + 1];

@@ -71,15 +71,15 @@ async function queryNeptune(query, params = {}) {
         return await queryNeptuneSdk(query, params);
     } else {
         try {
-        let data = {
-            query: query,
-            parameters: JSON.stringify(params)
-        };
-        const response = await axios.post(`https://${HOST}:${PORT}/${HTTP_LANGUAGE}`, data, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+            let data = {
+                query: query,
+                parameters: JSON.stringify(params)
+            };
+            const response = await axios.post(`https://${HOST}:${PORT}/${HTTP_LANGUAGE}`, data, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
         return response.data;
         } catch (error) {
             loggerError(`Http query request failed` + ': ' + JSON.stringify(error));
