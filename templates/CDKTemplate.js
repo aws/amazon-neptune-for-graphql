@@ -58,7 +58,7 @@ class AppSyncNeptuneStack extends Stack {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com') 
         });
 
-        lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));   
+        lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaBasicExecutionRole'));
 
        let env = {
            NEPTUNE_HOST: NEPTUNE_HOST,

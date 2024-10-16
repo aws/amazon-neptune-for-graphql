@@ -11,7 +11,3 @@ type Todo {
 type Comment {
     content: String
 }
-
-input Options {
-    limit: Int
-}
