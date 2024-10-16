@@ -112,6 +112,7 @@ Parameters
 [--help                                                     -h   ]
 [--version                                                  -v   ]
 [--quiet                                                    -q   ]
+[--log-verbose                                              -lv  ]
 
 [--input-schema <value>                                     -is  ]
 [--input-schema-file <value>                                -isf ]

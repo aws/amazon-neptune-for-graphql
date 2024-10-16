@@ -10,43 +10,44 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { NeptuneClient, 
-    DescribeDBClustersCommand, 
+import { NeptuneClient,
+    DescribeDBClustersCommand,
     DescribeDBSubnetGroupsCommand  }  from "@aws-sdk/client-neptune";
 
-import { IAMClient, 
-    CreateRoleCommand, 
-    AttachRolePolicyCommand, 
-    GetRoleCommand, 
-    CreatePolicyCommand, 
+import { IAMClient,
+    CreateRoleCommand,
+    AttachRolePolicyCommand,
+    GetRoleCommand,
+    CreatePolicyCommand,
     DetachRolePolicyCommand,
     DeleteRoleCommand,
     DeletePolicyCommand,
-    //waitUntilRoleExists, 
+    //waitUntilRoleExists,
     //waitUntilPolicyExists
     }  from "@aws-sdk/client-iam";
 
-import { LambdaClient, 
-    CreateFunctionCommand as LambdaCreateFunctionCommand, 
-    GetFunctionCommand, 
+import { LambdaClient,
+    CreateFunctionCommand as LambdaCreateFunctionCommand,
+    GetFunctionCommand,
     DeleteFunctionCommand,
     UpdateFunctionCodeCommand }  from "@aws-sdk/client-lambda";
 
-import { AppSyncClient, 
-    CreateGraphqlApiCommand, 
-    StartSchemaCreationCommand, 
-    CreateDataSourceCommand, 
-    CreateFunctionCommand as AppSyncCreateFunctionCommand, 
+import { AppSyncClient,
+    CreateGraphqlApiCommand,
+    StartSchemaCreationCommand,
+    CreateDataSourceCommand,
+    CreateFunctionCommand as AppSyncCreateFunctionCommand,
     CreateResolverCommand,
     CreateApiKeyCommand,
     ListGraphqlApisCommand,
-    DeleteGraphqlApiCommand,    
+    DeleteGraphqlApiCommand,
     ListResolversCommand } from "@aws-sdk/client-appsync";
 
 import fs from 'fs';
 import archiver from 'archiver';
 import ora from 'ora';
 import { exit } from "process";
+import { loggerDebug, loggerError, loggerInfo, yellow } from './logger.js';
 import { parseNeptuneDomainFromHost } from "./util.js";
 
 const NEPTUNE_DB = 'neptune-db';
@@ -80,14 +81,65 @@ let ZIP = null;
 let RESOURCES = {};
 let RESOURCES_FILE = '';
 
-
 const sleep = ms => new Promise(r => setTimeout(r, ms)); // alternative: import { setTimeout } from timers/promises
 let spinner = null;
 
-function yellow(text) {
-    return '\x1b[33m' + text + '\x1b[0m';
+/**
+ * Start the spinner with a message.
+ *
+ * To also log the message to file, set logInfo = true. Do not log messages with sensitive data to file.
+ *
+ * @param text the message to display on the spinner as it is spinning
+ * @param logInfo if true then the text will also be logged to file at info level
+ */
+function startSpinner(text, logInfo = false) {
+    if (logInfo) {
+        loggerInfo(text);
+    }
+    if (!quiet) {
+        spinner = ora(text).start();
+    }
 }
 
+/**
+ * Stop the spinner with a success message.
+ *
+ * To also log the message to file, set logOptions.logLevel to 'info' or 'debug'. Do not log messages with sensitive data to file at info level.
+ *
+ * @param text the text to display on the spinner to indicate success
+ * @param logOptions optional logging options which determine if the text is also logged to file and what level it should be logged at
+ */
+function succeedSpinner(text, logOptions = {logLevel: ''}) {
+    if (spinner && !quiet) {
+        spinner.succeed(text);
+    } else if (!spinner && !quiet) {
+        console.error('Cannot succeed spinner as it has not been started');
+        console.log(text);
+    }
+    if (logOptions.logLevel === 'info') {
+        loggerInfo(text);
+    } else if (logOptions.logLevel === 'debug') {
+        loggerDebug(text);
+    }
+}
+
+function warnSpinner(text) {
+    if (spinner && !quiet) {
+        spinner.warn(text);
+    } else if (!spinner && !quiet) {
+        console.error('Cannot warn spinner as it has not been started');
+        console.log(text);
+    }
+}
+
+function failSpinner(text) {
+    if (spinner && !quiet) {
+        spinner.fail(text);
+    } else if (!spinner && !quiet) {
+        console.error('Cannot fail spinner as it has not been started');
+        console.log(text);
+    }
+}
 
 async function checkPipeline() {
     // Checking if Role, Lambda and AppSync API is already created.
@@ -99,51 +151,85 @@ async function checkPipeline() {
     let appSyncExists = false;
     let roleExists = false;
 
-    if (!quiet) spinner = ora('Checking pipeline resources...').start();
+    loggerInfo('Checking pipeline resources', {toConsole: true});
+    startSpinner('Checking for lambda...');
     try {
         const command = new GetFunctionCommand({FunctionName: NAME +'LambdaFunction'});
         await lambdaClient.send(command);
         lambdaExists = true;
+        succeedSpinner('Found lambda', {logLevel: 'info'});
     } catch (error) {
         lambdaExists = false;
+        const text = 'Lambda not found';
+        warnSpinner(text);
+        loggerInfo(text);
+        loggerDebug("checkPipeline GetFunctionCommand: " + JSON.stringify(error));
     }
-    
-    try {        
+
+    startSpinner('Checking for API...');
+    const notFound = 'API not found';
+    try {
         const command = new ListGraphqlApisCommand({apiType: "GRAPHQL"});
         const response = await appSyncClient.send(command);
         response.graphqlApis.forEach(element => {
             if (element.name == NAME + 'API') {
-                //APPSYNC_API_ID = element.apiId;                
+                //APPSYNC_API_ID = element.apiId;
                 appSyncExists = true;
             }
         });
+        if (appSyncExists) {
+            succeedSpinner('API found', {logLevel: 'info'});
+        } else {
+            warnSpinner(notFound);
+            loggerInfo(notFound);
+        }
     } catch (error) {
+        warnSpinner(notFound);
+        loggerInfo(notFound);
+        loggerError('Error checking for API', error);
         appSyncExists = false;
     }
 
+    startSpinner('Checking for lambda execution role...');
     try {
         const command = new GetRoleCommand({ RoleName: NAME + "LambdaExecutionRole" });
         const response = await iamClient.send(command);
         LAMBDA_ROLE = response.Role.Arn;
         roleExists = true;
+        succeedSpinner('Lambda execution role found', {logLevel: 'info'});
     } catch (error) {
+        const text = 'Lambda execution role not found';
+        warnSpinner(text);
+        loggerInfo(text);
+        loggerDebug("checkPipeline GetRoleCommand: " + JSON.stringify(error));
         roleExists = false;
     }
     
     if (lambdaExists && appSyncExists && roleExists) {
-        if (!quiet) spinner.succeed('Pipeline exists.');
+        loggerInfo('Pipeline exists.', {toConsole: true});
         pipelineExists = true;
     } else {
-        if (!quiet) spinner.warn('Pipeline does not exists.');
+        loggerInfo('Pipeline does not exist.', {toConsole: true});
     }
 
     if (lambdaExists && appSyncExists && roleExists) return;
     if (!lambdaExists && !appSyncExists && !roleExists) return;
-    if (!quiet) console.log("One or more pipeline resources are missing.");
-    if (!lambdaExists && !quiet) console.log("  Lambda " + NAME + "LambdaFunction" + " is  missing."  );
-    if (!roleExists && !quiet) console.log("  Role " + NAME + "LambdaExecutionRole" + " is  missing."  );
-    if (!appSyncExists && !quiet) console.log("  AppSync " + NAME + "API" + " is  missing."  );
-    console.error("Fix the issue manually or create the pipeline resources with a new name.\n");
+
+    loggerError('One or more pipeline resources are missing.');
+
+    if (!lambdaExists) {
+        loggerError('Lambda ' + yellow(NAME) + 'LambdaFunction is  missing.');
+    }
+
+    if (!roleExists) {
+        loggerError('Role ' + yellow(NAME) + 'LambdaExecutionRole is  missing.');
+    }
+
+    if (!appSyncExists) {
+        loggerError('AppSync ' + yellow(NAME) + 'API is  missing.');
+    }
+
+    loggerError('Fix the issue manually or create the pipeline resources with a new name.');
     process.exit(1);
 }
 
@@ -208,7 +294,8 @@ async function createLambdaRole() {
     const iamClient = new IAMClient({region: REGION});
     
     // Create Lambda principal role
-    if (!quiet) spinner = ora('Creating Lambda principal role ...').start();
+    startSpinner('Creating Lambda principal role ...', true);
+    let roleName = NAME +"LambdaExecutionRole";
     const params = {
         AssumeRolePolicyDocument: JSON.stringify({
           Version: "2012-10-17",
@@ -220,25 +307,26 @@ async function createLambdaRole() {
             },
           ],
         }),
-        RoleName: NAME +"LambdaExecutionRole"
+        RoleName: roleName
     };
     const data = await iamClient.send(new CreateRoleCommand(params));
     //await waitUntilRoleExists({ client: iamClient, maxWaitTime: 180 }, { RoleName: data.Role.RoleName }); // does not work :(, using sleep
     await sleep(10000);
     LAMBDA_ROLE = data.Role.Arn;
-    storeResource({LambdaExecutionRole: NAME +"LambdaExecutionRole"});
-    if (!quiet) spinner.succeed('Role ARN: ' + yellow(LAMBDA_ROLE));
+    storeResource({LambdaExecutionRole: roleName});
+    succeedSpinner('Role ARN: ' + yellow(LAMBDA_ROLE), {logLevel: 'debug'});
+    loggerInfo('Created Lambda principal role')
 
-    // Attach to Lambda role the AWSLambdaBasicExecutionRole 
-    if (!quiet) spinner = ora('Attaching policies to the Lambda principal role ...').start();
+    // Attach to Lambda role the AWSLambdaBasicExecutionRole
+    startSpinner('Attaching AWSLambdaBasicExecutionRole to Lambda Role', true);
     let input = {
-        RoleName: NAME +"LambdaExecutionRole",
+        RoleName: roleName,
         PolicyArn: "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
     };
     let command = new AttachRolePolicyCommand(input);
     await iamClient.send(command);    
     storeResource({LambdaExecutionPolicy1: input.PolicyArn});
-    if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaBasicExecutionRole')} to Lambda Role`);
+    succeedSpinner(`Attached ${yellow('AWSLambdaBasicExecutionRole')} to Lambda Role`, {logLevel: 'info'});
 
 
     if (NEPTUNE_IAM_AUTH) {
@@ -256,7 +344,8 @@ async function createLambdaRole() {
         }
 
         // Create Neptune query policy
-        if (!quiet) spinner = ora('Creating policy for Neptune queries ...').start();
+        startSpinner('Creating policy for Neptune queries', true);
+        let policyName = NAME+"NeptuneQueryPolicy";
         let command = new CreatePolicyCommand({
             PolicyDocument: JSON.stringify({
             Version: "2012-10-17",
@@ -268,40 +357,39 @@ async function createLambdaRole() {
                 },
             ],
             }),
-            PolicyName: NAME+"NeptuneQueryPolicy",
+            PolicyName: policyName,
         });
     
         let response = await iamClient.send(command);
         const policyARN = response.Policy.Arn;
         storeResource({NeptuneQueryPolicy: policyARN});
         await sleep(5000);
-        if (!quiet) spinner.succeed('Neptune query policy ARN: ' + yellow(policyARN));
-        
-        // Attach to Lambda role the Neptune query policy. 
-        if (!quiet) spinner = ora('Attaching policy for Neptune queries to Lambda role ...').start();
+        succeedSpinner('Neptune query policy ARN: ' + yellow(policyARN), {logLevel: 'debug'});
+        loggerInfo('Neptune query policy created')
+
+        // Attach to Lambda role the Neptune query policy.
+        startSpinner('Attaching Neptune query policy to Lambda role ...', true);
         input = {
-            RoleName: NAME +"LambdaExecutionRole",
+            RoleName: roleName,
             PolicyArn: policyARN,
         };
         command = new AttachRolePolicyCommand(input);
         await iamClient.send(command);    
         storeResource({LambdaExecutionPolicy2: input.PolicyArn});    
         await sleep(10000);
-        if (!quiet) spinner.succeed(`Attached ${yellow('Neptune Query Policy')} policies to Lambda Role`);
+        succeedSpinner(`Attached ${yellow('Neptune Query Policy')} policies to Lambda Role`, {logLevel: 'info'});
         
     } else {
-
-
-        if (!quiet) spinner = ora('Attaching policy for Neptune VPC to Lambda role ...').start();
+        startSpinner('Attaching policy for Neptune VPC to Lambda role ...', true);
         input = {
-            RoleName: NAME +"LambdaExecutionRole",
+            RoleName: roleName,
             PolicyArn: "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
         };
         command = new AttachRolePolicyCommand(input);
         await iamClient.send(command);    
         storeResource({LambdaExecutionPolicy2: input.PolicyArn});    
         await sleep(10000);
-        if (!quiet) spinner.succeed(`Attached ${yellow('AWSLambdaVPCAccessExecutionRole')} policies to role`);
+        succeedSpinner(`Attached ${yellow('AWSLambdaVPCAccessExecutionRole')} policies to role`, {logLevel: 'info'});
     }
 
 }
@@ -320,15 +408,14 @@ async function createDeploymentPackage(folderPath) {
     return fileContent;    
 }
 
-
 async function createLambdaFunction() {
-    if (!quiet) spinner = ora('Creating Lambda function ...').start();
-
+    startSpinner('Creating Lambda function', true);
+    let lambdaName = NAME +'LambdaFunction';
     let params = {
         Code: {
             ZipFile: ZIP
         },
-            FunctionName: NAME +'LambdaFunction',
+        FunctionName: lambdaName,
         Handler: 'index.handler',
         Role: LAMBDA_ROLE,
         Runtime: 'nodejs18.x',
@@ -358,15 +445,17 @@ async function createLambdaFunction() {
     const lambdaClient = new LambdaClient({region: REGION});
     const data = await lambdaClient.send(new LambdaCreateFunctionCommand(params));
     LAMBDA_ARN = data.FunctionArn;
-    storeResource({LambdaFunction: NAME +'LambdaFunction'});
-    if (!quiet) spinner.succeed('Lambda Name: ' + yellow(NAME +'LambdaFunction') + ' ARN: ' + yellow(LAMBDA_ARN));
+    storeResource({LambdaFunction: lambdaName});
+    succeedSpinner('Lambda Name: ' + yellow(lambdaName) + ' ARN: ' + yellow(LAMBDA_ARN), {logLevel: 'debug'});
+    loggerInfo('Lambda function created')
 }
 
 
 async function createAppSyncAPI() {      
     const iamClient = new IAMClient({region: REGION});
-    
-    if (!quiet) spinner = ora('Creating policy for Lambda invocation ...').start();
+
+    startSpinner('Creating policy for Lambda invocation ...', true);
+    let policyName = NAME+"LambdaInvokePolicy";
     let command = new CreatePolicyCommand({
         PolicyDocument: JSON.stringify({
           Version: "2012-10-17",
@@ -381,14 +470,15 @@ async function createAppSyncAPI() {
             },
           ],
         }),
-        PolicyName: NAME+"LambdaInvokePolicy",
+        PolicyName: policyName,
       }
     );
     let response = await iamClient.send(command);
     const policyARN = response.Policy.Arn;
     storeResource({LambdaInvokePolicy: policyARN});
-    if (!quiet) spinner.succeed('Lambda invocation policy ARN: ' + yellow(policyARN));
-
+    succeedSpinner('Lambda invocation policy created: ' + yellow(policyName), {logLevel: 'debug'});
+    loggerInfo('Created lambda invoke policy');
+    let roleName = NAME +"LambdaInvocationRole";
     let params = {
         AssumeRolePolicyDocument: JSON.stringify({
             Version: "2012-10-17",
@@ -402,29 +492,29 @@ async function createAppSyncAPI() {
                 }          
             ]
         }),
-        RoleName: NAME +"LambdaInvocationRole"
+        RoleName: roleName
     };
 
-    if (!quiet) spinner = ora('Creating role for Lambda invocation ...').start();
+    startSpinner('Creating role for Lambda invocation ...', true);
     response = await iamClient.send(new CreateRoleCommand(params));        
     const LAMBDA_INVOCATION_ROLE = response.Role.Arn;        
-    storeResource({LambdaInvokeRole: NAME +"LambdaInvocationRole"});
+    storeResource({LambdaInvokeRole: roleName});
     sleep(5000);
-    if (!quiet) spinner.succeed('Lambda invocation role ARN: ' + yellow(LAMBDA_INVOCATION_ROLE));
-    
-    if (!quiet) spinner = ora('Attaching policy ...').start();
+    succeedSpinner('Lambda invocation role created: ' + yellow(roleName), {logLevel: 'debug'});
+    loggerInfo('Created lambda invocation role');
+
+    startSpinner('Attaching policy ...', true);
     params = {
-        RoleName: NAME +"LambdaInvocationRole",
+        RoleName: roleName,
         PolicyArn: policyARN,
     };
     command = new AttachRolePolicyCommand(params);
     await iamClient.send(command);
-    if (!quiet) spinner.succeed('Attached policy to role');
-
+    succeedSpinner('Attached policy to role', {logLevel: 'info'});
     // APPSync API
     const appSyncClient = new AppSyncClient({region: REGION});
 
-    if (!quiet) spinner = ora('Creating AppSync API ...').start();
+    startSpinner('Creating AppSync API ...', true);
     params = {
         name: NAME + 'API',
         authenticationType: "API_KEY",      
@@ -435,19 +525,18 @@ async function createAppSyncAPI() {
     response = await appSyncClient.send(command);
     const apiId = response.graphqlApi.apiId;
     storeResource({AppSyncAPI: apiId});
-    if (!quiet) spinner.succeed('Created API id: ' + yellow(apiId) + ' name: ' + yellow(NAME + 'API'));
-
+    succeedSpinner('Created API: ' + yellow(NAME + 'API', {logLevel: 'debug'}));
+    loggerInfo('Created App Sync API');
 
     // create Key
-    if (!quiet) spinner = ora('Creating API key ...').start();
+    startSpinner('Creating API key ...', true);
     command = new CreateApiKeyCommand({apiId: apiId});
     response = await appSyncClient.send(command);
     const apiKey = response.apiKey.id;
-    if (!quiet) spinner.succeed('Created API key: ' + yellow(apiKey));
-
+    succeedSpinner('Created API key', {logLevel: 'info'});
 
     // create datasource
-    if (!quiet) spinner = ora('Creating DataSource ...').start();
+    startSpinner('Creating DataSource ...', true);
     params = {
         apiId: apiId,
         name: NAME + 'DataSource',       
@@ -459,11 +548,11 @@ async function createAppSyncAPI() {
     };    
     command = new CreateDataSourceCommand(params);
     response = await appSyncClient.send(command);
-    if (!quiet) spinner.succeed('Created DataSource: ' + yellow(NAME+'DataSource'));
-
+    succeedSpinner('Created DataSource: ' + yellow(NAME+'DataSource'), {logLevel: 'debug'});
+    loggerInfo('Created datasource');
 
     // create function
-    if (!quiet) spinner = ora('Creating Function ...').start();
+    startSpinner('Creating Function ...', true);
     params = {
         apiId: apiId,
         name: NAME+'Function',       
@@ -497,10 +586,11 @@ export function response(ctx) {
     await sleep(5000);
     let functionId = response.functionConfiguration.functionId;    
     storeResource({AppSyncAPIFunction: functionId});
-    if (!quiet) spinner.succeed('Created Function: ' + yellow(NAME+'Function'));
+    succeedSpinner('Created Function: ' + yellow(NAME+'Function'), {logLevel: 'debug'});
+    loggerInfo('Created function');
 
     // Upload schema
-    if (!quiet) spinner = ora('Uploading schema ...').start();
+    startSpinner('Uploading schema ...', true);
     let encoder = new TextEncoder();
     let definition = encoder.encode(APPSYNC_SCHEMA);
     params = { 
@@ -510,7 +600,7 @@ export function response(ctx) {
     command = new StartSchemaCreationCommand(params);
     response = await appSyncClient.send(command);    
     await sleep(5000);
-    if (!quiet) spinner.succeed('Added schema');
+    succeedSpinner('Added schema', {logLevel: 'info'});
     
     await attachResolvers(appSyncClient, apiId, functionId);
 }
@@ -531,8 +621,8 @@ async function getSchemaFields(typeName) {
 }
 
 
-async function attachResolvers(client, apiId, functionId) {   
-        
+async function attachResolvers(client, apiId, functionId) {
+    loggerInfo('Attaching resolvers');
     const queries = await getSchemaFields("Query");
     let mutations = [];
     
@@ -584,14 +674,17 @@ async function attachResolvers(client, apiId, functionId) {
             }
         }
     }
-
+    loggerInfo('Finished attaching resolvers');
 }
 
 
 async function attachResolverToSchemaField (client, apiId, functionId, typeName, fieldName) {
     
     // attach resolvers to schema
-    if (!quiet) spinner = ora('Attaching resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName) + ' ...').start();
+    const startMsg = 'Attaching resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName) + ' ...';
+    startSpinner(startMsg);
+    loggerDebug(startMsg);
+
     const input = {
         apiId: apiId,
         typeName: typeName,
@@ -622,7 +715,9 @@ export function response(ctx) {
       const command = new CreateResolverCommand(input);
       await client.send(command);
       await sleep(200);
-      if (!quiet) spinner.succeed('Attached resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName));
+      const endMsg = 'Attached resolver to schema type ' + yellow(typeName) + ' field ' + yellow(fieldName);
+      succeedSpinner(endMsg);
+      loggerDebug(endMsg);
 }
 
 
@@ -633,33 +728,40 @@ async function removeAWSpipelineResources(resources, quietI) {
     const iamClient = new IAMClient({region: resources.region});
     
     // Appsync API
-    if (!quiet) spinner = ora('Deleting AppSync API ...').start();
+    startSpinner('Deleting AppSync API ...', true);
+
     try {
         const input = { 
             apiId:  resources.AppSyncAPI
         };
         const command = new DeleteGraphqlApiCommand(input);
         await appSyncClient.send(command);
-        if (!quiet) spinner.succeed('Deleted API id: ' + yellow(resources.AppSyncAPI));
+        succeedSpinner('Deleted API id: ' + yellow(resources.AppSyncAPI), {logLevel: 'debug'});
+        loggerInfo('Deleted AppSync API')
     } catch (error) {
-        if (!quiet) spinner.fail('AppSync API delete failed: ' + error);
+        const message = 'AppSync API delete failed';
+        failSpinner(message);
+        loggerError(message, error);
     }
     
     // Lambda
-    if (!quiet) spinner = ora('Deleting Lambda function ...').start();
+    startSpinner('Deleting Lambda function ...', true);
     try {
         const input = {
             FunctionName: resources.LambdaFunction 
         };
         const command = new DeleteFunctionCommand(input);        
         await lambdaClient.send(command);
-        if (!quiet) spinner.succeed('Lambda function deleted: ' + yellow(resources.LambdaFunction));
+        succeedSpinner('Deleted Lambda function: ' + yellow(resources.LambdaFunction), {logLevel: 'debug'});
+        loggerInfo('Deleted Lambda')
     } catch (error) {
-        if (!quiet) spinner.fail('Lambda function fail to delete: ' + error);
+        const message = 'Lambda function failed to delete';
+        failSpinner(message);
+        loggerError(message, error);
     }    
     
     // Lambda execution role
-    if (!quiet) spinner = ora('Detaching IAM policies from role ...').start();
+    startSpinner('Detaching first IAM policy from role ...', true);
     try {
         let input = { 
             PolicyArn: resources.LambdaExecutionPolicy1,
@@ -667,12 +769,15 @@ async function removeAWSpipelineResources(resources, quietI) {
         };
         let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole));
+        succeedSpinner('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole), {logLevel: 'debug'});
+        loggerInfo('Detached first IAM policy from role');
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);
+        let message = 'Detach first policy failed';
+        failSpinner(message);
+        loggerError(message, error);
     }
 
-    if (!quiet) spinner = ora('Detaching IAM policies from role ...').start();
+    startSpinner('Detaching second IAM policy from role ...', true);
     try {
         let input = { 
             PolicyArn: resources.LambdaExecutionPolicy2,
@@ -680,41 +785,50 @@ async function removeAWSpipelineResources(resources, quietI) {
         };
         let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaExecutionPolicy2) + " from role: " + yellow(resources.LambdaExecutionRole));
+        succeedSpinner('Detached IAM policy: ' + yellow(resources.LambdaExecutionPolicy2) + " from role: " + yellow(resources.LambdaExecutionRole), {logLevel: 'debug'});
+        loggerInfo('Detached second IAM policy from role');
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);
+        const message = 'Detach second IAM policy failed';
+        failSpinner(message);
+        loggerError(message, error);
     }
     
     // Delete Neptune query Policy
     if (resources.NeptuneQueryPolicy != undefined) {
-        if (!quiet) spinner = ora('Deleting policy ...').start();
+        startSpinner('Deleting query policy ...', true);
         try {
             const input = {
                 PolicyArn: resources.NeptuneQueryPolicy,
             };
             const command = new DeletePolicyCommand(input);     
             await iamClient.send(command);
-            if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.NeptuneQueryPolicy));
+            succeedSpinner('Deleted query policy: ' + yellow(resources.NeptuneQueryPolicy), {logLevel: 'debug'});
+            loggerInfo('Deleted query policy');
         } catch (error) {
-            if (!quiet) spinner.fail('Delete policy failed: ' + error);
+            const message = 'Delete query policy failed';
+            failSpinner(message);
+            loggerError(message, error);
         }
     }
 
     // Delete Role
-    if (!quiet) spinner = ora('Deleting role ...').start();
+    startSpinner('Deleting execution role ...', true);
     try {
         const input = {
             RoleName: resources.LambdaExecutionRole,
         };
         const command = new DeleteRoleCommand(input);        
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaExecutionRole));
+        succeedSpinner('Deleted execution role: ' + yellow(resources.LambdaExecutionRole), {logLevel: 'debug'});
+        loggerInfo('Deleted execution role');
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);
+        const message = 'Delete execution role failed';
+        failSpinner(message);
+        loggerError(message, error);
     }
     
     // AppSync Lambda role
-    if (!quiet) spinner = ora('Detaching policy from AppSync Lambda role ...').start();
+    startSpinner('Detaching invoke policy from AppSync Lambda role ...', true);
     try {
         let input = { 
             PolicyArn: resources.LambdaInvokePolicy,
@@ -722,41 +836,50 @@ async function removeAWSpipelineResources(resources, quietI) {
         };
         let command = new DetachRolePolicyCommand(input);        
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Detached policy: ' + yellow(resources.LambdaInvokePolicy) + " from role: " + yellow(resources.LambdaInvokeRole));
+        succeedSpinner('Detached invoke policy: ' + yellow(resources.LambdaInvokePolicy) + " from role: " + yellow(resources.LambdaInvokeRole), {logLevel: 'debug'});
+        loggerInfo('Detached invoke policy');
     } catch (error) {
-        if (!quiet) spinner.fail('Detach policy failed: ' + error);
+        const message = 'Detach invoke policy failed';
+        failSpinner(message);
+        loggerError(message, error);
     }
 
     // Delete Policy
-    if (!quiet) spinner = ora('Deleting policy ...').start();
+    startSpinner('Deleting invoke policy ...', true);
     try {
         const input = {
             PolicyArn: resources.LambdaInvokePolicy,
         };
         const command = new DeletePolicyCommand(input);     
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Deleted policy: ' + yellow(resources.LambdaInvokePolicy));
+        succeedSpinner('Deleted invoke policy: ' + yellow(resources.LambdaInvokePolicy), {logLevel: 'debug'});
+        loggerInfo('Deleted invoke policy');
     } catch (error) {
-        if (!quiet) spinner.fail('Delete policy failed: ' + error);
+        const message = 'Delete invoke policy failed';
+        failSpinner(message);
+        loggerError(message, error);
     }
    
     // Delete Role
-    if (!quiet) spinner = ora('Deleting role ...').start();
+    startSpinner('Deleting invoke role ...', true);
     try {
         const input = {
             RoleName: resources.LambdaInvokeRole,
         };
         const command = new DeleteRoleCommand(input);        
         await iamClient.send(command);
-        if (!quiet) spinner.succeed('Deleted role: ' + yellow(resources.LambdaInvokeRole));
+        succeedSpinner('Deleted invoke role: ' + yellow(resources.LambdaInvokeRole), {logLevel: 'debug'});
+        loggerInfo('Deleted invoke role');
     } catch (error) {
-        if (!quiet) spinner.fail('Delete role failed: ' + error);
+        const message = 'Delete invoke role failed';
+        failSpinner(message);
+        loggerError(message, error);
     }    
 }
 
 
 async function updateLambdaFunction(resources) {
-    if (!quiet) spinner = ora('Updating Lambda function code ...').start();
+    startSpinner('Updating Lambda function code ...', true);
     const lambdaClient = new LambdaClient({region: resources.region});
     const input = {
         FunctionName: resources.LambdaFunction,
@@ -764,14 +887,15 @@ async function updateLambdaFunction(resources) {
     };
     const command = new UpdateFunctionCodeCommand(input);
     await lambdaClient.send(command);
-    if (!quiet) spinner.succeed('Lambda function code updated: ' + yellow(resources.LambdaFunction));
+    succeedSpinner('Lambda function code updated: ' + yellow(resources.LambdaFunction), {logLevel: 'debug'});
+    loggerInfo('Lambda function code updated');
 }
 
 
 async function updateAppSyncAPI(resources) {    
     const appSyncClient = new AppSyncClient({region: resources.region});
 
-    if (!quiet) spinner = ora('Updating AppSync API schema ...').start();
+    startSpinner('Updating AppSync API schema ...', true);
     let encoder = new TextEncoder();
     let definition = encoder.encode(APPSYNC_SCHEMA);
 
@@ -782,7 +906,7 @@ async function updateAppSyncAPI(resources) {
     let command = new StartSchemaCreationCommand(params);
     await appSyncClient.send(command);    
     await sleep(5000);
-    if (!quiet) spinner.succeed('Schema updated');
+    succeedSpinner('AppSync API Schema updated', {logLevel: 'info'});
   
     await attachResolvers(appSyncClient, resources.AppSyncAPI, resources.AppSyncAPIFunction);
 }
@@ -818,32 +942,32 @@ async function createUpdateAWSpipeline (    pipelineName,
     thisOutputFolderPath = outputFolderPath;
     NEPTUNE_TYPE = neptuneType;
 
-    if (!quiet) console.log('\nCheck if the pipeline resources have been created');
+    loggerInfo('Creating or updating AWS pipeline resources ...', {toConsole: true});
     await checkPipeline();
 
     if (!pipelineExists) {
+        loggerInfo('Creating AWS pipeline resources', {toConsole: true});
         try {
             storeResource({region: REGION});
 
             if (NEPTUNE_TYPE === NEPTUNE_DB) {
                 try {
-                    if (!quiet) console.log('Get Neptune Cluster Info');
-                    if (!quiet) spinner = ora('Getting ...').start();
+                    startSpinner('Getting Neptune Cluster Info ...', true);
                     await setNeptuneDbClusterInfo();
-                    if (!quiet) spinner.succeed('Got Neptune Cluster Info');
+                    succeedSpinner('Retrieved Neptune Cluster Info', {logLevel: 'info'});
                     if (isNeptuneIAMAuth) {
                         if (!NEPTUNE_CURRENT_IAM) {
-                            console.error("The Neptune database authentication is set to VPC.");
-                            console.error("Remove the --create-update-aws-pipeline-neptune-IAM option.");
+                            loggerError('The Neptune database authentication is set to VPC.');
+                            loggerError('Remove the --create-update-aws-pipeline-neptune-IAM option.');
                             exit(1);
                         }
                     } else {
                         if (NEPTUNE_CURRENT_IAM) {
-                            console.error("The Neptune database authentication is set to IAM.");
-                            console.error("Add the --create-update-aws-pipeline-neptune-IAM option.");
+                            loggerError('The Neptune database authentication is set to IAM.');
+                            loggerError('Add the --create-update-aws-pipeline-neptune-IAM option.');
                             exit(1);
                         } else {
-                            if (!quiet) console.log(`Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup));
+                            loggerDebug(`Subnet Group: ` + yellow(NEPTUNE_DBSubnetGroup), {toConsole: true});
                         }
                     }
 
@@ -851,67 +975,66 @@ async function createUpdateAWSpipeline (    pipelineName,
                         const v = NEPTUNE_CURRENT_VERSION;
                         if (lambdaFilesPath.includes('SDK') == true &&
                             (v == '1.2.1.0' || v == '1.2.0.2' || v == '1.2.0.1' || v == '1.2.0.0' || v == '1.1.1.0' || v == '1.1.0.0')) {
-                            console.error("Neptune SDK query is supported starting with Neptune versions 1.2.2.0");
-                            console.error("Switch to Neptune HTTPS query with option --output-resolver-query-https");
+                            loggerError("Neptune SDK query is supported starting with Neptune versions 1.2.2.0");
+                            loggerError("Switch to Neptune HTTPS query with option --output-resolver-query-https");
                             exit(1);
                         }
                     }
 
                 } catch (error) {
-                    if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
+                    let message = 'Error getting Neptune Cluster Info.';
+                    failSpinner(message);
+                    loggerError(message, error);
                     if (!isNeptuneIAMAuth) {
-                        console.error("VPC data is not available to proceed.");
+                        loggerError("VPC data is not available to proceed.");
                         exit(1);
                     } else {
-                        if (!quiet) console.log("Could not read the database ARN to restrict the Lambda permissions. \nTo increase security change the resource in the Neptune Query policy.")
-                        if (!quiet) console.log("Proceeding without getting Neptune Cluster info.");
+                        loggerInfo("Could not read the database ARN to restrict the Lambda permissions. To increase security change the resource in the Neptune Query policy.", {toConsole: true});
+                        loggerInfo("Proceeding without getting Neptune Cluster info.", {toConsole: true});
                     }
                 }
             }
-            if (!quiet) console.log('Create ZIP');
-            if (!quiet) spinner = ora('Creating ZIP ...').start();
+
+            startSpinner('Creating ZIP ...', true);
             ZIP = await createDeploymentPackage(LAMBDA_FILES_PATH)
-            if (!quiet) spinner.succeed('Created ZIP File: ' + yellow(LAMBDA_FILES_PATH));
+            succeedSpinner('Created ZIP File: ' + yellow(LAMBDA_FILES_PATH), {logLevel: 'info'});
 
-            if (!quiet) console.log('Create Lambda execution role');
-            await createLambdaRole();            
-
-            if (!quiet) console.log('Create Lambda function');
-            await createLambdaFunction();            
-
-            if (!quiet) console.log('Create AppSync API');
+            await createLambdaRole();
+            await createLambdaFunction();
             await createAppSyncAPI();            
 
-            if (!quiet) console.log('Saved resorces to file: ' + yellow(RESOURCES_FILE));
+            loggerInfo('Saved resources to file: ' + yellow(RESOURCES_FILE), {toConsole: true});
 
         } catch (error) {
-            if (!quiet) spinner.fail('Error creating resources: ' + error);
-            console.error('Rolling back resources.');
+            const message= 'Error creating resources';
+            failSpinner(message);
+            loggerError(message, error);
+            loggerError('Rolling back resources.');
             await removeAWSpipelineResources(RESOURCES, quiet);
-            return;
         }
 
     } else {
-        if (!quiet) console.log('Update resources');
+        loggerInfo('Updating AWS pipeline resources', {toConsole: true});
         let resources = null;
         try {
-            if (!quiet) spinner = ora('Loading resources file ...').start();
+            startSpinner('Loading resources file ...', true);
             resources = JSON.parse(fs.readFileSync(RESOURCES_FILE, 'utf8'));
-            if (!quiet) spinner.succeed('Loaded resources from file: ' + yellow(RESOURCES_FILE));
+            succeedSpinner('Loaded resources from file: ' + yellow(RESOURCES_FILE), {logLevel: 'info'});
         } catch (error) {
-            if (!quiet) spinner.warn('Error loading resources file: ' + RESOURCES_FILE + ' ' + error);
+            const message = 'Error loading resources file' + RESOURCES_FILE;
+            if (!quiet) spinner.warn(message);
+            loggerError(message, error);
             return;
         }  
-        
-        if (!quiet) console.log('Create ZIP');
-        if (!quiet) spinner = ora('Creating ZIP ...').start();
-        ZIP = await createDeploymentPackage(LAMBDA_FILES_PATH)
-        if (!quiet) spinner.succeed('File: ' + yellow(LAMBDA_FILES_PATH));
 
-        if (!quiet) console.log('Update Lambda function');
+        startSpinner('Creating ZIP ...', true);
+        ZIP = await createDeploymentPackage(LAMBDA_FILES_PATH)
+        succeedSpinner('Created ZIP File: ' + yellow(LAMBDA_FILES_PATH), {logLevel: 'info'});
+
+        loggerInfo('Updating Lambda function', {toConsole: true});
         await updateLambdaFunction(resources);
 
-        if (!quiet) console.log('Update AppSync API');
+        loggerInfo('Updating AppSync API', {toConsole: true});
         await updateAppSyncAPI(resources);
     }
 }

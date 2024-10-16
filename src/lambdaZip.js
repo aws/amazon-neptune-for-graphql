@@ -1,5 +1,6 @@
 import fs from 'fs';
 import archiver from 'archiver';
+import { loggerError } from "./logger.js";
 
 async function createLambdaDeploymentPackage(templatePath, zipFilePath) {
     try {       
@@ -10,7 +11,7 @@ async function createLambdaDeploymentPackage(templatePath, zipFilePath) {
         archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
         await archive.finalize();
     } catch (error) {
-        console.error('Lambda deployment package creation failed. '+ error);
+        loggerError('Lambda deployment package creation failed', error);
     }
 }
 
