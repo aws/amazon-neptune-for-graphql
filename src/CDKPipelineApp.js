@@ -167,6 +167,10 @@ async function createAWSpipelineCDK({
     CDKFile = CDKFile.replace( "const NEPTUNE_DB_NAME = '';",                `const NEPTUNE_DB_NAME = '${NEPTUNE_DB_NAME}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_TYPE = '';",                   `const NEPTUNE_TYPE = '${NEPTUNE_TYPE}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
+    if (neptuneClusterInfo) {
+        CDKFile = CDKFile.replace("const NEPTUNE_DBSubnetIds = null;",       `const NEPTUNE_DBSubnetIds = '${neptuneClusterInfo.dbSubnetIds}';`);
+        CDKFile = CDKFile.replace("const NEPTUNE_VpcSecurityGroupId = null;",`const NEPTUNE_VpcSecurityGroupId = '${neptuneClusterInfo.vpcSecurityGroupId}';`);
+    }
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_POLICY_RESOURCE = '*';",   `const NEPTUNE_IAM_POLICY_RESOURCE = '${NEPTUNE_IAM_POLICY_RESOURCE}';` );
 

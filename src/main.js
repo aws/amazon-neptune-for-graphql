@@ -29,7 +29,7 @@ let spinner = null;
 // find global installation dir
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { parseNeptuneDomainFromEndpoint } from "./util.js";
+import { parseNeptuneEndpoint } from "./util.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -63,7 +63,7 @@ let createUpdatePipelineNeptuneDatabaseName = '';
 let removePipelineName = '';
 let inputCDKpipeline = false;
 let inputCDKpipelineName = '';
-let inputCDKpipelineEnpoint = '';
+let inputCDKpipelineEndpoint = '';
 let inputCDKpipelineFile = '';
 let inputCDKpipelineRegion = '';
 let inputCDKpipelineDatabaseName = '';
@@ -212,10 +212,14 @@ function processArgs() {
                 inputCDKpipeline = true;            
             break;
             case '-ce':
+            // support miss-spelled option for backwards compatibility - could be removed for next major release
+            case '--output-aws-pipeline-cdk-neptume-endpoint':
             case '--output-aws-pipeline-cdk-neptune-endpoint':
-                inputCDKpipelineEnpoint = array[index + 1];
+                inputCDKpipelineEndpoint = array[index + 1];
             break;
             case '-cd':
+            // support miss-spelled option for backwards compatibility - could be removed for next major release
+            case '--output-aws-pipeline-cdk-neptume-database-name':
             case '--output-aws-pipeline-cdk-neptune-database-name':
                 inputCDKpipelineDatabaseName = array[index + 1];
             break;
@@ -285,37 +289,31 @@ async function main() {
         }
     }
 
+
+    let neptuneInfo;
     // Check if any of the Neptune endpoints are a neptune analytic endpoint and if so, set the neptuneType and IAM to required
-    const nonEmptyEndpoints = [inputGraphDBSchemaNeptuneEndpoint, createUpdatePipelineEndpoint, inputCDKpipelineEnpoint].filter(endpoint => endpoint !== '');
-    const isNeptuneAnalyticsGraph = nonEmptyEndpoints.length > 0 && parseNeptuneDomainFromEndpoint(nonEmptyEndpoints[0]).includes(NEPTUNE_GRAPH);
-    if (isNeptuneAnalyticsGraph) {
-        neptuneType = NEPTUNE_GRAPH;
-        // neptune analytics requires IAM
-        loggerInfo("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
-        isNeptuneIAMAuth = true;
+    // only one of these endpoints are expected to be non-empty at the same time
+    const nonEmptyEndpoints = [inputGraphDBSchemaNeptuneEndpoint, createUpdatePipelineEndpoint, inputCDKpipelineEndpoint].filter(endpoint => endpoint !== '');
+    if (nonEmptyEndpoints.length > 0) {
+        neptuneInfo = parseNeptuneEndpoint(nonEmptyEndpoints[0]);
+        neptuneType = neptuneInfo.neptuneType;
+        if (neptuneType === NEPTUNE_GRAPH) {
+            // neptune analytics requires IAM
+            loggerInfo("Detected neptune-graph from input endpoint - setting IAM auth to true as it is required for neptune analytics")
+            isNeptuneIAMAuth = true;
+        }
     }
 
     // Get Neptune schema from endpoint
     if (inputGraphDBSchemaNeptuneEndpoint != '' && inputGraphDBSchema == '' && inputGraphDBSchemaFile == '') {
-        let endpointParts = inputGraphDBSchemaNeptuneEndpoint.split(':');
-        if (endpointParts.length != 2) {
-            loggerError('Neptune endpoint must be in the form of host:port');
-            process.exit(1);
+        if (!neptuneInfo) {
+            neptuneInfo = parseNeptuneEndpoint(inputGraphDBSchemaNeptuneEndpoint);
         }
-        let neptuneHost = endpointParts[0];
-        let neptunePort = endpointParts[1];
-
-        let neptuneRegionParts = inputGraphDBSchemaNeptuneEndpoint.split('.');
-        let neptuneRegion = '';
-        if (neptuneType === NEPTUNE_DB)
-            neptuneRegion = neptuneRegionParts[2];
-        else
-            neptuneRegion = neptuneRegionParts[1];
 
         loggerInfo('Retrieving Neptune schema');
-        loggerDebug('Getting Neptune schema from endpoint: ' + yellow(neptuneHost + ':' + neptunePort), {toConsole: true});
+        loggerDebug('Getting Neptune schema from endpoint: ' + yellow(inputGraphDBSchemaNeptuneEndpoint), {toConsole: true});
 
-        setGetNeptuneSchemaParameters(neptuneHost, neptunePort, neptuneRegion, neptuneType);
+        setGetNeptuneSchemaParameters(neptuneInfo);
         let startTime = performance.now();
         inputGraphDBSchema = await getNeptuneSchema();
         let endTime = performance.now();
@@ -372,15 +370,11 @@ async function main() {
             process.exit(1);
         }
         if (createUpdatePipelineEndpoint != '') {
-            let parts = createUpdatePipelineEndpoint.split('.');
-            createUpdatePipelineNeptuneDatabaseName = parts[0];
-
-            let parsedRegion;
-            if (neptuneType === NEPTUNE_DB) {
-                parsedRegion = parts[2];
-            } else {
-                parsedRegion = parts[1];
+            if (!neptuneInfo) {
+                neptuneInfo = parseNeptuneEndpoint(createUpdatePipelineEndpoint);
             }
+            createUpdatePipelineNeptuneDatabaseName = neptuneInfo.graphName;
+            const parsedRegion = neptuneInfo.region;
 
             if (createUpdatePipelineRegion !== parsedRegion) {
                 if (createUpdatePipelineRegion !== '') {
@@ -399,27 +393,37 @@ async function main() {
     // CDK
     if (inputCDKpipeline) {
         if (!inputGraphDBSchemaNeptuneEndpoint == '') {
-            inputCDKpipelineEnpoint = inputGraphDBSchemaNeptuneEndpoint;
+            inputCDKpipelineEndpoint = inputGraphDBSchemaNeptuneEndpoint;
         }
-        if (inputCDKpipelineEnpoint == '' &&
+        if (inputCDKpipelineEndpoint == '' &&
             inputCDKpipelineRegion == '' && inputCDKpipelineDatabaseName == '') {
             loggerError('AWS CDK: is required a Neptune endpoint, or a Neptune database name and region.');
             process.exit(1);
         }
-        if (inputCDKpipelineEnpoint == '' &&
+        if (inputCDKpipelineEndpoint == '' &&
             !inputCDKpipelineRegion == '' && inputCDKpipelineDatabaseName == '') {
             loggerError('AWS CDK: a Neptune database name is required.');
             process.exit(1);
         }
-        if (inputCDKpipelineEnpoint == '' &&
+        if (inputCDKpipelineEndpoint == '' &&
             inputCDKpipelineRegion == '' && !inputCDKpipelineDatabaseName == '') {
             loggerError('AWS CDK: a Neptune database region is required.');
             process.exit(1);
         }    
-        if (inputCDKpipelineEnpoint != '') {
-            let parts = inputCDKpipelineEnpoint.split('.');
-            inputCDKpipelineDatabaseName = parts[0];
-            inputCDKpipelineRegion = parts[2];
+        if (inputCDKpipelineEndpoint != '') {
+            if (!neptuneInfo) {
+                neptuneInfo = parseNeptuneEndpoint(inputCDKpipelineEndpoint);
+            }
+            inputCDKpipelineDatabaseName = neptuneInfo.graphName;
+            const parsedRegion = neptuneInfo.region;
+            if (inputCDKpipelineRegion !== parsedRegion) {
+                if (inputCDKpipelineRegion !== '') {
+                    loggerInfo('Switching CDK region from ' + inputCDKpipelineRegion + ' to region parsed from endpoint: ' + parsedRegion);
+                } else {
+                    loggerInfo('Region parsed from CDK endpoint: ' + parsedRegion);
+                }
+                inputCDKpipelineRegion = parsedRegion;
+            }
         }
         if (inputCDKpipelineName == '') {
             inputCDKpipelineName = inputCDKpipelineDatabaseName;
@@ -576,13 +580,11 @@ async function main() {
         // Create Update AWS Pipeline
         if (createUpdatePipeline) {
             try {
-                let endpointParts = createUpdatePipelineEndpoint.split(':');
-                if (endpointParts.length < 2) {
-                    loggerError('Neptune endpoint must be in the form of host:port');
-                    process.exit(1);
+                if (!neptuneInfo) {
+                    neptuneInfo = parseNeptuneEndpoint(createUpdatePipelineEndpoint);
                 }
-                let neptuneHost = endpointParts[0];
-                let neptunePort = endpointParts[1];
+                let neptuneHost = neptuneInfo.host;
+                let neptunePort = neptuneInfo.port;
 
                 await createUpdateAWSpipeline(  createUpdatePipelineName, 
                                                 createUpdatePipelineNeptuneDatabaseName, 
@@ -608,14 +610,11 @@ async function main() {
             try {
                 loggerInfo('Creating CDK File', {toConsole: true});
 
-                let endpointParts = inputCDKpipelineEnpoint.split(':');
-                if (endpointParts.length < 2) {
-                    loggerError('Neptune endpoint must be in the form of host:port');
-                    process.exit(1);
+                if (!neptuneInfo) {
+                    neptuneInfo = parseNeptuneEndpoint(inputCDKpipelineEndpoint);
                 }
-                let neptuneHost = endpointParts[0];
-                let neptunePort = endpointParts[1];
-
+                let neptuneHost = neptuneInfo.host;
+                let neptunePort = neptuneInfo.port;
                 
                 if (inputCDKpipelineFile == '') {                
                     inputCDKpipelineFile = `${outputFolderPath}/${inputCDKpipelineName}-cdk.js`;
