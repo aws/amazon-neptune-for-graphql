@@ -55,9 +55,7 @@ const schema = {
 };
 
 function sanitize(text) {
-    // TODO implement sanitization logic
-    // placeholder for sanitization of query text that cannot be parameterized
-    return text;
+    return `\`${text}\``;
 }
 
 /**
@@ -446,7 +444,7 @@ async function getNeptuneSchema() {
     await getEdgesDirections();
     
     await getEdgesDirectionsCardinality();
-    
+
     return JSON.stringify(schema, null, 2);
 }
 

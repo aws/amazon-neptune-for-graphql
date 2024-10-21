@@ -5,7 +5,7 @@
     "parameters": {
         "getNodeAirport_Airport_code": "SEA"
     },
-    "resolved": "MATCH (getNodeAirport_Airport:airport{code: $getNodeAirport_Airport_code})\nOPTIONAL MATCH (getNodeAirport_Airport)-[getNodeAirport_Airport_outboundRoutesCount_r:route]->(getNodeAirport_Airport_outboundRoutesCount_a)\nWITH getNodeAirport_Airport, count(getNodeAirport_Airport_outboundRoutesCount_r) AS getNodeAirport_Airport_outboundRoutesCount\nRETURN {outboundRoutesCount:getNodeAirport_Airport_outboundRoutesCount} LIMIT 1",
+    "resolved": "MATCH (getNodeAirport_Airport:`airport`{code: $getNodeAirport_Airport_code})\nOPTIONAL MATCH (getNodeAirport_Airport)-[getNodeAirport_Airport_outboundRoutesCount_r:route]->(getNodeAirport_Airport_outboundRoutesCount_a)\nWITH getNodeAirport_Airport, count(getNodeAirport_Airport_outboundRoutesCount_r) AS getNodeAirport_Airport_outboundRoutesCount\nRETURN {outboundRoutesCount:getNodeAirport_Airport_outboundRoutesCount} LIMIT 1",
     "result":{
         "outboundRoutesCount": 122
     }

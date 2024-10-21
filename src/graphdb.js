@@ -38,7 +38,7 @@ function checkForDuplicateNames(schema) {
 }
 
 
-// Write a function that takes an input a string and return the string lowercase except the first charachter uppercase
+// Write a function that takes an input a string and return the string lowercase except the first character uppercase
 function toPascalCase (str) {
     let r = '';
     if (changeCase) {        
@@ -52,6 +52,25 @@ function toPascalCase (str) {
     return r.trim();
 }
 
+// Changes every instance of invalid characters in the given label with the following abbreviations
+function cleanseLabel(label) {
+    return label
+        .replaceAll("!", "_ex_")
+        .replaceAll("$", "_dol_")
+        .replaceAll("&", "_amp_")
+        .replaceAll("(", "_op_")
+        .replaceAll(")", "_cp_")
+        .replaceAll(".", "_dot_")
+        .replaceAll(":", "_cn_")
+        .replaceAll("=", "_eq_")
+        .replaceAll("@", "_at_")
+        .replaceAll("[", "_os_")
+        .replaceAll("]", "_cs_")
+        .replaceAll("{", "_oc_")
+        .replaceAll("|", "_vb_")
+        .replaceAll("}", "_cc_")
+        .replaceAll("-", "_hy_");
+}
 
 function graphDBInferenceSchema (graphbSchema, addMutations) {
     let r = '';
@@ -61,35 +80,47 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
     gdbs.nodeStructures.forEach(node => {
         // node type
-        let nodeCase = node.label;
+        let nodeCase = cleanseLabel(node.label);
         if (changeCase) {
-            nodeCase = toPascalCase(node.label); 
+            nodeCase = toPascalCase(nodeCase);
+        }
+
+        if (node.label !== nodeCase) {
             r += `type ${nodeCase} @alias(property:"${node.label}") {\n`;
-        } else {
+        }
+        else {
             r += `type ${nodeCase} {\n`;
         }
         
         r += '\t_id: ID! @id\n';
 
         node.properties.forEach(property => {
-            if (property.name == 'id')
+            if (property.name === 'id') {
                 r+= `\tid: ID\n`;
-            else
-                r+= `\t${property.name}: ${property.type}\n`;
+            }
+            else {
+                let propertyCase = cleanseLabel(property.name);
+                let alias = '';
+                if (property.name !== propertyCase) {
+                    alias = ` @alias(property: "${property.name}")`;
+                }
+                r+= `\t${propertyCase}: ${property.type}${alias}\n`;
+            }
         });
         
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
             edge.directions.forEach(direction => {
-                let fromCase = toPascalCase(direction.from);
-                let toCase = toPascalCase(direction.to);
-                let edgeCase = toPascalCase(edge.label);
-                if (direction.from == node.label && direction.to == node.label){
-                    if (direction.relationship == 'MANY-MANY') {
+                let fromCase = toPascalCase(cleanseLabel(direction.from));
+                let toCase = toPascalCase(cleanseLabel(direction.to));
+                let edgeCase = toPascalCase(cleanseLabel(edge.label));
+
+                if (direction.from === node.label && direction.to === node.label){
+                    if (direction.relationship === 'MANY-MANY') {
                         r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;                    
+                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
-                    if (direction.relationship == 'ONE-ONE') {
+                    if (direction.relationship === 'ONE-ONE') {
                         r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}Out: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                         r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}In: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
@@ -97,29 +128,29 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                         edgeTypes.push(edge.label);                                      
                 }
                 
-                if (direction.from == node.label && direction.to != node.label){
-                    if (direction.relationship == 'MANY-MANY') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`
+                if (direction.from === node.label && direction.to !== node.label){
+                    if (direction.relationship === 'MANY-MANY') {
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
-                    if (direction.relationship == 'ONE-MANY') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`
+                    if (direction.relationship === 'ONE-MANY') {
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
-                    if (direction.relationship == 'MANY-ONE') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`
+                    if (direction.relationship === 'MANY-ONE') {
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
                 }
                 
-                if (direction.from != node.label && direction.to == node.label){
-                    if (direction.relationship == 'MANY-MANY') {
+                if (direction.from !== node.label && direction.to === node.label){
+                    if (direction.relationship === 'MANY-MANY') {
                         r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`                       
                     }
-                    if (direction.relationship == 'ONE-MANY') {
-                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n` 
+                    if (direction.relationship === 'ONE-MANY') {
+                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
-                    if (direction.relationship == 'MANY-ONE') {
-                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`
+                    if (direction.relationship === 'MANY-ONE') {
+                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
@@ -141,7 +172,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 ? toPascalCase(edgeType)
                 : edgeType;
 
-            r += `\t${aliasedEdgeType}:${caseAdjustedEdgeType}`;
+            r += `\t${cleanseLabel(aliasedEdgeType)}:${cleanseLabel(caseAdjustedEdgeType)}\n`;
         });
 
         r += '}\n\n';
@@ -150,7 +181,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += `input ${nodeCase}Input {\n`;
         r += '\t_id: ID @id\n';
         node.properties.forEach(property => {
-            r+= `\t${property.name}: ${property.type}\n`;
+            let propertyCase = cleanseLabel(property.name);
+            if (property.name !== propertyCase) {
+                r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
+            }
+            else {
+                r+= `\t${property.name}: ${property.type}\n`;
+            }
         });
         r += '}\n\n';
     })
@@ -158,28 +195,45 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // edge types
     gdbs.edgeStructures.forEach(edge => {
         // edge type
-        let edgeCase = edge.label;
+        let edgeCase = cleanseLabel(edge.label);
         if (changeCase) {
-            edgeCase = toPascalCase(edge.label);
-            r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;        
-        } else {
+            edgeCase = toPascalCase(edgeCase);
+        }
+        if (edge.label !== edgeCase) {
+            r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;  
+        }
+        else {
             r += `type ${edgeCase} {\n`;
         }
         r += '\t_id: ID! @id\n';
 
         edge.properties.forEach(property => {
-            if (property.name == 'id')                
-                r+= `\tid: ID\n`;
-            else
-                r+= `\t${property.name}: ${property.type}\n`;
+            if (property.name === 'id') {
+                r += `\tid: ID\n`;
+            }
+            else {
+                let propertyCase = cleanseLabel(property.name);
+                let alias = '';
+                if (property.name !== propertyCase) {
+                    alias = ` @alias(property: "${property.name}")`;
+                }
+                r+= `\t${propertyCase}: ${property.type}${alias}\n`;
+            }
         });
         r += '}\n\n';
 
         // input for the edge type
-        if (edge.properties.length > 0) {            
-            r += `input ${edgeCase}Input {\n`;        
+        if (edge.properties.length > 0) {       
+            r += `input ${edgeCase}Input {\n`;
+
             edge.properties.forEach(property => {
-                r+= `\t${property.name}: ${property.type}\n`;
+                let propertyCase = cleanseLabel(property.name);
+                if (property.name !== propertyCase) {
+                    r += `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
+                }
+                else {
+                    r+= `\t${property.name}: ${property.type}\n`;
+                }
             });
             r += '}\n\n';
         }
@@ -193,17 +247,17 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // query
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
-        let nodeCase = toPascalCase(node.label); 
+        let nodeCase = toPascalCase(cleanseLabel(node.label));
         r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
         r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}]\n`;
     });
     r += '}\n\n';
 
     // mutation
-    if (addMutations) {        
+    if (addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
-            let nodeCase = toPascalCase(node.label);         
+            let nodeCase = toPascalCase(cleanseLabel(node.label));
             r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
             r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
             r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean\n`;
@@ -211,16 +265,17 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         gdbs.edgeStructures.forEach(edge => {
             edge.directions.forEach(direction => {
-            let edgeCase = toPascalCase(edge.label);
-            let fromCase = toPascalCase(direction.from);
-            let toCase = toPascalCase(direction.to);    
-            if (edge.properties.length > 0) {                                            
-                r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
-                r += `\tupdateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
-            } else {
-                r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;            
-            }
-            r += `\tdeleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
+                let fromCase = toPascalCase(cleanseLabel(direction.from));
+                let toCase = toPascalCase(cleanseLabel(direction.to));
+                let edgeCase = toPascalCase(cleanseLabel(edge.label));
+
+                if (edge.properties.length > 0) {               
+                    r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
+                    r += `\tupdateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
+                } else {
+                    r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;
+                }
+                r += `\tdeleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
             });
         });
         r += '}\n\n';
