@@ -18,6 +18,7 @@ function loggerInit(directory, quiet = false, logLevel = 'info') {
                 target: 'pino-pretty',
                 options: {
                     destination: logFileDestination,
+                    mkdir: true,
                     colorize: false,
                     translateTime: 'yyyy-mm-dd HH:MM:ss',
                     ignore: 'pid,hostname'
