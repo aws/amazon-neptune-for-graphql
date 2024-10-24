@@ -38,7 +38,7 @@ function checkForDuplicateNames(schema) {
 }
 
 
-// Write a function that takes an input a string and return the string lowercase except the first charachter uppercase
+// Write a function that takes an input a string and return the string lowercase except the first character uppercase
 function toPascalCase (str) {
     let r = '';
     if (changeCase) {        
@@ -52,12 +52,42 @@ function toPascalCase (str) {
     return r.trim();
 }
 
+// Changes every instance of invalid characters in the given label with the following delimeters
+function replaceCleanseLabel(label) {
+    let delimiterColon = "_";
+    let delimiterPeriod = "_";
+    let delimiterHyphen = "_";
+
+    label = label.replace(/[:]/g, delimiterColon).replace(/[.]/g, delimiterPeriod).replace(/[-]/g, delimiterHyphen);
+    return label;
+}
+
+// Replaces invalid characters in node.label, property.name, edge.label, direction.from, and direction.to
+function replaceCleanseSchema(schema) {
+    schema.nodeStructures.forEach( node => {
+        node.label = replaceCleanseLabel(node.label);
+        node.properties.forEach( property => {
+            property.name = replaceCleanseLabel(property.name);
+        });
+    });
+
+    schema.edgeStructures.forEach( edge => {
+        edge.label = replaceCleanseLabel(edge.label);
+        edge.directions.forEach(direction => {
+            direction.from = replaceCleanseLabel(direction.from);
+            direction.to = replaceCleanseLabel(direction.to);
+        });
+    });
+    return schema;
+}
+
 
 function graphDBInferenceSchema (graphbSchema, addMutations) {
     let r = '';
     const gdbs = JSON.parse(graphbSchema);
 
     checkForDuplicateNames(gdbs);
+    replaceCleanseSchema(gdbs);
 
     gdbs.nodeStructures.forEach(node => {
         // node type

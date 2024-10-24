@@ -447,7 +447,7 @@ async function getNeptuneSchema() {
     await getEdgesDirections();
     
     await getEdgesDirectionsCardinality();
-    
+
     return JSON.stringify(schema, null, 2);
 }
 
