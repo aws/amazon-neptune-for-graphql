@@ -52,7 +52,7 @@ function toPascalCase (str) {
     return r.trim();
 }
 
-// Changes every instance of invalid characters in the given label with the following delimeters
+// Changes every instance of invalid characters in the given label with the following delimiters
 function replaceCleanseLabel(label) {
     let delimiterColon = "_5lashuoo3a_";
     let delimiterPeriod = "_5lashuoo2e_";
@@ -337,8 +337,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         nodeCase = toPascalCase(nodeCase);
         
         if (invalidNode) {
-            r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase} @alias(property: "getNode${toPascalCase(node.label)}") @cypher(statement: "MATCH (a:${addBackticks(node.label)}) RETURN labels(a), count(a)")\n`;
-            r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @alias(property: "getNodes${toPascalCase(node.label)}") @cypher(statement: "MATCH (a:${addBackticks(node.label)}) RETURN labels(a), count(a)")\n`;
+            r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase} @alias(property: "getNode${toPascalCase(node.label)}")\n`;
+            r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @alias(property: "getNodes${toPascalCase(node.label)}")\n`;
         }
         else {
             r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
