@@ -107,7 +107,6 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         invalidNode = checkInvalidChar(node.label);
         let nodeCase = invalidNode ? replaceCleanseLabel(node.label) : node.label;
         if (changeCase && invalidNode || changeCase) {
-            // nodeCase = toPascalCase(nodeCase);
             r += `type ${toPascalCase(nodeCase)} @alias(property:"${node.label}") {\n`;
         }
         else if (invalidNode) {
@@ -132,10 +131,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
             edge.directions.forEach(direction => {
+                invalidNode = checkInvalidChar(node.label);
                 let invalidDirFrom = checkInvalidChar(direction.from);
                 let invalidDirTo = checkInvalidChar(direction.to);
                 let invalidEdge = checkInvalidChar(edge.label);
 
+                let nodeCase = invalidNode ? replaceCleanseLabel(node.label) : node.label;
+                nodeCase = toPascalCase(nodeCase);
                 let fromCase = invalidDirFrom ? replaceCleanseLabel(direction.from) : direction.from;
                 fromCase = toPascalCase(fromCase);
                 let toCase = invalidDirTo ? replaceCleanseLabel(direction.to) : direction.to;
@@ -280,7 +282,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         }
         else if (invalidEdge) {
             r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;        
-        } else {
+        }
+        else {
             r += `type ${edgeCase} {\n`;
         }
         r += '\t_id: ID! @id\n';
@@ -304,10 +307,10 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             let edgeCase = invalidEdge ? replaceCleanseLabel(edge.label) : edge.label;
 
             if (invalidEdge) {
-                r += `input ${edgeCase}Input @alias(property: "${edge.label}") {\n`;
+                r += `input ${toPascalCase(edgeCase)}Input @alias(property: "${edge.label}") {\n`;
             }
             else {
-                r += `input ${edgeCase}Input {\n`;
+                r += `input ${toPascalCase(edgeCase)}Input {\n`;
             }
             edge.properties.forEach(property => {
                 if (checkInvalidChar(property.name)) {
