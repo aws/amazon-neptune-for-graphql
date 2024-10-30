@@ -92,18 +92,6 @@ function colonCount(query) {
     return (query.match(/:/g) || []).length;
 }
 
-function addBackticks(query) {
-    // assumes format is (node_label:`special_chars`)
-    // ex. (n:`label:smth`)
-    const firstColonPos = query.indexOf(':')
-    const closeBracketPos = query.indexOf(')');
-    // get substring after first colon to before closing bracket
-    let escaped_string = query.substring(firstColonPos + 1, closeBracketPos);
-    escaped_string = `\`${escaped_string}\``;
-    // + 1 to include colon
-    return query.substring(0, firstColonPos + 1) + escaped_string + query.substring(closeBracketPos);
-}
-
 function getSchemaInputTypeArgs (inputType, schemaInfo) {
     
     schemaDataModel.definitions.forEach(def => {
@@ -410,16 +398,26 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
             gq = gq.replace('$' + arg.name.value, arg.value.value);
         });
                 
-        matchStatements.push(gq);                
+        matchStatements.push(gq);
             
     } else {
 
         let { queryArguments, where } = getQueryArguments(obj.definitions[0].selectionSet.selections[0].arguments, querySchemaInfo);
         
         if  (queryArguments.length > 0) {
-            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias}{${queryArguments}})${where}`);
+            if (colonCount(querySchemaInfo.returnTypeAlias) > 0) {
+                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`{${queryArguments}})${where}`);
+            }
+            else {
+                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias}{${queryArguments}})${where}`);
+            }
         } else {
-            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias})${where}`);
+            if (colonCount(querySchemaInfo.returnTypeAlias) > 0) {
+                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`)${where}`);
+            }
+            else {
+                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias})${where}`);
+            }
         }
 
         if (querySchemaInfo.argOptionsLimit != null)
@@ -659,9 +657,6 @@ function finalizeGraphQuery(matchStatements, withStatements, returnString) {
     matchStatements.forEach(e => {
         ocMatchStatements += e + '\n';
     });
-    if (colonCount(ocMatchStatements) > 1) {
-        ocMatchStatements = addBackticks(ocMatchStatements);
-    }
     ocMatchStatements = ocMatchStatements.substring(0, ocMatchStatements.length - 1);
     
     let ocWithStatements = '';
