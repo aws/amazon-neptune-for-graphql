@@ -54,9 +54,9 @@ function toPascalCase (str) {
 
 // Changes every instance of invalid characters in the given label with the following delimiters
 function replaceCleanseLabel(label) {
-    let delimiterColon = "_5lashuoo3a_";
-    let delimiterPeriod = "_5lashuoo2e_";
-    let delimiterHyphen = "_5lashuoo2d_";
+    let delimiterColon = "_colon_";
+    let delimiterPeriod = "_period_";
+    let delimiterHyphen = "_hyphen_";
 
     return label
         .replaceAll(":", delimiterColon)

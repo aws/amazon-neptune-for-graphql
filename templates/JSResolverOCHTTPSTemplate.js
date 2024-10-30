@@ -1065,10 +1065,6 @@ function resolveGraphDBQuery(query) {
     if (executeQuery.language == 'gremlin') {
         executeQuery = resolveGremlinQuery(obj, querySchemaInfo);
     }
-
-    // if (checkInvalidChar(executeQuery.query)) {
-    //     executeQuery.query = replaceCleanseLabel(executeQuery.query);
-    // }
     
     return executeQuery;
 }
