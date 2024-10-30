@@ -87,10 +87,9 @@ function getTypeAlias(typeName) {
         return alias;
 }
 
-// checks if string has more than one colon
-function checkInvalidFormat(query) {
-    const count = (query.match(/:/g) || []).length;
-    return count > 1;
+// returns the number of colons in the string
+function colonCount(query) {
+    return (query.match(/:/g) || []).length;
 }
 
 function addBackticks(query) {
@@ -660,7 +659,7 @@ function finalizeGraphQuery(matchStatements, withStatements, returnString) {
     matchStatements.forEach(e => {
         ocMatchStatements += e + '\n';
     });
-    if (checkInvalidFormat(ocMatchStatements)) {
+    if (colonCount(ocMatchStatements) > 1) {
         ocMatchStatements = addBackticks(ocMatchStatements);
     }
     ocMatchStatements = ocMatchStatements.substring(0, ocMatchStatements.length - 1);
@@ -765,7 +764,13 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         if (obj.definitions[0].selectionSet.selections[0].selectionSet != undefined) {        
             returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         }
-        let ocQuery = `CREATE (${nodeName}:${querySchemaInfo.returnTypeAlias} {${inputFields.fields}})\nRETURN ${returnBlock}`;        
+        let ocQuery = '';
+        if (colonCount(querySchemaInfo.returnTypeAlias) > 0) {
+            ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
+        }
+        else {
+            ocQuery = `CREATE (${nodeName}:${querySchemaInfo.returnTypeAlias} {${inputFields.fields}})\nRETURN ${returnBlock}`;
+        }
         return ocQuery;
     }
     
