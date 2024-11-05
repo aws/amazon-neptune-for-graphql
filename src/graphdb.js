@@ -52,7 +52,7 @@ function toPascalCase (str) {
     return r.trim();
 }
 
-// Changes every instance of invalid characters in the given label with the following delimiters
+// Changes every instance of invalid characters in the given label with the following abbreviations
 function replaceCleanseLabel(label) {
     return label
         .replaceAll("!", "_ex_")
