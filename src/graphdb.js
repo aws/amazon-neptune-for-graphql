@@ -104,7 +104,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     gdbs.nodeStructures.forEach(node => {
         // node type
         invalidNode = checkInvalidChar(node.label);
-        let nodeCase = invalidNode ? replaceCleanseLabel(node.label) : node.label;
+        let nodeCase = replaceCleanseLabel(node.label);
         if (changeCase && invalidNode || changeCase) {
             r += `type ${toPascalCase(nodeCase)} @alias(property:"${node.label}") {\n`;
         }
@@ -135,13 +135,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 let invalidDirTo = checkInvalidChar(direction.to);
                 let invalidEdge = checkInvalidChar(edge.label);
 
-                let nodeCase = invalidNode ? replaceCleanseLabel(node.label) : node.label;
+                let nodeCase = replaceCleanseLabel(node.label);
                 nodeCase = toPascalCase(nodeCase);
-                let fromCase = invalidDirFrom ? replaceCleanseLabel(direction.from) : direction.from;
+                let fromCase = replaceCleanseLabel(direction.from);
                 fromCase = toPascalCase(fromCase);
-                let toCase = invalidDirTo ? replaceCleanseLabel(direction.to) : direction.to;
+                let toCase = replaceCleanseLabel(direction.to);
                 toCase = toPascalCase(toCase);
-                let edgeCase = invalidEdge ? replaceCleanseLabel(edge.label) : edge.label;
+                let edgeCase = replaceCleanseLabel(edge.label);
                 edgeCase = toPascalCase(edgeCase);
 
                 if (direction.from == node.label && direction.to == node.label){
@@ -250,7 +250,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         // input for the node type
         let invalidNode2 = checkInvalidChar(node.label);
-        let nodeCase2 = invalidNode2 ? replaceCleanseLabel(node.label) : node.label;
+        let nodeCase2 = replaceCleanseLabel(node.label);
 
         if (invalidNode2) {
             r += `input ${toPascalCase(nodeCase2)}Input @alias(property: "${node.label}") {\n`;
@@ -274,7 +274,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     gdbs.edgeStructures.forEach(edge => {
         // edge type
         let invalidEdge = checkInvalidChar(edge.label);
-        let edgeCase = invalidEdge ? replaceCleanseLabel(edge.label) : edge.label;
+        let edgeCase = replaceCleanseLabel(edge.label);
         if (changeCase && invalidEdge || changeCase) {
             edgeCase = toPascalCase(edgeCase);
             r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;  
@@ -303,7 +303,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         // input for the edge type
         if (edge.properties.length > 0) {       
             let invalidEdge = checkInvalidChar(edge.label);
-            let edgeCase = invalidEdge ? replaceCleanseLabel(edge.label) : edge.label;
+            let edgeCase = replaceCleanseLabel(edge.label);
 
             if (invalidEdge) {
                 r += `input ${toPascalCase(edgeCase)}Input @alias(property: "${edge.label}") {\n`;
@@ -332,7 +332,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
         let invalidNode = checkInvalidChar(node.label);
-        let nodeCase = invalidNode ? replaceCleanseLabel(node.label) : node.label;
+        let nodeCase = replaceCleanseLabel(node.label);
         nodeCase = toPascalCase(nodeCase);
         
         if (invalidNode) {
@@ -351,7 +351,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
             let invalidNode = checkInvalidChar(node.label);
-            let nodeCase = invalidNode ? replaceCleanseLabel(node.label) : node.label;
+            let nodeCase = replaceCleanseLabel(node.label);
             nodeCase = toPascalCase(nodeCase);
             if (invalidNode) {
                 r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase} @alias(property: "createNode${node.label}")\n`;
@@ -369,11 +369,11 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             edge.directions.forEach(direction => {
                 let invalidDir = checkInvalidChar(direction.from) || checkInvalidChar(direction.to) || checkInvalidChar(edge.label);
 
-                let fromCase = checkInvalidChar(direction.from) ? replaceCleanseLabel(direction.from) : direction.from;
+                let fromCase = replaceCleanseLabel(direction.from);
                 fromCase = toPascalCase(fromCase);
-                let toCase = checkInvalidChar(direction.to) ? replaceCleanseLabel(direction.to) : direction.to;
+                let toCase = replaceCleanseLabel(direction.to);
                 toCase = toPascalCase(toCase);
-                let edgeCase = checkInvalidChar(edge.label) ? replaceCleanseLabel(edge.label) : edge.label;
+                let edgeCase = replaceCleanseLabel(edge.label);
                 edgeCase = toPascalCase(edgeCase);
 
                 if (edge.properties.length > 0) {               
