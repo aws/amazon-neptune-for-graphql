@@ -135,7 +135,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 let invalidDirTo = checkInvalidChar(direction.to);
                 let invalidEdge = checkInvalidChar(edge.label);
 
-                let nodeCase = replaceCleanseLabel(node.label);
+                nodeCase = replaceCleanseLabel(node.label);
                 nodeCase = toPascalCase(nodeCase);
                 let fromCase = replaceCleanseLabel(direction.from);
                 fromCase = toPascalCase(fromCase);
