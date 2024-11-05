@@ -54,44 +54,43 @@ function toPascalCase (str) {
 
 // Changes every instance of invalid characters in the given label with the following delimiters
 function replaceCleanseLabel(label) {
-    let delimiterColon = "_colon_";
-    let delimiterPeriod = "_period_";
-    let delimiterHyphen = "_hyphen_";
+    const delimiterExclamation = "_exclamationmark_";
+    const delimiterDollar = "_dollarsign_";
+    const delimiterAmpersand = "_ampersand_";
+    const delimiterOpenBracket = "_openbracket_";
+    const delimiterCloseBracket = "_closebracket_";
+    const delimiterPeriod = "_period_";
+    const delimiterColon = "_colon_";
+    const delimiterEqual = "_equal_";
+    const delimiterAt = "_at_";
+    const delimiterOpenSquareBracket = "_opensquarebracket_";
+    const delimiterCloseSquareBracket = "_closesquarebracket_";
+    const delimiterOpenCurlyBracket = "_opencurlybracket_";
+    const delimiterVerticalBar = "_verticalbar_";
+    const delimiterCloseCurlyBracket = "_closecurlybracket_";
+    const delimiterHyphen = "_hyphen_";
 
     return label
-        .replaceAll(":", delimiterColon)
+        .replaceAll("!", delimiterExclamation)
+        .replaceAll("$", delimiterDollar)
+        .replaceAll("&", delimiterAmpersand)
+        .replaceAll("(", delimiterOpenBracket)
+        .replaceAll(")", delimiterCloseBracket)
         .replaceAll(".", delimiterPeriod)
+        .replaceAll(":", delimiterColon)
+        .replaceAll("=", delimiterEqual)
+        .replaceAll("@", delimiterAt)
+        .replaceAll("[", delimiterOpenSquareBracket)
+        .replaceAll("]", delimiterCloseSquareBracket)
+        .replaceAll("{", delimiterOpenCurlyBracket)
+        .replaceAll("|", delimiterVerticalBar)
+        .replaceAll("}", delimiterCloseCurlyBracket)
         .replaceAll("-", delimiterHyphen);
-}
-
-// Replaces invalid characters in node.label, property.name, edge.label, direction.from, and direction.to
-function replaceCleanseSchema(schema) {
-    schema.nodeStructures.forEach( node => {
-        node.label = replaceCleanseLabel(node.label);
-        node.properties.forEach( property => {
-            property.name = replaceCleanseLabel(property.name);
-        });
-    });
-
-    schema.edgeStructures.forEach( edge => {
-        edge.label = replaceCleanseLabel(edge.label);
-        edge.directions.forEach(direction => {
-            direction.from = replaceCleanseLabel(direction.from);
-            direction.to = replaceCleanseLabel(direction.to);
-        });
-    });
-    
-    return schema;
 }
 
 function checkInvalidChar(label) {
     let identify = /[:.-]/;
     return identify.test(label);
-}
-
-function addBackticks(text) {
-    text = `\`${text}\``;
-    return text;
 }
 
 
