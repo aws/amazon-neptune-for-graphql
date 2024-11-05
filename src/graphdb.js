@@ -54,38 +54,22 @@ function toPascalCase (str) {
 
 // Changes every instance of invalid characters in the given label with the following delimiters
 function replaceCleanseLabel(label) {
-    const delimiterExclamation = "_exclamationmark_";
-    const delimiterDollar = "_dollarsign_";
-    const delimiterAmpersand = "_ampersand_";
-    const delimiterOpenBracket = "_openbracket_";
-    const delimiterCloseBracket = "_closebracket_";
-    const delimiterPeriod = "_period_";
-    const delimiterColon = "_colon_";
-    const delimiterEqual = "_equal_";
-    const delimiterAt = "_at_";
-    const delimiterOpenSquareBracket = "_opensquarebracket_";
-    const delimiterCloseSquareBracket = "_closesquarebracket_";
-    const delimiterOpenCurlyBracket = "_opencurlybracket_";
-    const delimiterVerticalBar = "_verticalbar_";
-    const delimiterCloseCurlyBracket = "_closecurlybracket_";
-    const delimiterHyphen = "_hyphen_";
-
     return label
-        .replaceAll("!", delimiterExclamation)
-        .replaceAll("$", delimiterDollar)
-        .replaceAll("&", delimiterAmpersand)
-        .replaceAll("(", delimiterOpenBracket)
-        .replaceAll(")", delimiterCloseBracket)
-        .replaceAll(".", delimiterPeriod)
-        .replaceAll(":", delimiterColon)
-        .replaceAll("=", delimiterEqual)
-        .replaceAll("@", delimiterAt)
-        .replaceAll("[", delimiterOpenSquareBracket)
-        .replaceAll("]", delimiterCloseSquareBracket)
-        .replaceAll("{", delimiterOpenCurlyBracket)
-        .replaceAll("|", delimiterVerticalBar)
-        .replaceAll("}", delimiterCloseCurlyBracket)
-        .replaceAll("-", delimiterHyphen);
+        .replaceAll("!", "_ex_")
+        .replaceAll("$", "_dol_")
+        .replaceAll("&", "_amp_")
+        .replaceAll("(", "_op_")
+        .replaceAll(")", "_cp_")
+        .replaceAll(".", "_dot_")
+        .replaceAll(":", "_cn_")
+        .replaceAll("=", "_eq_")
+        .replaceAll("@", "_at_")
+        .replaceAll("[", "_os_")
+        .replaceAll("]", "_cs_")
+        .replaceAll("{", "_oc_")
+        .replaceAll("|", "_vb_")
+        .replaceAll("}", "_cc_")
+        .replaceAll("-", "_hy_");
 }
 
 function checkInvalidChar(label) {
