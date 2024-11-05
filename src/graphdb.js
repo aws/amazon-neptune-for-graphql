@@ -72,12 +72,6 @@ function replaceCleanseLabel(label) {
         .replaceAll("-", "_hy_");
 }
 
-function checkInvalidChar(label) {
-    let identify = /[:.-]/;
-    return identify.test(label);
-}
-
-
 function graphDBInferenceSchema (graphbSchema, addMutations) {
     let r = '';
     let invalidNode = false;
@@ -87,12 +81,12 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
     gdbs.nodeStructures.forEach(node => {
         // node type
-        invalidNode = checkInvalidChar(node.label);
         let nodeCase = replaceCleanseLabel(node.label);
-        if (changeCase && invalidNode || changeCase) {
+
+        if (changeCase && (node.label !== nodeCase) || changeCase) {
             r += `type ${toPascalCase(nodeCase)} @alias(property:"${node.label}") {\n`;
         }
-        else if (invalidNode) {
+        else if (node.label !== nodeCase) {
             r += `type ${nodeCase} @alias(property:"${node.label}") {\n`;
         }
         else {
@@ -102,10 +96,11 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += '\t_id: ID! @id\n';
 
         node.properties.forEach(property => {
+            let propertyCase = replaceCleanseLabel(property.name);
             if (property.name == 'id')
                 r+= `\tid: ID\n`;
-            else if (checkInvalidChar(property.name)) {
-                r+= `\t${replaceCleanseLabel(property.name)}: ${property.type} @alias(property: "${property.name}")\n`;
+            else if (property.name !== propertyCase) {
+                r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
             }
             else
                 r+= `\t${property.name}: ${property.type}\n`;
@@ -114,18 +109,20 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
             edge.directions.forEach(direction => {
-                invalidNode = checkInvalidChar(node.label);
-                let invalidDirFrom = checkInvalidChar(direction.from);
-                let invalidDirTo = checkInvalidChar(direction.to);
-                let invalidEdge = checkInvalidChar(edge.label);
-
                 nodeCase = replaceCleanseLabel(node.label);
+                invalidNode = node.label !== nodeCase ? true : false;
                 nodeCase = toPascalCase(nodeCase);
+
                 let fromCase = replaceCleanseLabel(direction.from);
+                let invalidDirFrom = direction.from !== fromCase ? true : false;
                 fromCase = toPascalCase(fromCase);
+
                 let toCase = replaceCleanseLabel(direction.to);
+                let invalidDirTo = direction.to !== toCase ? true : false;
                 toCase = toPascalCase(toCase);
+
                 let edgeCase = replaceCleanseLabel(edge.label);
+                let invalidEdge = edge.label !== edgeCase ? true : false;
                 edgeCase = toPascalCase(edgeCase);
 
                 if (direction.from == node.label && direction.to == node.label){
@@ -233,10 +230,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += '}\n\n';
 
         // input for the node type
-        let invalidNode2 = checkInvalidChar(node.label);
         let nodeCase2 = replaceCleanseLabel(node.label);
 
-        if (invalidNode2) {
+        if (node.label !== nodeCase2) {
             r += `input ${toPascalCase(nodeCase2)}Input @alias(property: "${node.label}") {\n`;
         }
         else {
@@ -244,8 +240,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         }
         r += '\t_id: ID @id\n';
         node.properties.forEach(property => {
-            if (checkInvalidChar(property.name)) {
-                r+= `\t${replaceCleanseLabel(property.name)}: ${property.type} @alias(property: "${property.name}")\n`;
+            let propertyCase = replaceCleanseLabel(property.name);
+            if (property.name !== propertyCase) {
+                r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
             }
             else {
                 r+= `\t${property.name}: ${property.type}\n`;
@@ -257,13 +254,12 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // edge types
     gdbs.edgeStructures.forEach(edge => {
         // edge type
-        let invalidEdge = checkInvalidChar(edge.label);
         let edgeCase = replaceCleanseLabel(edge.label);
-        if (changeCase && invalidEdge || changeCase) {
+        if (changeCase && (edge.label !== edgeCase) || changeCase) {
             edgeCase = toPascalCase(edgeCase);
             r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;  
         }
-        else if (invalidEdge) {
+        else if (edge.label !== edgeCase) {
             r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;        
         }
         else {
@@ -272,11 +268,12 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += '\t_id: ID! @id\n';
 
         edge.properties.forEach(property => {
+            let propertyCase = replaceCleanseLabel(property.name);
             if (property.name == 'id') {
                 r += `\tid: ID\n`;
             }
-            else if (checkInvalidChar(property.name)) {
-                r += `\t${replaceCleanseLabel(property.name)}: ${property.type} @alias(property: "${property.name}")\n`;
+            else if (property.name !== propertyCase) {
+                r += `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
             }
             else {
                 r += `\t${property.name}: ${property.type}\n`;
@@ -286,18 +283,18 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         // input for the edge type
         if (edge.properties.length > 0) {       
-            let invalidEdge = checkInvalidChar(edge.label);
             let edgeCase = replaceCleanseLabel(edge.label);
 
-            if (invalidEdge) {
+            if (edge.label !== edgeCase) {
                 r += `input ${toPascalCase(edgeCase)}Input @alias(property: "${edge.label}") {\n`;
             }
             else {
                 r += `input ${toPascalCase(edgeCase)}Input {\n`;
             }
             edge.properties.forEach(property => {
-                if (checkInvalidChar(property.name)) {
-                    r += `\t${replaceCleanseLabel(property.name)}: ${property.type} @alias(property: "${property.name}")\n`;
+                let propertyCase = replaceCleanseLabel(property.name);
+                if (property.name !== propertyCase) {
+                    r += `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
                 }
                 else {
                     r+= `\t${property.name}: ${property.type}\n`;
@@ -315,8 +312,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // query
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
-        let invalidNode = checkInvalidChar(node.label);
         let nodeCase = replaceCleanseLabel(node.label);
+        let invalidNode = node.label !== nodeCase ? true : false;
         nodeCase = toPascalCase(nodeCase);
         
         if (invalidNode) {
@@ -334,8 +331,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     if (addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
-            let invalidNode = checkInvalidChar(node.label);
             let nodeCase = replaceCleanseLabel(node.label);
+            let invalidNode = node.label !== nodeCase ? true : false;
             nodeCase = toPascalCase(nodeCase);
             if (invalidNode) {
                 r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase} @alias(property: "createNode${node.label}")\n`;
@@ -351,13 +348,12 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         gdbs.edgeStructures.forEach(edge => {
             edge.directions.forEach(direction => {
-                let invalidDir = checkInvalidChar(direction.from) || checkInvalidChar(direction.to) || checkInvalidChar(edge.label);
-
                 let fromCase = replaceCleanseLabel(direction.from);
-                fromCase = toPascalCase(fromCase);
                 let toCase = replaceCleanseLabel(direction.to);
-                toCase = toPascalCase(toCase);
                 let edgeCase = replaceCleanseLabel(edge.label);
+                let invalidDir = direction.from !== fromCase || direction.to !== toCase || edge.label !== edgeCase ? true : false;
+                fromCase = toPascalCase(fromCase);
+                toCase = toPascalCase(toCase);
                 edgeCase = toPascalCase(edgeCase);
 
                 if (edge.properties.length > 0) {               
