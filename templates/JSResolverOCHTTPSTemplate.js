@@ -87,11 +87,6 @@ function getTypeAlias(typeName) {
         return alias;
 }
 
-// returns the number of colons in the string
-function colonCount(query) {
-    return (query.match(/:/g) || []).length;
-}
-
 function getSchemaInputTypeArgs (inputType, schemaInfo) {
     
     schemaDataModel.definitions.forEach(def => {
@@ -405,19 +400,9 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
         let { queryArguments, where } = getQueryArguments(obj.definitions[0].selectionSet.selections[0].arguments, querySchemaInfo);
         
         if  (queryArguments.length > 0) {
-            if (colonCount(querySchemaInfo.returnTypeAlias) > 0) {
-                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`{${queryArguments}})${where}`);
-            }
-            else {
-                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias}{${queryArguments}})${where}`);
-            }
+            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`{${queryArguments}})${where}`);
         } else {
-            if (colonCount(querySchemaInfo.returnTypeAlias) > 0) {
-                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`)${where}`);
-            }
-            else {
-                matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias})${where}`);
-            }
+            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`)${where}`);
         }
 
         if (querySchemaInfo.argOptionsLimit != null)
@@ -760,12 +745,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
             returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         }
         let ocQuery = '';
-        if (colonCount(querySchemaInfo.returnTypeAlias) > 0) {
-            ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
-        }
-        else {
-            ocQuery = `CREATE (${nodeName}:${querySchemaInfo.returnTypeAlias} {${inputFields.fields}})\nRETURN ${returnBlock}`;
-        }
+        ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
         return ocQuery;
     }
     
