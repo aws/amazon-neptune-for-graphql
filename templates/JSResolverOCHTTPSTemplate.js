@@ -544,7 +544,7 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
                 createQueryFieldMatchStatement(fieldSchemaInfo, lastNamePath);
             }
         } else {              
-            withStatements[i].content += ' ' + lastNamePath + '.' + fieldSchemaInfo.alias;
+            withStatements[i].content += ' ' + lastNamePath + '.' + `\`${fieldSchemaInfo.alias}\``;
         }
     }        
 }
