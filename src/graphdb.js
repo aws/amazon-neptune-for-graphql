@@ -88,21 +88,25 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         if (node.label !== nodeCase) {
             r += `type ${nodeCase} @alias(property:"${node.label}") {\n`;
-        } else {
+        }
+        else {
             r += `type ${nodeCase} {\n`;
         }
         
         r += '\t_id: ID! @id\n';
 
         node.properties.forEach(property => {
-            let propertyCase = replaceCleanseLabel(property.name);
-            if (property.name == 'id')
+            if (property.name == 'id') {
                 r+= `\tid: ID\n`;
-            else if (property.name !== propertyCase) {
-                r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
             }
-            else
-                r+= `\t${property.name}: ${property.type}\n`;
+            else {
+                let propertyCase = replaceCleanseLabel(property.name);
+                let alias = '';
+                if (property.name !== propertyCase) {
+                    alias = ` @alias(property: "${property.name}")`;
+                }
+                r+= `\t${propertyCase}: ${property.type}${alias}\n`;
+            }
         });
         
         let edgeTypes = [];
@@ -266,15 +270,16 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += '\t_id: ID! @id\n';
 
         edge.properties.forEach(property => {
-            let propertyCase = replaceCleanseLabel(property.name);
             if (property.name == 'id') {
                 r += `\tid: ID\n`;
             }
-            else if (property.name !== propertyCase) {
-                r += `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
-            }
             else {
-                r += `\t${property.name}: ${property.type}\n`;
+                let propertyCase = replaceCleanseLabel(property.name);
+                let alias = '';
+                if (property.name !== propertyCase) {
+                    alias = ` @alias(property: "${property.name}")`;
+                }
+                r+= `\t${propertyCase}: ${property.type}${alias}\n`;
             }
         });
         r += '}\n\n';
