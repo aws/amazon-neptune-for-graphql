@@ -82,14 +82,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     gdbs.nodeStructures.forEach(node => {
         // node type
         let nodeCase = replaceCleanseLabel(node.label);
+        if (changeCase) {
+            nodeCase = toPascalCase(nodeCase);
+        }
 
-        if (changeCase && (node.label !== nodeCase) || changeCase) {
-            r += `type ${toPascalCase(nodeCase)} @alias(property:"${node.label}") {\n`;
-        }
-        else if (node.label !== nodeCase) {
+        if (node.label !== nodeCase) {
             r += `type ${nodeCase} @alias(property:"${node.label}") {\n`;
-        }
-        else {
+        } else {
             r += `type ${nodeCase} {\n`;
         }
         
@@ -255,12 +254,11 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     gdbs.edgeStructures.forEach(edge => {
         // edge type
         let edgeCase = replaceCleanseLabel(edge.label);
-        if (changeCase && (edge.label !== edgeCase) || changeCase) {
+        if (changeCase) {
             edgeCase = toPascalCase(edgeCase);
-            r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;  
         }
-        else if (edge.label !== edgeCase) {
-            r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;        
+        if (edge.label !== edgeCase) {
+            r += `type ${edgeCase} @alias(property:"${edge.label}") {\n`;  
         }
         else {
             r += `type ${edgeCase} {\n`;
