@@ -112,14 +112,10 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
             edge.directions.forEach(direction => {
-                nodeCase = toPascalCase(nodeCase);
-
                 let fromCase = replaceCleanseLabel(direction.from);
                 fromCase = toPascalCase(fromCase);
-
                 let toCase = replaceCleanseLabel(direction.to);
                 toCase = toPascalCase(toCase);
-
                 let edgeCase = replaceCleanseLabel(edge.label);
                 edgeCase = toPascalCase(edgeCase);
 
