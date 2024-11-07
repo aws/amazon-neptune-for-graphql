@@ -61,10 +61,15 @@ export const handler = async (event) => {
             timeout: 20000
         };
         
-        if (resolver.language == 'opencypher') {
+        if (resolver.language === 'opencypher') {
             result = await axios.post(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}/opencypher`, `query=${encodeURIComponent(resolver.query)}&parameters=${encodeURIComponent(JSON.stringify(resolver.parameters))}`, myConfig);
         } else {
-            result = await axios.post(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`, `gremlin=${encodeURIComponent(resolver.query)}`, myConfig);
+            result = await axios.get(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}/gremlin`, {
+                ...myConfig,
+                params: {
+                    gremlin: resolver.query
+                }
+            });
         }
         if (LOGGING_ENABLED) console.log("Result: ", JSON.stringify(result.data, null, 2));
     } catch (err) {
