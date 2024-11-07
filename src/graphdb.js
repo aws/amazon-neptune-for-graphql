@@ -112,41 +112,25 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
             edge.directions.forEach(direction => {
-                invalidNode = node.label !== nodeCase ? true : false;
                 nodeCase = toPascalCase(nodeCase);
 
                 let fromCase = replaceCleanseLabel(direction.from);
-                let invalidDirFrom = direction.from !== fromCase ? true : false;
                 fromCase = toPascalCase(fromCase);
 
                 let toCase = replaceCleanseLabel(direction.to);
-                let invalidDirTo = direction.to !== toCase ? true : false;
                 toCase = toPascalCase(toCase);
 
                 let edgeCase = replaceCleanseLabel(edge.label);
-                let invalidEdge = edge.label !== edgeCase ? true : false;
                 edgeCase = toPascalCase(edgeCase);
 
                 if (direction.from == node.label && direction.to == node.label){
                     if (direction.relationship == 'MANY-MANY') {
-                        if (invalidNode || invalidEdge) {
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT) @alias(property: "${node.label.toLocaleLowerCase() + toPascalCase(edge.label)}sOut")\n`;
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN) @alias(property: "${node.label.toLocaleLowerCase() + toPascalCase(edge.label)}sIn")\n`;
-                        }
-                        else {
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
-                        }
+                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (direction.relationship == 'ONE-ONE') {
-                        if (invalidNode || invalidEdge) {
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}Out: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:OUT) @alias(property: "${node.label.toLocaleLowerCase() + toPascalCase(edge.label)}Out")\n`;
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}In: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:IN) @alias(property: "${node.label.toLocaleLowerCase() + toPascalCase(edge.label)}In")\n`;
-                        }
-                        else {
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}Out: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}In: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
-                        }
+                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}Out: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}In: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
@@ -154,28 +138,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 
                 if (direction.from == node.label && direction.to != node.label){
                     if (direction.relationship == 'MANY-MANY') {
-                        if (invalidDirTo || invalidEdge) {
-                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT) @alias(property: "${toPascalCase(direction.to).toLocaleLowerCase() + toPascalCase(edge.label)}sOut")\n`;
-                        }
-                        else {
-                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                        }
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
                     if (direction.relationship == 'ONE-MANY') {
-                        if (invalidDirTo || invalidEdge) {
-                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT) @alias(property: "${toPascalCase(direction.to).toLocaleLowerCase() + toPascalCase(edge.label)}sOut")\n`;
-                        }
-                        else {
-                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                        }
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
                     if (direction.relationship == 'MANY-ONE') {
-                        if (invalidDirTo || invalidEdge) {
-                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT) @alias(property: "${toPascalCase(direction.to).toLocaleLowerCase() + toPascalCase(edge.label)}Out")\n`;
-                        }
-                        else {
-                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                        }
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
@@ -183,28 +152,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 
                 if (direction.from != node.label && direction.to == node.label){
                     if (direction.relationship == 'MANY-MANY') {
-                        if (invalidDirFrom || invalidEdge) {
-                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN) @alias(property: "${toPascalCase(direction.from).toLocaleLowerCase() + toPascalCase(edge.label)}sIn")\n`                       
-                        }
-                        else {
-                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`                       
-                        }
+                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`                       
                     }
                     if (direction.relationship == 'ONE-MANY') {
-                        if (invalidDirFrom || invalidEdge) {
-                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN) @alias(property: "${toPascalCase(direction.from).toLocaleLowerCase() + toPascalCase(edge.label)}In")\n`;
-                        }
-                        else {
-                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
-                        }
+                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (direction.relationship == 'MANY-ONE') {
-                        if (invalidDirFrom || invalidEdge) {
-                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN) @alias(property: "${toPascalCase(direction.from).toLocaleLowerCase() + toPascalCase(edge.label)}sIn")\n`;
-                        }
-                        else {
-                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
-                        }
+                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
