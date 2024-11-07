@@ -186,13 +186,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += '}\n\n';
 
         // input for the node type
-        let nodeCase2 = replaceCleanseLabel(node.label);
+        nodeCase = replaceCleanseLabel(node.label);
 
-        if (node.label !== nodeCase2) {
-            r += `input ${toPascalCase(nodeCase2)}Input @alias(property: "${node.label}") {\n`;
+        if (node.label !== nodeCase) {
+            r += `input ${toPascalCase(nodeCase)}Input @alias(property: "${node.label}") {\n`;
         }
         else {
-            r += `input ${toPascalCase(nodeCase2)}Input {\n`;
+            r += `input ${toPascalCase(nodeCase)}Input {\n`;
         }
         r += '\t_id: ID @id\n';
         node.properties.forEach(property => {
