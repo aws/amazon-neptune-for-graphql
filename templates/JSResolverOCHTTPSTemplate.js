@@ -800,10 +800,10 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
 
         if (obj.definitions[0].selectionSet.selections[0].arguments.length > 2) {            
             let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:${egdgeTypeAlias}{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
+            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
             return ocQuery;
         } else {
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:${egdgeTypeAlias}]->(to)\nRETURN ${returnBlock}`;
+            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`]->(to)\nRETURN ${returnBlock}`;
             return ocQuery;
         }       
     } 
@@ -833,7 +833,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         Object.assign(parameters, {[paramFromId]: fromID});
         Object.assign(parameters, {[paramToId]: toID});
 
-        let ocQuery = `MATCH (from)-[${edgeName}:${egdgeTypeAlias}]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
+        let ocQuery = `MATCH (from)-[${edgeName}:$\`{egdgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
         return  ocQuery;
     }
     
