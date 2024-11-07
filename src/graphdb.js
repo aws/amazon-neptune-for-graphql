@@ -74,7 +74,6 @@ function replaceCleanseLabel(label) {
 
 function graphDBInferenceSchema (graphbSchema, addMutations) {
     let r = '';
-    let invalidNode = false;
     const gdbs = JSON.parse(graphbSchema);
 
     checkForDuplicateNames(gdbs);
