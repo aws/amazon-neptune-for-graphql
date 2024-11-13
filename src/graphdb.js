@@ -175,7 +175,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 ? toPascalCase(edgeType)
                 : edgeType;
 
-            r += `\t${aliasedEdgeType}:${caseAdjustedEdgeType}`;
+            r += `\t${replaceCleanseLabel(aliasedEdgeType)}:${replaceCleanseLabel(caseAdjustedEdgeType)}\n`;
         });
 
         r += '}\n\n';
@@ -350,4 +350,4 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 }
 
 
-export { graphDBInferenceSchema };
+export { graphDBInferenceSchema, replaceCleanseLabel };
