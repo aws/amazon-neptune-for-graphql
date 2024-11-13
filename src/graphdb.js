@@ -181,7 +181,6 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += '}\n\n';
 
         // input for the node type
-        nodeCase = replaceCleanseLabel(node.label);
         r += `input ${toPascalCase(nodeCase)}Input {\n`;
         r += '\t_id: ID @id\n';
         node.properties.forEach(property => {
