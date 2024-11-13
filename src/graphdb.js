@@ -182,13 +182,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         // input for the node type
         nodeCase = replaceCleanseLabel(node.label);
-
-        if (node.label !== nodeCase) {
-            r += `input ${toPascalCase(nodeCase)}Input @alias(property: "${node.label}") {\n`;
-        }
-        else {
-            r += `input ${toPascalCase(nodeCase)}Input {\n`;
-        }
+        r += `input ${toPascalCase(nodeCase)}Input {\n`;
         r += '\t_id: ID @id\n';
         node.properties.forEach(property => {
             let propertyCase = replaceCleanseLabel(property.name);
