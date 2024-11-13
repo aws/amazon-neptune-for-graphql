@@ -257,17 +257,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
         let nodeCase = replaceCleanseLabel(node.label);
-        let invalidNode = node.label !== nodeCase ? true : false;
         nodeCase = toPascalCase(nodeCase);
-        
-        if (invalidNode) {
-            r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase} @alias(property: "getNode${toPascalCase(node.label)}")\n`;
-            r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @alias(property: "getNodes${toPascalCase(node.label)}")\n`;
-        }
-        else {
-            r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
-            r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}]\n`;
-        }
+        r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
+        r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}]\n`;
     });
     r += '}\n\n';
 
