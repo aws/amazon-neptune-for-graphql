@@ -228,13 +228,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         // input for the edge type
         if (edge.properties.length > 0) {       
             let edgeCase = replaceCleanseLabel(edge.label);
-
-            if (edge.label !== edgeCase) {
-                r += `input ${toPascalCase(edgeCase)}Input @alias(property: "${edge.label}") {\n`;
-            }
-            else {
-                r += `input ${toPascalCase(edgeCase)}Input {\n`;
-            }
+            r += `input ${toPascalCase(edgeCase)}Input {\n`;
+            
             edge.properties.forEach(property => {
                 let propertyCase = replaceCleanseLabel(property.name);
                 if (property.name !== propertyCase) {
