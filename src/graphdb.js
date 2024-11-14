@@ -268,18 +268,10 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
             let nodeCase = replaceCleanseLabel(node.label);
-            let invalidNode = node.label !== nodeCase ? true : false;
             nodeCase = toPascalCase(nodeCase);
-            if (invalidNode) {
-                r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase} @alias(property: "createNode${node.label}")\n`;
-                r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase} @alias(property: "updateNode${node.label}")\n`;
-                r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean @alias(property: "deleteNode${node.label}")\n`;
-            }
-            else {
-                r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
-                r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
-                r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean\n`;
-            }
+            r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
+            r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
+            r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean\n`;
         });    
 
         gdbs.edgeStructures.forEach(edge => {
