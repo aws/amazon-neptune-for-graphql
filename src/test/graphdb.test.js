@@ -1,4 +1,4 @@
-import {graphDBInferenceSchema, replaceCleanseLabel} from '../graphdb.js';
+import { graphDBInferenceSchema } from '../graphdb.js';
 
 const SCHEMA_WITH_PROPERTY_AND_EDGE_SAME_NAME = {
     "nodeStructures": [
@@ -80,66 +80,88 @@ const SCHEMA_WITH_PROPERTY_AND_EDGE_SAME_NAME = {
 const SCHEMA_WITH_SPECIAL_CHARS = {
     "nodeStructures": [
         {
-            "label": "continent",
+            "label": "abc!$123&efg",
             "properties": [
                 {
-                    "name": "id",
+                    "name": "instance_type",
                     "type": "String"
                 },
                 {
-                    "name": "continent:label",
+                    "name": "state",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
                     "type": "String"
                 }
             ]
         },
         {
-            "label": "country",
+            "label": "abc(123).efg:456",
             "properties": [
                 {
-                    "name": "id",
+                    "name": "name",
                     "type": "String"
                 },
                 {
-                    "name": "country:label",
+                    "name": "ip_range.first_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "ip_range.last_ip",
                     "type": "String"
                 }
             ]
-        }
+        },
+        {
+            "label": "abc=123@[efg]456",
+            "properties": [
+                {
+                    "name": "instance_type",
+                    "type": "String"
+                },
+                {
+                    "name": "state",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                }
+            ]
+        },
+        {
+            "label": "abc{123}|efg-456",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "ip_range.first_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "ip_range.last_ip",
+                    "type": "String"
+                }
+            ]
+        },
     ],
-        "edgeStructures": [
+    "edgeStructures": [
         {
-            "label": "contains",
-            "properties": [
+            "label": "resource_link",
+            "properties": [],
+            "directions": [
                 {
-                    "name": "id",
-                    "type": "String"
+                    "from": "abc!$123&efg",
+                    "to": "abc(123).efg:456",
+                    "relationship": "MANY-ONE"
                 },
                 {
-                    "name": "edge:label",
-                    "type": "String"
-                }
-            ],
-            "directions": [
-                {
-                    "from": "continent",
-                    "to": "country",
-                    "relationship": "ONE-MANY"
-                }
-            ]
-        },
-        {
-            "label": "continent:label",
-            "properties": [
-                {
-                    "name": "id",
-                    "type": "String"
-                }
-            ],
-            "directions": [
-                {
-                    "from": "continent",
-                    "to": "country",
-                    "relationship": "ONE-MANY"
+                    "from": "abc!$123&efg",
+                    "to": "abc!$123&efg",
+                    "relationship": "ONE-ONE"
                 }
             ]
         }
@@ -147,69 +169,87 @@ const SCHEMA_WITH_SPECIAL_CHARS = {
 };
 
 const SCHEMA_WITH_SPECIAL_CHARS_RESULT = `
-type Continent @alias(property:\"continent\") {
+    type Abc_ex__dol_123_amp_efg @alias(property:\"abc!$123&efg\") {
         _id: ID! @id
-        id: ID
-        continent_cn_label: String @alias(property: \"continent:label\")
-        countryContainssOut(filter: CountryInput, options: Options): [Country] @relationship(edgeType:\"contains\", direction:OUT)
-        countryContinent_cn_labelsOut(filter: CountryInput, options: Options): [Country] @relationship(edgeType:\"continent:label\", direction:OUT)
-        contains:Contains
-        _continent_cn_label:Continent_cn_label
+        instance_type: String
+        state: String
+        arn: String
+        abc_op_123_cp__dot_efg_cn_456Resource_linkOut: Abc_op_123_cp__dot_efg_cn_456 @relationship(edgeType:\"resource_link\", direction:OUT)
+        abc_ex__dol_123_amp_efgResource_linkOut: Abc_ex__dol_123_amp_efg @relationship(edgeType:\"resource_link\", direction:OUT)
+        abc_ex__dol_123_amp_efgResource_linkIn: Abc_ex__dol_123_amp_efg @relationship(edgeType:\"resource_link\", direction:IN)
+        resource_link:Resource_link
     }
-    
-    input ContinentInput {
+
+    input Abc_ex__dol_123_amp_efgInput {
         _id: ID @id
-        id: String
-        continent_cn_label: String @alias(property: \"continent:label\")
+        instance_type: String
+        state: String
+        arn: String
     }
-    
-    type Country @alias(property:\"country\") {
+
+    type Abc_op_123_cp__dot_efg_cn_456 @alias(property:\"abc(123).efg:456\") {
         _id: ID! @id
-        id: ID
-        country_cn_label: String @alias(property: \"country:label\")
-        continentContainsIn: Continent @relationship(edgeType:\"contains\", direction:IN)
-        continentContinent_cn_labelIn: Continent @relationship(edgeType:\"continent:label\", direction:IN)
-        contains:Contains
-        continent_cn_label:Continent_cn_label
+        name: String
+        ip_range_dot_first_ip: String @alias(property: \"ip_range.first_ip\")
+        ip_range_dot_last_ip: String @alias(property: \"ip_range.last_ip\")
+        abc_ex__dol_123_amp_efgResource_linksIn(filter: Abc_ex__dol_123_amp_efg Input, options: Options): [Abc_ex__dol_123_amp_efg] @relationship(edgeType:\"resource_link\", direction:IN)
+        resource_link:Resource_link
     }
-    
-    input CountryInput {
+
+    input Abc_op_123_cp__dot_efg_cn_456Input {
         _id: ID @id
-        id: String
-        country_cn_label: String @alias(property: \"country:label\")
+        name: String
+        ip_range_dot_first_ip: String @alias(property: \"ip_range.first_ip\")
+        ip_range_dot_last_ip: String @alias(property: \"ip_range.last_ip\")
     }
-    
-    type Contains @alias(property:\"contains\") {
+
+    type Abc_eq_123_at__os_efg_cs_456 @alias(property:\"abc=123@[efg]456\") {
         _id: ID! @id
-        id: ID
-        edge_cn_label: String @alias(property: \"edge:label\")
+        instance_type: String
+        state: String
+        arn: String
     }
-    
-    input ContainsInput {
-        id: String
-        edge_cn_label: String @alias(property: \"edge:label\")
+
+    input Abc_eq_123_at__os_efg_cs_456Input {
+        _id: ID @id
+        instance_type: String
+        state: String
+        arn: String
     }
-    
-    type Continent_cn_label @alias(property:\"continent:label\") {
+
+    type Abc_oc_123_cc__vb_efg_hy_456 @alias(property:\"abc{123}|efg-456\") {
         _id: ID! @id
-        id: ID
+        name: String
+        ip_range_dot_first_ip: String @alias(property: \"ip_range.first_ip\")
+        ip_range_dot_last_ip: String @alias(property: \"ip_range.last_ip\")
     }
-    
-    input Continent_cn_labelInput @alias(property: \"continent:label\") {
-        id: String
+
+    input Abc_oc_123_cc__vb_efg_hy_456Input {
+        _id: ID @id
+        name: String
+        ip_range_dot_first_ip: String @alias(property: \"ip_range.first_ip\")
+        ip_range_dot_last_ip: String @alias(property: \"ip_range.last_ip\")
     }
-    
+
+    type Resource_link @alias(property:\"resource_link\") {
+        _id: ID! @id
+    }
+
     input Options {
         limit:Int
     }
-    
+
     type Query {
-        getNodeContinent(filter: ContinentInput): Continent
-        getNodeContinents(filter: ContinentInput, options: Options): [Continent]
-        getNodeCountry(filter: CountryInput): Country
-        getNodeCountrys(filter: CountryInput, options: Options): [Country]
+        getNodeAbc_ex__dol_123_amp_efg(filter: Abc_ex__dol_123_amp_efg Input): Abc_ex__dol_123_amp_efg
+        getNodeAbc_ex__dol_123_amp_efgs(filter: Abc_ex__dol_123_amp_efg Input, options: Options): [Abc_ex__dol_123_amp_efg]
+        getNodeAbc_op_123_cp__dot_efg_cn_456(filter: Abc_op_123_cp__dot_efg_cn_456 Input): Abc_op_123_cp__dot_efg_cn_456
+        getNodeAbc_op_123_cp__dot_efg_cn_456s(filter: Abc_op_123_cp__dot_efg_cn_456 Input, options: Options): [Abc_op_123_cp__dot_efg_cn_456]
+        getNodeAbc_eq_123_at__os_efg_cs_456(filter: Abc_eq_123_at__os_efg_cs_456 Input): Abc_eq_123_at__os_efg_cs_456
+        getNodeAbc_eq_123_at__os_efg_cs_456s(filter: Abc_eq_123_at__os_efg_cs_456 Input, options: Options): [Abc_eq_123_at__os_efg_cs_456]
+        getNodeAbc_oc_123_cc__vb_efg_hy_456(filter: Abc_oc_123_cc__vb_efg_hy_456 Input): Abc_oc_123_cc__vb_efg_hy_456
+        getNodeAbc_oc_123_cc__vb_efg_hy_456s(filter: Abc_oc_123_cc__vb_efg_hy_456 Input, options: Options): [Abc_oc_123_cc__vb_efg_hy_456]
     }
-    
+
     schema {
         query: Query
     }
@@ -217,57 +257,6 @@ type Continent @alias(property:\"continent\") {
 
 test('node with same property and edge label should add underscore prefix', () => {
     expect(graphDBInferenceSchema(JSON.stringify(SCHEMA_WITH_PROPERTY_AND_EDGE_SAME_NAME), false)).toContain('_commonName:Commonname');
-});
-
-describe("replaceCleanseLabel suite", function() {
-    test('should replace ! with _ex_', function() {
-        expect(replaceCleanseLabel("abc!123")).toBe("abc_ex_123");
-    });
-    test('should replace $ with _dol_', function() {
-        expect(replaceCleanseLabel("abc$123")).toBe("abc_dol_123");
-    });
-    test('should replace & with _amp_', function() {
-        expect(replaceCleanseLabel("abc&123")).toBe("abc_amp_123");
-    });
-    test('should replace ( with _op_', function() {
-        expect(replaceCleanseLabel("abc(123")).toBe("abc_op_123");
-    });
-    test('should replace ) with _cp_', function() {
-        expect(replaceCleanseLabel("abc)123")).toBe("abc_cp_123");
-    });
-    test('should replace . with _dot_', function() {
-        expect(replaceCleanseLabel("abc.123")).toBe("abc_dot_123");
-    });
-    test('should replace : with _cn_', function() {
-        expect(replaceCleanseLabel("abc:123")).toBe("abc_cn_123");
-    });
-    test('should replace = with _eq_', function() {
-        expect(replaceCleanseLabel("abc=123")).toBe("abc_eq_123");
-    });
-    test('should replace @ with _at_', function() {
-        expect(replaceCleanseLabel("abc@123")).toBe("abc_at_123");
-    });
-    test('should replace [ with _os_', function() {
-        expect(replaceCleanseLabel("abc[123")).toBe("abc_os_123");
-    });
-    test('should replace ] with _cs_', function() {
-        expect(replaceCleanseLabel("abc]123")).toBe("abc_cs_123");
-    });
-    test('should replace { with _oc_', function() {
-        expect(replaceCleanseLabel("abc{123")).toBe("abc_oc_123");
-    });
-    test('should replace | with _vb_', function() {
-        expect(replaceCleanseLabel("abc|123")).toBe("abc_vb_123");
-    });
-    test('should replace } with _cc_', function() {
-        expect(replaceCleanseLabel("abc}123")).toBe("abc_cc_123");
-    });
-    test('should replace - with _hy_', function() {
-        expect(replaceCleanseLabel("abc-123")).toBe("abc_hy_123");
-    });
-    test('should replace all special chars', function() {
-        expect(replaceCleanseLabel("abc!$&().:=@[]{|}-123")).toBe("abc_ex__dol__amp__op__cp__dot__cn__eq__at__os__cs__oc__vb__cc__hy_123");
-    });
 });
 
 function fixWhitespace(str) {
