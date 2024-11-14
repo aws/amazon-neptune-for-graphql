@@ -279,34 +279,17 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 let fromCase = replaceCleanseLabel(direction.from);
                 let toCase = replaceCleanseLabel(direction.to);
                 let edgeCase = replaceCleanseLabel(edge.label);
-                let invalidDir = direction.from !== fromCase || direction.to !== toCase || edge.label !== edgeCase ? true : false;
                 fromCase = toPascalCase(fromCase);
                 toCase = toPascalCase(toCase);
                 edgeCase = toPascalCase(edgeCase);
 
                 if (edge.properties.length > 0) {               
-                    if (invalidDir) {
-                        r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase} @alias(property: "connectNode${direction.from}ToNode${direction.to}Edge${edge.label}")\n`;
-                        r += `\tupdateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase} @alias(property: "updateEdge${edge.label}From${direction.from}To${direction.to}")\n`;
-                    }
-                    else {
-                        r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
-                        r += `\tupdateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
-                    } 
+                    r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
+                    r += `\tupdateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
                 } else {
-                    if (invalidDir) {
-                        r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase} @alias(property: "connectNode${direction.from}ToNode${direction.to}Edge${edge.label}")\n`;
-                    }
-                    else {
-                        r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;
-                    }
+                    r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;
                 }
-                if (invalidDir) {
-                    r += `\tdeleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean @alias(property: "deleteEdge${edge.label}From${direction.from}To${direction.to}")\n`;
-                }
-                else {
-                    r += `\tdeleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
-                }
+                r += `\tdeleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
             });
         });
         r += '}\n\n';
