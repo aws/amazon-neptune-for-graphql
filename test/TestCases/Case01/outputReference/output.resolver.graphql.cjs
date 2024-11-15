@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2023-10-10T23:49:35.621Z
+// 2024-11-15T20:04:58.079Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
