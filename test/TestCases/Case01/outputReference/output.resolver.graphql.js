@@ -3537,7 +3537,6 @@ function getTypeAlias(typeName) {
     else
         return alias;
 }
-  
 
 function getSchemaInputTypeArgs (inputType, schemaInfo) {
     
@@ -3845,16 +3844,16 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
             gq = gq.replace('$' + arg.name.value, arg.value.value);
         });
                 
-        matchStatements.push(gq);                
+        matchStatements.push(gq);
             
     } else {
 
         let { queryArguments, where } = getQueryArguments(obj.definitions[0].selectionSet.selections[0].arguments, querySchemaInfo);
         
         if  (queryArguments.length > 0) {
-            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias}{${queryArguments}})${where}`);
+            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`{${queryArguments}})${where}`);
         } else {
-            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:${querySchemaInfo.returnTypeAlias})${where}`);
+            matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`)${where}`);
         }
 
         if (querySchemaInfo.argOptionsLimit != null)
@@ -3996,7 +3995,7 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
                 createQueryFieldMatchStatement(fieldSchemaInfo, lastNamePath);
             }
         } else {              
-            withStatements[i].content += ' ' + lastNamePath + '.' + fieldSchemaInfo.alias;
+            withStatements[i].content += ' ' + lastNamePath + '.' + `\`${fieldSchemaInfo.alias}\``;
         }
     }        
 }
@@ -4021,9 +4020,9 @@ function createTypeFieldStatementAndRecurse(e, fieldSchemaInfo, lastNamePath, la
 
     if (schemaTypeInfo.isRelationship) {        
         if (schemaTypeInfo.relationship.direction === 'IN') {
-            matchStatements.push(`OPTIONAL MATCH (${lastNamePath})<-[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]-(${schemaTypeInfo.pathName}:${schemaTypeInfo.typeAlias}${queryArguments})`);
+            matchStatements.push(`OPTIONAL MATCH (${lastNamePath})<-[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]-(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArguments})`);
         } else {
-            matchStatements.push(`OPTIONAL MATCH (${lastNamePath})-[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]->(${schemaTypeInfo.pathName}:${schemaTypeInfo.typeAlias}${queryArguments})`);
+            matchStatements.push(`OPTIONAL MATCH (${lastNamePath})-[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]->(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArguments})`);
         }
     } 
     const thisWithId = withStatements.push({carryOver: schemaTypeInfo.pathName, inLevel: '', content: ''}) - 1;
@@ -4092,7 +4091,7 @@ function finalizeGraphQuery(matchStatements, withStatements, returnString) {
     // make a string out of match statements
     let ocMatchStatements = '';
     matchStatements.forEach(e => {
-        ocMatchStatements += e + '\n';    
+        ocMatchStatements += e + '\n';
     });
     ocMatchStatements = ocMatchStatements.substring(0, ocMatchStatements.length - 1);
     
@@ -4196,7 +4195,8 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         if (obj.definitions[0].selectionSet.selections[0].selectionSet != undefined) {        
             returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         }
-        let ocQuery = `CREATE (${nodeName}:${querySchemaInfo.returnTypeAlias} {${inputFields.fields}})\nRETURN ${returnBlock}`;        
+        let ocQuery = '';
+        ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
         return ocQuery;
     }
     
@@ -4251,10 +4251,10 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
 
         if (obj.definitions[0].selectionSet.selections[0].arguments.length > 2) {            
             let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:${egdgeTypeAlias}{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
+            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
             return ocQuery;
         } else {
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:${egdgeTypeAlias}]->(to)\nRETURN ${returnBlock}`;
+            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`]->(to)\nRETURN ${returnBlock}`;
             return ocQuery;
         }       
     } 
@@ -4284,7 +4284,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         Object.assign(parameters, {[paramFromId]: fromID});
         Object.assign(parameters, {[paramToId]: toID});
 
-        let ocQuery = `MATCH (from)-[${edgeName}:${egdgeTypeAlias}]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
+        let ocQuery = `MATCH (from)-[${edgeName}:\`${egdgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
         return  ocQuery;
     }
     
