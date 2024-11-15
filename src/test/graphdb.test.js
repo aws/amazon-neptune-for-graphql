@@ -192,7 +192,7 @@ const SCHEMA_WITH_SPECIAL_CHARS_RESULT = `
         name: String
         ip_range_dot_first_ip: String @alias(property: \"ip_range.first_ip\")
         ip_range_dot_last_ip: String @alias(property: \"ip_range.last_ip\")
-        abc_ex__dol_123_amp_efgResource_linksIn(filter: Abc_ex__dol_123_amp_efg Input, options: Options): [Abc_ex__dol_123_amp_efg] @relationship(edgeType:\"resource_link\", direction:IN)
+        abc_ex__dol_123_amp_efgResource_linksIn(filter: Abc_ex__dol_123_amp_efgInput, options: Options): [Abc_ex__dol_123_amp_efg] @relationship(edgeType:\"resource_link\", direction:IN)
         resource_link:Resource_link
     }
 
@@ -240,14 +240,14 @@ const SCHEMA_WITH_SPECIAL_CHARS_RESULT = `
     }
 
     type Query {
-        getNodeAbc_ex__dol_123_amp_efg(filter: Abc_ex__dol_123_amp_efg Input): Abc_ex__dol_123_amp_efg
-        getNodeAbc_ex__dol_123_amp_efgs(filter: Abc_ex__dol_123_amp_efg Input, options: Options): [Abc_ex__dol_123_amp_efg]
-        getNodeAbc_op_123_cp__dot_efg_cn_456(filter: Abc_op_123_cp__dot_efg_cn_456 Input): Abc_op_123_cp__dot_efg_cn_456
-        getNodeAbc_op_123_cp__dot_efg_cn_456s(filter: Abc_op_123_cp__dot_efg_cn_456 Input, options: Options): [Abc_op_123_cp__dot_efg_cn_456]
-        getNodeAbc_eq_123_at__os_efg_cs_456(filter: Abc_eq_123_at__os_efg_cs_456 Input): Abc_eq_123_at__os_efg_cs_456
-        getNodeAbc_eq_123_at__os_efg_cs_456s(filter: Abc_eq_123_at__os_efg_cs_456 Input, options: Options): [Abc_eq_123_at__os_efg_cs_456]
-        getNodeAbc_oc_123_cc__vb_efg_hy_456(filter: Abc_oc_123_cc__vb_efg_hy_456 Input): Abc_oc_123_cc__vb_efg_hy_456
-        getNodeAbc_oc_123_cc__vb_efg_hy_456s(filter: Abc_oc_123_cc__vb_efg_hy_456 Input, options: Options): [Abc_oc_123_cc__vb_efg_hy_456]
+        getNodeAbc_ex__dol_123_amp_efg(filter: Abc_ex__dol_123_amp_efgInput): Abc_ex__dol_123_amp_efg
+        getNodeAbc_ex__dol_123_amp_efgs(filter: Abc_ex__dol_123_amp_efgInput, options: Options): [Abc_ex__dol_123_amp_efg]
+        getNodeAbc_op_123_cp__dot_efg_cn_456(filter: Abc_op_123_cp__dot_efg_cn_456Input): Abc_op_123_cp__dot_efg_cn_456
+        getNodeAbc_op_123_cp__dot_efg_cn_456s(filter: Abc_op_123_cp__dot_efg_cn_456Input, options: Options): [Abc_op_123_cp__dot_efg_cn_456]
+        getNodeAbc_eq_123_at__os_efg_cs_456(filter: Abc_eq_123_at__os_efg_cs_456Input): Abc_eq_123_at__os_efg_cs_456
+        getNodeAbc_eq_123_at__os_efg_cs_456s(filter: Abc_eq_123_at__os_efg_cs_456Input, options: Options): [Abc_eq_123_at__os_efg_cs_456]
+        getNodeAbc_oc_123_cc__vb_efg_hy_456(filter: Abc_oc_123_cc__vb_efg_hy_456Input): Abc_oc_123_cc__vb_efg_hy_456
+        getNodeAbc_oc_123_cc__vb_efg_hy_456s(filter: Abc_oc_123_cc__vb_efg_hy_456Input, options: Options): [Abc_oc_123_cc__vb_efg_hy_456]
     }
 
     schema {
