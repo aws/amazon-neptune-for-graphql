@@ -5,7 +5,7 @@
     "parameters": {
         "getNodeAirport_Airport_code": "SEA"
     },
-    "resolved": "MATCH (getNodeAirport_Airport:airport{code: $getNodeAirport_Airport_code})\nRETURN {_id:ID(getNodeAirport_Airport), city: getNodeAirport_Airport.city, elev: getNodeAirport_Airport.elev, runways: getNodeAirport_Airport.runways, lat: getNodeAirport_Airport.lat, lon: getNodeAirport_Airport.lon} LIMIT 1",
+    "resolved": "MATCH (getNodeAirport_Airport:`airport`{code: $getNodeAirport_Airport_code})\nRETURN {_id:ID(getNodeAirport_Airport), city: getNodeAirport_Airport.`city`, elev: getNodeAirport_Airport.`elev`, runways: getNodeAirport_Airport.`runways`, lat: getNodeAirport_Airport.`lat`, lon: getNodeAirport_Airport.`lon`} LIMIT 1",
     "result":{
         "city": "Seattle",
         "elev": 432,
