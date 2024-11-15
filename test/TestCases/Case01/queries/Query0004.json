@@ -3,7 +3,7 @@
     "description": "Get edge properties in nested array",
     "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n airportRoutesOut {\n code\n route {\n dist\n }\n }\n }\n }\n", 
     "parameters": {},
-    "resolved": "MATCH (getAirport_Airport:`airport`{code:'SEA'})\nOPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:airport)\nWITH getAirport_Airport, getAirport_Airport_airportRoutesOut, {dist: getAirport_Airport_airportRoutesOut_route.`dist`} AS getAirport_Airport_airportRoutesOut_route_one\nWITH getAirport_Airport, collect({code: getAirport_Airport_airportRoutesOut.code, route: getAirport_Airport_airportRoutesOut_route_one}) AS getAirport_Airport_airportRoutesOut_collect\nRETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1",
+    "resolved": "MATCH (getAirport_Airport:`airport`{code:'SEA'})\nOPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:`airport`)\nWITH getAirport_Airport, getAirport_Airport_airportRoutesOut, {dist: getAirport_Airport_airportRoutesOut_route.`dist`} AS getAirport_Airport_airportRoutesOut_route_one\nWITH getAirport_Airport, collect({code: getAirport_Airport_airportRoutesOut.`code`, route: getAirport_Airport_airportRoutesOut_route_one}) AS getAirport_Airport_airportRoutesOut_collect\nRETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1",
     "result": {
         "airportRoutesOut": [
           {
