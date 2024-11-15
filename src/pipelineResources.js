@@ -169,7 +169,8 @@ async function checkPipeline() {
     startSpinner('Checking for API...');
     const notFound = 'API not found';
     try {
-        const command = new ListGraphqlApisCommand({apiType: "GRAPHQL"});
+        // set maxResults to max allowed value as workaround until https://github.com/aws/amazon-neptune-for-graphql/issues/39 is addressed
+        const command = new ListGraphqlApisCommand({apiType: "GRAPHQL", maxResults: 25});
         const response = await appSyncClient.send(command);
         response.graphqlApis.forEach(element => {
             if (element.name == NAME + 'API') {
