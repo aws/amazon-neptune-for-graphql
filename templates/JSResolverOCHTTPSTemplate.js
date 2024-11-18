@@ -744,8 +744,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         if (obj.definitions[0].selectionSet.selections[0].selectionSet != undefined) {        
             returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         }
-        let ocQuery = '';
-        ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
+        let ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
         return ocQuery;
     }
     
