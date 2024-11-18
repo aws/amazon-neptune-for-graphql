@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2024-11-15T22:32:20.616Z
+// 2024-11-18T23:08:11.415Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3532,7 +3532,7 @@ function resolveGraphDBQueryFromAppSyncEvent(event) {
     query += event.selectionSetGraphQL;    
     query += '\n}';
   
-    let graphQuery = resolveGraphDBQuery(query);
+    const graphQuery = resolveGraphDBQuery(query);
     return graphQuery;
 }
   
@@ -3987,7 +3987,6 @@ function createQueryFieldMatchStatement(fieldSchemaInfo, lastNamePath) {
         refactored.queryMatch = 'OPTIONAL ' + refactored.queryMatch;            
     matchStatements.push(refactored.queryMatch);
 
-    let lastNamePathContent = '';
     if ( refactored.returnAggregation != '' ) {
         const thisWithId = withStatements.push({carryOver: refactored.returnCarryOver, inLevel: '', content: `${refactored.returnAggregation} AS ${refactored.inLevel}`}) -1;        
         let i = withStatements.findIndex(({carryOver}) => carryOver.startsWith(lastNamePath));        
@@ -4221,21 +4220,21 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
     
     // createNode
     if (querySchemaInfo.name.startsWith('createNode') && querySchemaInfo.graphQuery == null) {
-        let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
-        let nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+        const inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
+        const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let returnBlock = `ID(${nodeName})`;
         if (obj.definitions[0].selectionSet.selections[0].selectionSet != undefined) {        
             returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         }
-        let ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
+        const ocQuery = `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${inputFields.fields}})\nRETURN ${returnBlock}`;
         return ocQuery;
     }
     
     // updateNode
     if (querySchemaInfo.name.startsWith('updateNode') && querySchemaInfo.graphQuery == null) {
-        let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
-        let nodeID = inputFields.graphIdValue;
-        let nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+        const inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
+        const nodeID = inputFields.graphIdValue;
+        const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let returnBlock = `ID(${nodeName})`;
         if (obj.definitions[0].selectionSet.selections[0].selectionSet != undefined) {        
             returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
@@ -4243,7 +4242,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         // :( SET += is not working, so let's work around it.
         //let ocQuery = `MATCH (${nodeName}) WHERE ID(${nodeName}) = '${nodeID}' SET ${nodeName} += {${inputFields}} RETURN ${returnBlock}`;
         // workaround:
-        let propertyList = inputFields.fields.split(', ');
+        const propertyList = inputFields.fields.split(', ');
         let setString = '';
         propertyList.forEach(property => {
             let kv = property.split(': ');
@@ -4252,17 +4251,17 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         setString = setString.substring(0, setString.length - 1);
         let param  = nodeName + '_' + 'whereId';
         Object.assign(parameters, {[param]: nodeID});
-        let ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nSET ${setString}\nRETURN ${returnBlock}`;
+        const ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nSET ${setString}\nRETURN ${returnBlock}`;
         return ocQuery;
     }
     
     // deleteNode
     if (querySchemaInfo.name.startsWith('deleteNode') && querySchemaInfo.graphQuery == null) {    
-        let nodeID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
-        let nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+        const nodeID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
+        const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let param  = nodeName + '_' + 'whereId';
         Object.assign(parameters, {[param]: nodeID});
-        let ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nDETACH DELETE ${nodeName}\nRETURN true`;
+        const ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nDETACH DELETE ${nodeName}\nRETURN true`;
         return ocQuery;
     }
     
@@ -4270,10 +4269,10 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
     if (querySchemaInfo.name.startsWith('connectNode') && querySchemaInfo.graphQuery == null) {
         let fromID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;
-        let edgeType = querySchemaInfo.name.match(new RegExp('Edge' + "(.*)" + ''))[1];
-        let edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
-        let egdgeTypeAlias = getTypeAlias(edgeType);
-        let returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
+        const edgeType = querySchemaInfo.name.match(new RegExp('Edge' + "(.*)" + ''))[1];
+        const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+        const egdgeTypeAlias = getTypeAlias(edgeType);
+        const returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         
         let paramFromId  = edgeName + '_' + 'whereFromId';
         let paramToId  = edgeName + '_' + 'whereToId';
@@ -4281,11 +4280,11 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         Object.assign(parameters, {[paramToId]: toID});
 
         if (obj.definitions[0].selectionSet.selections[0].arguments.length > 2) {            
-            let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
+            const inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
+            const ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`{${inputFields.fields}}]->(to)\nRETURN ${returnBlock}`;
             return ocQuery;
         } else {
-            let ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`]->(to)\nRETURN ${returnBlock}`;
+            const ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`]->(to)\nRETURN ${returnBlock}`;
             return ocQuery;
         }       
     } 
@@ -4294,15 +4293,13 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
     if (querySchemaInfo.name.startsWith('updateEdge') && querySchemaInfo.graphQuery == null) {        
         let fromID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;
-        let edgeType = querySchemaInfo.name.match(new RegExp('updateEdge' + "(.*)" + 'From'))[1];
-        let egdgeTypeAlias = getTypeAlias(edgeType);
-        let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
-        let edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+        const inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
+        const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let returnBlock = `ID(${edgeName})`;
         if (obj.definitions[0].selectionSet.selections[0].selectionSet != undefined) {        
             returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
         }    
-        let propertyList = inputFields.fields.split(', ');
+        const propertyList = inputFields.fields.split(', ');
         let setString = '';
         propertyList.forEach(property => {
             let kv = property.split(': ');
@@ -4310,12 +4307,12 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         });
         setString = setString.substring(0, setString.length - 1);
 
-        let paramFromId  = edgeName + '_' + 'whereFromId';
-        let paramToId  = edgeName + '_' + 'whereToId';
+        const paramFromId  = edgeName + '_' + 'whereFromId';
+        const paramToId  = edgeName + '_' + 'whereToId';
         Object.assign(parameters, {[paramFromId]: fromID});
         Object.assign(parameters, {[paramToId]: toID});
 
-        let ocQuery = `MATCH (from)-[${edgeName}:$\`{egdgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
+        const ocQuery = `MATCH (from)-[${edgeName}:$\`{egdgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
         return  ocQuery;
     }
     
@@ -4323,14 +4320,14 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
     if (querySchemaInfo.name.startsWith('deleteEdge') && querySchemaInfo.graphQuery == null) {
         let fromID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;   
-        let edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+        const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
 
-        let paramFromId  = edgeName + '_' + 'whereFromId';
-        let paramToId  = edgeName + '_' + 'whereToId';
+        const paramFromId  = edgeName + '_' + 'whereFromId';
+        const paramToId  = edgeName + '_' + 'whereToId';
         Object.assign(parameters, {[paramFromId]: fromID});
         Object.assign(parameters, {[paramToId]: toID});                
         
-        let ocQuery = `MATCH (from)-[${edgeName}]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nDELETE ${edgeName}\nRETURN true`;
+        const ocQuery = `MATCH (from)-[${edgeName}]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nDELETE ${edgeName}\nRETURN true`;
         return  ocQuery;
     }
             
@@ -4340,7 +4337,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         let ocQuery = querySchemaInfo.graphQuery;
         
         if (ocQuery.includes('$input')) {
-            let inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
+            const inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
             ocQuery = ocQuery.replace('$input', inputFields.fields);
         } else {
             obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
@@ -4350,9 +4347,9 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         
         if (ocQuery.includes('RETURN')) {
             const statements = ocQuery.split(' RETURN ');
-            let entityName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
-            let body = statements[0].replace("this", entityName);
-            let returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
+            const entityName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+            const body = statements[0].replace("this", entityName);
+            const returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
             ocQuery = body + '\nRETURN ' + returnBlock;
         }
         
@@ -4422,7 +4419,6 @@ function refactorGremlinqueryOutput(queryResult, fieldsAlias) {
     let data = '';
     let isScalar = false;
     let isOneElement = false;
-    let isArray = false;
 
     if (r['@value'].length == 1) {
         if (r['@value'][0]['@type'] == 'g:Map')
