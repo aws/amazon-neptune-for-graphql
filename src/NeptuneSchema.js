@@ -55,8 +55,7 @@ const schema = {
 };
 
 function sanitize(text) {
-    text = `\`${text}\``;
-    return text;
+    return `\`${text}\``;
 }
 
 /**
