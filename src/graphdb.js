@@ -53,7 +53,7 @@ function toPascalCase (str) {
 }
 
 // Changes every instance of invalid characters in the given label with the following abbreviations
-function replaceCleanseLabel(label) {
+function cleanseLabel(label) {
     return label
         .replaceAll("!", "_ex_")
         .replaceAll("$", "_dol_")
@@ -80,7 +80,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
     gdbs.nodeStructures.forEach(node => {
         // node type
-        let nodeCase = replaceCleanseLabel(node.label);
+        let nodeCase = cleanseLabel(node.label);
         if (changeCase) {
             nodeCase = toPascalCase(nodeCase);
         }
@@ -99,7 +99,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 r+= `\tid: ID\n`;
             }
             else {
-                let propertyCase = replaceCleanseLabel(property.name);
+                let propertyCase = cleanseLabel(property.name);
                 let alias = '';
                 if (property.name !== propertyCase) {
                     alias = ` @alias(property: "${property.name}")`;
@@ -111,9 +111,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
             edge.directions.forEach(direction => {
-                let fromCase = toPascalCase(replaceCleanseLabel(direction.from));
-                let toCase = toPascalCase(replaceCleanseLabel(direction.to));
-                let edgeCase = toPascalCase(replaceCleanseLabel(edge.label));
+                let fromCase = toPascalCase(cleanseLabel(direction.from));
+                let toCase = toPascalCase(cleanseLabel(direction.to));
+                let edgeCase = toPascalCase(cleanseLabel(edge.label));
 
                 if (direction.from == node.label && direction.to == node.label){
                     if (direction.relationship == 'MANY-MANY') {
@@ -172,7 +172,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 ? toPascalCase(edgeType)
                 : edgeType;
 
-            r += `\t${replaceCleanseLabel(aliasedEdgeType)}:${replaceCleanseLabel(caseAdjustedEdgeType)}\n`;
+            r += `\t${cleanseLabel(aliasedEdgeType)}:${cleanseLabel(caseAdjustedEdgeType)}\n`;
         });
 
         r += '}\n\n';
@@ -181,7 +181,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += `input ${nodeCase}Input {\n`;
         r += '\t_id: ID @id\n';
         node.properties.forEach(property => {
-            let propertyCase = replaceCleanseLabel(property.name);
+            let propertyCase = cleanseLabel(property.name);
             if (property.name !== propertyCase) {
                 r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
             }
@@ -195,7 +195,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // edge types
     gdbs.edgeStructures.forEach(edge => {
         // edge type
-        let edgeCase = replaceCleanseLabel(edge.label);
+        let edgeCase = cleanseLabel(edge.label);
         if (changeCase) {
             edgeCase = toPascalCase(edgeCase);
         }
@@ -212,7 +212,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 r += `\tid: ID\n`;
             }
             else {
-                let propertyCase = replaceCleanseLabel(property.name);
+                let propertyCase = cleanseLabel(property.name);
                 let alias = '';
                 if (property.name !== propertyCase) {
                     alias = ` @alias(property: "${property.name}")`;
@@ -227,7 +227,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             r += `input ${edgeCase}Input {\n`;
 
             edge.properties.forEach(property => {
-                let propertyCase = replaceCleanseLabel(property.name);
+                let propertyCase = cleanseLabel(property.name);
                 if (property.name !== propertyCase) {
                     r += `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
                 }
@@ -247,7 +247,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // query
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
-        let nodeCase = replaceCleanseLabel(node.label);
+        let nodeCase = cleanseLabel(node.label);
         nodeCase = toPascalCase(nodeCase);
         r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
         r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}]\n`;
@@ -258,7 +258,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     if (addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
-            let nodeCase = replaceCleanseLabel(node.label);
+            let nodeCase = cleanseLabel(node.label);
             nodeCase = toPascalCase(nodeCase);
             r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
             r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
@@ -267,9 +267,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         gdbs.edgeStructures.forEach(edge => {
             edge.directions.forEach(direction => {
-                let fromCase = toPascalCase(replaceCleanseLabel(direction.from));
-                let toCase = toPascalCase(replaceCleanseLabel(direction.to));
-                let edgeCase = toPascalCase(replaceCleanseLabel(edge.label));
+                let fromCase = toPascalCase(cleanseLabel(direction.from));
+                let toCase = toPascalCase(cleanseLabel(direction.to));
+                let edgeCase = toPascalCase(cleanseLabel(edge.label));
 
                 if (edge.properties.length > 0) {               
                     r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
