@@ -111,12 +111,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
             edge.directions.forEach(direction => {
-                let fromCase = replaceCleanseLabel(direction.from);
-                fromCase = toPascalCase(fromCase);
-                let toCase = replaceCleanseLabel(direction.to);
-                toCase = toPascalCase(toCase);
-                let edgeCase = replaceCleanseLabel(edge.label);
-                edgeCase = toPascalCase(edgeCase);
+                let fromCase = toPascalCase(replaceCleanseLabel(direction.from));
+                let toCase = toPascalCase(replaceCleanseLabel(direction.to));
+                let edgeCase = toPascalCase(replaceCleanseLabel(edge.label));
 
                 if (direction.from == node.label && direction.to == node.label){
                     if (direction.relationship == 'MANY-MANY') {
@@ -270,12 +267,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         gdbs.edgeStructures.forEach(edge => {
             edge.directions.forEach(direction => {
-                let fromCase = replaceCleanseLabel(direction.from);
-                let toCase = replaceCleanseLabel(direction.to);
-                let edgeCase = replaceCleanseLabel(edge.label);
-                fromCase = toPascalCase(fromCase);
-                toCase = toPascalCase(toCase);
-                edgeCase = toPascalCase(edgeCase);
+                let fromCase = toPascalCase(replaceCleanseLabel(direction.from));
+                let toCase = toPascalCase(replaceCleanseLabel(direction.to));
+                let edgeCase = toPascalCase(replaceCleanseLabel(edge.label));
 
                 if (edge.properties.length > 0) {               
                     r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
