@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2024-11-18T23:08:03.581Z
+// 2024-11-19T00:06:35.400Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -4261,6 +4261,8 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
     if (querySchemaInfo.name.startsWith('updateEdge') && querySchemaInfo.graphQuery == null) {        
         let fromID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;
+        let edgeType = querySchemaInfo.name.match(new RegExp('updateEdge' + "(.*)" + 'From'))[1];
+        let egdgeTypeAlias = getTypeAlias(edgeType);
         const inputFields = transformFunctionInputParameters(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let returnBlock = `ID(${edgeName})`;
@@ -4280,7 +4282,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         Object.assign(parameters, {[paramFromId]: fromID});
         Object.assign(parameters, {[paramToId]: toID});
 
-        const ocQuery = `MATCH (from)-[${edgeName}:$\`{egdgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
+        const ocQuery = `MATCH (from)-[${edgeName}:$\`${egdgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${setString}\nRETURN ${returnBlock}`;
         return  ocQuery;
     }
     
@@ -4387,6 +4389,7 @@ function refactorGremlinqueryOutput(queryResult, fieldsAlias) {
     let data = '';
     let isScalar = false;
     let isOneElement = false;
+    let isArray = false;
 
     if (r['@value'].length == 1) {
         if (r['@value'][0]['@type'] == 'g:Map')
