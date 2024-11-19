@@ -938,6 +938,7 @@ function refactorGremlinqueryOutput(queryResult, fieldsAlias) {
     let data = '';
     let isScalar = false;
     let isOneElement = false;
+    let isArray = false;
 
     if (r['@value'].length == 1) {
         if (r['@value'][0]['@type'] == 'g:Map')
