@@ -128,7 +128,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                         edgeTypes.push(edge.label);                                      
                 }
                 
-                if (direction.from === node.label && direction.to != node.label){
+                if (direction.from === node.label && direction.to !== node.label){
                     if (direction.relationship === 'MANY-MANY') {
                         r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
@@ -142,7 +142,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                         edgeTypes.push(edge.label);                                      
                 }
                 
-                if (direction.from != node.label && direction.to === node.label){
+                if (direction.from !== node.label && direction.to === node.label){
                     if (direction.relationship === 'MANY-MANY') {
                         r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`                       
                     }
@@ -247,8 +247,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // query
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
-        let nodeCase = cleanseLabel(node.label);
-        nodeCase = toPascalCase(nodeCase);
+        let nodeCase = toPascalCase(cleanseLabel(node.label));
         r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
         r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}]\n`;
     });
@@ -258,8 +257,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     if (addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
-            let nodeCase = cleanseLabel(node.label);
-            nodeCase = toPascalCase(nodeCase);
+            let nodeCase = toPascalCase(cleanseLabel(node.label));
             r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
             r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
             r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean\n`;
