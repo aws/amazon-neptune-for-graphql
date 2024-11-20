@@ -5,7 +5,7 @@
     "--remove-aws-pipeline-name", "AirportsJestTest",
     "--output-folder-path", "./test/TestCases/Case05/output"],
   "host": "<AIR_ROUTES_DB_HOST>",
-  "port": "<AIR_ROUTES_DB_HOST>",
+  "port": "<AIR_ROUTES_DB_PORT>",
   "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
   "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }

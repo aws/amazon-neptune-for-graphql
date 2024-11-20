@@ -10,11 +10,11 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL query
+// import gql from 'graphql-tag'; // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
 
-// 2024-11-19T00:06:35.400Z
+// 2024-11-20T00:14:56.026Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -4468,6 +4468,7 @@ function resolveGremlinQuery(obj, querySchemaInfo) {
     return gremlinQuery;
 }
 
+import {gql} from 'graphql-tag'
 
 // Function takes the graphql query and output the graphDB query
 function resolveGraphDBQuery(query) {
@@ -4499,4 +4500,4 @@ function resolveGraphDBQuery(query) {
 }
 
 
-module.exports = { resolveGraphDBQueryFromAppSyncEvent, resolveGraphDBQueryFromApolloQueryEvent, resolveGraphDBQuery, refactorGremlinqueryOutput };
+export { resolveGraphDBQueryFromAppSyncEvent, resolveGraphDBQueryFromApolloQueryEvent, resolveGraphDBQuery, refactorGremlinqueryOutput };

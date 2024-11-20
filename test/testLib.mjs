@@ -128,11 +128,13 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" +queryFile));
         if (query.graphql != "") {
             const result = resolverModule.resolveGraphDBQuery(query.graphql);
+            
             const httpResult = await queryNeptune(query.resolved, result.language, host, port, result.parameters);
-                
+            
             let data = null;
-            if (result.language == 'opencypher')
+            if (result.language == 'opencypher') {
                 data = httpResult.results[0][Object.keys(httpResult.results[0])[0]];
+            }
             else {
                 const input = httpResult.result.data;
                 data = JSON.parse(resolverModule.refactorGremlinqueryOutput(input, result.fieldsAlias));                                            

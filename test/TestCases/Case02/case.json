@@ -3,7 +3,7 @@
     "description":"Start from graph db json, from Air Routes db",
     "argv":[ "--quiet",
             "--input-graphdb-schema-file", "./test/TestCases/Case02/input/airports.graphdb.json",
-            "--output-js-resolver-file", "./test/TestCases/Case02/output/output.resolver.graphql.cjs",
+            "--output-js-resolver-file", "./test/TestCases/Case02/output/output.resolver.graphql.mjs",
             "--output-folder-path", "./test/TestCases/Case02/output",
             "--output-no-lambda-zip"],
     "host": "<AIR_ROUTES_DB_HOST>",

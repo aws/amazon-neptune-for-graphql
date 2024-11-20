@@ -38,7 +38,7 @@
   "files": [
     "neptune-for-graphql.mjs",
     "./templates/CDKTemplate.js",
-    "./templates/JSResolverOCHTTPSTemplate.js",
+    "./templates/JSResolverOCHTTPSTemplate.mjs",
     "./templates/Lambda4AppSyncHTTP/index.mjs",
     "./templates/Lambda4AppSyncHTTP/package.json",
     "./templates/Lambda4AppSyncSDK/index.mjs",

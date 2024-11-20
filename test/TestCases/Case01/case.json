@@ -4,7 +4,7 @@
     "argv":["--quiet", 
             "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
             "--input-schema-changes-file", "./test/TestCases/Case01/input/changesAirport.json", 
-            "--output-js-resolver-file", "./test/TestCases/Case01/output/output.resolver.graphql.cjs",
+            "--output-js-resolver-file", "./test/TestCases/Case01/output/output.resolver.graphql.mjs",
             "--output-folder-path", "./test/TestCases/Case01/output",
             "--output-no-lambda-zip"],
     "host": "<AIR_ROUTES_DB_HOST>",
