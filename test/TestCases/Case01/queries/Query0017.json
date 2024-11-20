@@ -5,7 +5,7 @@
     "parameters": {
         "getNodeAirport_Airport_whereId": "22"
     },
-    "resolved": "MATCH (getNodeAirport_Airport:airport) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport_whereId\nRETURN {city: getNodeAirport_Airport.city} LIMIT 1",
+    "resolved": "MATCH (getNodeAirport_Airport:`airport`) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport_whereId\nRETURN {city: getNodeAirport_Airport.`city`} LIMIT 1",
     "result":{
         "city": "Seattle"
     }

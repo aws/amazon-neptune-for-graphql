@@ -5,7 +5,7 @@
     "parameters": {
         "getNodeAirport_Airport_code": "SEA"
     },
-    "resolved": "MATCH (getNodeAirport_Airport:airport{code: $getNodeAirport_Airport_code})\nRETURN {city: getNodeAirport_Airport.city} LIMIT 1",
+    "resolved": "MATCH (getNodeAirport_Airport:`airport`{code: $getNodeAirport_Airport_code})\nRETURN {city: getNodeAirport_Airport.`city`} LIMIT 1",
     "result":{
         "city": "Seattle"
     }

@@ -6,7 +6,7 @@
         "createNodeAirport_Airport_code": "NAX",
         "createNodeAirport_Airport_city": "Reggio Emilia"
       },
-    "resolved": "CREATE (createNodeAirport_Airport:airport {code: $createNodeAirport_Airport_code, city: $createNodeAirport_Airport_city})\nRETURN {code: createNodeAirport_Airport.code}",
+    "resolved": "CREATE (createNodeAirport_Airport:`airport` {code: $createNodeAirport_Airport_code, city: $createNodeAirport_Airport_city})\nRETURN {code: createNodeAirport_Airport.`code`}",
     "result":{
         "code": "NAX"
     }
