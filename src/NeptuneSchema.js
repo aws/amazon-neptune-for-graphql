@@ -15,7 +15,7 @@ import { aws4Interceptor } from "aws4-axios";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
 import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
-import { ExecuteQueryCommand, GetGraphSummaryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
+import { ExecuteQueryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 
 const NEPTUNE_DB = 'neptune-db';
 const NEPTUNE_GRAPH = 'neptune-graph';
@@ -366,14 +366,13 @@ function getNeptuneGraphClient() {
  */
 async function getNeptuneGraphSummary() {
     loggerInfo('Retrieving ' + NEPTUNE_GRAPH + ' summary')
-    const client = getNeptuneGraphClient();
-    const command = new GetGraphSummaryCommand({
-        graphIdentifier: NAME,
-        mode: 'detailed'
+    let response = await axios.get(`https://${HOST}:${PORT}/summary`, {
+        params: {
+            mode: 'detailed'
+        }
     });
-    const response = await client.send(command);
     loggerInfo('Retrieved ' + NEPTUNE_GRAPH + ' summary')
-    return response.graphSummary;
+    return response.data.graphSummary;
 }
 
 /**
