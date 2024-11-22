@@ -3,7 +3,7 @@
 
 # **Amazon Neptune utility for GraphQL&trade; schemas and resolvers**
 
-The Amazon Neptune utility for GraphQL&trade; is a Node.js command-line utility to help with the creation and maintenance of a GraphQL API for the Amazon Neptune database. It is a no-code solution for a GraphQL resolver when GraphQL queries have a variable number of input parameters and return a variable number of nested fields.
+The Amazon Neptune utility for GraphQL&trade; is a Node.js command-line utility to help with the creation and maintenance of a GraphQL API for the Amazon Neptune Database or Neptune Analytics graph. It is a no-code solution for a GraphQL resolver when GraphQL queries have a variable number of input parameters and return a variable number of nested fields.
 
 If you **start from a Neptune database with data**, the utility discover the graph database schema including nodes, edges, properties and edges cardinality, generate the GraphQL schema with the directives required to map the GraphQL types to the graph databases nodes and edges, and auto-generate the resolver code. We optimized the resolver code to reduce the latency of querying Amazon Neptune by returning only the data requested by the GraphQL query. *(Note: the utility works only for Property Graph databases, not RDF yet)*
 

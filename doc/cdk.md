@@ -48,7 +48,7 @@ Copy from the utility CDK output files from the *output* directory in the CDK ap
 
 Update the CDK test project, editing the file `bin/`*your-CDK-dir*`.js`
 <br>
-The file looks like this:
+The original file looks like this:
 ```js
 #!/usr/bin/env node
 
@@ -69,7 +69,19 @@ new CdkStack(app, 'CdkStack', {
 });
 ```
 
-Update the require and integrated the CDK class the utility created. Like this:
+Update the require statement to reference the `AppSyncNeptuneStack` class from the  `-cdk.js` file that was copied to the `lib` directory:
+
+```js
+const { AppSyncNeptuneStack } = require('../lib/your-new-GraphQL-API-name-cdk');
+```
+
+Update the stack instantiation to reference `AppSyncNeptuneStack` and change the stack name if desired:
+
+```js
+new AppSyncNeptuneStack(app, 'your-CdkStack-name', {
+```
+
+The end result should look something like this:
 ```js
 #!/usr/bin/env node
 
