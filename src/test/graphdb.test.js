@@ -255,6 +255,279 @@ const SCHEMA_WITH_SPECIAL_CHARS_RESULT = `
     }
 `;
 
+const AIRPORT_SCHEMA = {
+    "nodeStructures": [
+        {
+            "label": "continent",
+            "properties": [
+            {
+                "name": "type",
+                "type": "String"
+            },
+            {
+                "name": "code",
+                "type": "String"
+            },
+            {
+                "name": "desc",
+                "type": "String"
+            }
+            ]
+        },
+        {
+            "label": "country",
+            "properties": [
+            {
+                "name": "type",
+                "type": "String"
+            },
+            {
+                "name": "code",
+                "type": "String"
+            },
+            {
+                "name": "desc",
+                "type": "String"
+            }
+            ]
+        },
+        {
+            "label": "version",
+            "properties": [
+            {
+                "name": "date",
+                "type": "String"
+            },
+            {
+                "name": "desc",
+                "type": "String"
+            },
+            {
+                "name": "author",
+                "type": "String"
+            },
+            {
+                "name": "type",
+                "type": "String"
+            },
+            {
+                "name": "code",
+                "type": "String"
+            }
+            ]
+        },
+        {
+            "label": "airport",
+            "properties": [
+            {
+                "name": "type",
+                "type": "String"
+            },
+            {
+                "name": "city",
+                "type": "String"
+            },
+            {
+                "name": "icao",
+                "type": "String"
+            },
+            {
+                "name": "code",
+                "type": "String"
+            },
+            {
+                "name": "country",
+                "type": "String"
+            },
+            {
+                "name": "lat",
+                "type": "Float"
+            },
+            {
+                "name": "longest",
+                "type": "Float"
+            },
+            {
+                "name": "runways",
+                "type": "Float"
+            },
+            {
+                "name": "desc",
+                "type": "String"
+            },
+            {
+                "name": "lon",
+                "type": "Float"
+            },
+            {
+                "name": "region",
+                "type": "String"
+            },
+            {
+                "name": "elev",
+                "type": "Float"
+            }
+            ]
+        }
+        ],
+        "edgeStructures": [
+        {
+            "label": "contains",
+            "properties": [],
+            "directions": [
+            {
+                "from": "continent",
+                "to": "airport",
+                "relationship": "ONE-MANY"
+            },
+            {
+                "from": "country",
+                "to": "airport",
+                "relationship": "ONE-MANY"
+            }
+            ]
+        },
+        {
+            "label": "route",
+            "properties": [
+            {
+                "name": "dist",
+                "type": "Float"
+            }
+            ],
+            "directions": [
+            {
+                "from": "airport",
+                "to": "airport",
+                "relationship": "MANY-MANY"
+            }
+            ]
+        }
+    ]
+};
+
+const AIRPORT_SCHEMA_RESULT = `
+    type Continent @alias(property:"continent") {
+        _id: ID! @id
+        type: String
+        code: String
+        desc: String
+        airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
+        contains:Contains
+    }
+
+    input ContinentInput {
+        _id: ID @id
+        type: String
+        code: String
+        desc: String
+    }
+
+    type Country @alias(property:"country") {
+        _id: ID! @id
+        type: String
+        code: String
+        desc: String
+        airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
+        contains:Contains
+    }
+
+    input CountryInput {
+        _id: ID @id
+        type: String
+        code: String
+        desc: String
+    }
+
+    type Version @alias(property:"version") {
+        _id: ID! @id
+        date: String
+        desc: String
+        author: String
+        type: String
+        code: String
+    }
+
+    input VersionInput {
+        _id: ID @id
+        date: String
+        desc: String
+        author: String
+        type: String
+        code: String
+    }
+
+    type Airport @alias(property:"airport") {
+        _id: ID! @id
+        type: String
+        city: String
+        icao: String
+        code: String
+        country: String
+        lat: Float
+        longest: Float
+        runways: Float
+        desc: String
+        lon: Float
+        region: String
+        elev: Float
+        continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
+        countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
+        airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:OUT)
+        airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:IN)
+        contains:Contains
+        route:Route
+    }
+
+    input AirportInput {
+        _id: ID @id
+        type: String
+        city: String
+        icao: String
+        code: String
+        country: String
+        lat: Float
+        longest: Float
+        runways: Float
+        desc: String
+        lon: Float
+        region: String
+        elev: Float
+    }
+
+    type Contains @alias(property:"contains") {
+        _id: ID! @id
+    }
+
+    type Route @alias(property:"route") {
+        _id: ID! @id
+        dist: Float
+    }
+
+    input RouteInput {
+        dist: Float
+    }
+
+    input Options {
+        limit:Int
+    }
+
+    type Query {
+        getNodeContinent(filter: ContinentInput): Continent
+        getNodeContinents(filter: ContinentInput, options: Options): [Continent]
+        getNodeCountry(filter: CountryInput): Country
+        getNodeCountrys(filter: CountryInput, options: Options): [Country]
+        getNodeVersion(filter: VersionInput): Version
+        getNodeVersions(filter: VersionInput, options: Options): [Version]
+        getNodeAirport(filter: AirportInput): Airport
+        getNodeAirports(filter: AirportInput, options: Options): [Airport]
+    }
+
+    schema {
+        query: Query
+    }
+`;
+
 test('node with same property and edge label should add underscore prefix', () => {
     expect(graphDBInferenceSchema(JSON.stringify(SCHEMA_WITH_PROPERTY_AND_EDGE_SAME_NAME), false)).toContain('_commonName:Commonname');
 });
@@ -268,6 +541,14 @@ function fixWhitespace(str) {
 test('should properly replace special chars in schema', function() {
     let input = graphDBInferenceSchema(JSON.stringify(SCHEMA_WITH_SPECIAL_CHARS));
     let result = SCHEMA_WITH_SPECIAL_CHARS_RESULT;
+    input = fixWhitespace(input);
+    result = fixWhitespace(result);
+    expect(input).toBe(result);
+});
+
+test('should output generic airport schema', function() {
+    let input = graphDBInferenceSchema(JSON.stringify(AIRPORT_SCHEMA));
+    let result = AIRPORT_SCHEMA_RESULT;
     input = fixWhitespace(input);
     result = fixWhitespace(result);
     expect(input).toBe(result);
