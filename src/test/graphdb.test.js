@@ -260,113 +260,113 @@ const AIRPORT_SCHEMA = {
         {
             "label": "continent",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "code",
-                "type": "String"
-            },
-            {
-                "name": "desc",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "code",
+                    "type": "String"
+                },
+                {
+                    "name": "desc",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "country",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "code",
-                "type": "String"
-            },
-            {
-                "name": "desc",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "code",
+                    "type": "String"
+                },
+                {
+                    "name": "desc",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "version",
             "properties": [
-            {
-                "name": "date",
-                "type": "String"
-            },
-            {
-                "name": "desc",
-                "type": "String"
-            },
-            {
-                "name": "author",
-                "type": "String"
-            },
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "code",
-                "type": "String"
-            }
+                {
+                    "name": "date",
+                    "type": "String"
+                },
+                {
+                    "name": "desc",
+                    "type": "String"
+                },
+                {
+                    "name": "author",
+                    "type": "String"
+                },
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "code",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "airport",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "city",
-                "type": "String"
-            },
-            {
-                "name": "icao",
-                "type": "String"
-            },
-            {
-                "name": "code",
-                "type": "String"
-            },
-            {
-                "name": "country",
-                "type": "String"
-            },
-            {
-                "name": "lat",
-                "type": "Float"
-            },
-            {
-                "name": "longest",
-                "type": "Float"
-            },
-            {
-                "name": "runways",
-                "type": "Float"
-            },
-            {
-                "name": "desc",
-                "type": "String"
-            },
-            {
-                "name": "lon",
-                "type": "Float"
-            },
-            {
-                "name": "region",
-                "type": "String"
-            },
-            {
-                "name": "elev",
-                "type": "Float"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "city",
+                    "type": "String"
+                },
+                {
+                    "name": "icao",
+                    "type": "String"
+                },
+                {
+                    "name": "code",
+                    "type": "String"
+                },
+                {
+                    "name": "country",
+                    "type": "String"
+                },
+                {
+                    "name": "lat",
+                    "type": "Float"
+                },
+                {
+                    "name": "longest",
+                    "type": "Float"
+                },
+                {
+                    "name": "runways",
+                    "type": "Float"
+                },
+                {
+                    "name": "desc",
+                    "type": "String"
+                },
+                {
+                    "name": "lon",
+                    "type": "Float"
+                },
+                {
+                    "name": "region",
+                    "type": "String"
+                },
+                {
+                    "name": "elev",
+                    "type": "Float"
+                }
             ]
         }
         ],
@@ -375,32 +375,32 @@ const AIRPORT_SCHEMA = {
             "label": "contains",
             "properties": [],
             "directions": [
-            {
-                "from": "continent",
-                "to": "airport",
-                "relationship": "ONE-MANY"
-            },
-            {
-                "from": "country",
-                "to": "airport",
-                "relationship": "ONE-MANY"
-            }
+                {
+                    "from": "continent",
+                    "to": "airport",
+                    "relationship": "ONE-MANY"
+                },
+                {
+                    "from": "country",
+                    "to": "airport",
+                    "relationship": "ONE-MANY"
+                }
             ]
         },
         {
             "label": "route",
             "properties": [
-            {
-                "name": "dist",
-                "type": "Float"
-            }
+                {
+                    "name": "dist",
+                    "type": "Float"
+                }
             ],
             "directions": [
-            {
-                "from": "airport",
-                "to": "airport",
-                "relationship": "MANY-MANY"
-            }
+                {
+                    "from": "airport",
+                    "to": "airport",
+                    "relationship": "MANY-MANY"
+                }
             ]
         }
     ]
@@ -533,79 +533,79 @@ const DINING_SCHEMA = {
         {
             "label": "city",
             "properties": [
-            {
-                "name": "name",
-                "type": "String"
-            }
+                {
+                    "name": "name",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "review",
             "properties": [
-            {
-                "name": "body",
-                "type": "String"
-            },
-            {
-                "name": "created_date",
-                "type": "String"
-            },
-            {
-                "name": "rating",
-                "type": "Float"
-            }
+                {
+                    "name": "body",
+                    "type": "String"
+                },
+                {
+                    "name": "created_date",
+                    "type": "String"
+                },
+                {
+                    "name": "rating",
+                    "type": "Float"
+                }
             ]
         },
         {
             "label": "person",
             "properties": [
-            {
-                "name": "first_name",
-                "type": "String"
-            },
-            {
-                "name": "last_name",
-                "type": "String"
-            },
-            {
-                "name": "person_id",
-                "type": "Float"
-            }
+                {
+                    "name": "first_name",
+                    "type": "String"
+                },
+                {
+                    "name": "last_name",
+                    "type": "String"
+                },
+                {
+                    "name": "person_id",
+                    "type": "Float"
+                }
             ]
         },
         {
             "label": "restaurant",
             "properties": [
-            {
-                "name": "restaurant_id",
-                "type": "Float"
-            },
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "address",
-                "type": "String"
-            }
+                {
+                    "name": "restaurant_id",
+                    "type": "Float"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "address",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "cuisine",
             "properties": [
-            {
-                "name": "name",
-                "type": "String"
-            }
+                {
+                    "name": "name",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "state",
             "properties": [
-            {
-                "name": "name",
-                "type": "String"
-            }
+                {
+                    "name": "name",
+                    "type": "String"
+                }
             ]
         }
         ],
@@ -614,71 +614,71 @@ const DINING_SCHEMA = {
             "label": "lives",
             "properties": [],
             "directions": [
-            {
-                "from": "person",
-                "to": "city",
-                "relationship": "MANY-ONE"
-            }
+                {
+                    "from": "person",
+                    "to": "city",
+                    "relationship": "MANY-ONE"
+                }
             ]
         },
         {
             "label": "within",
             "properties": [],
             "directions": [
-            {
-                "from": "city",
-                "to": "state",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "restaurant",
-                "to": "city",
-                "relationship": "MANY-ONE"
-            }
+                {
+                    "from": "city",
+                    "to": "state",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "restaurant",
+                    "to": "city",
+                    "relationship": "MANY-ONE"
+                }
             ]
         },
         {
             "label": "serves",
             "properties": [],
             "directions": [
-            {
-                "from": "restaurant",
-                "to": "cuisine",
-                "relationship": "MANY-ONE"
-            }
+                {
+                    "from": "restaurant",
+                    "to": "cuisine",
+                    "relationship": "MANY-ONE"
+                }
             ]
         },
         {
             "label": "wrote",
             "properties": [],
             "directions": [
-            {
-                "from": "person",
-                "to": "review",
-                "relationship": "ONE-MANY"
-            }
+                {
+                    "from": "person",
+                    "to": "review",
+                    "relationship": "ONE-MANY"
+                }
             ]
         },
         {
             "label": "about",
             "properties": [],
             "directions": [
-            {
-                "from": "review",
-                "to": "restaurant",
-                "relationship": "MANY-ONE"
-            }
+                {
+                    "from": "review",
+                    "to": "restaurant",
+                    "relationship": "MANY-ONE"
+                }
             ]
         },
         {
             "label": "friends",
             "properties": [],
             "directions": [
-            {
-                "from": "person",
-                "to": "person",
-                "relationship": "MANY-MANY"
-            }
+                {
+                    "from": "person",
+                    "to": "person",
+                    "relationship": "MANY-MANY"
+                }
             ]
         }
     ]
@@ -831,112 +831,160 @@ const DINING_SCHEMA_RESULT = `
 
 const EPL_SCHEMA = {
     "nodeStructures": [
-    {
-        "label": "Stadium",
-        "properties": [
-            {
-            "name": "opened",
-            "type": "Float"
-            },
-            {
-            "name": "capacity",
-            "type": "Float"
-            },
-            {
-            "name": "name",
-            "type": "String"
-            }
-        ]
+        {
+            "label": "Stadium",
+            "properties": [
+                {
+                    "name": "opened",
+                    "type": "Float"
+                },
+                {
+                    "name": "capacity",
+                    "type": "Float"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                }
+            ]
         },
         {
-        "label": "League",
-        "properties": [
-            {
-            "name": "nickname",
-            "type": "String"
-            },
-            {
-            "name": "name",
-            "type": "String"
-            }
-        ]
+            "label": "League",
+            "properties": [
+                {
+                    "name": "nickname",
+                    "type": "String"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                }
+            ]
         },
         {
-        "label": "Team",
-        "properties": [
-            {
-            "name": "nickname",
-            "type": "String"
-            },
-            {
-            "name": "name",
-            "type": "String"
-            },
-            {
-            "name": "fullName",
-            "type": "String"
-            },
-            {
-            "name": "founded",
-            "type": "Float"
-            }
-        ]
+            "label": "Team",
+            "properties": [
+                {
+                    "name": "nickname",
+                    "type": "String"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "fullName",
+                    "type": "String"
+                },
+                {
+                    "name": "founded",
+                    "type": "Float"
+                }
+            ]
         },
         {
-        "label": "City",
-        "properties": [
-            {
-            "name": "name",
-            "type": "String"
-            }
-        ]
+            "label": "City",
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "String"
+                }
+            ]
         }
     ],
     "edgeStructures": [
         {
-        "label": "CITY",
-        "properties": [],
-        "directions": [
-            {
-            "from": "Stadium",
-            "to": "City",
-            "relationship": "MANY-ONE"
-            }
-        ]
+            "label": "CITY_EDGE",
+            "properties": [],
+            "directions": [
+                {
+                    "from": "Stadium",
+                    "to": "City",
+                    "relationship": "MANY-ONE"
+                }
+            ]
         },
         {
-        "label": "CURRENT_LEAGUE",
-        "properties": [],
-        "directions": [
-            {
-            "from": "Team",
-            "to": "League",
-            "relationship": "MANY-ONE"
-            }
-        ]
+            "label": "CURRENT_LEAGUE",
+            "properties": [],
+            "directions": [
+                {
+                    "from": "Team",
+                    "to": "League",
+                    "relationship": "MANY-ONE"
+                }
+            ]
         },
         {
-        "label": "STADIUM",
-        "properties": [],
-        "directions": [
-            {
-            "from": "Team",
-            "to": "Stadium",
-            "relationship": "ONE-ONE"
-            }
-        ]
+            "label": "STADIUM_EDGE",
+            "properties": [],
+            "directions": [
+                {
+                    "from": "Team",
+                    "to": "Stadium",
+                    "relationship": "ONE-ONE"
+                }
+            ]
         }
     ]
 };
 
 const EPL_SCHEMA_RESULT = `
-    type City @alias(property:"city") {
+    type Stadium {
+        _id: ID! @id
+        opened: Float
+        capacity: Float
+        name: String
+        cityCity_edgeOut: City @relationship(edgeType:"CITY_EDGE", direction:OUT)
+        CITY_EDGE:City_edge
+        STADIUM_EDGE:Stadium_edge
+    }
+    
+    input StadiumInput {
+        _id: ID @id
+        opened: Float
+        capacity: Float
+        name: String
+    }
+    
+    type League {
+        _id: ID! @id
+        nickname: String
+        name: String
+        teamCurrent_leaguesIn(filter: TeamInput, options: Options): [Team] @relationship(edgeType:"CURRENT_LEAGUE", direction:IN)
+        CURRENT_LEAGUE:Current_league
+    }
+    
+    input LeagueInput {
+        _id: ID @id
+        nickname: String
+        name: String
+    }
+    
+    type Team {
+        _id: ID! @id
+        nickname: String
+        name: String
+        fullName: String
+        founded: Float
+        leagueCurrent_leagueOut: League @relationship(edgeType:"CURRENT_LEAGUE", direction:OUT)
+        CURRENT_LEAGUE:Current_league
+        STADIUM_EDGE:Stadium_edge
+    }
+    
+    input TeamInput {
+        _id: ID @id
+        nickname: String
+        name: String
+        fullName: String
+        founded: Float
+    }
+    
+    type City {
         _id: ID! @id
         name: String
-        personLivessIn(filter: PersonInput, options: Options): [Person] @relationship(edgeType:"lives", direction:IN)
-        restaurantWithinsIn(filter: RestaurantInput, options: Options): [Restaurant] @relationship(edgeType:"within", direction:IN)
-        lives:Lives
-        within:Within
+        stadiumCity_edgesIn(filter: StadiumInput, options: Options): [Stadium] @relationship(edgeType:"CITY_EDGE", direction:IN)
+        CITY_EDGE:City_edge
     }
     
     input CityInput {
@@ -944,109 +992,15 @@ const EPL_SCHEMA_RESULT = `
         name: String
     }
     
-    type Review @alias(property:"review") {
-        _id: ID! @id
-        body: String
-        created_date: String
-        rating: Float
-        personWroteIn: Person @relationship(edgeType:"wrote", direction:IN)
-        restaurantAboutOut: Restaurant @relationship(edgeType:"about", direction:OUT)
-        wrote:Wrote
-        about:About
-    }
-    
-    input ReviewInput {
-        _id: ID @id
-        body: String
-        created_date: String
-        rating: Float
-    }
-    
-    type Person @alias(property:"person") {
-        _id: ID! @id
-        first_name: String
-        last_name: String
-        person_id: Float
-        cityLivesOut: City @relationship(edgeType:"lives", direction:OUT)
-        reviewWrotesOut(filter: ReviewInput, options: Options): [Review] @relationship(edgeType:"wrote", direction:OUT)
-        personFriendssOut(filter: PersonInput, options: Options): [Person] @relationship(edgeType:"friends", direction:OUT)
-        personFriendssIn(filter: PersonInput, options: Options): [Person] @relationship(edgeType:"friends", direction:IN)
-        lives:Lives
-        wrote:Wrote
-        friends:Friends
-    }
-    
-    input PersonInput {
-        _id: ID @id
-        first_name: String
-        last_name: String
-        person_id: Float
-    }
-    
-    type Restaurant @alias(property:"restaurant") {
-        _id: ID! @id
-        restaurant_id: Float
-        name: String
-        address: String
-        cityWithinOut: City @relationship(edgeType:"within", direction:OUT)
-        cuisineServesOut: Cuisine @relationship(edgeType:"serves", direction:OUT)
-        reviewAboutsIn(filter: ReviewInput, options: Options): [Review] @relationship(edgeType:"about", direction:IN)
-        within:Within
-        serves:Serves
-        about:About
-    }
-    
-    input RestaurantInput {
-        _id: ID @id
-        restaurant_id: Float
-        name: String
-        address: String
-    }
-    
-    type Cuisine @alias(property:"cuisine") {
-        _id: ID! @id
-        name: String
-        restaurantServessIn(filter: RestaurantInput, options: Options): [Restaurant] @relationship(edgeType:"serves", direction:IN)
-        serves:Serves
-    }
-    
-    input CuisineInput {
-        _id: ID @id
-        name: String
-    }
-    
-    type State @alias(property:"state") {
-        _id: ID! @id
-        name: String
-        within:Within
-    }
-    
-    input StateInput {
-        _id: ID @id
-        name: String
-    }
-    
-    type Lives @alias(property:"lives") {
+    type City_edge @alias(property:"CITY_EDGE") {
         _id: ID! @id
     }
     
-    type Within @alias(property:"within") {
+    type Current_league @alias(property:"CURRENT_LEAGUE") {
         _id: ID! @id
     }
     
-    type Serves @alias(property:"serves") {
-        _id: ID! @id
-    }
-    
-    type Wrote @alias(property:"wrote") {
-        _id: ID! @id
-    }
-    
-    type About @alias(property:"about") {
-        _id: ID! @id
-    }
-    
-    type Friends @alias(property:"friends") {
+    type Stadium_edge @alias(property:"STADIUM_EDGE") {
         _id: ID! @id
     }
     
@@ -1055,18 +1009,14 @@ const EPL_SCHEMA_RESULT = `
     }
     
     type Query {
+        getNodeStadium(filter: StadiumInput): Stadium
+        getNodeStadiums(filter: StadiumInput, options: Options): [Stadium]
+        getNodeLeague(filter: LeagueInput): League
+        getNodeLeagues(filter: LeagueInput, options: Options): [League]
+        getNodeTeam(filter: TeamInput): Team
+        getNodeTeams(filter: TeamInput, options: Options): [Team]
         getNodeCity(filter: CityInput): City
         getNodeCitys(filter: CityInput, options: Options): [City]
-        getNodeReview(filter: ReviewInput): Review
-        getNodeReviews(filter: ReviewInput, options: Options): [Review]
-        getNodePerson(filter: PersonInput): Person
-        getNodePersons(filter: PersonInput, options: Options): [Person]
-        getNodeRestaurant(filter: RestaurantInput): Restaurant
-        getNodeRestaurants(filter: RestaurantInput, options: Options): [Restaurant]
-        getNodeCuisine(filter: CuisineInput): Cuisine
-        getNodeCuisines(filter: CuisineInput, options: Options): [Cuisine]
-        getNodeState(filter: StateInput): State
-        getNodeStates(filter: StateInput, options: Options): [State]
     }
     
     schema {
@@ -1079,85 +1029,85 @@ const FRAUD_SCHEMA = {
         {
             "label": "DateOfBirth",
             "properties": [
-            {
-                "name": "value",
-                "type": "String"
-            }
+                {
+                    "name": "value",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "Account",
             "properties": [
-            {
-                "name": "first_name",
-                "type": "String"
-            },
-            {
-                "name": "account_number",
-                "type": "String"
-            },
-            {
-                "name": "last_name",
-                "type": "String"
-            }
+                {
+                    "name": "first_name",
+                    "type": "String"
+                },
+                {
+                    "name": "account_number",
+                    "type": "String"
+                },
+                {
+                    "name": "last_name",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "Merchant",
             "properties": [
-            {
-                "name": "name",
-                "type": "String"
-            }
+                {
+                    "name": "name",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "Transaction",
             "properties": [
-            {
-                "name": "amount",
-                "type": "Float"
-            },
-            {
-                "name": "created",
-                "type": "String"
-            }
+                {
+                    "name": "amount",
+                    "type": "Float"
+                },
+                {
+                    "name": "created",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "Address",
             "properties": [
-            {
-                "name": "value",
-                "type": "String"
-            }
+                {
+                    "name": "value",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "PhoneNumber",
             "properties": [
-            {
-                "name": "value",
-                "type": "String"
-            }
+                {
+                    "name": "value",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "IpAddress",
             "properties": [
-            {
-                "name": "value",
-                "type": "String"
-            }
+                {
+                    "name": "value",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "EmailAddress",
             "properties": [
-            {
-                "name": "value",
-                "type": "String"
-            }
+                {
+                    "name": "value",
+                    "type": "String"
+                }
             ]
         }
         ],
@@ -1166,193 +1116,233 @@ const FRAUD_SCHEMA = {
             "label": "FEATURE_OF_ACCOUNT",
             "properties": [],
             "directions": [
-            {
-                "from": "EmailAddress",
-                "to": "Account",
-                "relationship": "MANY-MANY"
-            },
-            {
-                "from": "IpAddress",
-                "to": "Account",
-                "relationship": "ONE-MANY"
-            },
-            {
-                "from": "Address",
-                "to": "Account",
-                "relationship": "ONE-MANY"
-            },
-            {
-                "from": "DateOfBirth",
-                "to": "Account",
-                "relationship": "ONE-MANY"
-            },
-            {
-                "from": "PhoneNumber",
-                "to": "Account",
-                "relationship": "MANY-MANY"
-            }
+                {
+                    "from": "EmailAddress",
+                    "to": "Account",
+                    "relationship": "MANY-MANY"
+                },
+                {
+                    "from": "IpAddress",
+                    "to": "Account",
+                    "relationship": "ONE-MANY"
+                },
+                {
+                    "from": "Address",
+                    "to": "Account",
+                    "relationship": "ONE-MANY"
+                },
+                {
+                    "from": "DateOfBirth",
+                    "to": "Account",
+                    "relationship": "ONE-MANY"
+                },
+                {
+                    "from": "PhoneNumber",
+                    "to": "Account",
+                    "relationship": "MANY-MANY"
+                }
             ]
         },
         {
-            "label": "ACCOUNT",
+            "label": "ACCOUNT_EDGE",
             "properties": [],
             "directions": [
-            {
-                "from": "Transaction",
-                "to": "Account",
-                "relationship": "MANY-ONE"
-            }
+                {
+                    "from": "Transaction",
+                    "to": "Account",
+                    "relationship": "MANY-ONE"
+                }
             ]
         },
         {
             "label": "FEATURE_OF_TRANSACTION",
             "properties": [],
             "directions": [
-            {
-                "from": "IpAddress",
-                "to": "Transaction",
-                "relationship": "ONE-MANY"
-            },
-            {
-                "from": "PhoneNumber",
-                "to": "Transaction",
-                "relationship": "ONE-MANY"
-            }
+                {
+                    "from": "IpAddress",
+                    "to": "Transaction",
+                    "relationship": "ONE-MANY"
+                },
+                {
+                    "from": "PhoneNumber",
+                    "to": "Transaction",
+                    "relationship": "ONE-MANY"
+                }
             ]
         },
         {
-            "label": "MERCHANT",
+            "label": "MERCHANT_EDGE",
             "properties": [],
             "directions": [
-            {
-                "from": "Transaction",
-                "to": "Merchant",
-                "relationship": "MANY-ONE"
-            }
+                {
+                    "from": "Transaction",
+                    "to": "Merchant",
+                    "relationship": "MANY-ONE"
+                }
             ]
         }
     ]
 };
 
 const FRAUD_SCHEMA_RESULT = `
-    type Continent @alias(property:"continent") {
+    type Dateofbirth @alias(property:"DateOfBirth") {
         _id: ID! @id
-        type: String
-        code: String
-        desc: String
-        airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
-        contains:Contains
+        value: String
+        accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+        FEATURE_OF_ACCOUNT:Feature_of_account
     }
-
-    input ContinentInput {
+    
+    input DateofbirthInput {
         _id: ID @id
-        type: String
-        code: String
-        desc: String
+        value: String
     }
-
-    type Country @alias(property:"country") {
+    
+    type Account {
         _id: ID! @id
-        type: String
-        code: String
-        desc: String
-        airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
-        contains:Contains
+        first_name: String
+        account_number: String
+        last_name: String
+        emailaddressFeature_of_accountsIn(filter: EmailaddressInput, options: Options): [Emailaddress] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+        ipaddressFeature_of_accountIn: Ipaddress @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+        addressFeature_of_accountIn: Address @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+        dateofbirthFeature_of_accountIn: Dateofbirth @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+        phonenumberFeature_of_accountsIn(filter: PhonenumberInput, options: Options): [Phonenumber] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+        transactionAccount_edgesIn(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"ACCOUNT_EDGE", direction:IN)
+        FEATURE_OF_ACCOUNT:Feature_of_account
+        ACCOUNT_EDGE:Account_edge
     }
-
-    input CountryInput {
+    
+    input AccountInput {
         _id: ID @id
-        type: String
-        code: String
-        desc: String
+        first_name: String
+        account_number: String
+        last_name: String
     }
-
-    type Version @alias(property:"version") {
+    
+    type Merchant {
         _id: ID! @id
-        date: String
-        desc: String
-        author: String
-        type: String
-        code: String
+        name: String
+        transactionMerchant_edgesIn(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"MERCHANT_EDGE", direction:IN)
+        MERCHANT_EDGE:Merchant_edge
     }
-
-    input VersionInput {
+    
+    input MerchantInput {
         _id: ID @id
-        date: String
-        desc: String
-        author: String
-        type: String
-        code: String
+        name: String
     }
-
-    type Airport @alias(property:"airport") {
+    
+    type Transaction {
         _id: ID! @id
-        type: String
-        city: String
-        icao: String
-        code: String
-        country: String
-        lat: Float
-        longest: Float
-        runways: Float
-        desc: String
-        lon: Float
-        region: String
-        elev: Float
-        continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
-        countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
-        airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:OUT)
-        airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:IN)
-        contains:Contains
-        route:Route
+        amount: Float
+        created: String
+        accountAccount_edgeOut: Account @relationship(edgeType:"ACCOUNT_EDGE", direction:OUT)
+        ipaddressFeature_of_transactionIn: Ipaddress @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:IN)
+        phonenumberFeature_of_transactionIn: Phonenumber @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:IN)
+        merchantMerchant_edgeOut: Merchant @relationship(edgeType:"MERCHANT_EDGE", direction:OUT)
+        ACCOUNT_EDGE:Account_edge
+        FEATURE_OF_TRANSACTION:Feature_of_transaction
+        MERCHANT_EDGE:Merchant_edge
     }
-
-    input AirportInput {
+    
+    input TransactionInput {
         _id: ID @id
-        type: String
-        city: String
-        icao: String
-        code: String
-        country: String
-        lat: Float
-        longest: Float
-        runways: Float
-        desc: String
-        lon: Float
-        region: String
-        elev: Float
+        amount: Float
+        created: String
     }
-
-    type Contains @alias(property:"contains") {
+    
+    type Address {
+        _id: ID! @id
+        value: String
+        accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+        FEATURE_OF_ACCOUNT:Feature_of_account
+    }
+    
+    input AddressInput {
+        _id: ID @id
+        value: String
+    }
+    
+    type Phonenumber @alias(property:"PhoneNumber") {
+        _id: ID! @id
+        value: String
+        accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+        transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:OUT)
+        FEATURE_OF_ACCOUNT:Feature_of_account
+        FEATURE_OF_TRANSACTION:Feature_of_transaction
+    }
+    
+    input PhonenumberInput {
+        _id: ID @id
+        value: String
+    }
+    
+    type Ipaddress @alias(property:"IpAddress") {
+        _id: ID! @id
+        value: String
+        accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+        transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:OUT)
+        FEATURE_OF_ACCOUNT:Feature_of_account
+        FEATURE_OF_TRANSACTION:Feature_of_transaction
+    }
+    
+    input IpaddressInput {
+        _id: ID @id
+        value: String
+    }
+    
+    type Emailaddress @alias(property:"EmailAddress") {
+        _id: ID! @id
+        value: String
+        accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+        FEATURE_OF_ACCOUNT:Feature_of_account
+    }
+    
+    input EmailaddressInput {
+        _id: ID @id
+        value: String
+    }
+    
+    type Feature_of_account @alias(property:"FEATURE_OF_ACCOUNT") {
         _id: ID! @id
     }
-
-    type Route @alias(property:"route") {
+    
+    type Account_edge @alias(property:"ACCOUNT_EDGE") {
         _id: ID! @id
-        dist: Float
     }
-
-    input RouteInput {
-        dist: Float
+    
+    type Feature_of_transaction @alias(property:"FEATURE_OF_TRANSACTION") {
+        _id: ID! @id
     }
-
+    
+    type Merchant_edge @alias(property:"MERCHANT_EDGE") {
+        _id: ID! @id
+    }
+    
     input Options {
         limit:Int
     }
-
+    
     type Query {
-        getNodeContinent(filter: ContinentInput): Continent
-        getNodeContinents(filter: ContinentInput, options: Options): [Continent]
-        getNodeCountry(filter: CountryInput): Country
-        getNodeCountrys(filter: CountryInput, options: Options): [Country]
-        getNodeVersion(filter: VersionInput): Version
-        getNodeVersions(filter: VersionInput, options: Options): [Version]
-        getNodeAirport(filter: AirportInput): Airport
-        getNodeAirports(filter: AirportInput, options: Options): [Airport]
+        getNodeDateofbirth(filter: DateofbirthInput): Dateofbirth
+        getNodeDateofbirths(filter: DateofbirthInput, options: Options): [Dateofbirth]
+        getNodeAccount(filter: AccountInput): Account
+        getNodeAccounts(filter: AccountInput, options: Options): [Account]
+        getNodeMerchant(filter: MerchantInput): Merchant
+        getNodeMerchants(filter: MerchantInput, options: Options): [Merchant]
+        getNodeTransaction(filter: TransactionInput): Transaction
+        getNodeTransactions(filter: TransactionInput, options: Options): [Transaction]
+        getNodeAddress(filter: AddressInput): Address
+        getNodeAddresss(filter: AddressInput, options: Options): [Address]
+        getNodePhonenumber(filter: PhonenumberInput): Phonenumber
+        getNodePhonenumbers(filter: PhonenumberInput, options: Options): [Phonenumber]
+        getNodeIpaddress(filter: IpaddressInput): Ipaddress
+        getNodeIpaddresss(filter: IpaddressInput, options: Options): [Ipaddress]
+        getNodeEmailaddress(filter: EmailaddressInput): Emailaddress
+        getNodeEmailaddresss(filter: EmailaddressInput, options: Options): [Emailaddress]
     }
-
+    
     schema {
-        query: Query
+        query: Query            
     }
 `;
 
@@ -1361,110 +1351,110 @@ const KNOWLEDGE_SCHEMA = {
         {
             "label": "date",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "text",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "text",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "other",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "text",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "text",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "post",
             "properties": [
-            {
-                "name": "title",
-                "type": "String"
-            },
-            {
-                "name": "post_date",
-                "type": "String"
-            }
+                {
+                    "name": "title",
+                    "type": "String"
+                },
+                {
+                    "name": "post_date",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "author",
             "properties": [
-            {
-                "name": "name",
-                "type": "String"
-            }
+                {
+                    "name": "name",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "organization",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "text",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "text",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "location",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "text",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "text",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "tag",
             "properties": [
-            {
-                "name": "tag",
-                "type": "String"
-            }
+                {
+                    "name": "tag",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "title",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "text",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "text",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "commercial_item",
             "properties": [
-            {
-                "name": "type",
-                "type": "String"
-            },
-            {
-                "name": "text",
-                "type": "String"
-            }
+                {
+                    "name": "type",
+                    "type": "String"
+                },
+                {
+                    "name": "text",
+                    "type": "String"
+                }
             ]
         }
         ],
@@ -1473,187 +1463,244 @@ const KNOWLEDGE_SCHEMA = {
             "label": "tagged",
             "properties": [],
             "directions": [
-            {
-                "from": "post",
-                "to": "tag",
-                "relationship": "MANY-MANY"
-            }
+                {
+                    "from": "post",
+                    "to": "tag",
+                    "relationship": "MANY-MANY"
+                }
             ]
         },
         {
             "label": "found_in",
             "properties": [
-            {
-                "name": "score",
-                "type": "Float"
-            }
+                {
+                    "name": "score",
+                    "type": "Float"
+                }
             ],
             "directions": [
-            {
-                "from": "post",
-                "to": "organization",
-                "relationship": "MANY-MANY"
-            },
-            {
-                "from": "post",
-                "to": "title",
-                "relationship": "MANY-MANY"
-            },
-            {
-                "from": "post",
-                "to": "location",
-                "relationship": "MANY-MANY"
-            },
-            {
-                "from": "post",
-                "to": "date",
-                "relationship": "MANY-MANY"
-            },
-            {
-                "from": "post",
-                "to": "commercial_item",
-                "relationship": "MANY-MANY"
-            },
-            {
-                "from": "post",
-                "to": "other",
-                "relationship": "ONE-MANY"
-            }
+                {
+                    "from": "post",
+                    "to": "organization",
+                    "relationship": "MANY-MANY"
+                },
+                {
+                    "from": "post",
+                    "to": "title",
+                    "relationship": "MANY-MANY"
+                },
+                {
+                    "from": "post",
+                    "to": "location",
+                    "relationship": "MANY-MANY"
+                },
+                {
+                    "from": "post",
+                    "to": "date",
+                    "relationship": "MANY-MANY"
+                },
+                {
+                    "from": "post",
+                    "to": "commercial_item",
+                    "relationship": "MANY-MANY"
+                },
+                {
+                    "from": "post",
+                    "to": "other",
+                    "relationship": "ONE-MANY"
+                }
             ]
         },
         {
             "label": "written_by",
             "properties": [],
             "directions": [
-            {
-                "from": "post",
-                "to": "author",
-                "relationship": "MANY-MANY"
-            }
+                {
+                    "from": "post",
+                    "to": "author",
+                    "relationship": "MANY-MANY"
+                }
             ]
         }
     ]
 };
 
 const KNOWLEDGE_SCHEMA_RESULT = `
-    type Continent @alias(property:"continent") {
+    type Date @alias(property:"date") {
         _id: ID! @id
         type: String
-        code: String
-        desc: String
-        airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
-        contains:Contains
+        text: String
+        postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+        found_in:Found_in
     }
-
-    input ContinentInput {
+    
+    input DateInput {
         _id: ID @id
         type: String
-        code: String
-        desc: String
+        text: String
     }
-
-    type Country @alias(property:"country") {
+    
+    type Other @alias(property:"other") {
         _id: ID! @id
         type: String
-        code: String
-        desc: String
-        airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
-        contains:Contains
+        text: String
+        postFound_inIn: Post @relationship(edgeType:"found_in", direction:IN)
+        found_in:Found_in
     }
-
-    input CountryInput {
+    
+    input OtherInput {
         _id: ID @id
         type: String
-        code: String
-        desc: String
+        text: String
     }
-
-    type Version @alias(property:"version") {
+    
+    type Post @alias(property:"post") {
         _id: ID! @id
-        date: String
-        desc: String
-        author: String
-        type: String
-        code: String
+        title: String
+        post_date: String
+        tagTaggedsOut(filter: TagInput, options: Options): [Tag] @relationship(edgeType:"tagged", direction:OUT)
+        organizationFound_insOut(filter: OrganizationInput, options: Options): [Organization] @relationship(edgeType:"found_in", direction:OUT)
+        titleFound_insOut(filter: TitleInput, options: Options): [Title] @relationship(edgeType:"found_in", direction:OUT)
+        locationFound_insOut(filter: LocationInput, options: Options): [Location] @relationship(edgeType:"found_in", direction:OUT)
+        dateFound_insOut(filter: DateInput, options: Options): [Date] @relationship(edgeType:"found_in", direction:OUT)
+        commercial_itemFound_insOut(filter: Commercial_itemInput, options: Options): [Commercial_item] @relationship(edgeType:"found_in", direction:OUT)
+        otherFound_insOut(filter: OtherInput, options: Options): [Other] @relationship(edgeType:"found_in", direction:OUT)
+        authorWritten_bysOut(filter: AuthorInput, options: Options): [Author] @relationship(edgeType:"written_by", direction:OUT)
+        tagged:Tagged
+        found_in:Found_in
+        written_by:Written_by
     }
-
-    input VersionInput {
+    
+    input PostInput {
         _id: ID @id
-        date: String
-        desc: String
-        author: String
-        type: String
-        code: String
+        title: String
+        post_date: String
     }
-
-    type Airport @alias(property:"airport") {
+    
+    type Author @alias(property:"author") {
+        _id: ID! @id
+        name: String
+        postWritten_bysIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"written_by", direction:IN)
+        written_by:Written_by
+    }
+    
+    input AuthorInput {
+        _id: ID @id
+        name: String
+    }
+    
+    type Organization @alias(property:"organization") {
         _id: ID! @id
         type: String
-        city: String
-        icao: String
-        code: String
-        country: String
-        lat: Float
-        longest: Float
-        runways: Float
-        desc: String
-        lon: Float
-        region: String
-        elev: Float
-        continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
-        countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
-        airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:OUT)
-        airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:IN)
-        contains:Contains
-        route:Route
+        text: String
+        postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+        found_in:Found_in
     }
-
-    input AirportInput {
+    
+    input OrganizationInput {
         _id: ID @id
         type: String
-        city: String
-        icao: String
-        code: String
-        country: String
-        lat: Float
-        longest: Float
-        runways: Float
-        desc: String
-        lon: Float
-        region: String
-        elev: Float
+        text: String
     }
-
-    type Contains @alias(property:"contains") {
+    
+    type Location @alias(property:"location") {
+        _id: ID! @id
+        type: String
+        text: String
+        postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+        found_in:Found_in
+    }
+    
+    input LocationInput {
+        _id: ID @id
+        type: String
+        text: String
+    }
+    
+    type Tag @alias(property:"tag") {
+        _id: ID! @id
+        tag: String
+        postTaggedsIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"tagged", direction:IN)
+        tagged:Tagged
+    }
+    
+    input TagInput {
+        _id: ID @id
+        tag: String
+    }
+    
+    type Title @alias(property:"title") {
+        _id: ID! @id
+        type: String
+        text: String
+        postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+        found_in:Found_in
+    }
+    
+    input TitleInput {
+        _id: ID @id
+        type: String
+        text: String
+    }
+    
+    type Commercial_item @alias(property:"commercial_item") {
+        _id: ID! @id
+        type: String
+        text: String
+        postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+        found_in:Found_in
+    }
+    
+    input Commercial_itemInput {
+        _id: ID @id
+        type: String
+        text: String
+    }
+    
+    type Tagged @alias(property:"tagged") {
         _id: ID! @id
     }
-
-    type Route @alias(property:"route") {
+    
+    type Found_in @alias(property:"found_in") {
         _id: ID! @id
-        dist: Float
+        score: Float
     }
-
-    input RouteInput {
-        dist: Float
+    
+    input Found_inInput {
+        score: Float
     }
-
+    
+    type Written_by @alias(property:"written_by") {
+        _id: ID! @id
+    }
+    
     input Options {
         limit:Int
     }
-
+    
     type Query {
-        getNodeContinent(filter: ContinentInput): Continent
-        getNodeContinents(filter: ContinentInput, options: Options): [Continent]
-        getNodeCountry(filter: CountryInput): Country
-        getNodeCountrys(filter: CountryInput, options: Options): [Country]
-        getNodeVersion(filter: VersionInput): Version
-        getNodeVersions(filter: VersionInput, options: Options): [Version]
-        getNodeAirport(filter: AirportInput): Airport
-        getNodeAirports(filter: AirportInput, options: Options): [Airport]
+        getNodeDate(filter: DateInput): Date
+        getNodeDates(filter: DateInput, options: Options): [Date]
+        getNodeOther(filter: OtherInput): Other
+        getNodeOthers(filter: OtherInput, options: Options): [Other]
+        getNodePost(filter: PostInput): Post
+        getNodePosts(filter: PostInput, options: Options): [Post]
+        getNodeAuthor(filter: AuthorInput): Author
+        getNodeAuthors(filter: AuthorInput, options: Options): [Author]
+        getNodeOrganization(filter: OrganizationInput): Organization
+        getNodeOrganizations(filter: OrganizationInput, options: Options): [Organization]
+        getNodeLocation(filter: LocationInput): Location
+        getNodeLocations(filter: LocationInput, options: Options): [Location]
+        getNodeTag(filter: TagInput): Tag
+        getNodeTags(filter: TagInput, options: Options): [Tag]
+        getNodeTitle(filter: TitleInput): Title
+        getNodeTitles(filter: TitleInput, options: Options): [Title]
+        getNodeCommercial_item(filter: Commercial_itemInput): Commercial_item
+        getNodeCommercial_items(filter: Commercial_itemInput, options: Options): [Commercial_item]
     }
-
+    
     schema {
-        query: Query
+        query: Query            
     }
 `;
 
@@ -1662,668 +1709,668 @@ const SECURITY_SCHEMA = {
         {
             "label": "image",
             "properties": [
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            }
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "guardduty:detector",
             "properties": [
-            {
-                "name": "created_at",
-                "type": "String"
-            },
-            {
-                "name": "updated_at",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "status",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "service_role",
-                "type": "String"
-            },
-            {
-                "name": "finding_publishing_frequency",
-                "type": "String"
-            }
+                {
+                    "name": "created_at",
+                    "type": "String"
+                },
+                {
+                    "name": "updated_at",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "status",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "service_role",
+                    "type": "String"
+                },
+                {
+                    "name": "finding_publishing_frequency",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:vpc",
             "properties": [
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "state",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "is_default",
-                "type": "String"
-            },
-            {
-                "name": "cidr_block",
-                "type": "String"
-            }
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "state",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "is_default",
+                    "type": "String"
+                },
+                {
+                    "name": "cidr_block",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "iam:role",
             "properties": [
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "principal.aws",
-                "type": "String"
-            },
-            {
-                "name": "statement.effect",
-                "type": "String"
-            },
-            {
-                "name": "statement.action",
-                "type": "String"
-            },
-            {
-                "name": "max_session_duration",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "nassume_role_policy_document_text",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "assume_role_policy_document.version",
-                "type": "String"
-            }
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "principal.aws",
+                    "type": "String"
+                },
+                {
+                    "name": "statement.effect",
+                    "type": "String"
+                },
+                {
+                    "name": "statement.action",
+                    "type": "String"
+                },
+                {
+                    "name": "max_session_duration",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "nassume_role_policy_document_text",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "assume_role_policy_document.version",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:network-interface",
             "properties": [
-            {
-                "name": "public_ip",
-                "type": "String"
-            },
-            {
-                "name": "public_dns_name",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "private_ip_address",
-                "type": "String"
-            },
-            {
-                "name": "mac_address",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "private_dns_name",
-                "type": "String"
-            },
-            {
-                "name": "status",
-                "type": "String"
-            },
-            {
-                "name": "interface_type",
-                "type": "String"
-            },
-            {
-                "name": "description",
-                "type": "String"
-            }
+                {
+                    "name": "public_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "public_dns_name",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "private_ip_address",
+                    "type": "String"
+                },
+                {
+                    "name": "mac_address",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "private_dns_name",
+                    "type": "String"
+                },
+                {
+                    "name": "status",
+                    "type": "String"
+                },
+                {
+                    "name": "interface_type",
+                    "type": "String"
+                },
+                {
+                    "name": "description",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "rds:db",
             "properties": [
-            {
-                "name": "storage_type",
-                "type": "String"
-            },
-            {
-                "name": "performance_insights_enabled",
-                "type": "String"
-            },
-            {
-                "name": "dbi_resource_id",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "db_instance_identifier",
-                "type": "String"
-            },
-            {
-                "name": "backup_retention_period",
-                "type": "String"
-            },
-            {
-                "name": "publicly_accessible",
-                "type": "String"
-            },
-            {
-                "name": "multi_az",
-                "type": "String"
-            },
-            {
-                "name": "availability_zone",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "storage_encrypted",
-                "type": "String"
-            },
-            {
-                "name": "iam_database_authentication_enabled",
-                "type": "String"
-            },
-            {
-                "name": "db_instance_class",
-                "type": "String"
-            },
-            {
-                "name": "endpoint_hosted_zone",
-                "type": "String"
-            },
-            {
-                "name": "deletion_protection",
-                "type": "String"
-            },
-            {
-                "name": "endpoint_address",
-                "type": "String"
-            },
-            {
-                "name": "db_instance_status",
-                "type": "String"
-            },
-            {
-                "name": "endpoint_port",
-                "type": "String"
-            },
-            {
-                "name": "instance_create_time",
-                "type": "String"
-            },
-            {
-                "name": "engine",
-                "type": "String"
-            }
+                {
+                    "name": "storage_type",
+                    "type": "String"
+                },
+                {
+                    "name": "performance_insights_enabled",
+                    "type": "String"
+                },
+                {
+                    "name": "dbi_resource_id",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "db_instance_identifier",
+                    "type": "String"
+                },
+                {
+                    "name": "backup_retention_period",
+                    "type": "String"
+                },
+                {
+                    "name": "publicly_accessible",
+                    "type": "String"
+                },
+                {
+                    "name": "multi_az",
+                    "type": "String"
+                },
+                {
+                    "name": "availability_zone",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "storage_encrypted",
+                    "type": "String"
+                },
+                {
+                    "name": "iam_database_authentication_enabled",
+                    "type": "String"
+                },
+                {
+                    "name": "db_instance_class",
+                    "type": "String"
+                },
+                {
+                    "name": "endpoint_hosted_zone",
+                    "type": "String"
+                },
+                {
+                    "name": "deletion_protection",
+                    "type": "String"
+                },
+                {
+                    "name": "endpoint_address",
+                    "type": "String"
+                },
+                {
+                    "name": "db_instance_status",
+                    "type": "String"
+                },
+                {
+                    "name": "endpoint_port",
+                    "type": "String"
+                },
+                {
+                    "name": "instance_create_time",
+                    "type": "String"
+                },
+                {
+                    "name": "engine",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:instance",
             "properties": [
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "public_ip_address",
-                "type": "String"
-            },
-            {
-                "name": "instance_type",
-                "type": "String"
-            },
-            {
-                "name": "state",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "private_ip_address",
-                "type": "String"
-            },
-            {
-                "name": "launch_time",
-                "type": "String"
-            }
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "public_ip_address",
+                    "type": "String"
+                },
+                {
+                    "name": "instance_type",
+                    "type": "String"
+                },
+                {
+                    "name": "state",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "private_ip_address",
+                    "type": "String"
+                },
+                {
+                    "name": "launch_time",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "iam:user",
             "properties": [
-            {
-                "name": "password_last_used",
-                "type": "String"
-            },
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "login_profile.password_reset_required",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "access_key.access_key_id",
-                "type": "String"
-            },
-            {
-                "name": "login_profile.create_date",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "create_date",
-                "type": "String"
-            },
-            {
-                "name": "access_key.last_used_date",
-                "type": "String"
-            },
-            {
-                "name": "access_key.status",
-                "type": "String"
-            },
-            {
-                "name": "user_id",
-                "type": "String"
-            },
-            {
-                "name": "access_key.create_date",
-                "type": "String"
-            }
+                {
+                    "name": "password_last_used",
+                    "type": "String"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "login_profile.password_reset_required",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "access_key.access_key_id",
+                    "type": "String"
+                },
+                {
+                    "name": "login_profile.create_date",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "create_date",
+                    "type": "String"
+                },
+                {
+                    "name": "access_key.last_used_date",
+                    "type": "String"
+                },
+                {
+                    "name": "access_key.status",
+                    "type": "String"
+                },
+                {
+                    "name": "user_id",
+                    "type": "String"
+                },
+                {
+                    "name": "access_key.create_date",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:security-group",
             "properties": [
-            {
-                "name": "egress_rule.ip_protocol",
-                "type": "String"
-            },
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "ip_range.first_ip",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "egress_rule.to_port",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "ip_range.last_ip",
-                "type": "String"
-            },
-            {
-                "name": "egress_rule.from_port",
-                "type": "String"
-            },
-            {
-                "name": "ip_range.cidr_ip",
-                "type": "String"
-            },
-            {
-                "name": "ingress_rule.from_port",
-                "type": "String"
-            },
-            {
-                "name": "ingress_rule.ip_protocol",
-                "type": "String"
-            },
-            {
-                "name": "ingress_rule.to_port",
-                "type": "String"
-            },
-            {
-                "name": "user_id_group_pairs.account_id",
-                "type": "String"
-            }
+                {
+                    "name": "egress_rule.ip_protocol",
+                    "type": "String"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "ip_range.first_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "egress_rule.to_port",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "ip_range.last_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "egress_rule.from_port",
+                    "type": "String"
+                },
+                {
+                    "name": "ip_range.cidr_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "ingress_rule.from_port",
+                    "type": "String"
+                },
+                {
+                    "name": "ingress_rule.ip_protocol",
+                    "type": "String"
+                },
+                {
+                    "name": "ingress_rule.to_port",
+                    "type": "String"
+                },
+                {
+                    "name": "user_id_group_pairs.account_id",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:internet-gateway",
             "properties": [
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "owner_id",
-                "type": "String"
-            },
-            {
-                "name": "attachment.state",
-                "type": "String"
-            }
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "owner_id",
+                    "type": "String"
+                },
+                {
+                    "name": "attachment.state",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "events:rule",
             "properties": [
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "target.arn",
-                "type": "String"
-            },
-            {
-                "name": "target.name",
-                "type": "String"
-            },
-            {
-                "name": "event_pattern",
-                "type": "String"
-            },
-            {
-                "name": "state",
-                "type": "String"
-            }
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "target.arn",
+                    "type": "String"
+                },
+                {
+                    "name": "target.name",
+                    "type": "String"
+                },
+                {
+                    "name": "event_pattern",
+                    "type": "String"
+                },
+                {
+                    "name": "state",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:subnet",
             "properties": [
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "first_ip",
-                "type": "String"
-            },
-            {
-                "name": "state",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "last_ip",
-                "type": "String"
-            },
-            {
-                "name": "cidr_block",
-                "type": "String"
-            }
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "first_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "state",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "last_ip",
+                    "type": "String"
+                },
+                {
+                    "name": "cidr_block",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "iam:instance-profile",
             "properties": [
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            }
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "iam:policy",
             "properties": [
-            {
-                "name": "default_version_policy_document_text",
-                "type": "String"
-            },
-            {
-                "name": "default_version_id",
-                "type": "String"
-            },
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "policy_id",
-                "type": "String"
-            }
+                {
+                    "name": "default_version_policy_document_text",
+                    "type": "String"
+                },
+                {
+                    "name": "default_version_id",
+                    "type": "String"
+                },
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "policy_id",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "s3:bucket",
             "properties": [
-            {
-                "name": "name",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "server_side_default_encryption_rule.algorithm",
-                "type": "String"
-            },
-            {
-                "name": "creation_date",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            }
+                {
+                    "name": "name",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "server_side_default_encryption_rule.algorithm",
+                    "type": "String"
+                },
+                {
+                    "name": "creation_date",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "tag",
             "properties": [
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "Name",
-                "type": "String"
-            }
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "Name",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "kms:key",
             "properties": [
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "key_id",
-                "type": "String"
-            }
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "key_id",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:volume",
             "properties": [
-            {
-                "name": "encrypted",
-                "type": "String"
-            },
-            {
-                "name": "availability_zone",
-                "type": "String"
-            },
-            {
-                "name": "state",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "attachment.attach_time",
-                "type": "String"
-            },
-            {
-                "name": "volume_type",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "attachment.state",
-                "type": "String"
-            },
-            {
-                "name": "size",
-                "type": "String"
-            },
-            {
-                "name": "create_time",
-                "type": "String"
-            },
-            {
-                "name": "attachment.delete_on_termination",
-                "type": "String"
-            }
+                {
+                    "name": "encrypted",
+                    "type": "String"
+                },
+                {
+                    "name": "availability_zone",
+                    "type": "String"
+                },
+                {
+                    "name": "state",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "attachment.attach_time",
+                    "type": "String"
+                },
+                {
+                    "name": "volume_type",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "attachment.state",
+                    "type": "String"
+                },
+                {
+                    "name": "size",
+                    "type": "String"
+                },
+                {
+                    "name": "create_time",
+                    "type": "String"
+                },
+                {
+                    "name": "attachment.delete_on_termination",
+                    "type": "String"
+                }
             ]
         },
         {
             "label": "ec2:route-table",
             "properties": [
-            {
-                "name": "route.destination_cidr_block",
-                "type": "String"
-            },
-            {
-                "name": "arn",
-                "type": "String"
-            },
-            {
-                "name": "route_table_id",
-                "type": "String"
-            },
-            {
-                "name": "association.route_table_id",
-                "type": "String"
-            },
-            {
-                "name": "route.origin",
-                "type": "String"
-            },
-            {
-                "name": "route.gateway_id",
-                "type": "String"
-            },
-            {
-                "name": "scan_id",
-                "type": "String"
-            },
-            {
-                "name": "owner_id",
-                "type": "String"
-            },
-            {
-                "name": "association.main",
-                "type": "String"
-            },
-            {
-                "name": "route.state",
-                "type": "String"
-            },
-            {
-                "name": "association.route_table_association_id",
-                "type": "String"
-            }
+                {
+                    "name": "route.destination_cidr_block",
+                    "type": "String"
+                },
+                {
+                    "name": "arn",
+                    "type": "String"
+                },
+                {
+                    "name": "route_table_id",
+                    "type": "String"
+                },
+                {
+                    "name": "association.route_table_id",
+                    "type": "String"
+                },
+                {
+                    "name": "route.origin",
+                    "type": "String"
+                },
+                {
+                    "name": "route.gateway_id",
+                    "type": "String"
+                },
+                {
+                    "name": "scan_id",
+                    "type": "String"
+                },
+                {
+                    "name": "owner_id",
+                    "type": "String"
+                },
+                {
+                    "name": "association.main",
+                    "type": "String"
+                },
+                {
+                    "name": "route.state",
+                    "type": "String"
+                },
+                {
+                    "name": "association.route_table_association_id",
+                    "type": "String"
+                }
             ]
         }
         ],
@@ -2332,108 +2379,108 @@ const SECURITY_SCHEMA = {
             "label": "resource_link",
             "properties": [],
             "directions": [
-            {
-                "from": "ec2:instance",
-                "to": "ec2:security-group",
-                "relationship": "MANY-ONE"
-            },
-            {
-                "from": "ec2:security-group",
-                "to": "ec2:security-group",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "ec2:instance",
-                "to": "ec2:subnet",
-                "relationship": "MANY-ONE"
-            },
-            {
-                "from": "ec2:network-interface",
-                "to": "ec2:vpc",
-                "relationship": "MANY-ONE"
-            },
-            {
-                "from": "ec2:subnet",
-                "to": "ec2:vpc",
-                "relationship": "MANY-ONE"
-            },
-            {
-                "from": "ec2:internet-gateway",
-                "to": "ec2:vpc",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "ec2:instance",
-                "to": "ec2:vpc",
-                "relationship": "MANY-ONE"
-            },
-            {
-                "from": "ec2:route-table",
-                "to": "ec2:vpc",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "iam:role",
-                "to": "iam:policy",
-                "relationship": "MANY-MANY"
-            },
-            {
-                "from": "ec2:volume",
-                "to": "ec2:instance",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "iam:instance-profile",
-                "to": "iam:role",
-                "relationship": "ONE-ONE"
-            }
+                {
+                    "from": "ec2:instance",
+                    "to": "ec2:security-group",
+                    "relationship": "MANY-ONE"
+                },
+                {
+                    "from": "ec2:security-group",
+                    "to": "ec2:security-group",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "ec2:instance",
+                    "to": "ec2:subnet",
+                    "relationship": "MANY-ONE"
+                },
+                {
+                    "from": "ec2:network-interface",
+                    "to": "ec2:vpc",
+                    "relationship": "MANY-ONE"
+                },
+                {
+                    "from": "ec2:subnet",
+                    "to": "ec2:vpc",
+                    "relationship": "MANY-ONE"
+                },
+                {
+                    "from": "ec2:internet-gateway",
+                    "to": "ec2:vpc",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "ec2:instance",
+                    "to": "ec2:vpc",
+                    "relationship": "MANY-ONE"
+                },
+                {
+                    "from": "ec2:route-table",
+                    "to": "ec2:vpc",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "iam:role",
+                    "to": "iam:policy",
+                    "relationship": "MANY-MANY"
+                },
+                {
+                    "from": "ec2:volume",
+                    "to": "ec2:instance",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "iam:instance-profile",
+                    "to": "iam:role",
+                    "relationship": "ONE-ONE"
+                }
             ]
         },
         {
             "label": "tagged",
             "properties": [],
             "directions": [
-            {
-                "from": "ec2:security-group",
-                "to": "tag",
-                "relationship": "ONE-MANY"
-            },
-            {
-                "from": "ec2:instance",
-                "to": "tag",
-                "relationship": "ONE-ONE"
-            }
+                {
+                    "from": "ec2:security-group",
+                    "to": "tag",
+                    "relationship": "ONE-MANY"
+                },
+                {
+                    "from": "ec2:instance",
+                    "to": "tag",
+                    "relationship": "ONE-ONE"
+                }
             ]
         },
         {
             "label": "transient_resource_link",
             "properties": [],
             "directions": [
-            {
-                "from": "rds:db",
-                "to": "ec2:security-group",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "rds:db",
-                "to": "ec2:vpc",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "rds:db",
-                "to": "kms:key",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "ec2:instance",
-                "to": "iam:instance-profile",
-                "relationship": "ONE-ONE"
-            },
-            {
-                "from": "ec2:instance",
-                "to": "image",
-                "relationship": "MANY-ONE"
-            }
+                {
+                    "from": "rds:db",
+                    "to": "ec2:security-group",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "rds:db",
+                    "to": "ec2:vpc",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "rds:db",
+                    "to": "kms:key",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "ec2:instance",
+                    "to": "iam:instance-profile",
+                    "relationship": "ONE-ONE"
+                },
+                {
+                    "from": "ec2:instance",
+                    "to": "image",
+                    "relationship": "MANY-ONE"
+                }
             ]
         }
     ]
@@ -3013,32 +3060,31 @@ test('should output dining_by_friends schema', function() {
     expect(input).toBe(result);
 });
 
-// test('should output epl schema', function() {
-//     let input = graphDBInferenceSchema(JSON.stringify(EPL_SCHEMA));
-//     let result = EPL_SCHEMA_RESULT;
-//     console.log(input);
-//     input = fixWhitespace(input);
-//     result = fixWhitespace(result);
-//     expect(input).toBe(result);
-// });
+test('should output epl schema', function() {
+    let input = graphDBInferenceSchema(JSON.stringify(EPL_SCHEMA));
+    let result = EPL_SCHEMA_RESULT;
+    input = fixWhitespace(input);
+    result = fixWhitespace(result);
+    expect(input).toBe(result);
+});
 
-// test('should output fraud_graph schema', function() {
-//     let input = graphDBInferenceSchema(JSON.stringify(FRAUD_SCHEMA));
-//     let result = FRAUD_SCHEMA_RESULT;
-//     console.log(input);
-//     input = fixWhitespace(input);
-//     result = fixWhitespace(result);
-//     expect(input).toBe(result);
-// });
+test('should output fraud_graph schema', function() {
+    let input = graphDBInferenceSchema(JSON.stringify(FRAUD_SCHEMA));
+    let result = FRAUD_SCHEMA_RESULT;
+    console.log(input);
+    input = fixWhitespace(input);
+    result = fixWhitespace(result);
+    expect(input).toBe(result);
+});
 
-// test('should output knowledge-graph schema', function() {
-//     let input = graphDBInferenceSchema(JSON.stringify(KNOWLEDGE_SCHEMA));
-//     let result = KNOWLEDGE_SCHEMA_RESULT;
-//     console.log(input);
-//     input = fixWhitespace(input);
-//     result = fixWhitespace(result);
-//     expect(input).toBe(result);
-// });
+test('should output knowledge-graph schema', function() {
+    let input = graphDBInferenceSchema(JSON.stringify(KNOWLEDGE_SCHEMA));
+    let result = KNOWLEDGE_SCHEMA_RESULT;
+    console.log(input);
+    input = fixWhitespace(input);
+    result = fixWhitespace(result);
+    expect(input).toBe(result);
+});
 
 test('should output security-graph schema', function() {
     let input = graphDBInferenceSchema(JSON.stringify(SECURITY_SCHEMA));
