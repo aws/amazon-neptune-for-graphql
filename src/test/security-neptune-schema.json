@@ -1,0 +1,781 @@
+{
+  "nodeStructures": [
+    {
+      "label": "image",
+      "properties": [
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "guardduty:detector",
+      "properties": [
+        {
+          "name": "created_at",
+          "type": "String"
+        },
+        {
+          "name": "updated_at",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "service_role",
+          "type": "String"
+        },
+        {
+          "name": "finding_publishing_frequency",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:vpc",
+      "properties": [
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "state",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "is_default",
+          "type": "String"
+        },
+        {
+          "name": "cidr_block",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "iam:role",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "principal.aws",
+          "type": "String"
+        },
+        {
+          "name": "statement.effect",
+          "type": "String"
+        },
+        {
+          "name": "statement.action",
+          "type": "String"
+        },
+        {
+          "name": "max_session_duration",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "nassume_role_policy_document_text",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "assume_role_policy_document.version",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:network-interface",
+      "properties": [
+        {
+          "name": "public_ip",
+          "type": "String"
+        },
+        {
+          "name": "public_dns_name",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "private_ip_address",
+          "type": "String"
+        },
+        {
+          "name": "mac_address",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "private_dns_name",
+          "type": "String"
+        },
+        {
+          "name": "status",
+          "type": "String"
+        },
+        {
+          "name": "interface_type",
+          "type": "String"
+        },
+        {
+          "name": "description",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "rds:db",
+      "properties": [
+        {
+          "name": "storage_type",
+          "type": "String"
+        },
+        {
+          "name": "performance_insights_enabled",
+          "type": "String"
+        },
+        {
+          "name": "dbi_resource_id",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "db_instance_identifier",
+          "type": "String"
+        },
+        {
+          "name": "backup_retention_period",
+          "type": "String"
+        },
+        {
+          "name": "publicly_accessible",
+          "type": "String"
+        },
+        {
+          "name": "multi_az",
+          "type": "String"
+        },
+        {
+          "name": "availability_zone",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "storage_encrypted",
+          "type": "String"
+        },
+        {
+          "name": "iam_database_authentication_enabled",
+          "type": "String"
+        },
+        {
+          "name": "db_instance_class",
+          "type": "String"
+        },
+        {
+          "name": "endpoint_hosted_zone",
+          "type": "String"
+        },
+        {
+          "name": "deletion_protection",
+          "type": "String"
+        },
+        {
+          "name": "endpoint_address",
+          "type": "String"
+        },
+        {
+          "name": "db_instance_status",
+          "type": "String"
+        },
+        {
+          "name": "endpoint_port",
+          "type": "String"
+        },
+        {
+          "name": "instance_create_time",
+          "type": "String"
+        },
+        {
+          "name": "engine",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:instance",
+      "properties": [
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "public_ip_address",
+          "type": "String"
+        },
+        {
+          "name": "instance_type",
+          "type": "String"
+        },
+        {
+          "name": "state",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "private_ip_address",
+          "type": "String"
+        },
+        {
+          "name": "launch_time",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "iam:user",
+      "properties": [
+        {
+          "name": "password_last_used",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "login_profile.password_reset_required",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "access_key.access_key_id",
+          "type": "String"
+        },
+        {
+          "name": "login_profile.create_date",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "create_date",
+          "type": "String"
+        },
+        {
+          "name": "access_key.last_used_date",
+          "type": "String"
+        },
+        {
+          "name": "access_key.status",
+          "type": "String"
+        },
+        {
+          "name": "user_id",
+          "type": "String"
+        },
+        {
+          "name": "access_key.create_date",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:security-group",
+      "properties": [
+        {
+          "name": "egress_rule.ip_protocol",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "ip_range.first_ip",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "egress_rule.to_port",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "ip_range.last_ip",
+          "type": "String"
+        },
+        {
+          "name": "egress_rule.from_port",
+          "type": "String"
+        },
+        {
+          "name": "ip_range.cidr_ip",
+          "type": "String"
+        },
+        {
+          "name": "ingress_rule.from_port",
+          "type": "String"
+        },
+        {
+          "name": "ingress_rule.ip_protocol",
+          "type": "String"
+        },
+        {
+          "name": "ingress_rule.to_port",
+          "type": "String"
+        },
+        {
+          "name": "user_id_group_pairs.account_id",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:internet-gateway",
+      "properties": [
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "owner_id",
+          "type": "String"
+        },
+        {
+          "name": "attachment.state",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "events:rule",
+      "properties": [
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "target.arn",
+          "type": "String"
+        },
+        {
+          "name": "target.name",
+          "type": "String"
+        },
+        {
+          "name": "event_pattern",
+          "type": "String"
+        },
+        {
+          "name": "state",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:subnet",
+      "properties": [
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "first_ip",
+          "type": "String"
+        },
+        {
+          "name": "state",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "last_ip",
+          "type": "String"
+        },
+        {
+          "name": "cidr_block",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "iam:instance-profile",
+      "properties": [
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "iam:policy",
+      "properties": [
+        {
+          "name": "default_version_policy_document_text",
+          "type": "String"
+        },
+        {
+          "name": "default_version_id",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "policy_id",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "s3:bucket",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "server_side_default_encryption_rule.algorithm",
+          "type": "String"
+        },
+        {
+          "name": "creation_date",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "tag",
+      "properties": [
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "Name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "kms:key",
+      "properties": [
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "key_id",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:volume",
+      "properties": [
+        {
+          "name": "encrypted",
+          "type": "String"
+        },
+        {
+          "name": "availability_zone",
+          "type": "String"
+        },
+        {
+          "name": "state",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "attachment.attach_time",
+          "type": "String"
+        },
+        {
+          "name": "volume_type",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "attachment.state",
+          "type": "String"
+        },
+        {
+          "name": "size",
+          "type": "String"
+        },
+        {
+          "name": "create_time",
+          "type": "String"
+        },
+        {
+          "name": "attachment.delete_on_termination",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "ec2:route-table",
+      "properties": [
+        {
+          "name": "route.destination_cidr_block",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        },
+        {
+          "name": "route_table_id",
+          "type": "String"
+        },
+        {
+          "name": "association.route_table_id",
+          "type": "String"
+        },
+        {
+          "name": "route.origin",
+          "type": "String"
+        },
+        {
+          "name": "route.gateway_id",
+          "type": "String"
+        },
+        {
+          "name": "scan_id",
+          "type": "String"
+        },
+        {
+          "name": "owner_id",
+          "type": "String"
+        },
+        {
+          "name": "association.main",
+          "type": "String"
+        },
+        {
+          "name": "route.state",
+          "type": "String"
+        },
+        {
+          "name": "association.route_table_association_id",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "resource_link",
+      "properties": [],
+      "directions": [
+        {
+          "from": "ec2:instance",
+          "to": "ec2:security-group",
+          "relationship": "MANY-ONE"
+        },
+        {
+          "from": "ec2:security-group",
+          "to": "ec2:security-group",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "ec2:instance",
+          "to": "ec2:subnet",
+          "relationship": "MANY-ONE"
+        },
+        {
+          "from": "ec2:network-interface",
+          "to": "ec2:vpc",
+          "relationship": "MANY-ONE"
+        },
+        {
+          "from": "ec2:subnet",
+          "to": "ec2:vpc",
+          "relationship": "MANY-ONE"
+        },
+        {
+          "from": "ec2:internet-gateway",
+          "to": "ec2:vpc",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "ec2:instance",
+          "to": "ec2:vpc",
+          "relationship": "MANY-ONE"
+        },
+        {
+          "from": "ec2:route-table",
+          "to": "ec2:vpc",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "iam:role",
+          "to": "iam:policy",
+          "relationship": "MANY-MANY"
+        },
+        {
+          "from": "ec2:volume",
+          "to": "ec2:instance",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "iam:instance-profile",
+          "to": "iam:role",
+          "relationship": "ONE-ONE"
+        }
+      ]
+    },
+    {
+      "label": "tagged",
+      "properties": [],
+      "directions": [
+        {
+          "from": "ec2:security-group",
+          "to": "tag",
+          "relationship": "ONE-MANY"
+        },
+        {
+          "from": "ec2:instance",
+          "to": "tag",
+          "relationship": "ONE-ONE"
+        }
+      ]
+    },
+    {
+      "label": "transient_resource_link",
+      "properties": [],
+      "directions": [
+        {
+          "from": "rds:db",
+          "to": "ec2:security-group",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "rds:db",
+          "to": "ec2:vpc",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "rds:db",
+          "to": "kms:key",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "ec2:instance",
+          "to": "iam:instance-profile",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "ec2:instance",
+          "to": "image",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    }
+  ]
+}

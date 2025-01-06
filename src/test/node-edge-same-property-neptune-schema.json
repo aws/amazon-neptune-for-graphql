@@ -1,0 +1,76 @@
+{
+  "nodeStructures": [
+    {
+      "label": "continent",
+      "properties": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "commonName",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "country",
+      "properties": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "contains",
+      "properties": [
+        {
+          "name": "id",
+          "type": "String"
+        }
+      ],
+      "directions": [
+        {
+          "from": "continent",
+          "to": "country",
+          "relationship": "ONE-MANY"
+        }
+      ]
+    },
+    {
+      "label": "commonName",
+      "properties": [
+        {
+          "name": "id",
+          "type": "String"
+        }
+      ],
+      "directions": [
+        {
+          "from": "continent",
+          "to": "country",
+          "relationship": "ONE-MANY"
+        }
+      ]
+    }
+  ]
+}

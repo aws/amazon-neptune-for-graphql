@@ -1,0 +1,90 @@
+{
+  "nodeStructures": [
+    {
+      "label": "abc!$123&efg",
+      "properties": [
+        {
+          "name": "instance_type",
+          "type": "String"
+        },
+        {
+          "name": "state",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "abc(123).efg:456",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "ip_range.first_ip",
+          "type": "String"
+        },
+        {
+          "name": "ip_range.last_ip",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "abc=123@[efg]456",
+      "properties": [
+        {
+          "name": "instance_type",
+          "type": "String"
+        },
+        {
+          "name": "state",
+          "type": "String"
+        },
+        {
+          "name": "arn",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "abc{123}|efg-456",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "ip_range.first_ip",
+          "type": "String"
+        },
+        {
+          "name": "ip_range.last_ip",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "resource_link",
+      "properties": [],
+      "directions": [
+        {
+          "from": "abc!$123&efg",
+          "to": "abc(123).efg:456",
+          "relationship": "MANY-ONE"
+        },
+        {
+          "from": "abc!$123&efg",
+          "to": "abc!$123&efg",
+          "relationship": "ONE-ONE"
+        }
+      ]
+    }
+  ]
+}

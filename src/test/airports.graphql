@@ -1,0 +1,119 @@
+type Continent @alias(property:"continent") {
+_id: ID! @id
+type: String
+code: String
+desc: String
+airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
+contains:Contains
+}
+
+input ContinentInput {
+_id: ID @id
+type: String
+code: String
+desc: String
+}
+
+type Country @alias(property:"country") {
+_id: ID! @id
+type: String
+code: String
+desc: String
+airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
+contains:Contains
+}
+
+input CountryInput {
+_id: ID @id
+type: String
+code: String
+desc: String
+}
+
+type Version @alias(property:"version") {
+_id: ID! @id
+date: String
+desc: String
+author: String
+type: String
+code: String
+}
+
+input VersionInput {
+_id: ID @id
+date: String
+desc: String
+author: String
+type: String
+code: String
+}
+
+type Airport @alias(property:"airport") {
+_id: ID! @id
+type: String
+city: String
+icao: String
+code: String
+country: String
+lat: Float
+longest: Float
+runways: Float
+desc: String
+lon: Float
+region: String
+elev: Float
+continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
+countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
+airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:OUT)
+airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:IN)
+contains:Contains
+route:Route
+}
+
+input AirportInput {
+_id: ID @id
+type: String
+city: String
+icao: String
+code: String
+country: String
+lat: Float
+longest: Float
+runways: Float
+desc: String
+lon: Float
+region: String
+elev: Float
+}
+
+type Contains @alias(property:"contains") {
+_id: ID! @id
+}
+
+type Route @alias(property:"route") {
+_id: ID! @id
+dist: Float
+}
+
+input RouteInput {
+dist: Float
+}
+
+input Options {
+limit:Int
+}
+
+type Query {
+getNodeContinent(filter: ContinentInput): Continent
+getNodeContinents(filter: ContinentInput, options: Options): [Continent]
+getNodeCountry(filter: CountryInput): Country
+getNodeCountrys(filter: CountryInput, options: Options): [Country]
+getNodeVersion(filter: VersionInput): Version
+getNodeVersions(filter: VersionInput, options: Options): [Version]
+getNodeAirport(filter: AirportInput): Airport
+getNodeAirports(filter: AirportInput, options: Options): [Airport]
+}
+
+schema {
+query: Query
+}

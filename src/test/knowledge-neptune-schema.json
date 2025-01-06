@@ -1,0 +1,178 @@
+{
+  "nodeStructures": [
+    {
+      "label": "date",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "other",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "post",
+      "properties": [
+        {
+          "name": "title",
+          "type": "String"
+        },
+        {
+          "name": "post_date",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "author",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "organization",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "location",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "tag",
+      "properties": [
+        {
+          "name": "tag",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "title",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "commercial_item",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "tagged",
+      "properties": [],
+      "directions": [
+        {
+          "from": "post",
+          "to": "tag",
+          "relationship": "MANY-MANY"
+        }
+      ]
+    },
+    {
+      "label": "found_in",
+      "properties": [
+        {
+          "name": "score",
+          "type": "Float"
+        }
+      ],
+      "directions": [
+        {
+          "from": "post",
+          "to": "organization",
+          "relationship": "MANY-MANY"
+        },
+        {
+          "from": "post",
+          "to": "title",
+          "relationship": "MANY-MANY"
+        },
+        {
+          "from": "post",
+          "to": "location",
+          "relationship": "MANY-MANY"
+        },
+        {
+          "from": "post",
+          "to": "date",
+          "relationship": "MANY-MANY"
+        },
+        {
+          "from": "post",
+          "to": "commercial_item",
+          "relationship": "MANY-MANY"
+        },
+        {
+          "from": "post",
+          "to": "other",
+          "relationship": "ONE-MANY"
+        }
+      ]
+    },
+    {
+      "label": "written_by",
+      "properties": [],
+      "directions": [
+        {
+          "from": "post",
+          "to": "author",
+          "relationship": "MANY-MANY"
+        }
+      ]
+    }
+  ]
+}

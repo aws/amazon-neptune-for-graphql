@@ -1,0 +1,159 @@
+{
+  "nodeStructures": [
+    {
+      "label": "DateOfBirth",
+      "properties": [
+        {
+          "name": "value",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "Account",
+      "properties": [
+        {
+          "name": "first_name",
+          "type": "String"
+        },
+        {
+          "name": "account_number",
+          "type": "String"
+        },
+        {
+          "name": "last_name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "Merchant",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "Transaction",
+      "properties": [
+        {
+          "name": "amount",
+          "type": "Float"
+        },
+        {
+          "name": "created",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "Address",
+      "properties": [
+        {
+          "name": "value",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "PhoneNumber",
+      "properties": [
+        {
+          "name": "value",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "IpAddress",
+      "properties": [
+        {
+          "name": "value",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "EmailAddress",
+      "properties": [
+        {
+          "name": "value",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "FEATURE_OF_ACCOUNT",
+      "properties": [],
+      "directions": [
+        {
+          "from": "EmailAddress",
+          "to": "Account",
+          "relationship": "MANY-MANY"
+        },
+        {
+          "from": "IpAddress",
+          "to": "Account",
+          "relationship": "ONE-MANY"
+        },
+        {
+          "from": "Address",
+          "to": "Account",
+          "relationship": "ONE-MANY"
+        },
+        {
+          "from": "DateOfBirth",
+          "to": "Account",
+          "relationship": "ONE-MANY"
+        },
+        {
+          "from": "PhoneNumber",
+          "to": "Account",
+          "relationship": "MANY-MANY"
+        }
+      ]
+    },
+    {
+      "label": "ACCOUNT_EDGE",
+      "properties": [],
+      "directions": [
+        {
+          "from": "Transaction",
+          "to": "Account",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    },
+    {
+      "label": "FEATURE_OF_TRANSACTION",
+      "properties": [],
+      "directions": [
+        {
+          "from": "IpAddress",
+          "to": "Transaction",
+          "relationship": "ONE-MANY"
+        },
+        {
+          "from": "PhoneNumber",
+          "to": "Transaction",
+          "relationship": "ONE-MANY"
+        }
+      ]
+    },
+    {
+      "label": "MERCHANT_EDGE",
+      "properties": [],
+      "directions": [
+        {
+          "from": "Transaction",
+          "to": "Merchant",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    }
+  ]
+}

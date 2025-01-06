@@ -1,0 +1,150 @@
+{
+  "nodeStructures": [
+    {
+      "label": "continent",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "country",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "version",
+      "properties": [
+        {
+          "name": "date",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "author",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "airport",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "city",
+          "type": "String"
+        },
+        {
+          "name": "icao",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "country",
+          "type": "String"
+        },
+        {
+          "name": "lat",
+          "type": "Float"
+        },
+        {
+          "name": "longest",
+          "type": "Float"
+        },
+        {
+          "name": "runways",
+          "type": "Float"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "lon",
+          "type": "Float"
+        },
+        {
+          "name": "region",
+          "type": "String"
+        },
+        {
+          "name": "elev",
+          "type": "Float"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "contains",
+      "properties": [],
+      "directions": [
+        {
+          "from": "continent",
+          "to": "airport",
+          "relationship": "ONE-MANY"
+        },
+        {
+          "from": "country",
+          "to": "airport",
+          "relationship": "ONE-MANY"
+        }
+      ]
+    },
+    {
+      "label": "route",
+      "properties": [
+        {
+          "name": "dist",
+          "type": "Float"
+        }
+      ],
+      "directions": [
+        {
+          "from": "airport",
+          "to": "airport",
+          "relationship": "MANY-MANY"
+        }
+      ]
+    }
+  ]
+}

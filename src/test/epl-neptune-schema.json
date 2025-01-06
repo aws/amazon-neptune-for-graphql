@@ -1,0 +1,99 @@
+{
+  "nodeStructures": [
+    {
+      "label": "Stadium",
+      "properties": [
+        {
+          "name": "opened",
+          "type": "Float"
+        },
+        {
+          "name": "capacity",
+          "type": "Float"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "League",
+      "properties": [
+        {
+          "name": "nickname",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "Team",
+      "properties": [
+        {
+          "name": "nickname",
+          "type": "String"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "fullName",
+          "type": "String"
+        },
+        {
+          "name": "founded",
+          "type": "Float"
+        }
+      ]
+    },
+    {
+      "label": "City",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "CITY_EDGE",
+      "properties": [],
+      "directions": [
+        {
+          "from": "Stadium",
+          "to": "City",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    },
+    {
+      "label": "CURRENT_LEAGUE",
+      "properties": [],
+      "directions": [
+        {
+          "from": "Team",
+          "to": "League",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    },
+    {
+      "label": "STADIUM_EDGE",
+      "properties": [],
+      "directions": [
+        {
+          "from": "Team",
+          "to": "Stadium",
+          "relationship": "ONE-ONE"
+        }
+      ]
+    }
+  ]
+}
