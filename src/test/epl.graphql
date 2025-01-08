@@ -1,0 +1,92 @@
+type Stadium {
+_id: ID! @id
+opened: Float
+capacity: Float
+name: String
+cityCity_edgeOut: City @relationship(edgeType:"CITY_EDGE", direction:OUT)
+CITY_EDGE:City_edge
+STADIUM_EDGE:Stadium_edge
+}
+
+input StadiumInput {
+_id: ID @id
+opened: Float
+capacity: Float
+name: String
+}
+
+type League {
+_id: ID! @id
+nickname: String
+name: String
+teamCurrent_leaguesIn(filter: TeamInput, options: Options): [Team] @relationship(edgeType:"CURRENT_LEAGUE", direction:IN)
+CURRENT_LEAGUE:Current_league
+}
+
+input LeagueInput {
+_id: ID @id
+nickname: String
+name: String
+}
+
+type Team {
+_id: ID! @id
+nickname: String
+name: String
+fullName: String
+founded: Float
+leagueCurrent_leagueOut: League @relationship(edgeType:"CURRENT_LEAGUE", direction:OUT)
+CURRENT_LEAGUE:Current_league
+STADIUM_EDGE:Stadium_edge
+}
+
+input TeamInput {
+_id: ID @id
+nickname: String
+name: String
+fullName: String
+founded: Float
+}
+
+type City {
+_id: ID! @id
+name: String
+stadiumCity_edgesIn(filter: StadiumInput, options: Options): [Stadium] @relationship(edgeType:"CITY_EDGE", direction:IN)
+CITY_EDGE:City_edge
+}
+
+input CityInput {
+_id: ID @id
+name: String
+}
+
+type City_edge @alias(property:"CITY_EDGE") {
+_id: ID! @id
+}
+
+type Current_league @alias(property:"CURRENT_LEAGUE") {
+_id: ID! @id
+}
+
+type Stadium_edge @alias(property:"STADIUM_EDGE") {
+_id: ID! @id
+}
+
+input Options {
+limit:Int
+}
+
+type Query {
+getNodeStadium(filter: StadiumInput): Stadium
+getNodeStadiums(filter: StadiumInput, options: Options): [Stadium]
+getNodeLeague(filter: LeagueInput): League
+getNodeLeagues(filter: LeagueInput, options: Options): [League]
+getNodeTeam(filter: TeamInput): Team
+getNodeTeams(filter: TeamInput, options: Options): [Team]
+getNodeCity(filter: CityInput): City
+getNodeCitys(filter: CityInput, options: Options): [City]
+}
+
+schema {
+query: Query
+}

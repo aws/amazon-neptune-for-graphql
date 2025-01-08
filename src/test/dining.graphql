@@ -1,0 +1,142 @@
+type City @alias(property:"city") {
+_id: ID! @id
+name: String
+personLivessIn(filter: PersonInput, options: Options): [Person] @relationship(edgeType:"lives", direction:IN)
+restaurantWithinsIn(filter: RestaurantInput, options: Options): [Restaurant] @relationship(edgeType:"within", direction:IN)
+lives:Lives
+within:Within
+}
+
+input CityInput {
+_id: ID @id
+name: String
+}
+
+type Review @alias(property:"review") {
+_id: ID! @id
+body: String
+created_date: String
+rating: Float
+personWroteIn: Person @relationship(edgeType:"wrote", direction:IN)
+restaurantAboutOut: Restaurant @relationship(edgeType:"about", direction:OUT)
+wrote:Wrote
+about:About
+}
+
+input ReviewInput {
+_id: ID @id
+body: String
+created_date: String
+rating: Float
+}
+
+type Person @alias(property:"person") {
+_id: ID! @id
+first_name: String
+last_name: String
+person_id: Float
+cityLivesOut: City @relationship(edgeType:"lives", direction:OUT)
+reviewWrotesOut(filter: ReviewInput, options: Options): [Review] @relationship(edgeType:"wrote", direction:OUT)
+personFriendssOut(filter: PersonInput, options: Options): [Person] @relationship(edgeType:"friends", direction:OUT)
+personFriendssIn(filter: PersonInput, options: Options): [Person] @relationship(edgeType:"friends", direction:IN)
+lives:Lives
+wrote:Wrote
+friends:Friends
+}
+
+input PersonInput {
+_id: ID @id
+first_name: String
+last_name: String
+person_id: Float
+}
+
+type Restaurant @alias(property:"restaurant") {
+_id: ID! @id
+restaurant_id: Float
+name: String
+address: String
+cityWithinOut: City @relationship(edgeType:"within", direction:OUT)
+cuisineServesOut: Cuisine @relationship(edgeType:"serves", direction:OUT)
+reviewAboutsIn(filter: ReviewInput, options: Options): [Review] @relationship(edgeType:"about", direction:IN)
+within:Within
+serves:Serves
+about:About
+}
+
+input RestaurantInput {
+_id: ID @id
+restaurant_id: Float
+name: String
+address: String
+}
+
+type Cuisine @alias(property:"cuisine") {
+_id: ID! @id
+name: String
+restaurantServessIn(filter: RestaurantInput, options: Options): [Restaurant] @relationship(edgeType:"serves", direction:IN)
+serves:Serves
+}
+
+input CuisineInput {
+_id: ID @id
+name: String
+}
+
+type State @alias(property:"state") {
+_id: ID! @id
+name: String
+within:Within
+}
+
+input StateInput {
+_id: ID @id
+name: String
+}
+
+type Lives @alias(property:"lives") {
+_id: ID! @id
+}
+
+type Within @alias(property:"within") {
+_id: ID! @id
+}
+
+type Serves @alias(property:"serves") {
+_id: ID! @id
+}
+
+type Wrote @alias(property:"wrote") {
+_id: ID! @id
+}
+
+type About @alias(property:"about") {
+_id: ID! @id
+}
+
+type Friends @alias(property:"friends") {
+_id: ID! @id
+}
+
+input Options {
+limit:Int
+}
+
+type Query {
+getNodeCity(filter: CityInput): City
+getNodeCitys(filter: CityInput, options: Options): [City]
+getNodeReview(filter: ReviewInput): Review
+getNodeReviews(filter: ReviewInput, options: Options): [Review]
+getNodePerson(filter: PersonInput): Person
+getNodePersons(filter: PersonInput, options: Options): [Person]
+getNodeRestaurant(filter: RestaurantInput): Restaurant
+getNodeRestaurants(filter: RestaurantInput, options: Options): [Restaurant]
+getNodeCuisine(filter: CuisineInput): Cuisine
+getNodeCuisines(filter: CuisineInput, options: Options): [Cuisine]
+getNodeState(filter: StateInput): State
+getNodeStates(filter: StateInput, options: Options): [State]
+}
+
+schema {
+query: Query
+}

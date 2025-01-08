@@ -1,0 +1,176 @@
+type Date @alias(property:"date") {
+_id: ID! @id
+type: String
+text: String
+postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+found_in:Found_in
+}
+
+input DateInput {
+_id: ID @id
+type: String
+text: String
+}
+
+type Other @alias(property:"other") {
+_id: ID! @id
+type: String
+text: String
+postFound_inIn: Post @relationship(edgeType:"found_in", direction:IN)
+found_in:Found_in
+}
+
+input OtherInput {
+_id: ID @id
+type: String
+text: String
+}
+
+type Post @alias(property:"post") {
+_id: ID! @id
+title: String
+post_date: String
+tagTaggedsOut(filter: TagInput, options: Options): [Tag] @relationship(edgeType:"tagged", direction:OUT)
+organizationFound_insOut(filter: OrganizationInput, options: Options): [Organization] @relationship(edgeType:"found_in", direction:OUT)
+titleFound_insOut(filter: TitleInput, options: Options): [Title] @relationship(edgeType:"found_in", direction:OUT)
+locationFound_insOut(filter: LocationInput, options: Options): [Location] @relationship(edgeType:"found_in", direction:OUT)
+dateFound_insOut(filter: DateInput, options: Options): [Date] @relationship(edgeType:"found_in", direction:OUT)
+commercial_itemFound_insOut(filter: Commercial_itemInput, options: Options): [Commercial_item] @relationship(edgeType:"found_in", direction:OUT)
+otherFound_insOut(filter: OtherInput, options: Options): [Other] @relationship(edgeType:"found_in", direction:OUT)
+authorWritten_bysOut(filter: AuthorInput, options: Options): [Author] @relationship(edgeType:"written_by", direction:OUT)
+tagged:Tagged
+found_in:Found_in
+written_by:Written_by
+}
+
+input PostInput {
+_id: ID @id
+title: String
+post_date: String
+}
+
+type Author @alias(property:"author") {
+_id: ID! @id
+name: String
+postWritten_bysIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"written_by", direction:IN)
+written_by:Written_by
+}
+
+input AuthorInput {
+_id: ID @id
+name: String
+}
+
+type Organization @alias(property:"organization") {
+_id: ID! @id
+type: String
+text: String
+postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+found_in:Found_in
+}
+
+input OrganizationInput {
+_id: ID @id
+type: String
+text: String
+}
+
+type Location @alias(property:"location") {
+_id: ID! @id
+type: String
+text: String
+postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+found_in:Found_in
+}
+
+input LocationInput {
+_id: ID @id
+type: String
+text: String
+}
+
+type Tag @alias(property:"tag") {
+_id: ID! @id
+tag: String
+postTaggedsIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"tagged", direction:IN)
+tagged:Tagged
+}
+
+input TagInput {
+_id: ID @id
+tag: String
+}
+
+type Title @alias(property:"title") {
+_id: ID! @id
+type: String
+text: String
+postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+found_in:Found_in
+}
+
+input TitleInput {
+_id: ID @id
+type: String
+text: String
+}
+
+type Commercial_item @alias(property:"commercial_item") {
+_id: ID! @id
+type: String
+text: String
+postFound_insIn(filter: PostInput, options: Options): [Post] @relationship(edgeType:"found_in", direction:IN)
+found_in:Found_in
+}
+
+input Commercial_itemInput {
+_id: ID @id
+type: String
+text: String
+}
+
+type Tagged @alias(property:"tagged") {
+_id: ID! @id
+}
+
+type Found_in @alias(property:"found_in") {
+_id: ID! @id
+score: Float
+}
+
+input Found_inInput {
+score: Float
+}
+
+type Written_by @alias(property:"written_by") {
+_id: ID! @id
+}
+
+input Options {
+limit:Int
+}
+
+type Query {
+getNodeDate(filter: DateInput): Date
+getNodeDates(filter: DateInput, options: Options): [Date]
+getNodeOther(filter: OtherInput): Other
+getNodeOthers(filter: OtherInput, options: Options): [Other]
+getNodePost(filter: PostInput): Post
+getNodePosts(filter: PostInput, options: Options): [Post]
+getNodeAuthor(filter: AuthorInput): Author
+getNodeAuthors(filter: AuthorInput, options: Options): [Author]
+getNodeOrganization(filter: OrganizationInput): Organization
+getNodeOrganizations(filter: OrganizationInput, options: Options): [Organization]
+getNodeLocation(filter: LocationInput): Location
+getNodeLocations(filter: LocationInput, options: Options): [Location]
+getNodeTag(filter: TagInput): Tag
+getNodeTags(filter: TagInput, options: Options): [Tag]
+getNodeTitle(filter: TitleInput): Title
+getNodeTitles(filter: TitleInput, options: Options): [Title]
+getNodeCommercial_item(filter: Commercial_itemInput): Commercial_item
+getNodeCommercial_items(filter: Commercial_itemInput, options: Options): [Commercial_item]
+}
+
+schema {
+query: Query
+}

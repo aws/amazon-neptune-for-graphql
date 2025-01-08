@@ -1,0 +1,155 @@
+{
+  "nodeStructures": [
+    {
+      "label": "city",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "review",
+      "properties": [
+        {
+          "name": "body",
+          "type": "String"
+        },
+        {
+          "name": "created_date",
+          "type": "String"
+        },
+        {
+          "name": "rating",
+          "type": "Float"
+        }
+      ]
+    },
+    {
+      "label": "person",
+      "properties": [
+        {
+          "name": "first_name",
+          "type": "String"
+        },
+        {
+          "name": "last_name",
+          "type": "String"
+        },
+        {
+          "name": "person_id",
+          "type": "Float"
+        }
+      ]
+    },
+    {
+      "label": "restaurant",
+      "properties": [
+        {
+          "name": "restaurant_id",
+          "type": "Float"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "address",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "cuisine",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "state",
+      "properties": [
+        {
+          "name": "name",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "lives",
+      "properties": [],
+      "directions": [
+        {
+          "from": "person",
+          "to": "city",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    },
+    {
+      "label": "within",
+      "properties": [],
+      "directions": [
+        {
+          "from": "city",
+          "to": "state",
+          "relationship": "ONE-ONE"
+        },
+        {
+          "from": "restaurant",
+          "to": "city",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    },
+    {
+      "label": "serves",
+      "properties": [],
+      "directions": [
+        {
+          "from": "restaurant",
+          "to": "cuisine",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    },
+    {
+      "label": "wrote",
+      "properties": [],
+      "directions": [
+        {
+          "from": "person",
+          "to": "review",
+          "relationship": "ONE-MANY"
+        }
+      ]
+    },
+    {
+      "label": "about",
+      "properties": [],
+      "directions": [
+        {
+          "from": "review",
+          "to": "restaurant",
+          "relationship": "MANY-ONE"
+        }
+      ]
+    },
+    {
+      "label": "friends",
+      "properties": [],
+      "directions": [
+        {
+          "from": "person",
+          "to": "person",
+          "relationship": "MANY-MANY"
+        }
+      ]
+    }
+  ]
+}

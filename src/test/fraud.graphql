@@ -1,0 +1,159 @@
+type Dateofbirth @alias(property:"DateOfBirth") {
+_id: ID! @id
+value: String
+accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+FEATURE_OF_ACCOUNT:Feature_of_account
+}
+
+input DateofbirthInput {
+_id: ID @id
+value: String
+}
+
+type Account {
+_id: ID! @id
+first_name: String
+account_number: String
+last_name: String
+emailaddressFeature_of_accountsIn(filter: EmailaddressInput, options: Options): [Emailaddress] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+ipaddressFeature_of_accountIn: Ipaddress @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+addressFeature_of_accountIn: Address @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+dateofbirthFeature_of_accountIn: Dateofbirth @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+phonenumberFeature_of_accountsIn(filter: PhonenumberInput, options: Options): [Phonenumber] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:IN)
+transactionAccount_edgesIn(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"ACCOUNT_EDGE", direction:IN)
+FEATURE_OF_ACCOUNT:Feature_of_account
+ACCOUNT_EDGE:Account_edge
+}
+
+input AccountInput {
+_id: ID @id
+first_name: String
+account_number: String
+last_name: String
+}
+
+type Merchant {
+_id: ID! @id
+name: String
+transactionMerchant_edgesIn(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"MERCHANT_EDGE", direction:IN)
+MERCHANT_EDGE:Merchant_edge
+}
+
+input MerchantInput {
+_id: ID @id
+name: String
+}
+
+type Transaction {
+_id: ID! @id
+amount: Float
+created: String
+accountAccount_edgeOut: Account @relationship(edgeType:"ACCOUNT_EDGE", direction:OUT)
+ipaddressFeature_of_transactionIn: Ipaddress @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:IN)
+phonenumberFeature_of_transactionIn: Phonenumber @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:IN)
+merchantMerchant_edgeOut: Merchant @relationship(edgeType:"MERCHANT_EDGE", direction:OUT)
+ACCOUNT_EDGE:Account_edge
+FEATURE_OF_TRANSACTION:Feature_of_transaction
+MERCHANT_EDGE:Merchant_edge
+}
+
+input TransactionInput {
+_id: ID @id
+amount: Float
+created: String
+}
+
+type Address {
+_id: ID! @id
+value: String
+accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+FEATURE_OF_ACCOUNT:Feature_of_account
+}
+
+input AddressInput {
+_id: ID @id
+value: String
+}
+
+type Phonenumber @alias(property:"PhoneNumber") {
+_id: ID! @id
+value: String
+accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:OUT)
+FEATURE_OF_ACCOUNT:Feature_of_account
+FEATURE_OF_TRANSACTION:Feature_of_transaction
+}
+
+input PhonenumberInput {
+_id: ID @id
+value: String
+}
+
+type Ipaddress @alias(property:"IpAddress") {
+_id: ID! @id
+value: String
+accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:OUT)
+FEATURE_OF_ACCOUNT:Feature_of_account
+FEATURE_OF_TRANSACTION:Feature_of_transaction
+}
+
+input IpaddressInput {
+_id: ID @id
+value: String
+}
+
+type Emailaddress @alias(property:"EmailAddress") {
+_id: ID! @id
+value: String
+accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType:"FEATURE_OF_ACCOUNT", direction:OUT)
+FEATURE_OF_ACCOUNT:Feature_of_account
+}
+
+input EmailaddressInput {
+_id: ID @id
+value: String
+}
+
+type Feature_of_account @alias(property:"FEATURE_OF_ACCOUNT") {
+_id: ID! @id
+}
+
+type Account_edge @alias(property:"ACCOUNT_EDGE") {
+_id: ID! @id
+}
+
+type Feature_of_transaction @alias(property:"FEATURE_OF_TRANSACTION") {
+_id: ID! @id
+}
+
+type Merchant_edge @alias(property:"MERCHANT_EDGE") {
+_id: ID! @id
+}
+
+input Options {
+limit:Int
+}
+
+type Query {
+getNodeDateofbirth(filter: DateofbirthInput): Dateofbirth
+getNodeDateofbirths(filter: DateofbirthInput, options: Options): [Dateofbirth]
+getNodeAccount(filter: AccountInput): Account
+getNodeAccounts(filter: AccountInput, options: Options): [Account]
+getNodeMerchant(filter: MerchantInput): Merchant
+getNodeMerchants(filter: MerchantInput, options: Options): [Merchant]
+getNodeTransaction(filter: TransactionInput): Transaction
+getNodeTransactions(filter: TransactionInput, options: Options): [Transaction]
+getNodeAddress(filter: AddressInput): Address
+getNodeAddresss(filter: AddressInput, options: Options): [Address]
+getNodePhonenumber(filter: PhonenumberInput): Phonenumber
+getNodePhonenumbers(filter: PhonenumberInput, options: Options): [Phonenumber]
+getNodeIpaddress(filter: IpaddressInput): Ipaddress
+getNodeIpaddresss(filter: IpaddressInput, options: Options): [Ipaddress]
+getNodeEmailaddress(filter: EmailaddressInput): Emailaddress
+getNodeEmailaddresss(filter: EmailaddressInput, options: Options): [Emailaddress]
+}
+
+schema {
+query: Query
+}
