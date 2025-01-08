@@ -264,6 +264,36 @@ function processArgs() {
 
 }
 
+/**
+ * Saves the neptune schema to file
+ */
+function saveNeptuneSchema() {
+    // Output Neptune schema
+    if (inputGraphDBSchema !== '') {
+        if (outputNeptuneSchemaFile === '') {
+            if (createUpdatePipelineName === '') {
+                outputNeptuneSchemaFile = outputFolderPath + '/output.neptune.schema.json';
+            } else {
+                outputNeptuneSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.neptune.schema.json`;
+            }
+        }
+
+        try {
+            writeFileSync(outputNeptuneSchemaFile, inputGraphDBSchema);
+            loggerInfo('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile), {toConsole: true});
+        } catch (err) {
+            loggerError('Error writing Neptune schema to file: ' + yellow(outputNeptuneSchemaFile), err);
+        }
+    } else {
+        loggerDebug('No neptune schema to save to file')
+    }
+}
+
+function createOutputFolder() {
+    // Init output folder
+    mkdirSync(outputFolderPath, {recursive: true});
+}
+
 async function main() {
     
     if (process.argv.length <= 2) {
@@ -320,6 +350,10 @@ async function main() {
         let executionTime = endTime - startTime;
         loggerInfo('Fetch neptune schema execution time: ' + (executionTime/1000).toFixed(2) + ' seconds', {toConsole: true});
     }
+
+    createOutputFolder();
+    // save the neptune schema early for troubleshooting purposes
+    saveNeptuneSchema();
 
     // Option 2: inference GraphQL schema from graphDB schema
     if (inputGraphDBSchema != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
@@ -453,9 +487,6 @@ async function main() {
     // Outputs
     // ****************************************************************************
 
-    // Init output folder
-    mkdirSync(outputFolderPath, { recursive: true });
-
     // Output GraphQL schema no directives
     if (inputGraphQLSchema != '') {
     
@@ -492,24 +523,6 @@ async function main() {
         } catch (err) {
             loggerError('Error writing output GraphQL schema to file: ' + yellow(outputSourceSchemaFile), err);
         }
-
-
-        // Output Neptune schema
-        if (outputNeptuneSchemaFile == '') {
-            if (createUpdatePipelineName == '') { 
-                outputNeptuneSchemaFile = outputFolderPath + '/output.neptune.schema.json';
-            } else {
-                outputNeptuneSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.neptune.schema.json`;
-            } 
-        }
-
-        try {
-            writeFileSync(outputNeptuneSchemaFile, inputGraphDBSchema);
-            loggerInfo('Wrote Neptune schema to file: ' + yellow(outputNeptuneSchemaFile), {toConsole: true});
-        } catch (err) {
-            loggerError('Error writing Neptune schema to file: ' + yellow(outputNeptuneSchemaFile), err);
-        }
-
 
         // Output Lambda resolver
         if (outputLambdaResolverFile == '') { 
