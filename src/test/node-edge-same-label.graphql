@@ -1,0 +1,45 @@
+type post {
+    _id: ID! @id
+    text: String
+    author:author
+}
+
+input postInput {
+    _id: ID @id
+    text: String
+}
+
+type author {
+    _id: ID! @id
+    username: String
+    author:author
+}
+
+input authorInput {
+    _id: ID @id
+    username: String
+}
+
+type _author @alias(property:"author") {
+    _id: ID! @id
+    date: Date
+}
+
+input _authorInput {
+    date: Date
+}
+
+input Options {
+    limit:Int
+}
+
+type Query {
+    getNodepost(filter: postInput): post
+    getNodeposts(filter: postInput, options: Options): [post]
+    getNodeauthor(filter: authorInput): author
+    getNodeauthors(filter: authorInput, options: Options): [author]
+}
+
+schema {
+    query: Query
+}

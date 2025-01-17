@@ -9,7 +9,7 @@ on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
-import { loggerInfo } from './logger.js';
+import { loggerDebug, loggerInfo } from './logger.js';
 
 let changeCase = true;
 
@@ -19,6 +19,7 @@ function checkForDuplicateNames(schema) {
         let pascalCase = toPascalCase(node.label);
         if (names.includes(pascalCase)) {            
             changeCase = false;
+            loggerDebug(`Node label '${node.label}' was detected as a duplicate. It is recommended to resolve duplicate labels.`, {toConsole: true});
         } else {
             names.push(pascalCase);             
         }
@@ -28,6 +29,7 @@ function checkForDuplicateNames(schema) {
         let pascalCase = toPascalCase(edge.label);
         if (names.includes(pascalCase)) {            
             changeCase = false;
+            loggerDebug(`Edge label '${edge.label}' was detected as a duplicate. It is recommended to resolve duplicate labels.`, {toConsole: true});
         } else {
             names.push(pascalCase);             
         }
@@ -192,10 +194,17 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += '}\n\n';
     })
 
+    const nodeLabels = new Set(gdbs.nodeStructures.map((n) => n.label));
+
     // edge types
     gdbs.edgeStructures.forEach(edge => {
         // edge type
-        let edgeCase = cleanseLabel(edge.label);
+
+        // resolve potential conflict between the edge label and node label by prefixing with an underscore
+        let edgeCase = nodeLabels.has(edge.label)
+            ? `_${cleanseLabel(edge.label)}`
+            : cleanseLabel(edge.label);
+
         if (changeCase) {
             edgeCase = toPascalCase(edgeCase);
         }

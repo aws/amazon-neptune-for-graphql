@@ -1,0 +1,40 @@
+{
+  "nodeStructures": [
+    {
+      "label": "post",
+      "properties": [
+        {
+          "name": "text",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "author",
+      "properties": [
+        {
+          "name": "username",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "author",
+      "properties": [
+        {
+          "name": "date",
+          "type": "Date"
+        }
+      ],
+      "directions": [
+        {
+          "from": "post",
+          "to": "author",
+          "relationship": "ONE-ONE"
+        }
+      ]
+    }
+  ]
+}

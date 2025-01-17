@@ -1,5 +1,6 @@
 import { graphDBInferenceSchema } from '../graphdb.js';
 import fs from "fs";
+import { loggerInit } from "../logger.js";
 
 test('node with same property and edge label should add underscore prefix', () => {
     expect(graphDBInferenceSchema(readFile('./src/test/node-edge-same-property-neptune-schema.json'), false)).toContain('_commonName:Commonname');
@@ -44,6 +45,13 @@ test('should output knowledge graph schema', () => {
 test('should output security graph schema', () => {
     const actual = inferGraphQLSchema('./src/test/security-neptune-schema.json');
     const expected = loadGraphQLSchema('./src/test/security.graphql')
+    expect(actual).toBe(expected);
+});
+
+test('should alias edge with same label as node', () => {
+    loggerInit('./src/test/output', false, 'info');
+    const actual = inferGraphQLSchema('./src/test/node-edge-same-label-neptune-schema.json');
+    const expected = loadGraphQLSchema('./src/test/node-edge-same-label.graphql')
     expect(actual).toBe(expected);
 });
 
