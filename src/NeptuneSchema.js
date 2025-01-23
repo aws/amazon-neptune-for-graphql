@@ -15,6 +15,7 @@ import { aws4Interceptor } from "aws4-axios";
 import { fromNodeProviderChain  } from "@aws-sdk/credential-providers";
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand } from "@aws-sdk/client-neptunedata";
 import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
+import { mapAll } from "./util-promise.js";
 import { ExecuteQueryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 
 const NEPTUNE_DB = 'neptune-db';
@@ -191,7 +192,7 @@ async function findFromAndToLabels(edgeStructure) {
 
 
 async function getEdgesDirections() {
-    await Promise.all(schema.edgeStructures.map(findFromAndToLabels))
+    await mapAll(schema.edgeStructures, findFromAndToLabels);
 }
 
 
@@ -254,9 +255,7 @@ async function getEdgeProperties(edge) {
 
 async function getEdgesProperties() {
     loggerInfo('Retrieving edge properties');
-    await Promise.all(schema.edgeStructures.map(async (edge) => {
-        await getEdgeProperties(edge);
-      }));
+    await mapAll(schema.edgeStructures, getEdgeProperties);
 }
 
 
@@ -281,9 +280,7 @@ async function getNodeProperties(node) {
 
 async function getNodesProperties() {
     loggerInfo('Retrieving node properties');
-    await Promise.all(schema.nodeStructures.map(async (node) => {
-        await getNodeProperties(node);
-      }));
+    await mapAll(schema.nodeStructures, getNodeProperties);
 }
 
 
@@ -323,9 +320,7 @@ async function getEdgesDirectionsCardinality() {
         }
     }
     
-    await Promise.all(possibleDirections.map(async (d) => {
-        await checkEdgeDirectionCardinality(d);     
-    }));    
+    await mapAll(possibleDirections, checkEdgeDirectionCardinality);
 }
 
 
