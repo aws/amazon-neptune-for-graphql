@@ -10,11 +10,12 @@ describe('mapAll', () => {
     test('should map each element in batches', async () => {
         const count = 100;
         const batchSize = 50;
+        const batchCounter = makeBatchCounter(count);
 
-        await expect(mapAll(Array(count + 1).fill(0), batchCounter(count), batchSize))
+        await expect(mapAll(Array(count + 1).fill(0), (i) => batchCounter.fn(i), batchSize))
             .rejects
             .toThrow(Error);
-        expect(count).toEqual(count);
+        expect(batchCounter.count).toEqual(count);
     });
 
     test('should reject with the same error as a rejected mapped Promise', async () => {
@@ -36,15 +37,16 @@ describe('mapAll', () => {
         return Promise.resolve(i * 2);
     }
 
-    function batchCounter(n) {
-        let count = 0;
-
-        return (i) => {
-            if (count >= n) {
-                throw new Error();
+    function makeBatchCounter(n) {
+        return {
+            count: 0,
+            fn: function (i) {
+                if (this.count >= n) {
+                    throw new Error();
+                }
+                this.count++;
+                return Promise.resolve(i);
             }
-            count++;
-            return Promise.resolve(i);
         };
     }
 
