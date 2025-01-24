@@ -11,6 +11,7 @@ permissions and limitations under the License.
 */
 
 import { schemaStringify } from './schemaParser.js';
+import { print } from 'graphql';
 import {gql} from 'graphql-tag'
 import { loggerInfo, yellow } from "./logger.js";
 
@@ -135,31 +136,11 @@ function injectChanges(schemaModel) {
 
 function addNode(def) {
     let name = def.name.value;
-    
-    // Input fields    
-    let inputFields = '';
-    inputFields += `\n  _id: ID @id`
-    def.fields.forEach(field => {
-        try {
-            if (field.name.value === 'id') {
-                inputFields += `\n  id: ID`;
-            }
-
-        } catch {}
-
-        try {
-            if (field.type.name.value === 'String' || 
-                field.type.name.value === 'Int' || 
-                field.type.name.value === 'Float' || 
-                field.type.name.value === 'Boolean') {
-
-                inputFields += `\n  ${field.name.value}: ${field.type.name.value}`;            
-            }
-        } catch {}
-    });
+    const idField = getIdField(def);
 
     // Create Input type
-    typesToAdd.push(`input ${name}Input {${inputFields}\n}`);    
+    const inputFields = [idField, ...getInputFields(def)];
+    typesToAdd.push(`input ${name}Input {\n${print(inputFields)}\n}`);    
 
     // Create query
     queriesToAdd.push(`getNode${name}(filter: ${name}Input, options: Options): ${name}\n`);
@@ -168,7 +149,7 @@ function addNode(def) {
     // Create mutation
     mutationsToAdd.push(`createNode${name}(input: ${name}Input!): ${name}\n`);
     mutationsToAdd.push(`updateNode${name}(input: ${name}Input!): ${name}\n`);
-    mutationsToAdd.push(`deleteNode${name}(_id: ID!): Boolean\n`);
+    mutationsToAdd.push(`deleteNode${name}(${print(idFieldToInputValue(idField))}): Boolean\n`);
 
     loggerInfo(`Added input type: ${yellow(name+'Input')}`);
     loggerInfo(`Added query: ${yellow('getNode' + name)}`);
@@ -231,6 +212,40 @@ function addFilterOptionsArguments(field) {
 }
 
 
+function getIdField(objTypeDef) {
+    return objTypeDef.fields.find(
+        field =>
+            field.directives && field.directives.some(directive => directive.name.value === 'id')
+    );
+}
+
+
+function createIdField() {
+    return {
+        kind: 'FieldDefinition',
+        name: { kind: 'Name', value: '_id' },
+        arguments: [],
+        type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        directives: [
+            { kind: 'Directive', name: { kind: 'Name', value: 'id' }, arguments: [] }
+        ]
+    };
+}
+
+
+function idFieldToInputValue({ name, type }) {
+    return { kind: 'InputValueDefinition', name, type };
+}
+
+
+function getInputFields(objTypeDef) {
+    const inputFieldTypes = ['String', 'Int', 'Float', 'Boolean'];
+    return objTypeDef.fields.filter(
+        field =>
+            field.type.kind === 'NamedType' && inputFieldTypes.includes(field.type.name.value)
+    );
+}
+
 
 function inferGraphDatabaseDirectives(schemaModel) {
     
@@ -242,20 +257,14 @@ function inferGraphDatabaseDirectives(schemaModel) {
         if (def.kind == 'ObjectTypeDefinition') {
             if (!(def.name.value == 'Query' || def.name.value == 'Mutation')) {
                 currentType = def.name.value;
+
+                // Only add _id field to the object type if it doesn't have an ID field already
+                if (!getIdField(def)) {
+                    def.fields.unshift(createIdField());
+                }
+
                 addNode(def);
                 const edgesTypeToAdd = [];
-
-                // Add _id field to the object type
-                def.fields.unshift({                
-                    kind: "FieldDefinition", name: { kind: "Name", value: "_id" },
-                    arguments: [],
-                    type: { kind: "NonNullType", type: { kind: "NamedType", name: { kind: "Name", value: "ID" }}},
-                    directives: [ 
-                        { kind: "Directive", name: { kind: "Name", value: "id" },
-                          arguments: []                            
-                        }
-                    ]                      
-                });
 
                 // add relationships
                 def.fields.forEach(field => {                    
