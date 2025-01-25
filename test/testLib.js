@@ -142,7 +142,7 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
                 console.log(JSON.stringify(data, null, 2));
             
             test(`Resolver Neptune result, ${queryFile}: ${query.name}`, async () => {    
-                expect(JSON.stringify(data, null, 2)).toBe(JSON.stringify(query.result, null, 2));
+                expect(data).toEqual(query.result);
             });            
         }
     }
