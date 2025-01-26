@@ -139,8 +139,7 @@ function addNode(def) {
     const idField = getIdField(def);
 
     // Create Input type
-    const inputFields = [idField, ...getInputFields(def)];
-    typesToAdd.push(`input ${name}Input {\n${print(inputFields)}\n}`);    
+    typesToAdd.push(`input ${name}Input {\n${print(getInputFields(def))}\n}`);    
 
     // Create query
     queriesToAdd.push(`getNode${name}(filter: ${name}Input, options: Options): ${name}\n`);
@@ -239,11 +238,18 @@ function idFieldToInputValue({ name, type }) {
 
 
 function getInputFields(objTypeDef) {
-    const inputFieldTypes = ['String', 'Int', 'Float', 'Boolean'];
-    return objTypeDef.fields.filter(
-        field =>
-            field.type.kind === 'NamedType' && inputFieldTypes.includes(field.type.name.value)
-    );
+    return objTypeDef.fields.filter(field => isScalar(nullable(field.type)));
+}
+
+
+function nullable(type) {
+    return type.kind === 'NonNullType' ? type.type : type;
+}
+
+
+function isScalar(type) {
+    const scalarTypes = ['String', 'Int', 'Float', 'Boolean', 'ID'];
+    return type.kind === 'NamedType' && scalarTypes.includes(type.name.value);
 }
 
 
