@@ -14,7 +14,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2024-11-19T00:06:35.400Z
+// 2025-01-27T20:47:24.069Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -929,7 +929,7 @@ const schemaDataModelJSON = `{
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "Float"
+              "value": "Int"
             }
           },
           "directives": []
@@ -977,7 +977,7 @@ const schemaDataModelJSON = `{
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "Float"
+              "value": "Int"
             }
           },
           "directives": []
@@ -1025,7 +1025,7 @@ const schemaDataModelJSON = `{
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "Float"
+              "value": "Int"
             }
           },
           "directives": []
@@ -1547,7 +1547,7 @@ const schemaDataModelJSON = `{
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "Float"
+              "value": "Int"
             }
           },
           "directives": []
@@ -1592,7 +1592,7 @@ const schemaDataModelJSON = `{
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "Float"
+              "value": "Int"
             }
           },
           "directives": []
@@ -1637,7 +1637,7 @@ const schemaDataModelJSON = `{
             "kind": "NamedType",
             "name": {
               "kind": "Name",
-              "value": "Float"
+              "value": "Int"
             }
           },
           "directives": []
@@ -3465,7 +3465,7 @@ const schemaDataModelJSON = `{
   ],
   "loc": {
     "start": 0,
-    "end": 4710
+    "end": 4698
   }
 }`;
     

@@ -56,12 +56,12 @@ icao: String
 code: String
 country: String
 lat: Float
-longest: Float
-runways: Float
+longest: Int
+runways: Int
 desc: String
 lon: Float
 region: String
-elev: Float
+elev: Int
 continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
 countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
 airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:OUT)
@@ -78,12 +78,12 @@ icao: String
 code: String
 country: String
 lat: Float
-longest: Float
-runways: Float
+longest: Int
+runways: Int
 desc: String
 lon: Float
 region: String
-elev: Float
+elev: Int
 }
 
 type Contains @alias(property:"contains") {
@@ -92,11 +92,11 @@ _id: ID! @id
 
 type Route @alias(property:"route") {
 _id: ID! @id
-dist: Float
+dist: Int
 }
 
 input RouteInput {
-dist: Float
+dist: Int
 }
 
 input Options {

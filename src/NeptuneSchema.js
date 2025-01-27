@@ -200,10 +200,7 @@ function CastGraphQLType(value) {
     let propertyType = 'String';
 
     if (typeof value === 'number') {
-        if (Number.isInteger(value)) {
-            propertyType = 'Int';
-        }
-        propertyType = 'Float';
+        propertyType = Number.isInteger(value) ? 'Int' : 'Float';
     }
 
     if (typeof value === 'boolean') propertyType = 'Boolean';

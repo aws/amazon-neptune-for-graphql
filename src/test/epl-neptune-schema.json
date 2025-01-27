@@ -5,11 +5,11 @@
       "properties": [
         {
           "name": "opened",
-          "type": "Float"
+          "type": "Int"
         },
         {
           "name": "capacity",
-          "type": "Float"
+          "type": "Int"
         },
         {
           "name": "name",
@@ -47,7 +47,7 @@
         },
         {
           "name": "founded",
-          "type": "Float"
+          "type": "Int"
         }
       ]
     },
