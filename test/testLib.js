@@ -149,4 +149,4 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
 }
 
 
-export { readJSONFile, checkFileContains, checkOutputFilesSize, checkOutputFilesContent, testResolverQueries, testResolverQueriesResults, checkOutputZipLambdaUsesSdk };
+export { loadResolver, readJSONFile, checkFileContains, checkOutputFilesSize, checkOutputFilesContent, testResolverQueries, testResolverQueriesResults, checkOutputZipLambdaUsesSdk };
