@@ -45,7 +45,10 @@ function resolveGraphDBQueryFromAppSyncEvent(event) {
         kind: 'Field',
         name: { kind: 'Name', value: event.field },
         arguments: args,
-        selectionSet: gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
+        selectionSet:
+            event.selectionSetGraphQL !== ''
+                ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
+                : undefined,
     };
     const opSelectionSet = {
         kind: 'SelectionSet',
