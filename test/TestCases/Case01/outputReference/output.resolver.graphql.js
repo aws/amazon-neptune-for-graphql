@@ -15,7 +15,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2025-01-25T22:07:04.860Z
+// 2025-01-27T20:27:51.186Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3496,7 +3496,10 @@ function resolveGraphDBQueryFromAppSyncEvent(event) {
         kind: 'Field',
         name: { kind: 'Name', value: event.field },
         arguments: args,
-        selectionSet: gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
+        selectionSet:
+            event.selectionSetGraphQL !== ''
+                ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
+                : undefined,
     };
     const opSelectionSet = {
         kind: 'SelectionSet',
