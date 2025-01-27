@@ -28,21 +28,25 @@ describe('validatedSchemaModel', () => {
     });
 
     test('should define the same ID fields on a type and its input type', () => {
-        const userType = model.definitions.find(
-            def =>
-                def.kind === 'ObjectTypeDefinition' && def.name.value === 'User'
-        );
-        const userInputType = model.definitions.find(
-            def =>
-                def.kind === 'InputObjectTypeDefinition' && def.name.value === 'UserInput'
-        );
+        const typeNames = ['User', 'Group'];
 
-        const userIdFields = getIdFields(userType);
-        const userInputIdFields = getIdFields(userInputType);
+        typeNames.forEach(typeName => {
+            const type = model.definitions.find(
+                def =>
+                    def.kind === 'ObjectTypeDefinition' && def.name.value === typeName
+            );
+            const inputType = model.definitions.find(
+                def =>
+                    def.kind === 'InputObjectTypeDefinition' && def.name.value === `${typeName}Input`
+            );
 
-        expect(userIdFields).toHaveLength(1);
-        expect(userInputIdFields).toHaveLength(1);
-        expect(userIdFields[0].name.value).toEqual(userInputIdFields[0].name.value);
+            const idFields = getIdFields(type);
+            const inputIdFields = getIdFields(inputType);
+
+            expect(idFields).toHaveLength(1);
+            expect(inputIdFields).toHaveLength(1);
+            expect(idFields[0].name.value).toEqual(inputIdFields[0].name.value);
+        });
     });
 
     function getIdFields(objTypeDef) {
