@@ -197,15 +197,19 @@ async function getEdgesDirections() {
 
 
 function CastGraphQLType(value) {
-    let propertyType = 'String';
-
     if (typeof value === 'number') {
-        propertyType = Number.isInteger(value) ? 'Int' : 'Float';
+        return Number.isInteger(value) ? 'Int' : 'Float';
     }
 
-    if (typeof value === 'boolean') propertyType = 'Boolean';
-    if (value instanceof Date) propertyType = 'Date';
-    return propertyType;
+    if (typeof value === 'boolean') {
+        return 'Boolean';
+    }
+
+    if (value instanceof Date) {
+        return 'Date';
+    }
+
+    return 'String';
 }
 
 
