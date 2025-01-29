@@ -15,7 +15,7 @@ const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL quer
 
 const useCallSubquery = false;
 
-// 2025-01-31T06:40:58.761Z
+// 2025-02-04T20:17:38.303Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3475,7 +3475,7 @@ const schemaDataModel = JSON.parse(schemaDataModelJSON);
 const schema = buildASTSchema(schemaDataModel, { assumeValidSDL: true });
 
 
-function resolveGraphDBQueryFromAppSyncEvent(event) {        
+function resolveGraphDBQueryFromAppSyncEvent(event) {
     const fieldDef = getFieldDef(event.field);
 
     const args = [];
@@ -3518,8 +3518,8 @@ function resolveGraphDBQueryFromAppSyncEvent(event) {
     const graphQuery = resolveGraphDBQuery(obj);
     return graphQuery;
 }
-  
-  
+
+
 function resolveGraphDBQueryFromApolloQueryEvent(event) {
   // TODO
 }
@@ -4200,6 +4200,9 @@ function transformFunctionInputParameters(fields, schemaInfo) {
         fields.forEach(field => {
             if (field.name.value === arg.name) {
                 let value = field.value.value;
+                if (field.value.kind === 'IntValue' || field.value.kind === 'FloatValue') {
+                    value = Number(value);
+                }
                 if (arg.name === schemaInfo.graphDBIdArgName) {
                     r.graphIdValue = value
                 } else if (arg.alias != null) {
