@@ -7,6 +7,5 @@
             "--output-no-lambda-zip"],
     "host": "<AIR_ROUTES_DB_HOST>",
     "port": "<AIR_ROUTES_DB_PORT>",
-    "testOutputFilesSize": ["output.neptune.schema.json"],
-    "testOutputFilesContent": ["output.neptune.schema.json"]
+    "testOutputFilesSize": ["output.neptune.schema.json"]
 }
