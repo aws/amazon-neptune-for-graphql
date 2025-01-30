@@ -1,3 +1,4 @@
+# Describes "Todo" items under the owner's account
 
 type Todo {
     name: String
@@ -5,9 +6,11 @@ type Todo {
     priority: Int
     status: String
     comments: [Comment]
+    "The best `Comment`, excluding the owner's"
     bestComment: Comment
 }
 
+"Comments on `Todo`s, including the owner's and others'"
 type Comment {
     id: ID
     content: String

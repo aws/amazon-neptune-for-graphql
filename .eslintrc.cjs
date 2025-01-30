@@ -13,6 +13,7 @@ module.exports = {
             "files": [
                 ".eslintrc.{js,cjs}",
                 "./src/test/**",
+                "./templates/**",
                 "./test/**"
             ],
             "parserOptions": {
@@ -20,6 +21,7 @@ module.exports = {
             }
         }
     ],
+    "ignorePatterns": ["**/output/"],
     "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module"
