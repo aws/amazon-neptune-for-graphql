@@ -1,65 +1,6 @@
 {
   "nodeStructures": [
     {
-      "label": "continent",
-      "properties": [
-        {
-          "name": "type",
-          "type": "String"
-        },
-        {
-          "name": "code",
-          "type": "String"
-        },
-        {
-          "name": "desc",
-          "type": "String"
-        }
-      ]
-    },
-    {
-      "label": "country",
-      "properties": [
-        {
-          "name": "type",
-          "type": "String"
-        },
-        {
-          "name": "code",
-          "type": "String"
-        },
-        {
-          "name": "desc",
-          "type": "String"
-        }
-      ]
-    },
-    {
-      "label": "version",
-      "properties": [
-        {
-          "name": "date",
-          "type": "String"
-        },
-        {
-          "name": "desc",
-          "type": "String"
-        },
-        {
-          "name": "author",
-          "type": "String"
-        },
-        {
-          "name": "type",
-          "type": "String"
-        },
-        {
-          "name": "code",
-          "type": "String"
-        }
-      ]
-    },
-    {
       "label": "airport",
       "properties": [
         {
@@ -111,12 +52,86 @@
           "type": "Int"
         }
       ]
+    },
+    {
+      "label": "version",
+      "properties": [
+        {
+          "name": "date",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "author",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "country",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "continent",
+      "properties": [
+        {
+          "name": "type",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        }
+      ]
     }
   ],
   "edgeStructures": [
     {
+      "label": "route",
+      "directions": [
+        {
+          "from": "airport",
+          "to": "airport",
+          "relationship": "MANY-MANY"
+        }
+      ],
+      "properties": [
+        {
+          "name": "dist",
+          "type": "Int"
+        }
+      ]
+    },
+    {
       "label": "contains",
-      "properties": [],
       "directions": [
         {
           "from": "continent",
@@ -128,23 +143,8 @@
           "to": "airport",
           "relationship": "ONE-MANY"
         }
-      ]
-    },
-    {
-      "label": "route",
-      "properties": [
-        {
-          "name": "dist",
-          "type": "Int"
-        }
       ],
-      "directions": [
-        {
-          "from": "airport",
-          "to": "airport",
-          "relationship": "MANY-MANY"
-        }
-      ]
+      "properties": []
     }
   ]
 }

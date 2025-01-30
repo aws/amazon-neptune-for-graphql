@@ -65,11 +65,23 @@ function checkOutputFilesContent(outputFolder, files, referenceFolder) {
     files.forEach(file => {        
         const stats = fs.readFileSync(`${outputFolder}/${file}`, 'utf8');
         const referenceStats = fs.readFileSync(`${referenceFolder}/${file}`, 'utf8');        
-        test('File content: ' + file, async () => {            
-            expect(stats).toBe(referenceStats);
-        });
+        checkOutputFileContent(file, stats, referenceStats);
     });
 }
+
+
+function checkOutputFileContent(file, actual, expected, options = {}) {
+    test(`File content: ${file}`, () => {
+        const matchers = expect(actual);
+
+        if (options.checkRefIntegrity ?? true) {
+            matchers.toBe(expected);
+        } else {
+            matchers.toEqual(expected);
+        }
+    });
+}
+
 
 /**
  * Unzips the given zip file and checks that the lambda uses the aws sdk
@@ -149,4 +161,14 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
 }
 
 
-export { loadResolver, readJSONFile, checkFileContains, checkOutputFilesSize, checkOutputFilesContent, testResolverQueries, testResolverQueriesResults, checkOutputZipLambdaUsesSdk };
+export {
+    checkFileContains,
+    checkOutputFileContent,
+    checkOutputFilesContent,
+    checkOutputFilesSize,
+    checkOutputZipLambdaUsesSdk,
+    loadResolver,
+    readJSONFile,
+    testResolverQueries,
+    testResolverQueriesResults,
+};

@@ -22,7 +22,7 @@
         },
         {
           "name": "rating",
-          "type": "Float"
+          "type": "Int"
         }
       ]
     },
@@ -39,7 +39,7 @@
         },
         {
           "name": "person_id",
-          "type": "Float"
+          "type": "Int"
         }
       ]
     },
@@ -48,7 +48,7 @@
       "properties": [
         {
           "name": "restaurant_id",
-          "type": "Float"
+          "type": "Int"
         },
         {
           "name": "name",

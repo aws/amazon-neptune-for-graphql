@@ -51,13 +51,13 @@ input VersionInput {
 type Airport {
   _id: ID!
   country: String
-  longest: Float
+  longest: Int
   code: String
   city: String
-  elev: Float
+  elev: Int
   icao: String
   lon: Float
-  runways: Float
+  runways: Int
   region: String
   type: String
   lat: Float
@@ -74,13 +74,13 @@ type Airport {
 input AirportInput {
   _id: ID
   country: String
-  longest: Float
+  longest: Int
   code: String
   city: String
-  elev: Float
+  elev: Int
   icao: String
   lon: Float
-  runways: Float
+  runways: Int
   region: String
   type: String
   lat: Float

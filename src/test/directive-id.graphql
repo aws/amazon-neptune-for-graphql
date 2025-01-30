@@ -1,0 +1,9 @@
+type User {
+    userId: ID! @id
+    firstName: String
+    lastName: String
+}
+
+type Group {
+    name: String
+}
