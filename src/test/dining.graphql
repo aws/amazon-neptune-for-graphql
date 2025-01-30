@@ -16,7 +16,7 @@ type Review @alias(property:"review") {
 _id: ID! @id
 body: String
 created_date: String
-rating: Float
+rating: Int
 personWroteIn: Person @relationship(edgeType:"wrote", direction:IN)
 restaurantAboutOut: Restaurant @relationship(edgeType:"about", direction:OUT)
 wrote:Wrote
@@ -27,14 +27,14 @@ input ReviewInput {
 _id: ID @id
 body: String
 created_date: String
-rating: Float
+rating: Int
 }
 
 type Person @alias(property:"person") {
 _id: ID! @id
 first_name: String
 last_name: String
-person_id: Float
+person_id: Int
 cityLivesOut: City @relationship(edgeType:"lives", direction:OUT)
 reviewWrotesOut(filter: ReviewInput, options: Options): [Review] @relationship(edgeType:"wrote", direction:OUT)
 personFriendssOut(filter: PersonInput, options: Options): [Person] @relationship(edgeType:"friends", direction:OUT)
@@ -48,12 +48,12 @@ input PersonInput {
 _id: ID @id
 first_name: String
 last_name: String
-person_id: Float
+person_id: Int
 }
 
 type Restaurant @alias(property:"restaurant") {
 _id: ID! @id
-restaurant_id: Float
+restaurant_id: Int
 name: String
 address: String
 cityWithinOut: City @relationship(edgeType:"within", direction:OUT)
@@ -66,7 +66,7 @@ about:About
 
 input RestaurantInput {
 _id: ID @id
-restaurant_id: Float
+restaurant_id: Int
 name: String
 address: String
 }

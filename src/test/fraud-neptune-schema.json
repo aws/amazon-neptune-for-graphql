@@ -40,7 +40,7 @@
       "properties": [
         {
           "name": "amount",
-          "type": "Float"
+          "type": "Int"
         },
         {
           "name": "created",

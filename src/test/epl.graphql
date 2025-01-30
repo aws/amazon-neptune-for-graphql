@@ -1,7 +1,7 @@
 type Stadium {
 _id: ID! @id
-opened: Float
-capacity: Float
+opened: Int
+capacity: Int
 name: String
 cityCity_edgeOut: City @relationship(edgeType:"CITY_EDGE", direction:OUT)
 CITY_EDGE:City_edge
@@ -10,8 +10,8 @@ STADIUM_EDGE:Stadium_edge
 
 input StadiumInput {
 _id: ID @id
-opened: Float
-capacity: Float
+opened: Int
+capacity: Int
 name: String
 }
 
@@ -34,7 +34,7 @@ _id: ID! @id
 nickname: String
 name: String
 fullName: String
-founded: Float
+founded: Int
 leagueCurrent_leagueOut: League @relationship(edgeType:"CURRENT_LEAGUE", direction:OUT)
 CURRENT_LEAGUE:Current_league
 STADIUM_EDGE:Stadium_edge
@@ -45,7 +45,7 @@ _id: ID @id
 nickname: String
 name: String
 fullName: String
-founded: Float
+founded: Int
 }
 
 type City {

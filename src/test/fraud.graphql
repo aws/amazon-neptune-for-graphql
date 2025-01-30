@@ -46,7 +46,7 @@ name: String
 
 type Transaction {
 _id: ID! @id
-amount: Float
+amount: Int
 created: String
 accountAccount_edgeOut: Account @relationship(edgeType:"ACCOUNT_EDGE", direction:OUT)
 ipaddressFeature_of_transactionIn: Ipaddress @relationship(edgeType:"FEATURE_OF_TRANSACTION", direction:IN)
@@ -59,7 +59,7 @@ MERCHANT_EDGE:Merchant_edge
 
 input TransactionInput {
 _id: ID @id
-amount: Float
+amount: Int
 created: String
 }
 

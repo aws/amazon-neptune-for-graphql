@@ -52,13 +52,13 @@ The utility then use this data to inference the GraphQL schema.
       "label": "airport",
       "properties": [ 
         { "name": "country", "type": "String" },
-        { "name": "longest", "type": "Float" },
+        { "name": "longest", "type": "Int" },
         { "name": "code", "type": "String" },
         { "name": "city", "type": "String" },
-        { "name": "elev", "type": "Float" },
+        { "name": "elev", "type": "Int" },
         { "name": "icao", "type": "String" },
         { "name": "lon", "type": "Float" },
-        { "name": "runways", "type": "Float" },
+        { "name": "runways", "type": "Int" },
         { "name": "region", "type": "String" },
         { "name": "type", "type": "String" },
         { "name": "lat", "type": "Float" },
@@ -153,13 +153,13 @@ input VersionInput {
 type Airport @alias(property: "airport") {
   _id: ID! @id
   country: String
-  longest: Float
+  longest: Int
   code: String
   city: String
-  elev: Float
+  elev: Int
   icao: String
   lon: Float
-  runways: Float
+  runways: Int
   region: String
   type: String
   lat: Float
@@ -175,13 +175,13 @@ type Airport @alias(property: "airport") {
 input AirportInput {
   _id: ID @id
   country: String
-  longest: Float
+  longest: Int
   code: String
   city: String
-  elev: Float
+  elev: Int
   icao: String
   lon: Float
-  runways: Float
+  runways: Int
   region: String
   type: String
   lat: Float
