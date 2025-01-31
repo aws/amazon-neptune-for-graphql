@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-const { astFromValue, buildASTSchema, print, typeFromAST } = require('graphql');
+const { astFromValue, buildASTSchema, typeFromAST } = require('graphql');
 const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
@@ -50,12 +50,21 @@ function resolveGraphDBQueryFromAppSyncEvent(event) {
                 ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
                 : undefined,
     };
-    const opSelectionSet = {
-        kind: 'SelectionSet',
-        selections: [fieldNode]
+    const obj = {
+        kind: 'Document',
+        definitions: [
+            {
+                kind: 'OperationDefinition',
+                operation: 'query',
+                selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [fieldNode]
+                }
+            }
+        ]
     };
 
-    const graphQuery = resolveGraphDBQuery(print(opSelectionSet));
+    const graphQuery = resolveGraphDBQuery(obj);
     return graphQuery;
 }
   
@@ -1053,14 +1062,27 @@ function resolveGremlinQuery(obj, querySchemaInfo) {
 }
 
 
-// Function takes the graphql query and output the graphDB query
-function resolveGraphDBQuery(query) {
+function parseQueryInput(queryObjOrStr) {
+    // Backwards compatibility
+    if (typeof queryObjOrStr === 'string') {
+        return gql(queryObjOrStr);
+    }
+
+    // Already in AST format
+    return queryObjOrStr;
+}
+
+
+/**
+ * Accepts a GraphQL document or query string and outputs the graphDB query.
+ *
+ * @param {(Object|string)} queryObjOrStr the GraphQL document containing an operation to resolve
+ * @returns {string}
+ */
+function resolveGraphDBQuery(queryObjOrStr) {
     let executeQuery =  { query:'', parameters: {}, language: 'opencypher', refactorOutput: null };
-        
-    // create a gql object from the query, gql is GraphQL Query Language
-    const obj = gql`
-        ${query}
-    `;
+
+    const obj = parseQueryInput(queryObjOrStr);
 
     const querySchemaInfo = getSchemaQueryInfo(obj.definitions[0].selectionSet.selections[0].name.value);
 
