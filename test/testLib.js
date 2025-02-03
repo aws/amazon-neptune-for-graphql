@@ -2,6 +2,7 @@
 import axios from 'axios';
 import fs  from 'fs';
 import AdmZip from 'adm-zip';
+import gql from 'graphql-tag';
 
 const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
 const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
@@ -117,7 +118,7 @@ async function testResolverQueries(resolverFile, queriesReferenceFolder) {
     for (const queryFile of queryFiles) {        
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" + queryFile));
         if (query.graphql != "") {            
-            const result = resolverModule.resolveGraphDBQuery(query.graphql);
+            const result = resolverModule.resolveGraphDBQuery(gql(query.graphql));
             
             if (result.query != query.resolved || JSON.stringify(result.parameters, null, 2) != JSON.stringify(query.parameters, null, 2) )
                 console.log(JSON.stringify(result.parameters, null, 2) + '\n' + result.query)
@@ -139,7 +140,7 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
     for (const queryFile of queryFiles) {
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" +queryFile));
         if (query.graphql != "") {
-            const result = resolverModule.resolveGraphDBQuery(query.graphql);
+            const result = resolverModule.resolveGraphDBQuery(gql(query.graphql));
             const httpResult = await queryNeptune(query.resolved, result.language, host, port, result.parameters);
                 
             let data = null;
@@ -154,7 +155,7 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
                 console.log(JSON.stringify(data, null, 2));
             
             test(`Resolver Neptune result, ${queryFile}: ${query.name}`, async () => {    
-                expect(JSON.stringify(data, null, 2)).toBe(JSON.stringify(query.result, null, 2));
+                expect(data).toEqual(query.result);
             });            
         }
     }
@@ -167,6 +168,7 @@ export {
     checkOutputFilesContent,
     checkOutputFilesSize,
     checkOutputZipLambdaUsesSdk,
+    loadResolver,
     readJSONFile,
     testResolverQueries,
     testResolverQueriesResults,
