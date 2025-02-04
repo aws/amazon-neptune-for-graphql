@@ -27,6 +27,7 @@ Index:
 - [Starting from GraphQL schema with directives](#starting-from-a-graphql-schema-with-directives)
 - [Customize the GraphQL schema with directives](#customize-the-graphql-schema-with-directives)
 - [AWS resources for the GraphQL API](#aws-resources-for-the-graphql-api)
+- [Generate Apollo Server Artifacts](#generate-apollo-server-artifacts)
 - [Commands reference: utility CLI options](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/cliReference.md)
 - [Known Limitations](#known-limitations)
 - [Roadmap](#roadmap)
@@ -271,15 +272,38 @@ See CDK end to end example [here](https://github.com/aws/amazon-neptune-for-grap
 [Here](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/resources.md) the detailed list of resources needed to configure the GraphQL API pipeline.
 <br>
 
+# Generate Apollo Server Artifacts
+If you prefer to use Apollo Server instead of AWS App Sync, the utility can generate a ZIP file of Apollo Server artifacts with the CLI option `--create-update-apollo-server` for a standalone server or `--create-update-apollo-server-subgraph` for federated systems.
+
+For example:
+```
+neptune-for-graphql \
+  --input-graphdb-schema-neptune-endpoint abc.us-west-2.neptune.amazonaws.com:8182 \
+  --create-update-apollo-server \
+  --output-resolver-query-https
+```
+
+The command above will generate an `apollo-server.zip` file which can then be deployed locally by following these steps:
+1. unzip `apollo-server.zip`
+2. change directory into the unzipped folder
+3. execute `npm install` to install required dependencies
+4. execute `node index.mjs` to start the Apollo Server
+5. access the graphQL application in a browser by visiting `http://localhost:4000/`
+
+> [!NOTE] 
+> Node's default AWS credentials provider is used for authentication with Neptune. See [AWS SDK credential providers](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-credential-providers/#fromnodeproviderchain) for more information.
+
 # Known limitations
 - @graphQuery using Gremlin works only if the query returns a scalar value, one elementMap(), or list as elementMap().fold(), this feature is under development.
 - Neptune RDF database and SPARQL language is not supported.
+- Querying Neptune via SDK is not yet supported for Apollo Server, only HTTPS is supported.
+- Mutations are not yet supported for Apollo Server
 <br>
 
 # Roadmap
 - Gremlin resolver.
 - SPARQL resolver for RDF database.
-- Generate GraphQL resolver and configurations for Apollo Server.
+- Enhanced configurations for Apollo Server.
 <br>
 
 # License

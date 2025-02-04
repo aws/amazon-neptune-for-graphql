@@ -1,0 +1,22 @@
+{
+  "name": "neptune-apollo-server",
+  "version": "1.0.0",
+  "description": "",
+  "license": "Apache-2.0",
+  "author": "",
+  "type": "module",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.3",
+    "@apollo/subgraph": "^2.9.3",
+    "@aws-sdk/credential-providers": "^3.729.0",
+    "aws4-axios": "^3.3.14",
+    "axios": "^1.7.9",
+    "graphql-tag": "^2.12.6",
+    "retry-axios": "^3.1.3",
+    "dotenv": "^16.4.7"
+  }
+}

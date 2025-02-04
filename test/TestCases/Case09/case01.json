@@ -1,0 +1,11 @@
+{
+    "name": "Create Apollo Server ZIP",
+    "description":"Test creation of Apollo Server Subgraph ZIP",
+    "argv":["--quiet",
+            "--input-graphdb-schema-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
+            "--output-folder-path", "./test/TestCases/Case09/output",
+            "--create-update-apollo-server-subgraph",
+            "--output-resolver-query-https"],
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>"
+}

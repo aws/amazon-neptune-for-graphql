@@ -24,11 +24,35 @@ const schemaDataModel = JSON.parse(schemaDataModelJSON);
 const schema = buildASTSchema(schemaDataModel, { assumeValidSDL: true });
 
 
+/**
+ * Resolves a graph db query from a given App Sync graphQL query event.
+ *
+ * @param {string} event.field the graphQL field being queried
+ * @param {object} event.arguments arguments that were passed into the query
+ * @param {string} event.selectionSetGraphQL string representation of the graphQL selection set, formatted as GraphQL schema definition language (SDL)
+ * @returns {string} the resolved graph db query
+ */
 export function resolveGraphDBQueryFromAppSyncEvent(event) {
+    return resolveGraphDBQueryFromEvent({
+        field: event.field,
+        arguments: event.arguments,
+        selectionSet: gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
+    });
+}
+
+/**
+ * Resolves a graph db query from a given graphQL query event.
+ *
+ * @param {string} event.field the graphQL field being queried
+ * @param {object} event.arguments arguments that were passed into the query
+ * @param {object} event.selectionSet the graphQL AST selection set
+ * @returns {string} the resolved graph db query
+ */
+export function resolveGraphDBQueryFromEvent(event) {
     const fieldDef = getFieldDef(event.field);
 
     const args = [];
-    for (const inputDef of fieldDef.arguments) {
+    for (const inputDef of fieldDef.arguments ?? []) {
         const value = event.arguments[inputDef.name.value];
 
         if (value) {
@@ -45,10 +69,7 @@ export function resolveGraphDBQueryFromAppSyncEvent(event) {
         kind: 'Field',
         name: { kind: 'Name', value: event.field },
         arguments: args,
-        selectionSet:
-            event.selectionSetGraphQL !== ''
-                ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
-                : undefined,
+        selectionSet: event.selectionSet
     };
     const obj = {
         kind: 'Document',
@@ -67,12 +88,6 @@ export function resolveGraphDBQueryFromAppSyncEvent(event) {
     const graphQuery = resolveGraphDBQuery(obj);
     return graphQuery;
 }
-  
-  
-export function resolveGraphDBQueryFromApolloQueryEvent(event) {
-  // TODO
-}
-
     
 const matchStatements = []; // openCypher match statements
 const withStatements = [];  // openCypher with statements

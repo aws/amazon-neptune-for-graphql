@@ -3,3 +3,4 @@
 coverage/**
 **/output/
 *.iml
+*.DS_STORE
