@@ -6,7 +6,7 @@ describe('AppSync resolver', () => {
     let resolverModule;
 
     beforeAll(async () => {
-        resolverModule = await loadResolver('./TestCases/Case01/output/output.resolver.graphql.cjs');
+        resolverModule = await loadResolver('./TestCases/Case01/output/output.resolver.graphql.js');
     });
 
     test('should resolve queries with a filter', () => {
