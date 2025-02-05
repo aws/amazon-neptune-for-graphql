@@ -57,6 +57,22 @@ describe('AppSync resolver', () => {
         });
     });
 
+    test('should resolve queries with a filter that contains numeric and string values', () => {
+        const result = resolve({
+            field: 'getNodeAirports',
+            arguments: { filter: { country: 'US', runways: 3 } },
+            selectionSetGraphQL: '{ city }'
+        });
+
+        expect(result).toEqual({
+            query: 'MATCH (getNodeAirports_Airport:`airport`{country: $getNodeAirports_Airport_country, runways: $getNodeAirports_Airport_runways})\n' +
+                'RETURN collect({city: getNodeAirports_Airport.`city`})',
+            parameters: { getNodeAirports_Airport_country: 'US',  getNodeAirports_Airport_runways: 3},
+            language: 'opencypher',
+            refactorOutput: null
+        });
+    });
+
     function resolve(event) {
         return resolverModule.resolveGraphDBQueryFromAppSyncEvent(event);
     }
