@@ -10,12 +10,13 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { astFromValue, buildASTSchema, typeFromAST } from 'graphql';
+import assert from 'node:assert';
+import { astFromValue, buildASTSchema, isInputType, typeFromAST } from 'graphql';
 import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
 
-// 2025-02-05T01:37:03.182Z
+// 2025-02-10T01:07:02.065Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3510,12 +3511,17 @@ const schema = buildASTSchema(schemaDataModel, { assumeValidSDL: true });
 export function resolveGraphDBQueryFromAppSyncEvent(event) {
     const fieldDef = getFieldDef(event.field);
 
+    assert(fieldDef);
+
     const args = [];
-    for (const inputDef of fieldDef.arguments) {
+    for (const inputDef of fieldDef.arguments ?? []) {
         const value = event.arguments[inputDef.name.value];
 
         if (value) {
             const inputType = typeFromAST(schema, inputDef.type);
+
+            assert(isInputType(inputType));
+
             args.push({
                 kind: 'Argument',
                 name: { kind: 'Name', value: inputDef.name.value },
@@ -3582,8 +3588,8 @@ function getTypeDefs(typeNameOrNames) {
 function getFieldDef(fieldName) {
     const rootTypeDefs = getRootTypeDefs();
 
-    for (const rootDef of rootTypeDefs) {
-        const fieldDef = rootDef.fields.find(def => def.name.value === fieldName);
+    for (const rootTypeDef of rootTypeDefs) {
+        const fieldDef = rootTypeDef.fields?.find(def => def.name.value === fieldName);
 
         if (fieldDef) {
             return fieldDef;
@@ -4563,7 +4569,7 @@ function parseQueryInput(queryObjOrStr) {
  * Accepts a GraphQL document or query string and outputs the graphDB query.
  *
  * @param {(Object|string)} queryObjOrStr the GraphQL document containing an operation to resolve
- * @returns {string}
+ * @returns {Object}
  */
 export function resolveGraphDBQuery(queryObjOrStr) {
     let executeQuery =  { query:'', parameters: {}, language: 'opencypher', refactorOutput: null };
