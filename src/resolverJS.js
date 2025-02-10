@@ -15,12 +15,13 @@ import { loggerError } from "./logger.js";
 
 function resolverJS (schemaModel, queryLanguage, queryClient, __dirname) {
     let code = '';
-    const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
     
     if (queryLanguage == 'opencypher') {
         try {
             code = readFileSync(__dirname + '/../templates/JSResolverOCHTTPSTemplate.js');
             code = code.toString().replace('TIMESTAMP HERE', (new Date()).toISOString());
+
+            const queryDataModelJSON = JSON.stringify(schemaModel).replaceAll('\'', '\\\'');
             code = code.toString().replace('INSERT SCHEMA DATA MODEL HERE', queryDataModelJSON);
         } catch (err) {
             loggerError('No resolver template found.', err);

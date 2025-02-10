@@ -17,7 +17,7 @@ const useCallSubquery = false;
 
 // TIMESTAMP HERE
 
-const schemaDataModelJSON = `INSERT SCHEMA DATA MODEL HERE`;
+const schemaDataModelJSON = 'INSERT SCHEMA DATA MODEL HERE';
     
 const schemaDataModel = JSON.parse(schemaDataModelJSON);
 
@@ -69,6 +69,7 @@ export function resolveGraphDBQueryFromAppSyncEvent(event) {
 }
   
   
+// eslint-disable-next-line no-unused-vars
 export function resolveGraphDBQueryFromApolloQueryEvent(event) {
   // TODO
 }
@@ -605,7 +606,7 @@ function createTypeFieldStatementAndRecurse(e, fieldSchemaInfo, lastNamePath, la
     }
    
 
-    let { queryArguments, where } = getQueryArguments(e.arguments, fieldSchemaInfo);
+    let { queryArguments } = getQueryArguments(e.arguments, fieldSchemaInfo);
     if (queryArguments != '')
         queryArguments = '{' + queryArguments + '}';
 
@@ -676,7 +677,7 @@ function selectionsRecurse(s, lastNamePath, lastType) {
         
         createTypeFieldStatementAndRecurse(e, fieldSchemaInfo, lastNamePath, lastType)                          
     });    
-};
+}
     
     
 function finalizeGraphQuery(matchStatements, withStatements, returnString) {
@@ -984,21 +985,18 @@ export function refactorGremlinqueryOutput(queryResult, fieldsAlias) {
 
     let data = '';
     let isScalar = false;
-    let isOneElement = false;
     let isArray = false;
 
     if (r['@value'].length == 1) {
-        if (r['@value'][0]['@type'] == 'g:Map')
-            isOneElement = true;
-        else if (r['@value'][0]['@type'] == 'g:List')
+        if (r['@value'][0]['@type'] == 'g:List')
             isArray = true;
-        else
+        else if (r['@value'][0]['@type'] != 'g:Map')
             isScalar = true    
     }    
         
     if (isScalar) {
         data =  r['@value'][0]['@value'];
-    } else if (isOneElement) {        
+    } else if (!isArray) {        
         data += gremlinElementToJson(r['@value'][0], fieldsAlias);
     } else {
         data += '[';
@@ -1007,7 +1005,7 @@ export function refactorGremlinqueryOutput(queryResult, fieldsAlias) {
             try {
                 data += gremlinElementToJson(e, fieldsAlias);
                 data +=',\n';
-            } catch {}
+            } catch { /* empty */ }
         });
         
         data = data.substring(0, data.length - 2);

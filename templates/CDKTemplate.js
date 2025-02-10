@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-const { Stack, Duration, App } = require('aws-cdk-lib');
+const { Stack, Duration } = require('aws-cdk-lib');
 const lambda  = require( 'aws-cdk-lib/aws-lambda');
 const iam  = require( 'aws-cdk-lib/aws-iam');
 const ec2  = require( 'aws-cdk-lib/aws-ec2');
