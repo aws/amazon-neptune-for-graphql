@@ -4,11 +4,11 @@
     "argv":["--quiet", 
             "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
             "--input-schema-changes-file", "./test/TestCases/Case01/input/changesAirport.json", 
-            "--output-js-resolver-file", "./test/TestCases/Case01/output/output.resolver.graphql.cjs",
+            "--output-js-resolver-file", "./test/TestCases/Case01/output/output.jsresolver.graphql.js",
             "--output-folder-path", "./test/TestCases/Case01/output",
             "--output-no-lambda-zip"],
     "host": "<AIR_ROUTES_DB_HOST>",
     "port": "<AIR_ROUTES_DB_PORT>",
-    "testOutputFilesSize": ["output.resolver.graphql.cjs", "output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
+    "testOutputFilesSize": ["output.jsresolver.graphql.js", "output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }

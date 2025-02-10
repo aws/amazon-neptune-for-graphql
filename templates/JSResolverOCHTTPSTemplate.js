@@ -10,7 +10,8 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-const gql = require('graphql-tag'); // GraphQL library to parse the GraphQL query
+import { astFromValue, buildASTSchema, typeFromAST } from 'graphql';
+import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
 
@@ -20,42 +21,56 @@ const schemaDataModelJSON = 'INSERT SCHEMA DATA MODEL HERE';
     
 const schemaDataModel = JSON.parse(schemaDataModelJSON);
 
+const schema = buildASTSchema(schemaDataModel, { assumeValidSDL: true });
 
-function resolveGraphDBQueryFromAppSyncEvent(event) {        
-    let query = '{\n';
-    let args = '';
-  
-    Object.keys(event.arguments).forEach(key => {
-        if (typeof event.arguments[key] === 'object') {
-            args += key + ': {';
-            let obj = event.arguments[key];
-            Object.keys(obj).forEach(key2 => {
-                args += key2 + ': "' + obj[key2] + '", '
+
+export function resolveGraphDBQueryFromAppSyncEvent(event) {
+    const fieldDef = getFieldDef(event.field);
+
+    const args = [];
+    for (const inputDef of fieldDef.arguments) {
+        const value = event.arguments[inputDef.name.value];
+
+        if (value) {
+            const inputType = typeFromAST(schema, inputDef.type);
+            args.push({
+                kind: 'Argument',
+                name: { kind: 'Name', value: inputDef.name.value },
+                value: astFromValue(value, inputType)
             });
-            args = args.substring(0, args.length - 2);
-            args += '}';
-        }  else {
-            args += key + ': "' + event.arguments[key] + '", '
-            args = args.substring(0, args.length - 2);
         }
-    });
-  
-    if (args != '') {                   
-        query += event.field + '(' + args + ') ';
-      } else {
-          query += event.field + ' ';
-      }
-        
-    query += event.selectionSetGraphQL;    
-    query += '\n}';
-  
-    const graphQuery = resolveGraphDBQuery(query);
+    }
+
+    const fieldNode = {
+        kind: 'Field',
+        name: { kind: 'Name', value: event.field },
+        arguments: args,
+        selectionSet:
+            event.selectionSetGraphQL !== ''
+                ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
+                : undefined,
+    };
+    const obj = {
+        kind: 'Document',
+        definitions: [
+            {
+                kind: 'OperationDefinition',
+                operation: 'query',
+                selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [fieldNode]
+                }
+            }
+        ]
+    };
+
+    const graphQuery = resolveGraphDBQuery(obj);
     return graphQuery;
 }
   
   
 // eslint-disable-next-line no-unused-vars
-function resolveGraphDBQueryFromApolloQueryEvent(event) {
+export function resolveGraphDBQueryFromApolloQueryEvent(event) {
   // TODO
 }
 
@@ -65,6 +80,35 @@ const withStatements = [];  // openCypher with statements
 const returnString = [];    // openCypher return statements
 let parameters = {};      // openCypher query parameters
  
+
+function getRootTypeDefs() {
+    return getTypeDefs(['Query', 'Mutation']);
+}
+
+
+function getTypeDefs(typeNameOrNames) {
+    if (!Array.isArray(typeNameOrNames)) {
+        typeNameOrNames = [typeNameOrNames];
+    }
+
+    return schemaDataModel.definitions.filter(
+        def => def.kind === 'ObjectTypeDefinition' && typeNameOrNames.includes(def.name.value)
+    );
+}
+
+
+function getFieldDef(fieldName) {
+    const rootTypeDefs = getRootTypeDefs();
+
+    for (const rootDef of rootTypeDefs) {
+        const fieldDef = rootDef.fields.find(def => def.name.value === fieldName);
+
+        if (fieldDef) {
+            return fieldDef;
+        }
+    }
+}
+
 
 function getTypeAlias(typeName) {
     let alias = null;
@@ -706,6 +750,9 @@ function transformFunctionInputParameters(fields, schemaInfo) {
         fields.forEach(field => {
             if (field.name.value === arg.name) {
                 let value = field.value.value;
+                if (field.value.kind === 'IntValue' || field.value.kind === 'FloatValue') {
+                    value = Number(value);
+                }
                 if (arg.name === schemaInfo.graphDBIdArgName) {
                     r.graphIdValue = value
                 } else if (arg.alias != null) {
@@ -931,7 +978,7 @@ function gremlinElementToJson(o, fieldsAlias) {
 }
 
 
-function refactorGremlinqueryOutput(queryResult, fieldsAlias) {
+export function refactorGremlinqueryOutput(queryResult, fieldsAlias) {
   
     //const r = JSON.parse(queryResult).result.data;
     const r = queryResult;
@@ -1016,14 +1063,27 @@ function resolveGremlinQuery(obj, querySchemaInfo) {
 }
 
 
-// Function takes the graphql query and output the graphDB query
-function resolveGraphDBQuery(query) {
+function parseQueryInput(queryObjOrStr) {
+    // Backwards compatibility
+    if (typeof queryObjOrStr === 'string') {
+        return gql(queryObjOrStr);
+    }
+
+    // Already in AST format
+    return queryObjOrStr;
+}
+
+
+/**
+ * Accepts a GraphQL document or query string and outputs the graphDB query.
+ *
+ * @param {(Object|string)} queryObjOrStr the GraphQL document containing an operation to resolve
+ * @returns {string}
+ */
+export function resolveGraphDBQuery(queryObjOrStr) {
     let executeQuery =  { query:'', parameters: {}, language: 'opencypher', refactorOutput: null };
-        
-    // create a gql object from the query, gql is GraphQL Query Language
-    const obj = gql`
-        ${query}
-    `;
+
+    const obj = parseQueryInput(queryObjOrStr);
 
     const querySchemaInfo = getSchemaQueryInfo(obj.definitions[0].selectionSet.selections[0].name.value);
 
@@ -1044,6 +1104,3 @@ function resolveGraphDBQuery(query) {
     
     return executeQuery;
 }
-
-
-module.exports = { resolveGraphDBQueryFromAppSyncEvent, resolveGraphDBQueryFromApolloQueryEvent, resolveGraphDBQuery, refactorGremlinqueryOutput };
