@@ -107,6 +107,19 @@ function checkFileContains(outputFile, expectedContent = []) {
     })
 }
 
+/**
+ * Unzips a given file and returns its contents.
+ *
+ * @param outputFolder the folder to unzip contents to
+ * @param zipFile the file to unzip
+ * @returns {string[]} array of file names that were extracted from the zip
+ */
+export function unzipAndGetContents(outputFolder, zipFile) {
+    const zip = new AdmZip(zipFile);
+    zip.extractAllTo(outputFolder, true);
+    return fs.readdirSync(outputFolder);
+}
+
 async function loadResolver(file) {
     return await import(file);
 }

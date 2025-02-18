@@ -154,3 +154,14 @@ This set the CDK file name. If not set the default is *pipeline-name-cdk.js*.
 `--output-aws-pipeline-cdk-neptune-IAM, -ci`
 <br>
 Enable IAM authentication in the Lambda function that queries Neptune, the default is using the Neptune VPC.
+
+## Create Apollo Server files
+
+`--create-update-apollo-server, -asvr` 
+<br>
+Triggers the creation of a zip file of artifacts for Apollo Server instead of App Sync
+
+`--create-update-apollo-server-subgraph, -asub`
+<br>
+Triggers the creation of a zip file of artifacts for Apollo Server subgraph instead of App Sync
+

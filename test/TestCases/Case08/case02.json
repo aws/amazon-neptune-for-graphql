@@ -1,0 +1,13 @@
+{
+    "name": "Create Apollo Server ZIP from customized output",
+    "description":"Test creation of Apollo Server ZIP using customized output arguments",
+    "argv":["--quiet",
+            "--input-graphdb-schema-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
+            "--output-folder-path", "./test/TestCases/Case08/case08-02-output",
+            "--create-update-apollo-server",
+            "--output-resolver-query-https",
+            "--output-lambda-resolver-file", "case08-02-resolver.js",
+            "--output-schema-file", "case08-02.schema.graphql"],
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>"
+}
