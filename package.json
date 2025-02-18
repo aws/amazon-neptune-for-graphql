@@ -46,6 +46,9 @@
     "./templates/Lambda4AppSyncSDK/package.json",
     "./templates/Lambda4AppSyncGraphSDK/index.mjs",
     "./templates/Lambda4AppSyncGraphSDK/package.json",
+    "./templates/ApolloServer/index.mjs",
+    "./templates/ApolloServer/neptune.mjs",
+    "./templates/ApolloServer/package.json",
     "./src/**"
   ],
   "author": "AWS",
