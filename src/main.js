@@ -183,14 +183,14 @@ function processArgs() {
             case '--output-resolver-query-sdk':
                 queryClient = 'sdk';
             break;
-            case 'asvr':
+            case '-asvr':
             case '--create-update-apollo-server':
                 createUpdateApolloServer = true;
                 createLambdaZip = false;
                 createUpdatePipeline = false;
                 inputCDKpipeline = false;
             break;
-            case 'asub':
+            case '-asub':
             case '--create-update-apollo-server-subgraph':
                 createUpdateApolloServerSubgraph = true;
                 createLambdaZip = false;
