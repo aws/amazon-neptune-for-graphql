@@ -283,8 +283,8 @@ neptune-for-graphql \
   --output-resolver-query-https
 ```
 
-The command above will generate an `apollo-server.zip` file which can then be deployed locally by following these steps:
-1. unzip `apollo-server.zip`
+The command above will generate an `apollo-server-<identifier>-<timestamp>.zip` file which can then be deployed locally by following these steps:
+1. unzip `apollo-server-<identifier>-<timestamp>.zip`
 2. change directory into the unzipped folder
 3. execute `npm install` to install required dependencies
 4. execute `node index.mjs` to start the Apollo Server
