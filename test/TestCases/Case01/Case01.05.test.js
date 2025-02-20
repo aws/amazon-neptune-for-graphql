@@ -73,6 +73,38 @@ describe('AppSync resolver', () => {
         });
     });
 
+    test('should resolve queries with a string id filter', () => {
+        const result = resolve({
+            field: 'getNodeAirport',
+            arguments: { filter: { _id: '22' } },
+            selectionSetGraphQL: '{ city }'
+        });
+
+        expect(result).toEqual({
+            query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport_whereId\n' +
+                'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
+            parameters: { getNodeAirport_Airport_whereId: '22'},
+            language: 'opencypher',
+            refactorOutput: null
+        });
+    });
+
+    test('should resolve queries with an integer id filter', () => {
+        const result = resolve({
+            field: 'getNodeAirport',
+            arguments: { filter: { _id: 22 } },
+            selectionSetGraphQL: '{ city }'
+        });
+
+        expect(result).toEqual({
+            query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport_whereId\n' +
+                'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
+            parameters: { getNodeAirport_Airport_whereId: '22'},
+            language: 'opencypher',
+            refactorOutput: null
+        });
+    });
+
     function resolve(event) {
         return resolverModule.resolveGraphDBQueryFromAppSyncEvent(event);
     }

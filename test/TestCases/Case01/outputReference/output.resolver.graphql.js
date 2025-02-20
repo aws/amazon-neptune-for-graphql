@@ -10,12 +10,12 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { astFromValue, buildASTSchema, typeFromAST } from 'graphql';
+import { astFromValue, buildASTSchema, typeFromAST, GraphQLID } from 'graphql';
 import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
 
-// 2025-02-11T06:23:21.522Z
+// 2025-02-19T23:41:22.685Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3508,10 +3508,22 @@ export function resolveGraphDBQueryFromEvent(event) {
 
         if (value) {
             const inputType = typeFromAST(schema, inputDef.type);
+            const astValue = astFromValue(value, inputType);
+            // retrieve an ID field which may not necessarily be named 'id'
+            const idField = Object.values(inputType.getFields()).find(field => field.type.name === GraphQLID.name);
+            if (idField) {
+                // check if id was an input arg
+                const idValue = astValue.fields.find(f => f.name.value === idField.name);
+                if (idValue?.value?.kind === 'IntValue') {
+                    // graphql astFromValue function can convert ID integer strings into integer type
+                    // if input args contain an id and the graphql library has interpreted the value as an int, change it to treat the value as a string
+                    idValue.value.kind = 'StringValue';
+                }
+            }
             args.push({
                 kind: 'Argument',
                 name: { kind: 'Name', value: inputDef.name.value },
-                value: astFromValue(value, inputType)
+                value: astValue
             });
         }
     }

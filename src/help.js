@@ -140,6 +140,9 @@ Parameters
 [--create-update-aws-pipeline-neptune-IAM                   -pi  ]  default: is Neptune VPC
 [--remove-aws-pipeline-name <value>                         -rp  ]  
 
+[--create-update-apollo-server                              -asvr]
+[--create-update-apollo-server-subgraph                     -asub]
+
 [--output-aws-pipeline-cdk                                  -c   ]
 [--output-aws-pipeline-cdk-name <value>                     -cn  ]  default: Neptune DB name from --input-graphdb-schema-neptune-endpoint if exists
 [--output-aws-pipeline-cdk-neptune-endpoint <value>         -ce  ]  default: --input-graphdb-schema-neptune-endpoint if exists
