@@ -81,7 +81,7 @@ export async function createApolloDeploymentPackage({zipFilePath, resolverFilePa
         includePaths: [
             {source: path.join(modulePath, '/../templates/ApolloServer')},
             {source: resolverFilePath, target: 'output.resolver.graphql.js'},
-            {source: schemaFilePath, target: 'schema.graphql'},
+            {source: schemaFilePath, target: 'output.schema.graphql'},
             // querying neptune using SDK not yet supported
             {source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')}
         ],

@@ -105,6 +105,36 @@ describe('AppSync resolver', () => {
         });
     });
 
+    test('should resolve gremlin query with argument', () => {
+        const result = resolve({
+            field: 'getAirportWithGremlin',
+            arguments: { code: 'YVR' },
+            selectionSetGraphQL: '{ city }'
+        });
+
+        expect(result).toMatchObject({
+            query: "g.V().has('airport', 'code', 'YVR').elementMap()",
+            parameters: {},
+            language: 'gremlin',
+            refactorOutput: null
+        });
+    });
+
+    test('should resolve gremlin query without arguments or selection set', () => {
+        const result = resolve({
+            field: 'getCountriesCount',
+            arguments: { },
+            selectionSetGraphQL: ''
+        });
+
+        expect(result).toMatchObject({
+            query: "g.V().hasLabel('country').count()",
+            parameters: {},
+            language: 'gremlin',
+            refactorOutput: null
+        });
+    });
+
     function resolve(event) {
         return resolverModule.resolveGraphDBQueryFromAppSyncEvent(event);
     }

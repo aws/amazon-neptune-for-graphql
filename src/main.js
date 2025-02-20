@@ -55,6 +55,7 @@ let queryClient = 'sdk';          // or 'http'
 let isNeptuneIAMAuth = false;
 let createUpdateApolloServer = false;
 let createUpdateApolloServerSubgraph = false;
+let createUpdateApolloServerEndpoint = '';
 let createUpdatePipeline = false;
 let createUpdatePipelineName = '';
 let createUpdatePipelineEndpoint = '';
@@ -197,6 +198,10 @@ function processArgs() {
                 createUpdatePipeline = false;
                 inputCDKpipeline = false;
             break;
+            case '-ase':
+            case '--create-update-apollo-server-neptune-endpoint':
+                createUpdateApolloServerEndpoint = array[index + 1];
+                break;
             case '-p':
             case '--create-update-aws-pipeline':
                 createUpdatePipeline = true;
@@ -314,8 +319,13 @@ function createOutputFolder() {
 
 function validateArgs() {
     // TODO more argument validation
-    if (queryClient !== 'http' && (createUpdateApolloServerSubgraph || createUpdateApolloServer)) {
+    const createApollo = createUpdateApolloServerSubgraph || createUpdateApolloServer;
+    if (queryClient !== 'http' && createApollo) {
         console.error(`Neptune querying using ${queryClient} is not yet supported for Apollo Server. Please use option --output-resolver-query-https.`);
+        process.exit(1);
+    }
+    if (createApollo && !inputGraphDBSchemaNeptuneEndpoint && !createUpdateApolloServerEndpoint) {
+        console.error(`Apollo artifact creation requires a neptune endpoint. Please specify option --input-graphdb-schema-neptune-endpoint or --create-update-apollo-server-neptune-endpoint.`);
         process.exit(1);
     }
 }
@@ -351,7 +361,12 @@ async function main() {
     let neptuneInfo;
     // Check if any of the Neptune endpoints are a neptune analytic endpoint and if so, set the neptuneType and IAM to required
     // only one of these endpoints are expected to be non-empty at the same time
-    const nonEmptyEndpoints = [inputGraphDBSchemaNeptuneEndpoint, createUpdatePipelineEndpoint, inputCDKpipelineEndpoint].filter(endpoint => endpoint !== '');
+    const nonEmptyEndpoints = [
+        inputGraphDBSchemaNeptuneEndpoint, 
+        createUpdatePipelineEndpoint, 
+        inputCDKpipelineEndpoint, 
+        createUpdateApolloServerEndpoint
+    ].filter(endpoint => endpoint !== '');
     if (nonEmptyEndpoints.length > 0) {
         neptuneInfo = parseNeptuneEndpoint(nonEmptyEndpoints[0]);
         neptuneType = neptuneInfo.neptuneType;

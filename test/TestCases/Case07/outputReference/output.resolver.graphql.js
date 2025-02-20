@@ -10,12 +10,12 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { astFromValue, buildASTSchema, typeFromAST, GraphQLID } from 'graphql';
+import { astFromValue, buildASTSchema, typeFromAST, GraphQLID, GraphQLInputObjectType } from 'graphql';
 import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
 
-// 2025-02-19T23:44:32.919Z
+// 2025-02-21T06:36:13.829Z
 
 const schemaDataModelJSON = `{
   "kind": "Document",
@@ -3519,7 +3519,7 @@ export function resolveGraphDBQueryFromAppSyncEvent(event) {
     return resolveGraphDBQueryFromEvent({
         field: event.field,
         arguments: event.arguments,
-        selectionSet: gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet
+        selectionSet: event.selectionSetGraphQL ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet : {}
     });
 }
 
@@ -3541,15 +3541,17 @@ export function resolveGraphDBQueryFromEvent(event) {
         if (value) {
             const inputType = typeFromAST(schema, inputDef.type);
             const astValue = astFromValue(value, inputType);
-            // retrieve an ID field which may not necessarily be named 'id'
-            const idField = Object.values(inputType.getFields()).find(field => field.type.name === GraphQLID.name);
-            if (idField) {
-                // check if id was an input arg
-                const idValue = astValue.fields.find(f => f.name.value === idField.name);
-                if (idValue?.value?.kind === 'IntValue') {
-                    // graphql astFromValue function can convert ID integer strings into integer type
-                    // if input args contain an id and the graphql library has interpreted the value as an int, change it to treat the value as a string
-                    idValue.value.kind = 'StringValue';
+            if (inputType instanceof GraphQLInputObjectType) {
+                // retrieve an ID field which may not necessarily be named 'id'
+                const idField = Object.values(inputType.getFields()).find(field => field.type.name === GraphQLID.name);
+                if (idField) {
+                    // check if id was an input arg
+                    const idValue = astValue.fields.find(f => f.name.value === idField.name);
+                    if (idValue?.value?.kind === 'IntValue') {
+                        // graphql astFromValue function can convert ID integer strings into integer type
+                        // if input args contain an id and the graphql library has interpreted the value as an int, change it to treat the value as a string
+                        idValue.value.kind = 'StringValue';
+                    }
                 }
             }
             args.push({
