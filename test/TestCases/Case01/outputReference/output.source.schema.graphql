@@ -119,6 +119,8 @@ type Query {
   getNodeVersions(filter: VersionInput, options: Options): [Version]
   getNodeAirport(filter: AirportInput): Airport
   getNodeAirports(filter: AirportInput, options: Options): [Airport]
+  getAirportWithGremlin(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
+  getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
 }
 
 type Mutation {

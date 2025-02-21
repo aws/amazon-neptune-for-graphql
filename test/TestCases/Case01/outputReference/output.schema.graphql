@@ -119,6 +119,8 @@ type Query {
   getNodeVersions(filter: VersionInput, options: Options): [Version]
   getNodeAirport(filter: AirportInput): Airport
   getNodeAirports(filter: AirportInput, options: Options): [Airport]
+  getAirportWithGremlin(code: String): Airport
+  getCountriesCount: Int
 }
 
 type Mutation {

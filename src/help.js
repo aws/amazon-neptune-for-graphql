@@ -146,6 +146,8 @@ Parameters
 
 [--create-update-apollo-server                              -asvr]
 [--create-update-apollo-server-subgraph                     -asub]
+[--create-update-apollo-server-neptune-endpoint             -ase ]  default: --input-graphdb-schema-neptune-endpoint if exists
+[ ... more apollo options to come in future roadmap              ]
 
 [--output-aws-pipeline-cdk                                  -c   ]
 [--output-aws-pipeline-cdk-name <value>                     -cn  ]  default: Neptune DB name from --input-graphdb-schema-neptune-endpoint if exists

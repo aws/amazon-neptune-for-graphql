@@ -3,6 +3,7 @@ import axios from 'axios';
 import fs  from 'fs';
 import AdmZip from 'adm-zip';
 import gql from 'graphql-tag';
+import * as path from "node:path";
 
 const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
 const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
@@ -174,6 +175,51 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
     }
 }
 
+/**
+ * Validates that an apollo zip contains the correct content.
+ * 
+ * @param {string} outputFolderPath the test output folder path that contains the apollo zip file to validate
+ * @param {object} testDbInfo object that contains info about the neptune db/graph used to generate the apollo zip file
+ * @param {string} testDbInfo.graphName neptune db/graph name
+ * @param {string} testDbInfo.neptuneType neptune-db or neptune-graph
+ * @param {string} testDbInfo.host neptune host
+ * @param {int} testDbInfo.port neptune port
+ * @param {string} testDbInfo.region neptune region
+ * @param {boolean} subgraph true if the apollo zip contents should be for a subgraph
+ * @returns {Promise<void>}
+ */
+async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = false) {
+    test('Validate Apollo zip contents', () => {
+        const expectedFiles = [
+            '.env',
+            'index.mjs',
+            'output.resolver.graphql.js',
+            'package.json',
+            'package-lock.json',
+            'output.schema.graphql',
+            'neptune.mjs',
+            'queryHttpNeptune.mjs'
+        ];
+
+        const files = fs.readdirSync(outputFolderPath);
+        const apolloZips = files.filter(file => file.startsWith(`apollo-server-${testDbInfo.graphName}-`) && file.endsWith('.zip'));
+        expect(apolloZips.length).toEqual(1);
+
+        const actualFiles = unzipAndGetContents(path.join(outputFolderPath, 'unzipped'), path.join(outputFolderPath, apolloZips[0]));
+        expect(actualFiles.toSorted()).toEqual(expectedFiles.toSorted());
+
+        const expectedEnvContent = [
+            `NEPTUNE_TYPE=${testDbInfo.neptuneType}`,
+            `NEPTUNE_HOST=${testDbInfo.host}`,
+            `NEPTUNE_PORT=${testDbInfo.port}`,
+            `AWS_REGION=${testDbInfo.region}`,
+            'LOGGING_ENABLED=false',
+            `SUBGRAPH=${subgraph}`
+        ];
+        const actualEnvContent = fs.readFileSync(path.join(outputFolderPath, 'unzipped', '.env'), 'utf8');
+        expect(actualEnvContent).toEqual(expectedEnvContent.join('\n'));
+    });
+}
 
 export {
     checkFileContains,
@@ -183,6 +229,7 @@ export {
     checkOutputZipLambdaUsesSdk,
     loadResolver,
     readJSONFile,
+    testApolloArtifacts,
     testResolverQueries,
     testResolverQueriesResults,
 };

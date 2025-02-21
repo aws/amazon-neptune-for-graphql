@@ -275,7 +275,7 @@ See CDK end to end example [here](https://github.com/aws/amazon-neptune-for-grap
 # Generate Apollo Server Artifacts
 If you prefer to use Apollo Server instead of AWS App Sync, the utility can generate a ZIP file of Apollo Server artifacts with the CLI option `--create-update-apollo-server` for a standalone server or `--create-update-apollo-server-subgraph` for federated systems.
 
-For example:
+Example of starting with a neptune database with data from which to determine the graphQL schema:
 ```
 neptune-for-graphql \
   --input-graphdb-schema-neptune-endpoint abc.us-west-2.neptune.amazonaws.com:8182 \
@@ -283,7 +283,16 @@ neptune-for-graphql \
   --output-resolver-query-https
 ```
 
-The command above will generate an `apollo-server-<identifier>-<timestamp>.zip` file which can then be deployed locally by following these steps:
+Example of starting with a graphQL schema file:
+```
+neptune-for-graphql \
+  --input-schema-file airports.source.schema.graphql \
+  --create-update-apollo-server-neptune-endpoint abc.us-west-2.neptune.amazonaws.com:8182 \
+  --create-update-apollo-server \
+  --output-resolver-query-https
+```
+
+The example commands above will generate the file `apollo-server-<identifier>-<timestamp>.zip`, which can then be deployed locally by following these steps:
 1. unzip `apollo-server-<identifier>-<timestamp>.zip`
 2. change directory into the unzipped folder
 3. execute `npm install` to install required dependencies

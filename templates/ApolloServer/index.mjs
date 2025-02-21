@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const typeDefs = gql(readFileSync('./schema.graphql', 'utf-8'));
+const typeDefs = gql(readFileSync('./output.schema.graphql', 'utf-8'));
 const queryDefinition = typeDefs.definitions.find(
     definition => definition.kind === 'ObjectTypeDefinition' && definition.name.value === 'Query'
 );
