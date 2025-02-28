@@ -1,0 +1,32 @@
+name: Unit Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version:
+          - 23.9.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install package and dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm run test:unit
