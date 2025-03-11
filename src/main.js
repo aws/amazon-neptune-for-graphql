@@ -519,11 +519,21 @@ async function main() {
         // Validate schema
         schemaModel = validatedSchemaModel(schemaModel, quiet);
 
+        // Generate schema for resolver
+        const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
+        let resolverSchemaFile = `${outputFolderPath}/resolver.schema.graphql`
+        try {
+            writeFileSync(resolverSchemaFile, queryDataModelJSON);
+            loggerInfo('Wrote schema for resolver to file: ' + yellow(resolverSchemaFile), {toConsole: true});
+        } catch (err) {
+            loggerError('Error writing schema for resolver to file: ' + yellow(resolverSchemaFile), err);
+        }
+
         // Generate AWS Lambda resolver for AppSync and Amazon Neptune        
-        outputLambdaResolver = resolverJS(schemaModel, queryLanguage, queryClient, __dirname);
+        outputLambdaResolver = resolverJS(queryLanguage, queryClient, __dirname);
 
         // Generate generic Javascript resolver
-        outputJSResolver = resolverJS(schemaModel, queryLanguage, queryClient, __dirname);
+        outputJSResolver = resolverJS(queryLanguage, queryClient, __dirname);
     }
 
     // ****************************************************************************

@@ -21,7 +21,7 @@ Let's now run this schema through the utility and create the GraphQL API in AWS 
 
 `neptune-for-graphql --input-schema-file ./samples/todo.schema.graphql --create-update-aws-pipeline --create-update-aws-pipeline-name TodoExample --create-update-aws-pipeline-neptune-endpoint` <*your-neptune-database-endpoint:port*> ` --output-resolver-query-https`
 
-Te utility created a new file in the *output* folder called *TodoExample.source.graphql*, and the GraphQL API in AppSync. As you can see below, the utility inferenced:
+The utility created a new file in the *output* folder called *TodoExample.source.graphql*, and the GraphQL API in AppSync. As you can see below, the utility inferenced:
 
 - In the type *Todo* it added *@relationship* for a new type *CommentEdge*. This is instructing the resolver to connect *Todo* to *Comment* using a graph database edge called *CommentEdge*.
 - A new input called *TodoInput* was added to help the queries and the mutations.

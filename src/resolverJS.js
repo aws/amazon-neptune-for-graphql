@@ -13,15 +13,13 @@ permissions and limitations under the License.
 import { readFileSync} from 'fs';
 import { loggerError } from "./logger.js";
 
-function resolverJS (schemaModel, queryLanguage, queryClient, __dirname) {
+function resolverJS (queryLanguage, queryClient, __dirname) {
     let code = '';
-    const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
     
     if (queryLanguage == 'opencypher') {
         try {
             code = readFileSync(__dirname + '/../templates/JSResolverOCHTTPSTemplate.js');
             code = code.toString().replace('TIMESTAMP HERE', (new Date()).toISOString());
-            code = code.toString().replace('INSERT SCHEMA DATA MODEL HERE', queryDataModelJSON);
         } catch (err) {
             loggerError('No resolver template found.', err);
         }
