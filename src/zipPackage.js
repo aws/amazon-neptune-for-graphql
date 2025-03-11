@@ -41,15 +41,22 @@ async function createZip({targetZipFilePath, includePaths = [], includeContent =
  * @param outputZipFilePath the path to where the zip should be created
  * @param templateFolderPath the path to the template folder that contains contents to add to the zip
  * @param resolverFilePath the path to the resolver file that should be added to the zip
+ * @param resolverSchemaFilePath the path to the resolver schema file that should be added to the zip
  * @returns {Promise<Buffer<ArrayBufferLike>>}
  */
-export async function createLambdaDeploymentPackage({outputZipFilePath, templateFolderPath, resolverFilePath}) {
+export async function createLambdaDeploymentPackage({outputZipFilePath, templateFolderPath, resolverFilePath, resolverSchemaFilePath}) {
     const filePaths = [{source: templateFolderPath}, {source: resolverFilePath, target: 'output.resolver.graphql.js'}];
     if (templateFolderPath.includes('HTTP')) {
         filePaths.push({
             source: path.join(getModulePath(), '/../templates/queryHttpNeptune.mjs')
         })
     }
+
+    filePaths.push({
+        source: resolverSchemaFilePath,
+        target: 'output.resolver.schema.json'
+    })
+
     await createZip({
         targetZipFilePath: outputZipFilePath,
         includePaths: filePaths
@@ -62,11 +69,12 @@ export async function createLambdaDeploymentPackage({outputZipFilePath, template
  * @param zipFilePath the file path where the zip should be created
  * @param resolverFilePath path to the resolver file to include in the zip
  * @param schemaFilePath path to the schema file to include in the zip
+ * @param resolverSchemaFilePath path to the resolver schema file to include in the zip
  * @param neptuneInfo object containing neptune db/graph related information such as URL, region, etc
  * @param isSubgraph true if the service should be deployed as a subgraph
  * @returns {Promise<void>}
  */
-export async function createApolloDeploymentPackage({zipFilePath, resolverFilePath, schemaFilePath, neptuneInfo, isSubgraph = false}) {
+export async function createApolloDeploymentPackage({zipFilePath, resolverFilePath, schemaFilePath, resolverSchemaFilePath, neptuneInfo, isSubgraph = false}) {
     const envVars = [
         `NEPTUNE_TYPE=${neptuneInfo.neptuneType}`,
         `NEPTUNE_HOST=${neptuneInfo.host}`,
@@ -82,6 +90,8 @@ export async function createApolloDeploymentPackage({zipFilePath, resolverFilePa
             {source: path.join(modulePath, '/../templates/ApolloServer')},
             {source: resolverFilePath, target: 'output.resolver.graphql.js'},
             {source: schemaFilePath, target: 'output.schema.graphql'},
+            {source: resolverSchemaFilePath, target: 'output.resolver.schema.json'},
+
             // querying neptune using SDK not yet supported
             {source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')}
         ],

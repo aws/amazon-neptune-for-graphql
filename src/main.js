@@ -16,7 +16,6 @@ import { graphDBInferenceSchema } from './graphdb.js';
 import { changeGraphQLSchema } from './changes.js';
 import { schemaParser, schemaStringify } from './schemaParser.js';
 import { validatedSchemaModel} from './schemaModelValidator.js';
-import { resolverJS } from './resolverJS.js';
 import { getNeptuneSchema, setGetNeptuneSchemaParameters } from './NeptuneSchema.js';
 import { createUpdateAWSpipeline, removeAWSpipelineResources } from './pipelineResources.js'
 import { createAWSpipelineCDK } from './CDKPipelineApp.js'
@@ -519,11 +518,40 @@ async function main() {
         // Validate schema
         schemaModel = validatedSchemaModel(schemaModel, quiet);
 
-        // Generate AWS Lambda resolver for AppSync and Amazon Neptune        
-        outputLambdaResolver = resolverJS(schemaModel, queryLanguage, queryClient, __dirname);
+        // Generate schema for resolver
+        const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
+
+        let resolverSchemaFile;
+        if (createUpdatePipelineName == '') {
+            resolverSchemaFile = `${outputFolderPath}/output.resolver.schema.json`
+        } else {
+            resolverSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.resolver.schema.json`
+        }
+
+        try {
+            writeFileSync(resolverSchemaFile, queryDataModelJSON);
+            loggerInfo('Wrote schema for resolver to file: ' + yellow(resolverSchemaFile), {toConsole: true});
+        } catch (err) {
+            loggerError('Error writing schema for resolver to file: ' + yellow(resolverSchemaFile), err);
+        }
+
+        // Generate AWS Lambda resolver for AppSync and Amazon Neptune
+        if (queryLanguage == 'opencypher') {
+            try {
+                outputLambdaResolver = readFileSync(__dirname + '/../templates/JSResolverOCHTTPS.js');
+            } catch (err) {
+                loggerError('No resolver template found.', err);
+            }
+        }
 
         // Generate generic Javascript resolver
-        outputJSResolver = resolverJS(schemaModel, queryLanguage, queryClient, __dirname);
+        if (queryLanguage == 'opencypher') {
+            try {
+                outputJSResolver = readFileSync(__dirname + '/../templates/JSResolverOCHTTPS.js');
+            } catch (err) {
+                loggerError('No resolver template found.', err);
+            }
+        }
     }
 
     // ****************************************************************************
@@ -614,6 +642,12 @@ async function main() {
         // output Apollo zip
         if (createUpdateApolloServer || createUpdateApolloServerSubgraph) {
             const apolloZipPath = path.join(outputFolderPath, `apollo-server-${neptuneInfo.graphName}-${new Date().getTime()}.zip`);
+            let resolverSchemaFilePath;
+            if (createUpdatePipelineName == '') {
+                resolverSchemaFilePath = path.join(outputFolderPath, 'output.resolver.schema.json');
+            } else {
+                resolverSchemaFilePath = path.join(outputFolderPath, `${createUpdatePipelineName}.resolver.schema.json`);
+            }
             try {
                 if (!quiet) {
                     spinner = ora('Creating Apollo server ZIP file ...').start();
@@ -622,6 +656,7 @@ async function main() {
                     zipFilePath: apolloZipPath,
                     resolverFilePath: outputLambdaResolverFile,
                     schemaFilePath: outputSchemaFile,
+                    resolverSchemaFilePath: resolverSchemaFilePath,
                     neptuneInfo: neptuneInfo,
                     isSubgraph: createUpdateApolloServerSubgraph
                 });

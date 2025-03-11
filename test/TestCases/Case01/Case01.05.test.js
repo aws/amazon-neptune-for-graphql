@@ -1,12 +1,16 @@
 
 import { jest } from '@jest/globals';
 import { loadResolver } from '../../testLib';
+import {readFileSync} from "fs";
 
 describe('AppSync resolver', () => {
     let resolverModule;
 
     beforeAll(async () => {
         resolverModule = await loadResolver('./TestCases/Case01/output/output.resolver.graphql.js');
+        const schemaDataModelJSON = readFileSync('./test/TestCases/Case01/output/output.resolver.schema.json', 'utf-8');
+        let schemaModel = JSON.parse(schemaDataModelJSON);
+        resolverModule.initSchema(schemaModel);
     });
 
     test('should resolve queries with a filter', () => {
