@@ -12,13 +12,14 @@ permissions and limitations under the License.
 
 import { astFromValue, buildASTSchema, typeFromAST, GraphQLID, GraphQLInputObjectType } from 'graphql';
 import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
+import {readFileSync} from "fs";
 
 const useCallSubquery = false;
 
 // TIMESTAMP HERE
 
-const schemaDataModelJSON = `INSERT SCHEMA DATA MODEL HERE`;
-    
+const schemaDataModelJSON = readFileSync('resolver.schema.graphql', 'utf-8');
+
 const schemaDataModel = JSON.parse(schemaDataModelJSON);
 
 const schema = buildASTSchema(schemaDataModel, { assumeValidSDL: true });
