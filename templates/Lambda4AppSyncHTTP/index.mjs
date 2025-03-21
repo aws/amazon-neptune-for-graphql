@@ -1,8 +1,9 @@
 import axios from "axios";
 import * as rax from 'retry-axios';
 import { aws4Interceptor } from "aws4-axios";
-import {resolveGraphDBQueryFromAppSyncEvent} from './output.resolver.graphql.js';
+import {resolveGraphDBQueryFromAppSyncEvent, initSchema} from './output.resolver.graphql.js';
 import {queryNeptune} from "./queryHttpNeptune.mjs";
+import {readFileSync} from "fs";
 
 const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
@@ -43,6 +44,9 @@ export const handler = async (event) => {
     // Create Neptune query from GraphQL query
     try {
         if (LOGGING_ENABLED) console.log("Event: ", event);
+        const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+        let schemaModel = JSON.parse(schemaDataModelJSON);
+        initSchema(schemaModel);
         const resolver = resolveGraphDBQueryFromAppSyncEvent(event);
         if (LOGGING_ENABLED) console.log("Resolver: ", resolver);
         return queryNeptune(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`, resolver, {loggingEnabled: LOGGING_ENABLED})

@@ -4,7 +4,8 @@ import {aws4Interceptor} from 'aws4-axios';
 import {fromNodeProviderChain} from '@aws-sdk/credential-providers';
 import dotenv from 'dotenv';
 import {queryNeptune} from './queryHttpNeptune.mjs'
-import {resolveGraphDBQueryFromEvent} from "./output.resolver.graphql.js";
+import {resolveGraphDBQueryFromEvent, initSchema} from "./output.resolver.graphql.js";
+import {readFileSync} from "fs";
 
 
 dotenv.config();
@@ -23,6 +24,9 @@ axios.interceptors.request.use(interceptor);
 rax.attach();
 
 export async function resolveEvent(event) {
+    const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+    let schemaModel = JSON.parse(schemaDataModelJSON);
+    initSchema(schemaModel);
     const resolved = resolveGraphDBQueryFromEvent(event);
     try {
         return queryNeptune(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`, resolved, {loggingEnabled: loggingEnabled});

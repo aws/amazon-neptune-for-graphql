@@ -1,5 +1,6 @@
 import { NeptunedataClient, ExecuteOpenCypherQueryCommand, ExecuteGremlinQueryCommand } from "@aws-sdk/client-neptunedata";
-import {resolveGraphDBQueryFromAppSyncEvent, refactorGremlinqueryOutput} from './output.resolver.graphql.js';
+import {resolveGraphDBQueryFromAppSyncEvent, refactorGremlinqueryOutput, initSchema} from './output.resolver.graphql.js';
+import {readFileSync} from "fs";
 
 const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
@@ -40,6 +41,9 @@ export const handler = async(event) => {
     let resolver = { query:'', parameters:{}, language: 'opencypher', fieldsAlias: {} };
 
     try {
+        const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+        let schemaModel = JSON.parse(schemaDataModelJSON);
+        initSchema(schemaModel);
         resolver = resolveGraphDBQueryFromAppSyncEvent(event);
         if (LOGGING_ENABLED) console.log(JSON.stringify(resolver, null, 2));
     } catch (error) {

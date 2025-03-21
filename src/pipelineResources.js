@@ -396,10 +396,12 @@ async function createLambdaRole() {
  */
 async function createDeploymentPackage(templateFolderPath, resolverFilePath) {
     const zipFilePath = path.join(thisOutputFolderPath, `${NAME}.zip`);
+    const resolverSchemaFilePath = path.join(thisOutputFolderPath, `${NAME}.resolver.schema.json`)
     await createLambdaDeploymentPackage({
         outputZipFilePath: zipFilePath,
         templateFolderPath: templateFolderPath,
-        resolverFilePath: resolverFilePath
+        resolverFilePath: resolverFilePath,
+        resolverSchemaFilePath: resolverSchemaFilePath
     });
     await sleep(2000);
     const fileContent = await fs.readFileSync(zipFilePath);

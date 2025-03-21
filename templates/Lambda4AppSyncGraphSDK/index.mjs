@@ -1,5 +1,6 @@
 import {ExecuteQueryCommand, NeptuneGraphClient} from "@aws-sdk/client-neptune-graph";
-import {resolveGraphDBQueryFromAppSyncEvent} from './output.resolver.graphql.js';
+import {resolveGraphDBQueryFromAppSyncEvent, initSchema} from './output.resolver.graphql.js';
+import {readFileSync} from "fs";
 
 const PROTOCOL = 'https';
 const QUERY_LANGUAGE = 'OPEN_CYPHER';
@@ -49,6 +50,9 @@ function log(message) {
  */
 function resolveGraphQuery(event) {
     try {
+        const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+        let schemaModel = JSON.parse(schemaDataModelJSON);
+        initSchema(schemaModel);
         let resolver = resolveGraphDBQueryFromAppSyncEvent(event);
         if (resolver.language !== RESOLVER_LANGUAGE) {
             return onError('Unsupported resolver language:' + resolver.language)

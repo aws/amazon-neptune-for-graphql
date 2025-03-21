@@ -15,14 +15,18 @@ import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
 
-// TIMESTAMP HERE
+let schemaDataModel;
+let schema;
 
-const schemaDataModelJSON = `INSERT SCHEMA DATA MODEL HERE`;
-    
-const schemaDataModel = JSON.parse(schemaDataModelJSON);
-
-const schema = buildASTSchema(schemaDataModel, { assumeValidSDL: true });
-
+/**
+ * Initializes the schema from a given file path
+ *
+ * @param {object} schemaModel the path to the JSON schema data mode
+ */
+export function initSchema(schemaModel) {
+    schemaDataModel = schemaModel;
+    schema = buildASTSchema(schemaDataModel, { assumeValidSDL: true });
+}
 
 /**
  * Resolves a graph db query from a given App Sync graphQL query event.

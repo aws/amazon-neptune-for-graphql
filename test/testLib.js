@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import fs  from 'fs';
+import fs, {readFileSync} from 'fs';
 import AdmZip from 'adm-zip';
 import gql from 'graphql-tag';
 import * as path from "node:path";
@@ -126,12 +126,15 @@ async function loadResolver(file) {
 }
 
 
-async function testResolverQueries(resolverFile, queriesReferenceFolder) {
-    const resolverModule = await loadResolver(resolverFile);    
+async function testResolverQueries(resolverFile, queriesReferenceFolder, schemaFile) {
+    const resolverModule = await loadResolver(resolverFile);
+    const schemaDataModelJSON = readFileSync(schemaFile, 'utf-8');
+    let schemaModel = JSON.parse(schemaDataModelJSON);
+    resolverModule.initSchema(schemaModel);
     const queryFiles = fs.readdirSync(queriesReferenceFolder);
     for (const queryFile of queryFiles) {        
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" + queryFile));
-        if (query.graphql != "") {            
+        if (query.graphql != "") {
             const result = resolverModule.resolveGraphDBQuery(gql(query.graphql));
             
             if (result.query != query.resolved || JSON.stringify(result.parameters, null, 2) != JSON.stringify(query.parameters, null, 2) )
@@ -146,9 +149,11 @@ async function testResolverQueries(resolverFile, queriesReferenceFolder) {
 }
 
 
-async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, host, port) {
+async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, schemaFile, host, port) {
     const resolverModule = await loadResolver(resolverFile);
-    
+    const schemaDataModelJSON = readFileSync(schemaFile, 'utf-8');
+    let schemaModel = JSON.parse(schemaDataModelJSON);
+    resolverModule.initSchema(schemaModel);
     const queryFiles = fs.readdirSync(queriesReferenceFolder);
 
     for (const queryFile of queryFiles) {
@@ -194,6 +199,7 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
             '.env',
             'index.mjs',
             'output.resolver.graphql.js',
+            'output.resolver.schema.json',
             'package.json',
             'package-lock.json',
             'output.schema.graphql',
