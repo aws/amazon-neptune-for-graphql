@@ -1,0 +1,10 @@
+{
+  "name": "Query with parameters that have constant values",
+  "description": "",
+  "graphql": "query MyQuery {\n getNodeCountry(filter: {_id: \"3541\", code: \"CA\"}) {\n desc\n }\n }\n",
+  "parameters": {},
+  "resolved": "MATCH (getNodeCountry_Country:`country`{code: $getNodeCountry_Country_code}) WHERE ID(getNodeCountry_Country) = $getNodeCountry_Country_whereId\nRETURN {desc: getNodeCountry_Country.`desc`} LIMIT 1",
+  "result": {
+    "desc": "Canada"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Filter by parameter with numeric value and return mix of numeric value types",
+  "description": "",
+  "graphql": "query MyQuery {\n getNodeAirports(filter: { city: \"Seattle\", runways: 3 }) {\n code\n lat\n lon\n elev\n}\n }",
+  "parameters": {
+    "getNodeAirports_Airport_city": "Seattle",
+    "getNodeAirports_Airport_runways": 3
+  },
+  "resolved": "MATCH (getNodeAirports_Airport:`airport`{city: $getNodeAirports_Airport_city, runways: $getNodeAirports_Airport_runways})\nRETURN collect({code: getNodeAirports_Airport.`code`, lat: getNodeAirports_Airport.`lat`, lon: getNodeAirports_Airport.`lon`, elev: getNodeAirports_Airport.`elev`})",
+  "result": [
+    {
+      "code": "SEA",
+      "elev": 432,
+      "lon": -122.30899810791,
+      "lat": 47.4490013122559
+    }
+  ]
+}
