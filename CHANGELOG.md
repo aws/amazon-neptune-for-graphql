@@ -39,3 +39,4 @@ This release contains new support for Apollo Server integration.
 * Changed lambda template to use ECMAScripts modules (#68)
 * Add template file missing from packaging (#71)
 * Separated graphQL schema from resolver template (#79)
+* Added unit tests for resolver and moved resolver integration tests to be unit tests (#83)
