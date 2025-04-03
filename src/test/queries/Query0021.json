@@ -1,0 +1,37 @@
+{
+  "name": "Query with no parameters",
+  "description": "",
+  "graphql": "query MyQuery {\n getNodeContinents {\n code\n desc\n }\n }\n",
+  "parameters": {},
+  "resolved": "MATCH (getNodeAirports_Airport:`airport`)\nRETURN collect({code: getNodeAirports_Airport.`code`, desc2: getNodeAirports_Airport.`desc`})",
+  "result": [
+    {
+      "code": "EU",
+      "desc": "Europe"
+    },
+    {
+      "code": "AF",
+      "desc": "Africa"
+    },
+    {
+      "code": "NA",
+      "desc": "North America"
+    },
+    {
+      "code": "SA",
+      "desc": "South America"
+    },
+    {
+      "code": "AS",
+      "desc": "Asia"
+    },
+    {
+      "code": "OC",
+      "desc": "Oceania"
+    },
+    {
+      "code": "AN",
+      "desc": "Antarctica"
+    }
+  ]
+}

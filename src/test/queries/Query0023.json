@@ -1,0 +1,20 @@
+{
+  "name": "Query with parameters that have variable values",
+  "description": "",
+  "graphql": "query MyQuery($testId: ID, $code: String!) {\n getNodeAirport(filter: {_id: $testId, code: $code}) {\n _id\n city\n code\n country\n }\n }\n",
+  "variables": {
+    "testId": "20",
+    "code": "PHX"
+  },
+  "parameters": {
+    "getNodeAirport_Airport_code": "PHX",
+    "getNodeAirport_Airport_whereId": "20"
+  },
+  "resolved": "MATCH (getNodeAirport_Airport:`airport`{code: $getNodeAirport_Airport_code}) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport_whereId\nRETURN {_id:ID(getNodeAirport_Airport), city: getNodeAirport_Airport.`city`, code: getNodeAirport_Airport.`code`, country: getNodeAirport_Airport.`country`} LIMIT 1",
+  "result": {
+    "city": "Phoenix",
+    "_id": "20",
+    "code": "PHX",
+    "country": "US"
+  }
+}
