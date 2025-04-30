@@ -11,7 +11,7 @@ permissions and limitations under the License.
 */
 
 import { schemaStringify } from './schemaParser.js';
-import { print } from 'graphql';
+import { GraphQLID, print } from 'graphql';
 import {gql} from 'graphql-tag'
 import { loggerInfo, yellow } from "./logger.js";
 
@@ -139,18 +139,48 @@ function addNode(def) {
     const idField = getIdField(def);
 
     // Create Input type
-    typesToAdd.push(`input ${name}Input {\n${print(getInputFields(def))}\n}`);    
+    const createFields = [];
+    for (const field of def.fields) {
+        if (isScalar(nullable(field.type))) {
+            if (field.type.kind === 'NonNullType' && field.type.type.name.value === GraphQLID.name) {
+                // make ID nullable by unwrapping the NonNullType from the field
+                const idFieldCopy = JSON.parse(JSON.stringify(field));
+                idFieldCopy.type = idFieldCopy.type.type;
+                createFields.push(idFieldCopy);
+            } else {
+                createFields.push(field);
+            }
+        }
+    }
+    typesToAdd.push(`input ${name}CreateInput {\n${print(createFields)}\n}`);
+    
+    // Update Input type
+    const updateFields = [];
+    for (const field of def.fields) {
+        if (isScalar(nullable(field.type))) {
+            if (field.type.kind === 'NonNullType') {
+                // make non-nullable nullable by unwrapping the NonNullType from the field
+                const fieldCopy = JSON.parse(JSON.stringify(field));
+                fieldCopy.type = fieldCopy.type.type;
+                updateFields.push(fieldCopy);
+            } else {
+                updateFields.push(field);
+            }
+        }
+    }
+    typesToAdd.push(`input ${name}UpdateInput {\n${print(updateFields)}\n}`);
 
     // Create query
     queriesToAdd.push(`getNode${name}(filter: ${name}Input, options: Options): ${name}\n`);
     queriesToAdd.push(`getNode${name}s(filter: ${name}Input): [${name}]\n`);
 
     // Create mutation
-    mutationsToAdd.push(`createNode${name}(input: ${name}Input!): ${name}\n`);
-    mutationsToAdd.push(`updateNode${name}(input: ${name}Input!): ${name}\n`);
+    mutationsToAdd.push(`createNode${name}(input: ${name}CreateInput!): ${name}\n`);
+    mutationsToAdd.push(`updateNode${name}(input: ${name}UpdateInput!): ${name}\n`);
     mutationsToAdd.push(`deleteNode${name}(${print(idFieldToInputValue(idField))}): Boolean\n`);
 
-    loggerInfo(`Added input type: ${yellow(name+'Input')}`);
+    loggerInfo(`Added input type: ${yellow(name+'CreateInput')}`);
+    loggerInfo(`Added input type: ${yellow(name+'UpdateInput')}`);
     loggerInfo(`Added query: ${yellow('getNode' + name)}`);
     loggerInfo(`Added query: ${yellow('getNode' + name + 's')}`);
     loggerInfo(`Added mutation: ${yellow('createNode' + name)}`);
