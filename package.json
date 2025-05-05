@@ -1,6 +1,6 @@
 {
   "name": "@aws/neptune-for-graphql",
-  "version": "1.2.0-beta.1",
+  "version": "1.2.0",
   "description": "CLI utility to create and maintain a GraphQL API for Amazon Neptune",
   "keywords": [
     "Amazon Neptune",
@@ -19,7 +19,7 @@
     "test": "test"
   },
   "scripts": {
-    "postinstall": "cd templates/Lambda4AppSyncHTTP && npm install && cd ../Lambda4AppSyncSDK && npm install && cd ../Lambda4AppSyncGraphSDK && npm install",
+    "postinstall": "cd templates/Lambda4AppSyncHTTP && npm install && cd ../Lambda4AppSyncSDK && npm install && cd ../Lambda4AppSyncGraphSDK && npm install && cd ../ApolloServer && npm install",
     "lint": "eslint neptune-for-graphql.mjs ./src",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js",
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=src/test",
@@ -61,18 +61,18 @@
     "@aws-sdk/client-iam": "3.387.0",
     "@aws-sdk/client-lambda": "3.387.0",
     "@aws-sdk/client-neptune": "3.387.0",
-    "@aws-sdk/client-neptunedata": "3.403.0",
     "@aws-sdk/client-neptune-graph": "3.662.0",
+    "@aws-sdk/client-neptunedata": "3.403.0",
     "@aws-sdk/credential-providers": "3.414.0",
     "archiver": "7.0.1",
     "aws4-axios": "3.3.0",
-    "axios": "1.7.9",
+    "axios": "^1.9.0",
     "graphql": "^16.8.1",
     "graphql-tag": "2.12.6",
     "ora": "7.0.1",
-    "semver": "7.5.4",
     "pino": "9.4.0",
-    "pino-pretty": "11.2.2"
+    "pino-pretty": "11.2.2",
+    "semver": "7.5.4"
   },
   "devDependencies": {
     "@jest/test-sequencer": "^29.7.0",
