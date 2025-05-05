@@ -1,6 +1,6 @@
 {
   "name": "lambda4appsyncgraphsdk",
-  "version": "1.2.0-beta.1",
+  "version": "1.2.0-beta.2",
   "description": "AWS Lambda function to bridge AppSync to Neptune Analytics",
   "main": "index.mjs",
   "type": "module",
