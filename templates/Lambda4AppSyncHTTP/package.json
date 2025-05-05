@@ -1,6 +1,6 @@
 {
   "name": "lambda4appsynchttp",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "AWS Lambda function to bridge AppSync to Neptune or Neptune Analytics",
   "main": "index.mjs",
   "scripts": {
@@ -10,8 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "aws4-axios": "3.3.0",
-    "axios": "1.7.4",
+    "axios": "^1.9.0",
     "graphql-tag": "2.12.6",
-    "retry-axios": "3.1.0"    
+    "retry-axios": "3.1.0"
   }
 }
