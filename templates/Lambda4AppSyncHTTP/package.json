@@ -3,7 +3,6 @@
   "version": "1.1.2",
   "description": "AWS Lambda function to bridge AppSync to Neptune or Neptune Analytics",
   "main": "index.mjs",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
