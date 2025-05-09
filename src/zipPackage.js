@@ -13,9 +13,10 @@ import {fileURLToPath} from "url";
  * @param {object[]} includeContent additional string contents that should be included in the zip
  * @param {string} includeContent.source string content to include in the zip as a file
  * @param {string} includeContent.target name of the target file to create in the zip that will contain the source content
+ * @param {string[]} excludePatterns if any includePaths are a folder, patterns of files to exclude from the folder
  * @returns {Promise<void>}
  */
-async function createZip({targetZipFilePath, includePaths = [], includeContent = []}) {
+async function createZip({targetZipFilePath, includePaths = [], includeContent = [], excludePatterns = []}) {
     const output = fs.createWriteStream(targetZipFilePath);
     const archive = archiver('zip', {zlib: {level: 9}});
     archive.pipe(output);
@@ -23,8 +24,14 @@ async function createZip({targetZipFilePath, includePaths = [], includeContent =
     includePaths.forEach(includePath => {
         const stats = fs.lstatSync(includePath.source);
         if (stats.isDirectory()) {
-            // if no target specified, add contents to root of archive
-            archive.directory(includePath.source, includePath.target ?? false);
+            archive.glob('**/*', {
+                cwd: includePath.source,
+                ignore: excludePatterns || [],
+                dot: false,  // exclude hidden dotfiles
+            }, {
+                // if no target specified, add contents to root of archive
+                prefix: includePath.target || ''
+            });
         } else {
             archive.file(includePath.source, {name: includePath.target ?? path.basename(includePath.source)})
         }
@@ -95,7 +102,9 @@ export async function createApolloDeploymentPackage({zipFilePath, resolverFilePa
             // querying neptune using SDK not yet supported
             {source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')}
         ],
-        includeContent: [{source: envVars.join('\n'), target: '.env'}]
+        includeContent: [{source: envVars.join('\n'), target: '.env'}],
+        // exclude node_modules from apollo package
+        excludePatterns: ['node_modules/**', '**/node_modules/**']
     })
 }
 

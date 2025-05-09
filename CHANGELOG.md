@@ -24,6 +24,8 @@ This release contains new support for Apollo Server integration.
 * Fix query from AppSync with an empty filter object (#61)
 * Retain numeric parameter value type when creating open cypher query (#63)
 * Fixed bug with ID argument type conversion and added Apollo arguments to help menu (#74)
+* Upgraded axios and babel versions to fix security warnings (#90)
+* Fixed failing integration test by excluding `node_modules` from Apollo zip (#94)
 
 ### Features
 
@@ -40,3 +42,4 @@ This release contains new support for Apollo Server integration.
 * Add template file missing from packaging (#71)
 * Separated graphQL schema from resolver template (#79)
 * Added unit tests for resolver and moved resolver integration tests to be unit tests (#83)
+* Set limit on the expensive query which is retrieving distinct to and from labels for edges (#89)
