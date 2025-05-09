@@ -8,56 +8,68 @@ test('node with same property and edge label should add underscore prefix', () =
 
 test('should properly replace special chars in schema', () => {
     const actual = inferGraphQLSchema('./src/test/special-chars-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/special-chars.graphql')
+    const expected = loadGraphQLSchema('./src/test/special-chars.graphql');
+    expect(actual).toBe(expected);
+});
+
+test('should correctly generate mutation input types after replacing special characters in schema', () => {
+    const actual = inferGraphQLSchema('./src/test/special-chars-neptune-schema.json', { addMutations: true });
+    const expected = loadGraphQLSchema('./src/test/special-chars-mutations.graphql');
     expect(actual).toBe(expected);
 });
 
 test('should output airport schema', () => {
     const actual = inferGraphQLSchema('./src/test/airports-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/airports.graphql')
+    const expected = loadGraphQLSchema('./src/test/airports.graphql');
+    expect(actual).toBe(expected);
+});
+
+test('should correctly generate mutation input types after outputting airport schema', () => {
+    const actual = inferGraphQLSchema('./src/test/airports-neptune-schema.json', { addMutations: true });
+    const expected = loadGraphQLSchema('./src/test/airports-mutations.graphql');
     expect(actual).toBe(expected);
 });
 
 test('should output dining by friends schema', () => {
     const actual = inferGraphQLSchema('./src/test/dining-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/dining.graphql')
+    const expected = loadGraphQLSchema('./src/test/dining.graphql');
     expect(actual).toBe(expected);
 });
 
 test('should output epl schema', () => {
     const actual = inferGraphQLSchema('./src/test/epl-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/epl.graphql')
+    const expected = loadGraphQLSchema('./src/test/epl.graphql');
     expect(actual).toBe(expected);
 });
 
 test('should output fraud graph schema', () => {
     const actual = inferGraphQLSchema('./src/test/fraud-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/fraud.graphql')
+    const expected = loadGraphQLSchema('./src/test/fraud.graphql');
     expect(actual).toBe(expected);
 });
 
 test('should output knowledge graph schema', () => {
     const actual = inferGraphQLSchema('./src/test/knowledge-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/knowledge.graphql')
+    const expected = loadGraphQLSchema('./src/test/knowledge.graphql');
     expect(actual).toBe(expected);
 });
 
 test('should output security graph schema', () => {
     const actual = inferGraphQLSchema('./src/test/security-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/security.graphql')
+    const expected = loadGraphQLSchema('./src/test/security.graphql');
     expect(actual).toBe(expected);
 });
 
 test('should alias edge with same label as node', () => {
     loggerInit('./src/test/output', false, 'info');
     const actual = inferGraphQLSchema('./src/test/node-edge-same-label-neptune-schema.json');
-    const expected = loadGraphQLSchema('./src/test/node-edge-same-label.graphql')
+    const expected = loadGraphQLSchema('./src/test/node-edge-same-label.graphql');
     expect(actual).toBe(expected);
 });
 
-function inferGraphQLSchema(neptuneSchemaFilePath) {
+function inferGraphQLSchema(neptuneSchemaFilePath, options = { addMutations: false }) {
     let neptuneSchema = readFile(neptuneSchemaFilePath);
-    let inferredSchema = graphDBInferenceSchema(neptuneSchema);
+    let inferredSchema = graphDBInferenceSchema(neptuneSchema, options.addMutations);
     return sanitizeWhitespace(inferredSchema);
 }
 
