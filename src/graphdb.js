@@ -192,6 +192,38 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             }
         });
         r += '}\n\n';
+
+        if (addMutations) {
+            // Create input for mutations
+            r += `input ${nodeCase}CreateInput {\n`;
+            r += '\t_id: ID @id\n';
+            node.properties.forEach(property => {
+                let propertyCase = cleanseLabel(property.name);
+
+                if (property.name !== propertyCase) {
+                    r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
+                }
+                else {
+                    r+= `\t${property.name}: ${property.type}\n`;
+                }
+            });
+            r += '}\n\n';
+
+            // Update input for mutations
+            r += `input ${nodeCase}UpdateInput {\n`;
+            r += '\t_id: ID! @id\n';
+            node.properties.forEach(property => {
+                let propertyCase = cleanseLabel(property.name);
+
+                if (property.name !== propertyCase) {
+                    r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
+                }
+                else {
+                    r+= `\t${property.name}: ${property.type}\n`;
+                }
+            });
+            r += '}\n\n';
+        }
     })
 
     const nodeLabels = new Set(gdbs.nodeStructures.map((n) => n.label));
@@ -267,8 +299,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
             let nodeCase = toPascalCase(cleanseLabel(node.label));
-            r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
-            r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
+            r += `\tcreateNode${nodeCase}(input: ${nodeCase}CreateInput!): ${nodeCase}\n`;
+            r += `\tupdateNode${nodeCase}(input: ${nodeCase}UpdateInput!): ${nodeCase}\n`;
             r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean\n`;
         });    
 
