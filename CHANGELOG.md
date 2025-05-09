@@ -40,3 +40,4 @@ This release contains new support for Apollo Server integration.
 * Add template file missing from packaging (#71)
 * Separated graphQL schema from resolver template (#79)
 * Added unit tests for resolver and moved resolver integration tests to be unit tests (#83)
+* Added distinct input types for create and update mutations (#92)
