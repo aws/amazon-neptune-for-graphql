@@ -104,7 +104,7 @@ export async function createApolloDeploymentPackage({zipFilePath, resolverFilePa
         ],
         includeContent: [{source: envVars.join('\n'), target: '.env'}],
         // exclude node_modules from apollo package
-        excludePatterns: ['node_modules/**', '**/node_modules/**']
+        excludePatterns: ['**/node_modules/**']
     })
 }
 
