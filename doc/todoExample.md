@@ -73,10 +73,10 @@ input Options {
 }
 
 type Query {
-  getNodeTodo(filter: TodoInput, options: Options): Todo
-  getNodeTodos(filter: TodoInput): [Todo]
-  getNodeComment(filter: CommentInput, options: Options): Comment
-  getNodeComments(filter: CommentInput): [Comment]
+  getNodeTodo(filter: TodoInput): Todo
+  getNodeTodos(filter: TodoInput, options: Options): [Todo]
+  getNodeComment(filter: CommentInput): Comment
+  getNodeComments(filter: CommentInput, options: Options): [Comment]
 }
 
 type Mutation {

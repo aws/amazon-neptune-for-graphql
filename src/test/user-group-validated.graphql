@@ -1,0 +1,82 @@
+type User {
+  userId: ID! @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+}
+
+type Group {
+  _id: ID! @id
+  name: String
+}
+
+type Moderator {
+  moderatorId: ID! @id
+  name: String
+  moderates: Group @relationship(type: "GroupEdge", direction: OUT)
+  groupEdge: GroupEdge
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+
+"https://the-guild.dev/graphql/scalars/docs/scalars/email-address"
+scalar EmailAddress
+
+input UserInput {
+  userId: ID! @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+}
+
+input GroupInput {
+  _id: ID! @id
+  name: String
+}
+
+input ModeratorInput {
+  moderatorId: ID! @id
+  name: String
+}
+
+type GroupEdge {
+  _id: ID! @id
+}
+
+input Options {
+  limit: Int
+}
+
+type Query {
+  getNodeUser(filter: UserInput): User
+  getNodeUsers(filter: UserInput, options: Options): [User]
+  getNodeGroup(filter: GroupInput): Group
+  getNodeGroups(filter: GroupInput, options: Options): [Group]
+  getNodeModerator(filter: ModeratorInput): Moderator
+  getNodeModerators(filter: ModeratorInput, options: Options): [Moderator]
+}
+
+type Mutation {
+  createNodeUser(input: UserInput!): User
+  updateNodeUser(input: UserInput!): User
+  deleteNodeUser(userId: ID!): Boolean
+  createNodeGroup(input: GroupInput!): Group
+  updateNodeGroup(input: GroupInput!): Group
+  deleteNodeGroup(_id: ID!): Boolean
+  createNodeModerator(input: ModeratorInput!): Moderator
+  updateNodeModerator(input: ModeratorInput!): Moderator
+  deleteNodeModerator(moderatorId: ID!): Boolean
+  connectNodeModeratorToNodeGroupEdgeGroupEdge(from_id: ID!, to_id: ID!): GroupEdge
+  deleteEdgeGroupEdgeFromModeratorToGroup(from_id: ID!, to_id: ID!): Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

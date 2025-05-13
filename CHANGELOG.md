@@ -20,28 +20,30 @@ This release contains new support for Apollo Server integration.
 
 ### Bug Fixes
 
-* Don't cast integers to floats in Neptune schema (#62)
-* Fix query from AppSync with an empty filter object (#61)
-* Retain numeric parameter value type when creating open cypher query (#63)
-* Fixed bug with ID argument type conversion and added Apollo arguments to help menu (#74)
-* Upgraded axios and babel versions to fix security warnings (#90)
-* Fixed failing integration test by excluding `node_modules` from Apollo zip (#94)
-* Fixed enum types in schema to be included in input types (#95)
-* Fixed bug where id fields without @id directives are not accounted for (#96)
+* Don't cast integers to floats in Neptune schema ([#62](https://github.com/aws/amazon-neptune-for-graphql/pull/62))
+* Fix query from AppSync with an empty filter object ([#61](https://github.com/aws/amazon-neptune-for-graphql/pull/61))
+* Retain numeric parameter value type when creating open cypher query ([#63](https://github.com/aws/amazon-neptune-for-graphql/pull/63))
+* Fixed bug with ID argument type conversion and added Apollo arguments to help menu ([#74](https://github.com/aws/amazon-neptune-for-graphql/pull/74))
+* Upgraded axios and babel versions to fix security warnings ([#90](https://github.com/aws/amazon-neptune-for-graphql/pull/90))
+* Fixed failing integration test by excluding `node_modules` from Apollo zip ([#94](https://github.com/aws/amazon-neptune-for-graphql/pull/94))
+* Fixed enum types in schema to be included in input types ([#95](https://github.com/aws/amazon-neptune-for-graphql/pull/95))
+* Fixed bug where id fields without @id directives are not accounted for ([#96](https://github.com/aws/amazon-neptune-for-graphql/pull/96))
+* Fixed custom scalar types in schema to be included in input types and queries generated from an input schema which retrieve an array to have an option parameter with limit ([#95](https://github.com/aws/amazon-neptune-for-graphql/pull/97))
+
 
 ### Features
 
-* Support output of zip package of Apollo Server artifacts (#70, #72, #73, #75, #76)
+* Support output of zip package of Apollo Server artifacts (([#70](https://github.com/aws/amazon-neptune-for-graphql/pull/70)), ([#72](https://github.com/aws/amazon-neptune-for-graphql/pull/72)), ([#73](https://github.com/aws/amazon-neptune-for-graphql/pull/73)), ([#75](https://github.com/aws/amazon-neptune-for-graphql/pull/75)), ([#76](https://github.com/aws/amazon-neptune-for-graphql/pull/76)))
 
 ### Improvements
 
-* Increased graphdb.js test coverage using sample data (#53)
-* Saved the neptune schema to file early so that it can be used for troubleshooting (#56)
-* Alias edges with same label as a node (#57)
-* Cap concurrent requests to get Neptune schema (#58)
-* Honour @id directive on type fields (#60)
-* Changed lambda template to use ECMAScripts modules (#68)
-* Add template file missing from packaging (#71)
-* Separated graphQL schema from resolver template (#79)
-* Added unit tests for resolver and moved resolver integration tests to be unit tests (#83)
-* Set limit on the expensive query which is retrieving distinct to and from labels for edges (#89)
+* Increased graphdb.js test coverage using sample data ([#53](https://github.com/aws/amazon-neptune-for-graphql/pull/53))
+* Saved the neptune schema to file early so that it can be used for troubleshooting ([#56](https://github.com/aws/amazon-neptune-for-graphql/pull/56))
+* Alias edges with same label as a node ([#57](https://github.com/aws/amazon-neptune-for-graphql/pull/57))
+* Cap concurrent requests to get Neptune schema ([#58](https://github.com/aws/amazon-neptune-for-graphql/pull/58))
+* Honour @id directive on type fields ([#60](https://github.com/aws/amazon-neptune-for-graphql/pull/60))
+* Changed lambda template to use ECMAScripts modules ([#68](https://github.com/aws/amazon-neptune-for-graphql/pull/68))
+* Add template file missing from packaging ([#71](https://github.com/aws/amazon-neptune-for-graphql/pull/71))
+* Separated graphQL schema from resolver template ([#79](https://github.com/aws/amazon-neptune-for-graphql/pull/79))
+* Added unit tests for resolver and moved resolver integration tests to be unit tests ([#83](https://github.com/aws/amazon-neptune-for-graphql/pull/83))
+* Set limit on the expensive query which is retrieving distinct to and from labels for edges ([#89](https://github.com/aws/amazon-neptune-for-graphql/pull/89))
