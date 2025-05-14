@@ -2,8 +2,15 @@ type User {
     userId: ID! @id
     firstName: String
     lastName: String
+    role: Role
 }
 
 type Group {
     name: String
+}
+
+enum Role {
+    ADMIN
+    USER
+    GUEST
 }
