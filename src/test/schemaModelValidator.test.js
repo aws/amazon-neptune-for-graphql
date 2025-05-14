@@ -15,9 +15,9 @@ describe('validatedSchemaModel', () => {
 
     test('types definitions should be as expected', () => {
         const objectTypes = model.definitions.filter(def => def.kind === 'ObjectTypeDefinition').map(def => def.name.value);
-        expect(objectTypes).toEqual(expect.arrayContaining(['User','Group','Query', 'Mutation']));
+        expect(objectTypes).toEqual(expect.arrayContaining(['User','Group','Moderator','Query', 'Mutation']));
         const inputTypes = model.definitions.filter(def => def.kind === 'InputObjectTypeDefinition').map(def => def.name.value);
-        expect(inputTypes).toEqual(expect.arrayContaining(['UserInput','GroupInput','Options']));
+        expect(inputTypes).toEqual(expect.arrayContaining(['UserInput','GroupInput','ModeratorInput','Options']));
         const enumTypes = model.definitions.filter(def => def.kind === 'EnumTypeDefinition').map(def => def.name.value);
         expect(enumTypes).toEqual(expect.arrayContaining(['Role']));
     });
@@ -26,18 +26,26 @@ describe('validatedSchemaModel', () => {
         const objTypeDefs = model.definitions.filter(def => def.kind === 'ObjectTypeDefinition');
         const userType = objTypeDefs.find(def => def.name.value === 'User');
         const groupType = objTypeDefs.find(def => def.name.value === 'Group');
+        const moderatorType = objTypeDefs.find(def => def.name.value === 'Moderator');
+
+        expect(userType.fields).toHaveLength(4);
+        expect(groupType.fields).toHaveLength(2);
+        expect(moderatorType.fields).toHaveLength(2);
 
         const userIdFields = getIdFields(userType);
         const groupIdFields = getIdFields(groupType);
+        const moderatorIdFields = getIdFields(moderatorType);
 
         expect(userIdFields).toHaveLength(1);
         expect(groupIdFields).toHaveLength(1);
+        expect(moderatorIdFields).toHaveLength(1);
         expect(userIdFields[0].name.value).toEqual('userId');
         expect(groupIdFields[0].name.value).toEqual('_id');
+        expect(moderatorIdFields[0].name.value).toEqual('moderatorId');
     });
 
     test('should define the same ID fields on a type and its input type', () => {
-        const typeNames = ['User', 'Group'];
+        const typeNames = ['User', 'Group', 'Moderator'];
 
         typeNames.forEach(typeName => {
             const type = model.definitions.find(
