@@ -33,6 +33,9 @@ export async function queryNeptune(neptuneUrl, resolvedQuery, options = {logging
         };
 
         let response;
+        if (loggingEnabled) {
+            console.log("Query: ", JSON.stringify(resolvedQuery, null, 2));
+        }
         if (resolvedQuery.language === 'opencypher') {
             response = await axios.post(`${neptuneUrl}/opencypher`, {
                 query: resolvedQuery.query, parameters: JSON.stringify(resolvedQuery.parameters)

@@ -13,6 +13,15 @@ describe('validatedSchemaModel', () => {
         model = validatedSchemaModel(schemaParser(schema));
     });
 
+    test('types definitions should be as expected', () => {
+        const objectTypes = model.definitions.filter(def => def.kind === 'ObjectTypeDefinition').map(def => def.name.value);
+        expect(objectTypes).toEqual(expect.arrayContaining(['User','Group','Query', 'Mutation']));
+        const inputTypes = model.definitions.filter(def => def.kind === 'InputObjectTypeDefinition').map(def => def.name.value);
+        expect(inputTypes).toEqual(expect.arrayContaining(['UserInput','GroupInput','Options']));
+        const enumTypes = model.definitions.filter(def => def.kind === 'EnumTypeDefinition').map(def => def.name.value);
+        expect(enumTypes).toEqual(expect.arrayContaining(['Role']));
+    });
+
     test('should only add _id field to object types without ID fields', () => {
         const objTypeDefs = model.definitions.filter(def => def.kind === 'ObjectTypeDefinition');
         const userType = objTypeDefs.find(def => def.name.value === 'User');
@@ -47,6 +56,15 @@ describe('validatedSchemaModel', () => {
             expect(inputIdFields).toHaveLength(1);
             expect(idFields[0].name.value).toEqual(inputIdFields[0].name.value);
         });
+    });
+
+    test('should allow enum types as input fields', () => {
+        const roleEnumType = model.definitions.find(def => def.kind === 'EnumTypeDefinition' && def.name.value === 'Role');
+        expect(roleEnumType.values.map(value => value.name.value)).toEqual(expect.arrayContaining(['USER','ADMIN','GUEST']));
+        
+        const userInput = model.definitions.find(def => def.kind === 'InputObjectTypeDefinition' && def.name.value === 'UserInput');
+        const userRoleField = userInput.fields.find(field => field.name.value === 'role');
+        expect(userRoleField.type.name.value).toEqual('Role');
     });
 
     function getIdFields(objTypeDef) {

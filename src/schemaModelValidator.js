@@ -16,9 +16,11 @@ import {gql} from 'graphql-tag'
 import { loggerInfo, yellow } from "./logger.js";
 
 let quiet = false;
+// TODO change variables to local scope instead of global so this module can be used against multiple schemas
 const typesToAdd = [];
 const queriesToAdd = [];
 const mutationsToAdd = [];
+const enumTypes = [];
 
 function lowercaseFirstCharacter(inputString) {
     if (inputString.length === 0) {     
@@ -238,7 +240,7 @@ function idFieldToInputValue({ name, type }) {
 
 
 function getInputFields(objTypeDef) {
-    return objTypeDef.fields.filter(field => isScalar(nullable(field.type)));
+    return objTypeDef.fields.filter(field => isScalarOrEnum(nullable(field.type)));
 }
 
 
@@ -247,9 +249,9 @@ function nullable(type) {
 }
 
 
-function isScalar(type) {
-    const scalarTypes = ['String', 'Int', 'Float', 'Boolean', 'ID'];
-    return type.kind === 'NamedType' && scalarTypes.includes(type.name.value);
+function isScalarOrEnum(type) {
+    const scalarOrEnumTypes = ['String', 'Int', 'Float', 'Boolean', 'ID', ...enumTypes];
+    return type.kind === 'NamedType' && scalarOrEnumTypes.includes(type.name.value);
 }
 
 
@@ -258,6 +260,10 @@ function inferGraphDatabaseDirectives(schemaModel) {
     var currentType = '';
     let referencedType = '';
     let edgeName = '';
+
+    schemaModel.definitions
+        .filter(definition => definition.kind === 'EnumTypeDefinition')
+        .forEach(definition => enumTypes.push(definition.name.value));
 
     schemaModel.definitions.forEach(def => {
         if (def.kind == 'ObjectTypeDefinition') {
@@ -296,7 +302,8 @@ function inferGraphDatabaseDirectives(schemaModel) {
                     } else if (field.type.name.value !== 'String' && 
                                field.type.name.value !== 'Int' && 
                                field.type.name.value !== 'Float' && 
-                               field.type.name.value !== 'Boolean') {
+                               field.type.name.value !== 'Boolean' &&
+                               !enumTypes.includes(field.type.name.value)) {
                             
                         referencedType = field.type.name.value;
                         edgeName = referencedType + 'Edge';
