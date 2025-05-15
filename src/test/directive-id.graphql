@@ -9,6 +9,11 @@ type Group {
     name: String
 }
 
+type Moderator {
+    moderatorId: ID!
+    name: String
+}
+
 enum Role {
     ADMIN
     USER

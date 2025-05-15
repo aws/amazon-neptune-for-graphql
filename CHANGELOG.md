@@ -27,6 +27,7 @@ This release contains new support for Apollo Server integration.
 * Upgraded axios and babel versions to fix security warnings (#90)
 * Fixed failing integration test by excluding `node_modules` from Apollo zip (#94)
 * Fixed enum types in schema to be included in input types (#95)
+* Fixed bug where id fields without @id directives are not accounted for (#96)
 
 ### Features
 

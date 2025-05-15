@@ -14,6 +14,7 @@ import { schemaStringify } from './schemaParser.js';
 import { print } from 'graphql';
 import {gql} from 'graphql-tag'
 import { loggerInfo, yellow } from "./logger.js";
+import { GraphQLID } from 'graphql';
 
 let quiet = false;
 // TODO change variables to local scope instead of global so this module can be used against multiple schemas
@@ -138,7 +139,7 @@ function injectChanges(schemaModel) {
 
 function addNode(def) {
     let name = def.name.value;
-    const idField = getIdField(def);
+    const idField = getIdFieldWithDirective(def);
 
     // Create Input type
     typesToAdd.push(`input ${name}Input {\n${print(getInputFields(def))}\n}`);    
@@ -213,23 +214,28 @@ function addFilterOptionsArguments(field) {
 }
 
 
-function getIdField(objTypeDef) {
+function getIdFieldWithDirective(objTypeDef) {
     return objTypeDef.fields.find(
         field =>
             field.directives && field.directives.some(directive => directive.name.value === 'id')
     );
 }
 
+function getIdFieldByType(objTypeDef) {
+    return objTypeDef.fields.find(field => field.type?.type?.kind === 'NamedType' && field.type?.type?.name?.value === GraphQLID.name);
+}
 
-function createIdField() {
+function createIdDirective() {
+    return {kind: 'Directive', name: {kind: 'Name', value: 'id'}, arguments: []};
+}
+
+function createIdFieldWithDirective() {
     return {
         kind: 'FieldDefinition',
         name: { kind: 'Name', value: '_id' },
         arguments: [],
         type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
-        directives: [
-            { kind: 'Directive', name: { kind: 'Name', value: 'id' }, arguments: [] }
-        ]
+        directives: [createIdDirective()]
     };
 }
 
@@ -271,8 +277,15 @@ function inferGraphDatabaseDirectives(schemaModel) {
                 currentType = def.name.value;
 
                 // Only add _id field to the object type if it doesn't have an ID field already
-                if (!getIdField(def)) {
-                    def.fields.unshift(createIdField());
+                if (!getIdFieldWithDirective(def)) {
+                    // there is no field with @id directive
+                    const idFieldByType = getIdFieldByType(def);
+                    if (idFieldByType) {
+                        // there is an ID field, add the missing @id directive
+                        idFieldByType.directives.unshift(createIdDirective());
+                    } else {
+                        def.fields.unshift(createIdFieldWithDirective());
+                    }
                 }
 
                 addNode(def);
