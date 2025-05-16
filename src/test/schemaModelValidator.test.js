@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { loggerInit } from '../logger.js';
 import { validatedSchemaModel } from '../schemaModelValidator.js';
-import { schemaParser } from '../schemaParser.js';
+import { schemaParser, schemaStringify } from '../schemaParser.js';
 
 describe('validatedSchemaModel', () => {
     let model;
@@ -9,7 +9,7 @@ describe('validatedSchemaModel', () => {
     beforeAll(() => {
         loggerInit('./output', false, 'silent');
 
-        const schema = readFileSync('./src/test/directive-id.graphql');
+        const schema = readFileSync('./src/test/user-group.graphql');
         model = validatedSchemaModel(schemaParser(schema));
     });
 
@@ -28,9 +28,9 @@ describe('validatedSchemaModel', () => {
         const groupType = objTypeDefs.find(def => def.name.value === 'Group');
         const moderatorType = objTypeDefs.find(def => def.name.value === 'Moderator');
 
-        expect(userType.fields).toHaveLength(4);
+        expect(userType.fields).toHaveLength(5);
         expect(groupType.fields).toHaveLength(2);
-        expect(moderatorType.fields).toHaveLength(2);
+        expect(moderatorType.fields).toHaveLength(4);
 
         const userIdFields = getIdFields(userType);
         const groupIdFields = getIdFields(groupType);
@@ -73,6 +73,12 @@ describe('validatedSchemaModel', () => {
         const userInput = model.definitions.find(def => def.kind === 'InputObjectTypeDefinition' && def.name.value === 'UserInput');
         const userRoleField = userInput.fields.find(field => field.name.value === 'role');
         expect(userRoleField.type.name.value).toEqual('Role');
+    });
+    
+    test('should output expected validated schema', () => {
+        const actual = schemaStringify(model, true);
+        const expected = readFileSync('./src/test/user-group-validated.graphql', 'utf8')
+        expect(actual).toBe(expected); 
     });
 
     function getIdFields(objTypeDef) {

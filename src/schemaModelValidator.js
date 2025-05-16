@@ -22,6 +22,7 @@ const typesToAdd = [];
 const queriesToAdd = [];
 const mutationsToAdd = [];
 const enumTypes = [];
+const customScalarTypes = [];
 
 function lowercaseFirstCharacter(inputString) {
     if (inputString.length === 0) {     
@@ -145,8 +146,8 @@ function addNode(def) {
     typesToAdd.push(`input ${name}Input {\n${print(getInputFields(def))}\n}`);    
 
     // Create query
-    queriesToAdd.push(`getNode${name}(filter: ${name}Input, options: Options): ${name}\n`);
-    queriesToAdd.push(`getNode${name}s(filter: ${name}Input): [${name}]\n`);
+    queriesToAdd.push(`getNode${name}(filter: ${name}Input): ${name}\n`);
+    queriesToAdd.push(`getNode${name}s(filter: ${name}Input, options: Options): [${name}]\n`);
 
     // Create mutation
     mutationsToAdd.push(`createNode${name}(input: ${name}Input!): ${name}\n`);
@@ -256,7 +257,7 @@ function nullable(type) {
 
 
 function isScalarOrEnum(type) {
-    const scalarOrEnumTypes = ['String', 'Int', 'Float', 'Boolean', 'ID', ...enumTypes];
+    const scalarOrEnumTypes = ['String', 'Int', 'Float', 'Boolean', 'ID', ...enumTypes, ...customScalarTypes];
     return type.kind === 'NamedType' && scalarOrEnumTypes.includes(type.name.value);
 }
 
@@ -266,10 +267,13 @@ function inferGraphDatabaseDirectives(schemaModel) {
     var currentType = '';
     let referencedType = '';
     let edgeName = '';
-
     schemaModel.definitions
         .filter(definition => definition.kind === 'EnumTypeDefinition')
         .forEach(definition => enumTypes.push(definition.name.value));
+
+    schemaModel.definitions
+        .filter(definition => definition.kind === 'ScalarTypeDefinition')
+        .forEach(definition => customScalarTypes.push(definition.name.value));
 
     schemaModel.definitions.forEach(def => {
         if (def.kind == 'ObjectTypeDefinition') {
@@ -294,6 +298,7 @@ function inferGraphDatabaseDirectives(schemaModel) {
                 // add relationships
                 def.fields.forEach(field => {                    
                     if (field.type.type !== undefined) {
+                        // FIXME handle NonNullType wrapper
                         if (field.type.type.kind === 'NamedType' && field.type.type.name.value !== 'ID')
                         {
                             try {
@@ -316,7 +321,8 @@ function inferGraphDatabaseDirectives(schemaModel) {
                                field.type.name.value !== 'Int' && 
                                field.type.name.value !== 'Float' && 
                                field.type.name.value !== 'Boolean' &&
-                               !enumTypes.includes(field.type.name.value)) {
+                               !enumTypes.includes(field.type.name.value) &&
+                               !customScalarTypes.includes(field.type.name.value)) {
                             
                         referencedType = field.type.name.value;
                         edgeName = referencedType + 'Edge';

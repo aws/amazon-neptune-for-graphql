@@ -302,12 +302,17 @@ The example commands above will generate the file `apollo-server-<identifier>-<t
 > [!NOTE] 
 > Node's default AWS credentials provider is used for authentication with Neptune. See [AWS SDK credential providers](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-credential-providers/#fromnodeproviderchain) for more information.
 
+### Using Custom Scalars with Apollo Server
+When using custom scalars in your schema (specified via `--input-schema-file`), you should add corresponding scalar resolvers to the index.mjs file in the generated Apollo Server artifact. Although queries will execute without these resolvers, the absence of the custom scalar resolvers will bypass important data validation for fields using custom scalar types. See [Apollo Custom Scalars](https://www.apollographql.com/docs/apollo-server/schema/custom-scalars) for more details on how to attach custom scalar resolvers with Apollo Server.
+
 # Known limitations
 - @graphQuery using Gremlin works only if the query returns a scalar value, one elementMap(), or list as elementMap().fold(), this feature is under development.
 - Neptune RDF database and SPARQL language is not supported.
 - Querying Neptune via SDK is not yet supported for Apollo Server, only HTTPS is supported.
 - Mutations are not yet supported for Apollo Server
-<br>
+- Schemas specified by `--input-schema-file` with `--create-update-aws-pipeline` may not contain custom scalars. See [AWS App Sync Scalar types in GraphQL](https://docs.aws.amazon.com/appsync/latest/devguide/scalars.html) for more information.
+- Schemas specified by `--input-schema-file` with `--create-update-apollo-server` or `--create-update-apollo-server-subgraph` which contain custom scalars require manual steps to add custom scalar resolvers for additional query validation.
+  <br>
 
 # Roadmap
 - Gremlin resolver.
