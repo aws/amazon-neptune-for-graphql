@@ -28,7 +28,8 @@ This release contains new support for Apollo Server integration.
 * Fixed failing integration test by excluding `node_modules` from Apollo zip ([#94](https://github.com/aws/amazon-neptune-for-graphql/pull/94))
 * Fixed enum types in schema to be included in input types ([#95](https://github.com/aws/amazon-neptune-for-graphql/pull/95))
 * Fixed bug where id fields without @id directives are not accounted for ([#96](https://github.com/aws/amazon-neptune-for-graphql/pull/96))
-* Fixed custom scalar types in schema to be included in input types and queries generated from an input schema which retrieve an array to have an option parameter with limit ([#95](https://github.com/aws/amazon-neptune-for-graphql/pull/97))
+* Fixed custom scalar types in schema to be included in input types ([#97](https://github.com/aws/amazon-neptune-for-graphql/pull/97))
+* Fixed queries generated from an input schema which retrieve an array to have an option parameter with limit ([#97](https://github.com/aws/amazon-neptune-for-graphql/pull/97))
 
 
 ### Features

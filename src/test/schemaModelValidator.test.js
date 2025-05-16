@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { loggerInit } from '../logger.js';
 import { validatedSchemaModel } from '../schemaModelValidator.js';
-import {schemaParser, schemaStringify} from '../schemaParser.js';
+import { schemaParser, schemaStringify } from '../schemaParser.js';
 
 describe('validatedSchemaModel', () => {
     let model;
