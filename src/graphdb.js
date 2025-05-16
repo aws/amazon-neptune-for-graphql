@@ -81,6 +81,21 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     checkForDuplicateNames(gdbs);
 
     gdbs.nodeStructures.forEach(node => {
+        // map with key=node property name and value=formatted string containing property name, type and optional alias
+        const nodePropertiesMap = new Map(node.properties.map(property => {
+            if (property.name === 'id') {
+                return [property.name, `\tid: ID\n`];
+            }
+            const sanitizedLabel = cleanseLabel(property.name);
+            let alias = '';
+            if (property.name !== sanitizedLabel) {
+                alias = ` @alias(property: "${property.name}")`;
+            }
+            return [property.name, `\t${sanitizedLabel}: ${property.type}${alias}\n`];
+        }));
+
+        const formattedNodeProperties = Array.from(nodePropertiesMap.values()).join('');
+
         // node type
         let nodeCase = cleanseLabel(node.label);
         if (changeCase) {
@@ -95,20 +110,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         }
         
         r += '\t_id: ID! @id\n';
-
-        node.properties.forEach(property => {
-            if (property.name === 'id') {
-                r+= `\tid: ID\n`;
-            }
-            else {
-                let propertyCase = cleanseLabel(property.name);
-                let alias = '';
-                if (property.name !== propertyCase) {
-                    alias = ` @alias(property: "${property.name}")`;
-                }
-                r+= `\t${propertyCase}: ${property.type}${alias}\n`;
-            }
-        });
+        r += formattedNodeProperties;
         
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
@@ -160,12 +162,10 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             });
         });
 
-        const nodePropertyNames = new Set(node.properties.map((p) => p.name));
-
         // Add edge types
         edgeTypes.forEach((edgeType) => {
             // resolve any collision with node properties with the same name by adding an underscore prefix
-            const aliasedEdgeType = nodePropertyNames.has(edgeType)
+            const aliasedEdgeType = nodePropertiesMap.has(edgeType)
                 ? `_${edgeType}`
                 : edgeType;
 
@@ -182,16 +182,22 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         // input for the node type
         r += `input ${nodeCase}Input {\n`;
         r += '\t_id: ID @id\n';
-        node.properties.forEach(property => {
-            let propertyCase = cleanseLabel(property.name);
-            if (property.name !== propertyCase) {
-                r+= `\t${propertyCase}: ${property.type} @alias(property: "${property.name}")\n`;
-            }
-            else {
-                r+= `\t${property.name}: ${property.type}\n`;
-            }
-        });
+        r += formattedNodeProperties;
         r += '}\n\n';
+
+        if (addMutations) {
+            // Create input for mutations
+            r += `input ${nodeCase}CreateInput {\n`;
+            r += '\t_id: ID @id\n';
+            r += formattedNodeProperties;
+            r += '}\n\n';
+
+            // Update input for mutations
+            r += `input ${nodeCase}UpdateInput {\n`;
+            r += '\t_id: ID! @id\n';
+            r += formattedNodeProperties;
+            r += '}\n\n';
+        }
     })
 
     const nodeLabels = new Set(gdbs.nodeStructures.map((n) => n.label));
@@ -267,8 +273,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
             let nodeCase = toPascalCase(cleanseLabel(node.label));
-            r += `\tcreateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
-            r += `\tupdateNode${nodeCase}(input: ${nodeCase}Input!): ${nodeCase}\n`;
+            r += `\tcreateNode${nodeCase}(input: ${nodeCase}CreateInput!): ${nodeCase}\n`;
+            r += `\tupdateNode${nodeCase}(input: ${nodeCase}UpdateInput!): ${nodeCase}\n`;
             r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean\n`;
         });    
 

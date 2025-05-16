@@ -48,3 +48,4 @@ This release contains new support for Apollo Server integration.
 * Separated graphQL schema from resolver template ([#79](https://github.com/aws/amazon-neptune-for-graphql/pull/79))
 * Added unit tests for resolver and moved resolver integration tests to be unit tests ([#83](https://github.com/aws/amazon-neptune-for-graphql/pull/83))
 * Set limit on the expensive query which is retrieving distinct to and from labels for edges ([#89](https://github.com/aws/amazon-neptune-for-graphql/pull/89))
+* Added distinct input types for create and update mutations ([#93](https://github.com/aws/amazon-neptune-for-graphql/pull/93))

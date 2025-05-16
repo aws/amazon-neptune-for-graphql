@@ -66,10 +66,37 @@ describe('validatedSchemaModel', () => {
         });
     });
 
+    test('should add CreateInput with nullable ID and UpdateInput with non-nullable ID as mutation input types', () => {
+        const typeNames = ['User', 'Group'];
+
+        typeNames.forEach(typeName => {
+            const createInputType = model.definitions.find(
+                def =>
+                    def.kind === 'InputObjectTypeDefinition' &&
+                    def.name.value === `${typeName}CreateInput`
+            );
+
+            const updateInputType = model.definitions.find(
+                def =>
+                    def.kind === 'InputObjectTypeDefinition' &&
+                    def.name.value === `${typeName}UpdateInput`
+            );
+
+            expect(createInputType).toBeDefined();
+            expect(updateInputType).toBeDefined();
+
+            const createIdField = getIdFields(createInputType)[0];
+            const updateIdField = getIdFields(updateInputType)[0];
+
+            expect(createIdField.type.kind).toEqual('NamedType');
+            expect(updateIdField.type.kind).toEqual('NonNullType');
+        });
+    });
+
     test('should allow enum types as input fields', () => {
         const roleEnumType = model.definitions.find(def => def.kind === 'EnumTypeDefinition' && def.name.value === 'Role');
         expect(roleEnumType.values.map(value => value.name.value)).toEqual(expect.arrayContaining(['USER','ADMIN','GUEST']));
-        
+
         const userInput = model.definitions.find(def => def.kind === 'InputObjectTypeDefinition' && def.name.value === 'UserInput');
         const userRoleField = userInput.fields.find(field => field.name.value === 'role');
         expect(userRoleField.type.name.value).toEqual('Role');

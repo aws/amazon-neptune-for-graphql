@@ -35,12 +35,48 @@ input UserInput {
   email: EmailAddress
 }
 
+input UserCreateInput {
+  userId: ID @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+}
+
+input UserUpdateInput {
+  userId: ID! @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+}
+
 input GroupInput {
   _id: ID! @id
   name: String
 }
 
+input GroupCreateInput {
+  _id: ID @id
+  name: String
+}
+
+input GroupUpdateInput {
+  _id: ID! @id
+  name: String
+}
+
 input ModeratorInput {
+  moderatorId: ID! @id
+  name: String
+}
+
+input ModeratorCreateInput {
+  moderatorId: ID @id
+  name: String
+}
+
+input ModeratorUpdateInput {
   moderatorId: ID! @id
   name: String
 }
@@ -63,14 +99,14 @@ type Query {
 }
 
 type Mutation {
-  createNodeUser(input: UserInput!): User
-  updateNodeUser(input: UserInput!): User
+  createNodeUser(input: UserCreateInput!): User
+  updateNodeUser(input: UserUpdateInput!): User
   deleteNodeUser(userId: ID!): Boolean
-  createNodeGroup(input: GroupInput!): Group
-  updateNodeGroup(input: GroupInput!): Group
+  createNodeGroup(input: GroupCreateInput!): Group
+  updateNodeGroup(input: GroupUpdateInput!): Group
   deleteNodeGroup(_id: ID!): Boolean
-  createNodeModerator(input: ModeratorInput!): Moderator
-  updateNodeModerator(input: ModeratorInput!): Moderator
+  createNodeModerator(input: ModeratorCreateInput!): Moderator
+  updateNodeModerator(input: ModeratorUpdateInput!): Moderator
   deleteNodeModerator(moderatorId: ID!): Boolean
   connectNodeModeratorToNodeGroupEdgeGroupEdge(from_id: ID!, to_id: ID!): GroupEdge
   deleteEdgeGroupEdgeFromModeratorToGroup(from_id: ID!, to_id: ID!): Boolean
