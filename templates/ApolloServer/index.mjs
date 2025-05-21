@@ -14,19 +14,47 @@ const queryDefinition = typeDefs.definitions.find(
 );
 const queryNames = queryDefinition ? queryDefinition.fields.map(field => field.name.value) : [];
 
+const mutationDefinition = typeDefs.definitions.find(
+    definition => definition.kind === 'ObjectTypeDefinition' && definition.name.value === 'Mutation'
+);
+const mutationNames = mutationDefinition ? mutationDefinition.fields.map(field => field.name.value) : [];
+
+/**
+ * Resolves GraphQL queries and mutations by processing the info object and arguments.
+ *
+ * @param {Object} info - GraphQLResolveInfo object
+ * @param {Object} args - graphQL query arguments
+ * @returns {Promise<*>} Resolved data from the event processor
+ */
+function resolve(info, args) {
+    if (!info?.fieldName) {
+        throw new Error('Missing fieldName on GraphQLResolveInfo');
+    }
+    if (!Array.isArray(info.fieldNodes) || info.fieldNodes.length !== 1) {
+        throw new Error('Invalid fieldNodes on GraphQLResolveInfo');
+    }
+    const event = {
+        field: info.fieldName,
+        arguments: args,
+        selectionSet: info.fieldNodes[0].selectionSet
+    };
+
+    return resolveEvent(event).then((result) => {
+        return result;
+    });
+}
+
 const resolvers = {
-    // only Query is supported for now, no Mutations
     Query: queryNames.reduce((accumulator, queryName) => {
         accumulator[queryName] = (parent, args, context, info) => {
-            const event = {
-                field: info.fieldName,
-                arguments: args,
-                selectionSet: info.fieldNodes[0].selectionSet,
-            };
+            return resolve(info, args);
+        };
+        return accumulator;
+    }, {}),
 
-            return resolveEvent(event).then((result) => {
-                return result;
-            });
+    Mutation: mutationNames.reduce((accumulator, mutationName) => {
+        accumulator[mutationName] = (parent, args, context, info) => {
+            return resolve(info, args);
         };
         return accumulator;
     }, {}),
