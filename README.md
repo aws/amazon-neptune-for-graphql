@@ -309,7 +309,6 @@ When using custom scalars in your schema (specified via `--input-schema-file`), 
 - @graphQuery using Gremlin works only if the query returns a scalar value, one elementMap(), or list as elementMap().fold(), this feature is under development.
 - Neptune RDF database and SPARQL language is not supported.
 - Querying Neptune via SDK is not yet supported for Apollo Server, only HTTPS is supported.
-- Mutations are not yet supported for Apollo Server
 - Schemas specified by `--input-schema-file` with `--create-update-aws-pipeline` may not contain custom scalars. See [AWS App Sync Scalar types in GraphQL](https://docs.aws.amazon.com/appsync/latest/devguide/scalars.html) for more information.
 - Schemas specified by `--input-schema-file` with `--create-update-apollo-server` or `--create-update-apollo-server-subgraph` which contain custom scalars require manual steps to add custom scalar resolvers for additional query validation.
   <br>
