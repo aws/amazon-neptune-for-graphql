@@ -2,8 +2,6 @@
     "name": "graphQuery Gremlin type array",
     "description": "Query using Gremlin returning a type array",
     "graphql": "query MyQuery {\n  getContinentsWithGremlin {\n code\n }\n }\n",
-    "parameters": {},
-    "resolved": "g.V().hasLabel('continent').elementMap().fold()",
     "result": [
         {
           "id": "3741",

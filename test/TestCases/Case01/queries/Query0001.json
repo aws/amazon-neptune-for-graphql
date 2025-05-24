@@ -2,8 +2,6 @@
     "name": "getAirport",
     "description": "Inference query from return type",
     "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n city \n }\n}",
-    "parameters": {},
-    "resolved": "MATCH (getAirport_Airport:`airport`{code:'SEA'})\nRETURN {city: getAirport_Airport.`city`} LIMIT 1",
     "result":{
         "city": "Seattle"
     }

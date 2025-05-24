@@ -1,11 +1,9 @@
 {
     "name": "graphQuery type",
     "description": "Query using a graphQuery returing a type",
-    "graphql": "query MyQuery {\n getAirportConnection(fromCode: \"SEA\", toCode: \"BLQ\") {\n city\n code\n }\n }\n",
-    "parameters": {},
-    "resolved": "MATCH (:airport{code: 'SEA'})-[:route]->(getAirportConnection_Airport:airport)-[:route]->(:airport{code:'BLQ'})\nRETURN {city: getAirportConnection_Airport.`city`, code: getAirportConnection_Airport.`code`} LIMIT 1",
+    "graphql": "query MyQuery {\n getAirportConnection(fromCode: \"SEA\", country: \"US\", toCode: \"BLQ\") {\n city\n code\n }\n }\n",
     "result":{
-        "code": "LHR",
-        "city": "London"
-      }
+        "code": "PHL",
+        "city": "Philadelphia"
+    }
 }
