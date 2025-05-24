@@ -2,11 +2,6 @@
     "name": "Mutation: create node",
     "description": "",
     "graphql": "mutation MyMutation {\n createNodeAirport(input: {code: \"NAX\", city: \"Reggio Emilia\"}) {\n code\n }\n }",
-    "parameters": {
-        "createNodeAirport_Airport_code": "NAX",
-        "createNodeAirport_Airport_city": "Reggio Emilia"
-      },
-    "resolved": "CREATE (createNodeAirport_Airport:`airport` {code: $createNodeAirport_Airport_code, city: $createNodeAirport_Airport_city})\nRETURN {code: createNodeAirport_Airport.`code`}",
     "result":{
         "code": "NAX"
     }
