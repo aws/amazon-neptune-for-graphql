@@ -38,6 +38,8 @@ This release contains new support for Apollo Server integration.
 
 * Support output of zip package of Apollo Server artifacts (([#70](https://github.com/aws/amazon-neptune-for-graphql/pull/70)), ([#72](https://github.com/aws/amazon-neptune-for-graphql/pull/72)), ([#73](https://github.com/aws/amazon-neptune-for-graphql/pull/73)), ([#75](https://github.com/aws/amazon-neptune-for-graphql/pull/75)), ([#76](https://github.com/aws/amazon-neptune-for-graphql/pull/76)))
 * Allow filtering using string comparison operators `eq`, `contains`, `startsWith`, `endsWith` (([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
+* Added pagination support through the addition of an `offset` argument in query options which can be used in combination with the existing `limit` (([#102](https://github.com/aws/amazon-neptune-for-graphql/pull/102))
+
 
 ### Improvements
 
