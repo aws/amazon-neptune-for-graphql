@@ -2,11 +2,6 @@
     "name": "Filter in nested edge",
     "description": "",
     "graphql": "query MyQuery {\n getNodeAirport(filter: {code: \"SEA\"}) {\n airportRoutesOut(filter: {code: \"LAX\"}) {\n city\n }\n city\n }\n }",
-    "parameters": {
-        "getNodeAirport_Airport_code": "SEA",
-        "getNodeAirport_Airport_airportRoutesOut_code": "LAX"
-      },
-    "resolved": "MATCH (getNodeAirport_Airport:`airport`{code: $getNodeAirport_Airport_code})\nOPTIONAL MATCH (getNodeAirport_Airport)-[getNodeAirport_Airport_airportRoutesOut_route:route]->(getNodeAirport_Airport_airportRoutesOut:`airport`{code: $getNodeAirport_Airport_airportRoutesOut_code})\nWITH getNodeAirport_Airport, collect({city: getNodeAirport_Airport_airportRoutesOut.`city`}) AS getNodeAirport_Airport_airportRoutesOut_collect\nRETURN {airportRoutesOut: getNodeAirport_Airport_airportRoutesOut_collect, city: getNodeAirport_Airport.`city`} LIMIT 1",
     "result":{
         "airportRoutesOut": [
           {

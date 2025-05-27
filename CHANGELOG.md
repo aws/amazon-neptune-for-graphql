@@ -50,3 +50,4 @@ This release contains new support for Apollo Server integration.
 * Set limit on the expensive query which is retrieving distinct to and from labels for edges ([#89](https://github.com/aws/amazon-neptune-for-graphql/pull/89))
 * Added distinct input types for create and update mutations ([#93](https://github.com/aws/amazon-neptune-for-graphql/pull/93))
 * Enabled mutations for the Apollo Server ([#98](https://github.com/aws/amazon-neptune-for-graphql/pull/98))
+* Refactored integration tests to be less vulnerable to resolver logic changes ([#99](https://github.com/aws/amazon-neptune-for-graphql/pull/99))

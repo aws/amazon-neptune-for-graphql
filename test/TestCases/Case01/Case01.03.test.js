@@ -1,6 +1,14 @@
+import { readJSONFile, testResolverQueriesResults } from '../../testLib';
+import fs from "fs";
 
-import { jest } from '@jest/globals';
-import { testResolverQueries } from '../../testLib';
+const casetest = readJSONFile('./test/TestCases/Case01/case.json');
 
-
-await testResolverQueries('./TestCases/Case01/output/output.resolver.graphql.js', './test/TestCases/Case01/queries', './test/TestCases/Case01/output/output.resolver.schema.json');
+try {
+    await testResolverQueriesResults(   './TestCases/Case01/output/output.resolver.graphql.js',
+        './test/TestCases/Case01/queries',
+        './test/TestCases/Case01/output/output.resolver.schema.json',
+        casetest.host,
+        casetest.port);
+} finally {
+    fs.rmSync('./test/TestCases/Case01/output', {recursive: true});
+}

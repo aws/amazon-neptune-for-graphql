@@ -13,6 +13,5 @@
             "--output-resolver-query-sdk"],
     "host": "<AIR_ROUTES_DB_HOST>",
     "port": "<AIR_ROUTES_DB_PORT>",
-    "testOutputFilesSize": ["output.resolver.graphql.js"],
     "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
 }

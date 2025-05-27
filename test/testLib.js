@@ -1,9 +1,8 @@
-
 import axios from 'axios';
 import fs, {readFileSync} from 'fs';
 import AdmZip from 'adm-zip';
 import gql from 'graphql-tag';
-import * as path from "node:path";
+import path from 'path';
 
 const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
 const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
@@ -62,6 +61,14 @@ function checkOutputFilesSize(outputFolder, files, referenceFolder) {
     });
 }
 
+function checkFolderContainsFiles(folderPath, fileNames= []) {
+    fileNames.forEach(fileName => {
+        test(`File ${fileName} exists in output folder ${folderPath}`, async () => {
+            const filePath = path.join(folderPath, fileName);
+            expect(fs.existsSync(filePath)).toBe(true);
+        });
+    });
+}
 
 function checkOutputFilesContent(outputFolder, files, referenceFolder) {    
     files.forEach(file => {        
@@ -125,30 +132,6 @@ async function loadResolver(file) {
     return await import(file);
 }
 
-
-async function testResolverQueries(resolverFile, queriesReferenceFolder, schemaFile) {
-    const resolverModule = await loadResolver(resolverFile);
-    const schemaDataModelJSON = readFileSync(schemaFile, 'utf-8');
-    let schemaModel = JSON.parse(schemaDataModelJSON);
-    resolverModule.initSchema(schemaModel);
-    const queryFiles = fs.readdirSync(queriesReferenceFolder);
-    for (const queryFile of queryFiles) {        
-        const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" + queryFile));
-        if (query.graphql != "") {
-            const result = resolverModule.resolveGraphDBQuery(gql(query.graphql));
-            
-            if (result.query != query.resolved || JSON.stringify(result.parameters, null, 2) != JSON.stringify(query.parameters, null, 2) )
-                console.log(JSON.stringify(result.parameters, null, 2) + '\n' + result.query)
-            
-            test(`Resolver query, ${queryFile}: ${query.name}`, async () => { 
-                expect(JSON.stringify(result.parameters, null, 2)).toBe(JSON.stringify(query.parameters, null, 2));   
-                expect(result.query).toBe(query.resolved);
-            });
-        }
-    }
-}
-
-
 async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, schemaFile, host, port) {
     const resolverModule = await loadResolver(resolverFile);
     const schemaDataModelJSON = readFileSync(schemaFile, 'utf-8');
@@ -158,23 +141,29 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
 
     for (const queryFile of queryFiles) {
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" +queryFile));
-        if (query.graphql != "") {
+        if (query.graphql) {
             const result = resolverModule.resolveGraphDBQuery(gql(query.graphql));
-            const httpResult = await queryNeptune(query.resolved, result.language, host, port, result.parameters);
+            const httpResult = await queryNeptune(result.query, result.language, host, port, result.parameters);
                 
             let data = null;
-            if (result.language == 'opencypher')
+            if (result.language === 'opencypher')
                 data = httpResult.results[0][Object.keys(httpResult.results[0])[0]];
             else {
                 const input = httpResult.result.data;
                 data = JSON.parse(resolverModule.refactorGremlinqueryOutput(input, result.fieldsAlias));                                            
             }
 
-            if (JSON.stringify(data, null, 2) != JSON.stringify(query.result, null, 2))
+            if (JSON.stringify(data, null, 2) !== JSON.stringify(query.result, null, 2))
                 console.log(JSON.stringify(data, null, 2));
             
-            test(`Resolver Neptune result, ${queryFile}: ${query.name}`, async () => {    
-                expect(data).toEqual(query.result);
+            test(`Resolver Neptune result, ${queryFile}: ${query.name}`, async () => {
+                if (Object.keys(query.result).length === 1 && Array.isArray(Object.values(query.result)[0])) { 
+                    // expected result is an object with a single field with an array value
+                    const resultFieldName = Object.keys(query.result)[0];
+                    expect(data[resultFieldName]).toEqual(expect.arrayContaining(query.result[resultFieldName]));
+                } else { 
+                    expect(data).toEqual(query.result);
+                }
             });            
         }
     }
@@ -229,6 +218,7 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
 
 export {
     checkFileContains,
+    checkFolderContainsFiles,
     checkOutputFileContent,
     checkOutputFilesContent,
     checkOutputFilesSize,
@@ -236,6 +226,5 @@ export {
     loadResolver,
     readJSONFile,
     testApolloArtifacts,
-    testResolverQueries,
     testResolverQueriesResults,
 };
