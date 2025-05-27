@@ -863,6 +863,29 @@ test('should resolve query with nested edge limit and offset', () => {
     });
 });
 
+test('should resolve query with nested edge limit and offset from variables', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: 2, offset: 4 } },
+        selectionSetGraphQL: '{code, airportRoutesOut(options: $nestedOptions) {code}}',
+        variables: { nestedOptions: { limit: 3, offset: 6 } }
+    });
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 4 LIMIT 2\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`)\n' +
+            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesOut.`code`})[6..9] ' +
+            'END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'RETURN collect({' +
+            'code: getNodeAirports_Airport.`code`, ' +
+            'airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect' +
+            '})[..2]',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
 test('should resolve query zero limit and offset', () => {
     // zero limit and offset would be odd, but is allowed
     const result = resolveGraphDBQueryFromAppSyncEvent({
