@@ -31,6 +31,7 @@ input _authorInput {
 
 input Options {
     limit: Int
+    offset: Int
 }
 
 input StringScalarFilters {

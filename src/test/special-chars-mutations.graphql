@@ -122,6 +122,7 @@ type Resource_link @alias(property:"resource_link") {
 
 input Options {
   limit:Int
+  offset: Int
 }
 
 input StringScalarFilters {

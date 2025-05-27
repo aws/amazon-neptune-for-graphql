@@ -825,3 +825,102 @@ test('should resolve custom mutation with @graphQuery directive and $input param
         refactorOutput: null
     });
 });
+
+test('should resolve query with limit and offset', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: 10, offset: 3 } },
+        selectionSetGraphQL: '{ code }'
+    });
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 3 LIMIT 10\n' +
+            'RETURN collect({code: getNodeAirports_Airport.`code`})[..10]',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve query with nested edge limit and offset', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: 10, offset: 2 } },
+        selectionSetGraphQL: '{ code, airportRoutesIn(options: {offset: 5, limit: 3}) {code} }'
+    });
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 2 LIMIT 10\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`)\n' +
+            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesIn.`code`})[5..8] ' +
+            'END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
+            'RETURN collect({' +
+            'code: getNodeAirports_Airport.`code`, ' +
+            'airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect' +
+            '})[..10]',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve query with nested edge limit and offset from variables', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: 2, offset: 4 } },
+        selectionSetGraphQL: '{code, airportRoutesOut(options: $nestedOptions) {code}}',
+        variables: { nestedOptions: { limit: 3, offset: 6 } }
+    });
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 4 LIMIT 2\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`)\n' +
+            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesOut.`code`})[6..9] ' +
+            'END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'RETURN collect({' +
+            'code: getNodeAirports_Airport.`code`, ' +
+            'airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect' +
+            '})[..2]',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve query zero limit and offset', () => {
+    // zero limit and offset would be odd, but is allowed
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: 0, offset: 0 } },
+        selectionSetGraphQL: '{ code, airportRoutesIn(options: {offset: 0, limit: 0}) {code} }'
+    });
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 0 LIMIT 0\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`)\n' +
+            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesIn.`code`})[0..0] ' +
+            'END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
+            'RETURN collect({' +
+            'code: getNodeAirports_Airport.`code`, ' +
+            'airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect' +
+            '})[..0]',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should throw error for query with negative limit', () => {
+    expect(() => resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: -1} },
+        selectionSetGraphQL: '{ code }'
+    }).toThrow('The limit value must be a positive integer'));
+});
+
+test('should throw error for query with negative offset', () => {
+    expect(() => resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { offset: -1} },
+        selectionSetGraphQL: '{ code }'
+    }).toThrow('The offset value must be a positive integer'));
+});

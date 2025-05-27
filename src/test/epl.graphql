@@ -74,6 +74,7 @@ type Stadium_edge @alias(property: "STADIUM_EDGE") {
 
 input Options {
     limit: Int
+    offset: Int
 }
 
 input StringScalarFilters {
