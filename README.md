@@ -156,7 +156,7 @@ type Query {
 }
 
 type Mutation {
-  createAirport(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
+  createAirport(input: AirportCreateInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
   addRoute(fromAirportCode:String, toAirportCode:String, dist:Int): Route @graphQuery(statement: "MATCH (from:airport{code:'$fromAirportCode'}), (to:airport{code:'$toAirportCode'}) CREATE (from)-[this:route{dist:$dist}]->(to) RETURN this")
 }
 ```
@@ -206,8 +206,8 @@ type Query {
 }
 
 type Mutation {  
-  createNodeAirport(input: AirportInput!): Airport
-  updateNodeAirport(id: ID!, input: AirportInput!): Airport
+  createNodeAirport(input: AirportCreateInput!): Airport
+  updateNodeAirport(id: ID!, input: AirportUpdateInput!): Airport
   deleteNodeAirport(id: ID!): Boolean  
   connectNodeAirportToNodeAirportEdgeRoute(from: ID!, to: ID!, edge: RouteInput!): Route
   updateEdgeRouteFromAirportToAirport(from: ID!, to: ID!, edge: RouteInput!): Route

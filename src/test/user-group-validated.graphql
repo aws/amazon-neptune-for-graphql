@@ -87,6 +87,14 @@ type GroupEdge {
 
 input Options {
   limit: Int
+  offset: Int
+}
+
+input StringScalarFilters {
+  eq: String
+  contains: String
+  endsWith: String
+  startsWith: String
 }
 
 type Query {

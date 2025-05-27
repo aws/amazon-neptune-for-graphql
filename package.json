@@ -72,6 +72,7 @@
     "ora": "7.0.1",
     "pino": "9.4.0",
     "pino-pretty": "11.2.2",
+    "prettier": "^3.5.3",
     "semver": "7.5.4"
   },
   "devDependencies": {
