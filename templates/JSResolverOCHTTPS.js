@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { astFromValue, buildASTSchema, GraphQLID, GraphQLInputObjectType, typeFromAST } from 'graphql';
+import { astFromValue, buildASTSchema, GraphQLError, GraphQLID, GraphQLInputObjectType, typeFromAST } from 'graphql';
 import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
 
 const useCallSubquery = false;
@@ -449,21 +449,31 @@ function getSchemaFieldInfo(typeName, fieldName, pathName) {
 
 
 function setOptionsInSchemaInfo(fields, schemaInfo) {
-    fields.forEach( field => {
-        if (field.name.value === 'limit' && field.value.kind === 'IntValue') {
-            schemaInfo.argOptionsLimit = Number(field.value.value);
-        }      
-        if (field.name.value === 'offset' && field.value.kind === 'IntValue') {            
-            schemaInfo.argOptionsOffset = Number(field.value.value);
-        }
-        /* TODO 
-        if (field.name.value == 'orderBy') {            
-            schemaInfo.argOptionsOrderBy = field.value.value;
-        }
-        */
-    });
+    fields.filter(field => field.name.value === 'limit' || field.name.value === 'offset')
+        .forEach(field => {
+            const value = extractPositiveIntegerFieldValue(field);
+            if (field.name.value === 'limit') {
+                schemaInfo.argOptionsLimit = value;
+            } else if (field.name.value === 'offset') {
+                schemaInfo.argOptionsOffset = value;
+            }
+            /* TODO 
+            if (field.name.value == 'orderBy') {            
+                schemaInfo.argOptionsOrderBy = field.value.value;
+            }
+            */
+        });
 }
 
+function extractPositiveIntegerFieldValue(field) {
+    if (field.value.kind === 'IntValue') {
+        const value = Number(field.value.value);
+        if (value >= 0) {
+            return value;
+        }
+    }
+    throw new GraphQLError(`The ${field.name.value} value must be a positive integer`);
+}
 
 function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo) {
     if (querySchemaInfo.graphQuery != null) {
@@ -480,8 +490,8 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
         const argsAndWhereClauses = extractQueryArgsAndWhereClauses(selection.arguments, querySchemaInfo);
         const queryArgs = argsAndWhereClauses?.queryArguments.length > 0 ? `{${argsAndWhereClauses.queryArguments.join(',')}}` : '';
         const whereClause = argsAndWhereClauses?.whereClauses.length > 0 ? ` WHERE ${argsAndWhereClauses.whereClauses.join(' AND ')}` : '';
-        const limitClause = querySchemaInfo.argOptionsLimit ? ` LIMIT ${querySchemaInfo.argOptionsLimit}` : '';
-        const skipClause = querySchemaInfo.argOptionsOffset ? ` SKIP ${querySchemaInfo.argOptionsOffset}` : '';
+        const skipClause = typeof querySchemaInfo.argOptionsOffset === 'number' ? ` SKIP ${querySchemaInfo.argOptionsOffset}` : '';
+        const limitClause = typeof querySchemaInfo.argOptionsLimit === 'number' ? ` LIMIT ${querySchemaInfo.argOptionsLimit}` : '';
         const withClause = limitClause || skipClause ? ` WITH ${querySchemaInfo.pathName}${skipClause}${limitClause}` : '';
         matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`${queryArgs})${whereClause}${withClause}`);
     }
@@ -680,17 +690,14 @@ function createTypeFieldStatementAndRecurse(selection, fieldSchemaInfo, lastName
     withStatements[thisWithId].content += '}';
 
     if (schemaTypeInfo.isArray) {
-        const lowerBound = fieldSchemaInfo.argOptionsOffset ?? '';
-        let upperBound = fieldSchemaInfo.argOptionsLimit ?? '';
-        if (lowerBound && upperBound) {
+        const lowerBound = typeof fieldSchemaInfo.argOptionsOffset === 'number' ? fieldSchemaInfo.argOptionsOffset : null;
+        let upperBound = typeof fieldSchemaInfo.argOptionsLimit === 'number' ? fieldSchemaInfo.argOptionsLimit : null;
+        if (lowerBound != null && upperBound != null) {
             upperBound = lowerBound + upperBound;
         }
-        const slice = (lowerBound || upperBound) ? `[${lowerBound}..${upperBound}]` : '';
-        if (fieldSchemaInfo.argOptionsLimit) {
-            withStatements[thisWithId].content += `)${slice} END AS ${schemaTypeInfo.pathName}_collect`;
-        } else {
-            withStatements[thisWithId].content += ') END AS ' + schemaTypeInfo.pathName + '_collect';
-        }
+        const slice = (lowerBound != null || upperBound != null) ? `[${lowerBound ?? ''}..${upperBound ?? ''}]` : '';
+        withStatements[thisWithId].content += `)${slice} END AS ${schemaTypeInfo.pathName}_collect`;
+ 
         let i = withStatements.findIndex(({carryOver}) => carryOver.startsWith(lastNamePath));
 
         if (withStatements[i].content.slice(-2) != ', ' && withStatements[i].content.slice(-1) != '{')
