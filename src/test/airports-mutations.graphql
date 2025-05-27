@@ -9,9 +9,9 @@ type Continent @alias(property:"continent") {
 
 input ContinentInput {
   _id: ID @id
-  type: String
-  code: String
-  desc: String
+  type: StringScalarFilters
+  code: StringScalarFilters
+  desc: StringScalarFilters
 }
 
 input ContinentCreateInput {
@@ -39,9 +39,9 @@ type Country @alias(property:"country") {
 
 input CountryInput {
   _id: ID @id
-  type: String
-  code: String
-  desc: String
+  type: StringScalarFilters
+  code: StringScalarFilters
+  desc: StringScalarFilters
 }
 
 input CountryCreateInput {
@@ -69,11 +69,11 @@ type Version @alias(property:"version") {
 
 input VersionInput {
   _id: ID @id
-  date: String
-  desc: String
-  author: String
-  type: String
-  code: String
+  date: StringScalarFilters
+  desc: StringScalarFilters
+  author: StringScalarFilters
+  type: StringScalarFilters
+  code: StringScalarFilters
 }
 
 input VersionCreateInput {
@@ -118,17 +118,17 @@ type Airport @alias(property:"airport") {
 
 input AirportInput {
   _id: ID @id
-  type: String
-  city: String
-  icao: String
-  code: String
-  country: String
+  type: StringScalarFilters
+  city: StringScalarFilters
+  icao: StringScalarFilters
+  code: StringScalarFilters
+  country: StringScalarFilters
   lat: Float
   longest: Int
   runways: Int
-  desc: String
+  desc: StringScalarFilters
   lon: Float
-  region: String
+  region: StringScalarFilters
   elev: Int
 }
 
@@ -179,6 +179,13 @@ input RouteInput {
 
 input Options {
   limit:Int
+}
+
+input StringScalarFilters {
+  eq: String
+  contains: String
+  endsWith: String
+  startsWith: String
 }
 
 type Query {

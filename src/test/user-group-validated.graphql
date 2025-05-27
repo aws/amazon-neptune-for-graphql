@@ -89,6 +89,13 @@ input Options {
   limit: Int
 }
 
+input StringScalarFilters {
+  eq: String
+  contains: String
+  endsWith: String
+  startsWith: String
+}
+
 type Query {
   getNodeUser(filter: UserInput): User
   getNodeUsers(filter: UserInput, options: Options): [User]
