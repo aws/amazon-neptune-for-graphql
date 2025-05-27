@@ -87,6 +87,7 @@ type GroupEdge {
 
 input Options {
   limit: Int
+  offset: Int
 }
 
 input StringScalarFilters {

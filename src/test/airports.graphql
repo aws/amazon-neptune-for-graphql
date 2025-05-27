@@ -101,6 +101,7 @@ input RouteInput {
 
 input Options {
     limit: Int
+    offset: Int
 }
 
 input StringScalarFilters {

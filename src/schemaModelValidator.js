@@ -383,7 +383,10 @@ function inferGraphDatabaseDirectives(schemaModel) {
         }
     });
 
-    typesToAdd.push(`input Options {\n  limit: Int\n}\n`);
+    typesToAdd.push('input Options {\n' +
+        '\tlimit: Int\n' +
+        '\toffset: Int\n' +
+        '}\n');
     typesToAdd.push('input StringScalarFilters {\n' +
         '\teq: String\n' +
         '\tcontains: String\n' +

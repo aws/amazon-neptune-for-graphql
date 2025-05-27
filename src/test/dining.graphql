@@ -120,6 +120,7 @@ type Friends @alias(property: "friends") {
 
 input Options {
     limit: Int
+    offset: Int
 }
 
 input StringScalarFilters {

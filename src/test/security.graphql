@@ -489,6 +489,7 @@ type Transient_resource_link @alias(property: "transient_resource_link") {
 
 input Options {
     limit: Int
+    offset: Int
 }
 
 input StringScalarFilters {

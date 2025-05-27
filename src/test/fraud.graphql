@@ -133,6 +133,7 @@ type Merchant_edge @alias(property: "MERCHANT_EDGE") {
 
 input Options {
     limit: Int
+    offset: Int
 }
 
 input StringScalarFilters {
