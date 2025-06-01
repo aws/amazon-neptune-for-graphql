@@ -312,8 +312,9 @@ When using custom scalars in your schema (specified via `--input-schema-file`), 
 - Schemas specified by `--input-schema-file` with `--create-update-aws-pipeline` may not contain custom scalars. See [AWS App Sync Scalar types in GraphQL](https://docs.aws.amazon.com/appsync/latest/devguide/scalars.html) for more information.
 - Schemas specified by `--input-schema-file` with `--create-update-apollo-server` or `--create-update-apollo-server-subgraph` which contain custom scalars require manual steps to add custom scalar resolvers for additional query validation.
 - Query fragments are supported for Apollo Server but not yet for App Sync
-- Inline fragments are not yet supported
-  <br>
+- Inline fragments are not yet supported 
+- When working with sort values as variables, Apollo Server may not support an array variable but will accept variables inside an array. For example ```sort: $test``` with variable ```{"test": [{"country": "ASC"}]}``` may produce an error but can be modified to ```sort: [$test]``` with variable ```{"test": {"country": "ASC"}}```.  
+<br>
 
 # Roadmap
 - Gremlin resolver.

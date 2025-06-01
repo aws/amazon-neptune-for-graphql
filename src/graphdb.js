@@ -125,11 +125,17 @@ function formatProperties(properties = [], typeOverrides = new Map()) {
     }).join('');
 }
 
-function graphDBInferenceSchema (graphbSchema, addMutations) {
+function graphDBInferenceSchema (graphdbSchema, addMutations) {
     let r = '';
-    const gdbs = JSON.parse(graphbSchema);
+    const gdbs = JSON.parse(graphdbSchema);
 
     checkForDuplicateNames(gdbs);
+
+    // sorting direction enum
+    r += `enum SortingDirection {\n`;
+    r += '\tASC\n';
+    r += '\tDESC\n';
+    r += '}\n\n';
 
     gdbs.nodeStructures.forEach(node => {
         // node type
@@ -157,8 +163,8 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
                 if (direction.from === node.label && direction.to === node.label){
                     if (direction.relationship === 'MANY-MANY') {
-                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
+                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (direction.relationship === 'ONE-ONE') {
                         r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}Out: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
@@ -170,10 +176,10 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 
                 if (direction.from === node.label && direction.to !== node.label){
                     if (direction.relationship === 'MANY-MANY') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options, sort: [${toCase}Sort!]): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
                     if (direction.relationship === 'ONE-MANY') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options, sort: [${toCase}Sort!]): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
                     if (direction.relationship === 'MANY-ONE') {
                         r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
@@ -184,13 +190,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
                 
                 if (direction.from !== node.label && direction.to === node.label){
                     if (direction.relationship === 'MANY-MANY') {
-                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`                       
+                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options, sort: [${fromCase}Sort!]): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`
                     }
                     if (direction.relationship === 'ONE-MANY') {
                         r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (direction.relationship === 'MANY-ONE') {
-                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
+                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options, sort: [${fromCase}Sort!]): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
@@ -231,6 +237,15 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             r += formatProperties(nodeProperties, new Map([['ID', 'ID! @id']]));
             r += '}\n\n';
         }
+
+        // sort input
+        const sortProperties = nodeProperties.map(prop => ({
+            ...prop,
+            type: 'SortingDirection'
+        }));
+        r += `input ${nodeCase}Sort {\n`;
+        r += formatProperties(sortProperties);
+        r += '}\n\n';
     })
 
     const nodeLabels = new Set(gdbs.nodeStructures.map((n) => n.label));
@@ -305,7 +320,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     gdbs.nodeStructures.forEach(node => {
         let nodeCase = toPascalCase(cleanseLabel(node.label));
         r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
-        r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options): [${nodeCase}]\n`;
+        r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}]\n`;
     });
     r += '}\n\n';
 

@@ -142,7 +142,8 @@ function addNode(def) {
     const idField = getIdFieldWithDirective(def);
 
     // General Input type
-    typesToAdd.push(`input ${name}Input {\n${print(getInputFields(def))}\n}`);
+    const scalarFields = getInputFields(def);
+    typesToAdd.push(`input ${name}Input {\n${print(scalarFields)}\n}`);
 
     // Create Input type
     const createFields = [];
@@ -178,9 +179,20 @@ function addNode(def) {
     }
     typesToAdd.push(`input ${name}UpdateInput {\n${print(updateFields)}\n}`);
 
+    // Sort Input type
+    const sortFields = scalarFields.map(scalarField => ({
+        ...scalarField,
+        type: {
+            kind: 'NamedType',
+            name: {kind: 'Name', value: 'SortDirection'}
+        },
+        directives: []
+    }));
+    typesToAdd.push(`input ${name}Sort {\n${print(sortFields)}\n}`);
+
     // Create query
     queriesToAdd.push(`getNode${name}(filter: ${name}Input): ${name}\n`);
-    queriesToAdd.push(`getNode${name}s(filter: ${name}Input, options: Options): [${name}]\n`);
+    queriesToAdd.push(`getNode${name}s(filter: ${name}Input, options: Options, sort: [${name}Sort!]): [${name}]\n`);
 
     // Create mutation
     mutationsToAdd.push(`createNode${name}(input: ${name}CreateInput!): ${name}\n`);
@@ -215,7 +227,7 @@ function addEdge(from, to, edgeName) {
 }
 
 
-function addFilterOptionsArguments(field) {
+function addFilterOptionsSortArguments(field) {
     // filter
     field.arguments.push({
         kind: 'InputValueDefinition',
@@ -244,6 +256,22 @@ function addFilterOptionsArguments(field) {
             name: {
                 kind: 'Name',
                 value: 'Options'
+            }
+        }
+    });
+
+    // sort
+    field.arguments.push({
+        kind: 'InputValueDefinition',
+        name: {
+            kind: 'Name',
+            value: 'sort'
+        },
+        type: {
+            kind: 'NamedType',
+            name: {
+                kind: 'Name',
+                value: field.type.type.name.value + 'Sort'
             }
         }
     });
@@ -306,6 +334,9 @@ function inferGraphDatabaseDirectives(schemaModel) {
         .filter(definition => definition.kind === 'EnumTypeDefinition')
         .forEach(definition => enumTypes.push(definition.name.value));
 
+    // Generate sort enum
+    typesToAdd.push(`enum SortDirection {\nASC\nDESC\n}`);
+
     schemaModel.definitions
         .filter(definition => definition.kind === 'ScalarTypeDefinition')
         .forEach(definition => customScalarTypes.push(definition.name.value));
@@ -338,7 +369,7 @@ function inferGraphDatabaseDirectives(schemaModel) {
                         {
                             try {
                                 if (field.type.kind === 'ListType')
-                                    addFilterOptionsArguments(field);
+                                    addFilterOptionsSortArguments(field);
                             }
                             catch {}
 

@@ -1,8 +1,13 @@
+enum SortingDirection {
+    ASC
+    DESC
+}
+
 type Image @alias(property: "image") {
     _id: ID! @id
     scan_id: String
     arn: String
-    ec2_cn_instanceTransient_resource_linksIn(filter: Ec2_cn_instanceInput, options: Options): [Ec2_cn_instance] @relationship(edgeType: "transient_resource_link", direction: IN)
+    ec2_cn_instanceTransient_resource_linksIn(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance] @relationship(edgeType: "transient_resource_link", direction: IN)
     transient_resource_link: Transient_resource_link
 }
 
@@ -10,6 +15,12 @@ input ImageInput {
     _id: ID @id
     scan_id: StringScalarFilters
     arn: StringScalarFilters
+}
+
+input ImageSort {
+_id: SortingDirection
+scan_id: SortingDirection
+arn: SortingDirection
 }
 
 type Guardduty_cn_detector @alias(property: "guardduty:detector") {
@@ -34,6 +45,17 @@ input Guardduty_cn_detectorInput {
     finding_publishing_frequency: StringScalarFilters
 }
 
+input Guardduty_cn_detectorSort {
+    _id: SortingDirection
+    created_at: SortingDirection
+    updated_at: SortingDirection
+    scan_id: SortingDirection
+    status: SortingDirection
+    arn: SortingDirection
+    service_role: SortingDirection
+    finding_publishing_frequency: SortingDirection
+}
+
 type Ec2_cn_vpc @alias(property: "ec2:vpc") {
     _id: ID! @id
     scan_id: String
@@ -41,9 +63,9 @@ type Ec2_cn_vpc @alias(property: "ec2:vpc") {
     arn: String
     is_default: String
     cidr_block: String
-    ec2_cn_network_hy_interfaceResource_linksIn(filter: Ec2_cn_network_hy_interfaceInput, options: Options): [Ec2_cn_network_hy_interface] @relationship(edgeType: "resource_link", direction: IN)
-    ec2_cn_subnetResource_linksIn(filter: Ec2_cn_subnetInput, options: Options): [Ec2_cn_subnet] @relationship(edgeType: "resource_link", direction: IN)
-    ec2_cn_instanceResource_linksIn(filter: Ec2_cn_instanceInput, options: Options): [Ec2_cn_instance] @relationship(edgeType: "resource_link", direction: IN)
+    ec2_cn_network_hy_interfaceResource_linksIn(filter: Ec2_cn_network_hy_interfaceInput, options: Options, sort: [Ec2_cn_network_hy_interfaceSort!]): [Ec2_cn_network_hy_interface] @relationship(edgeType: "resource_link", direction: IN)
+    ec2_cn_subnetResource_linksIn(filter: Ec2_cn_subnetInput, options: Options, sort: [Ec2_cn_subnetSort!]): [Ec2_cn_subnet] @relationship(edgeType: "resource_link", direction: IN)
+    ec2_cn_instanceResource_linksIn(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance] @relationship(edgeType: "resource_link", direction: IN)
     resource_link: Resource_link
     transient_resource_link: Transient_resource_link
 }
@@ -57,6 +79,15 @@ input Ec2_cn_vpcInput {
     cidr_block: StringScalarFilters
 }
 
+input Ec2_cn_vpcSort {
+    _id: SortingDirection
+    scan_id: SortingDirection
+    state: SortingDirection
+    arn: SortingDirection
+    is_default: SortingDirection
+    cidr_block: SortingDirection
+}
+
 type Iam_cn_role @alias(property: "iam:role") {
     _id: ID! @id
     name: String
@@ -68,7 +99,7 @@ type Iam_cn_role @alias(property: "iam:role") {
     nassume_role_policy_document_text: String
     scan_id: String
     assume_role_policy_document_dot_version: String @alias(property: "assume_role_policy_document.version")
-    iam_cn_policyResource_linksOut(filter: Iam_cn_policyInput, options: Options): [Iam_cn_policy] @relationship(edgeType: "resource_link", direction: OUT)
+    iam_cn_policyResource_linksOut(filter: Iam_cn_policyInput, options: Options, sort: [Iam_cn_policySort!]): [Iam_cn_policy] @relationship(edgeType: "resource_link", direction: OUT)
     resource_link: Resource_link
 }
 
@@ -83,6 +114,19 @@ input Iam_cn_roleInput {
     nassume_role_policy_document_text: StringScalarFilters
     scan_id: StringScalarFilters
     assume_role_policy_document_dot_version: StringScalarFilters @alias(property: "assume_role_policy_document.version")
+}
+
+input Iam_cn_roleSort {
+    _id: SortingDirection
+    name: SortingDirection
+    principal_dot_aws: SortingDirection @alias(property: "principal.aws")
+    statement_dot_effect: SortingDirection @alias(property: "statement.effect")
+    statement_dot_action: SortingDirection @alias(property: "statement.action")
+    max_session_duration: SortingDirection
+    arn: SortingDirection
+    nassume_role_policy_document_text: SortingDirection
+    scan_id: SortingDirection
+    assume_role_policy_document_dot_version: SortingDirection @alias(property: "assume_role_policy_document.version")
 }
 
 type Ec2_cn_network_hy_interface @alias(property: "ec2:network-interface") {
@@ -113,6 +157,20 @@ input Ec2_cn_network_hy_interfaceInput {
     status: StringScalarFilters
     interface_type: StringScalarFilters
     description: StringScalarFilters
+}
+
+input Ec2_cn_network_hy_interfaceSort {
+    _id: SortingDirection
+    public_ip: SortingDirection
+    public_dns_name: SortingDirection
+    arn: SortingDirection
+    private_ip_address: SortingDirection
+    mac_address: SortingDirection
+    scan_id: SortingDirection
+    private_dns_name: SortingDirection
+    status: SortingDirection
+    interface_type: SortingDirection
+    description: SortingDirection
 }
 
 type Rds_cn_db @alias(property: "rds:db") {
@@ -164,6 +222,30 @@ input Rds_cn_dbInput {
     engine: StringScalarFilters
 }
 
+input Rds_cn_dbSort {
+    _id: SortingDirection
+    storage_type: SortingDirection
+    performance_insights_enabled: SortingDirection
+    dbi_resource_id: SortingDirection
+    scan_id: SortingDirection
+    db_instance_identifier: SortingDirection
+    backup_retention_period: SortingDirection
+    publicly_accessible: SortingDirection
+    multi_az: SortingDirection
+    availability_zone: SortingDirection
+    arn: SortingDirection
+    storage_encrypted: SortingDirection
+    iam_database_authentication_enabled: SortingDirection
+    db_instance_class: SortingDirection
+    endpoint_hosted_zone: SortingDirection
+    deletion_protection: SortingDirection
+    endpoint_address: SortingDirection
+    db_instance_status: SortingDirection
+    endpoint_port: SortingDirection
+    instance_create_time: SortingDirection
+    engine: SortingDirection
+}
+
 type Ec2_cn_instance @alias(property: "ec2:instance") {
     _id: ID! @id
     scan_id: String
@@ -191,6 +273,17 @@ input Ec2_cn_instanceInput {
     arn: StringScalarFilters
     private_ip_address: StringScalarFilters
     launch_time: StringScalarFilters
+}
+
+input Ec2_cn_instanceSort {
+    _id: SortingDirection
+    scan_id: SortingDirection
+    public_ip_address: SortingDirection
+    instance_type: SortingDirection
+    state: SortingDirection
+    arn: SortingDirection
+    private_ip_address: SortingDirection
+    launch_time: SortingDirection
 }
 
 type Iam_cn_user @alias(property: "iam:user") {
@@ -225,6 +318,22 @@ input Iam_cn_userInput {
     access_key_dot_create_date: StringScalarFilters @alias(property: "access_key.create_date")
 }
 
+input Iam_cn_userSort {
+    _id: SortingDirection
+    password_last_used: SortingDirection
+    name: SortingDirection
+    login_profile_dot_password_reset_required: SortingDirection @alias(property: "login_profile.password_reset_required")
+    arn: SortingDirection
+    access_key_dot_access_key_id: SortingDirection @alias(property: "access_key.access_key_id")
+    login_profile_dot_create_date: SortingDirection @alias(property: "login_profile.create_date")
+    scan_id: SortingDirection
+    create_date: SortingDirection
+    access_key_dot_last_used_date: SortingDirection @alias(property: "access_key.last_used_date")
+    access_key_dot_status: SortingDirection @alias(property: "access_key.status")
+    user_id: SortingDirection
+    access_key_dot_create_date: SortingDirection @alias(property: "access_key.create_date")
+}
+
 type Ec2_cn_security_hy_group @alias(property: "ec2:security-group") {
     _id: ID! @id
     egress_rule_dot_ip_protocol: String @alias(property: "egress_rule.ip_protocol")
@@ -240,10 +349,10 @@ type Ec2_cn_security_hy_group @alias(property: "ec2:security-group") {
     ingress_rule_dot_ip_protocol: String @alias(property: "ingress_rule.ip_protocol")
     ingress_rule_dot_to_port: String @alias(property: "ingress_rule.to_port")
     user_id_group_pairs_dot_account_id: String @alias(property: "user_id_group_pairs.account_id")
-    ec2_cn_instanceResource_linksIn(filter: Ec2_cn_instanceInput, options: Options): [Ec2_cn_instance] @relationship(edgeType: "resource_link", direction: IN)
+    ec2_cn_instanceResource_linksIn(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance] @relationship(edgeType: "resource_link", direction: IN)
     ec2_cn_security_hy_groupResource_linkOut: Ec2_cn_security_hy_group @relationship(edgeType: "resource_link", direction: OUT)
     ec2_cn_security_hy_groupResource_linkIn: Ec2_cn_security_hy_group @relationship(edgeType: "resource_link", direction: IN)
-    tagTaggedsOut(filter: TagInput, options: Options): [Tag] @relationship(edgeType: "tagged", direction: OUT)
+    tagTaggedsOut(filter: TagInput, options: Options, sort: [TagSort!]): [Tag] @relationship(edgeType: "tagged", direction: OUT)
     resource_link: Resource_link
     tagged: Tagged
     transient_resource_link: Transient_resource_link
@@ -266,6 +375,23 @@ input Ec2_cn_security_hy_groupInput {
     user_id_group_pairs_dot_account_id: StringScalarFilters @alias(property: "user_id_group_pairs.account_id")
 }
 
+input Ec2_cn_security_hy_groupSort {
+    _id: SortingDirection
+    egress_rule_dot_ip_protocol: SortingDirection @alias(property: "egress_rule.ip_protocol")
+    name: SortingDirection
+    ip_range_dot_first_ip: SortingDirection @alias(property: "ip_range.first_ip")
+    arn: SortingDirection
+    egress_rule_dot_to_port: SortingDirection @alias(property: "egress_rule.to_port")
+    scan_id: SortingDirection
+    ip_range_dot_last_ip: SortingDirection @alias(property: "ip_range.last_ip")
+    egress_rule_dot_from_port: SortingDirection @alias(property: "egress_rule.from_port")
+    ip_range_dot_cidr_ip: SortingDirection @alias(property: "ip_range.cidr_ip")
+    ingress_rule_dot_from_port: SortingDirection @alias(property: "ingress_rule.from_port")
+    ingress_rule_dot_ip_protocol: SortingDirection @alias(property: "ingress_rule.ip_protocol")
+    ingress_rule_dot_to_port: SortingDirection @alias(property: "ingress_rule.to_port")
+    user_id_group_pairs_dot_account_id: SortingDirection @alias(property: "user_id_group_pairs.account_id")
+}
+
 type Ec2_cn_internet_hy_gateway @alias(property: "ec2:internet-gateway") {
     _id: ID! @id
     arn: String
@@ -281,6 +407,14 @@ input Ec2_cn_internet_hy_gatewayInput {
     scan_id: StringScalarFilters
     owner_id: StringScalarFilters
     attachment_dot_state: StringScalarFilters @alias(property: "attachment.state")
+}
+
+input Ec2_cn_internet_hy_gatewaySort {
+    _id: SortingDirection
+    arn: SortingDirection
+    scan_id: SortingDirection
+    owner_id: SortingDirection
+    attachment_dot_state: SortingDirection @alias(property: "attachment.state")
 }
 
 type Events_cn_rule @alias(property: "events:rule") {
@@ -305,6 +439,17 @@ input Events_cn_ruleInput {
     state: StringScalarFilters
 }
 
+input Events_cn_ruleSort {
+    _id: SortingDirection
+    arn: SortingDirection
+    name: SortingDirection
+    scan_id: SortingDirection
+    target_dot_arn: SortingDirection @alias(property: "target.arn")
+    target_dot_name: SortingDirection @alias(property: "target.name")
+    event_pattern: SortingDirection
+    state: SortingDirection
+}
+
 type Ec2_cn_subnet @alias(property: "ec2:subnet") {
     _id: ID! @id
     scan_id: String
@@ -313,7 +458,7 @@ type Ec2_cn_subnet @alias(property: "ec2:subnet") {
     arn: String
     last_ip: String
     cidr_block: String
-    ec2_cn_instanceResource_linksIn(filter: Ec2_cn_instanceInput, options: Options): [Ec2_cn_instance] @relationship(edgeType: "resource_link", direction: IN)
+    ec2_cn_instanceResource_linksIn(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance] @relationship(edgeType: "resource_link", direction: IN)
     ec2_cn_vpcResource_linkOut: Ec2_cn_vpc @relationship(edgeType: "resource_link", direction: OUT)
     resource_link: Resource_link
 }
@@ -326,6 +471,16 @@ input Ec2_cn_subnetInput {
     arn: StringScalarFilters
     last_ip: StringScalarFilters
     cidr_block: StringScalarFilters
+}
+
+input Ec2_cn_subnetSort {
+    _id: SortingDirection
+    scan_id: SortingDirection
+    first_ip: SortingDirection
+    state: SortingDirection
+    arn: SortingDirection
+    last_ip: SortingDirection
+    cidr_block: SortingDirection
 }
 
 type Iam_cn_instance_hy_profile @alias(property: "iam:instance-profile") {
@@ -344,6 +499,13 @@ input Iam_cn_instance_hy_profileInput {
     scan_id: StringScalarFilters
 }
 
+input Iam_cn_instance_hy_profileSort {
+    _id: SortingDirection
+    arn: SortingDirection
+    name: SortingDirection
+    scan_id: SortingDirection
+}
+
 type Iam_cn_policy @alias(property: "iam:policy") {
     _id: ID! @id
     default_version_policy_document_text: String
@@ -352,7 +514,7 @@ type Iam_cn_policy @alias(property: "iam:policy") {
     scan_id: String
     arn: String
     policy_id: String
-    iam_cn_roleResource_linksIn(filter: Iam_cn_roleInput, options: Options): [Iam_cn_role] @relationship(edgeType: "resource_link", direction: IN)
+    iam_cn_roleResource_linksIn(filter: Iam_cn_roleInput, options: Options, sort: [Iam_cn_roleSort!]): [Iam_cn_role] @relationship(edgeType: "resource_link", direction: IN)
     resource_link: Resource_link
 }
 
@@ -364,6 +526,16 @@ input Iam_cn_policyInput {
     scan_id: StringScalarFilters
     arn: StringScalarFilters
     policy_id: StringScalarFilters
+}
+
+input Iam_cn_policySort {
+    _id: SortingDirection
+    default_version_policy_document_text: SortingDirection
+    default_version_id: SortingDirection
+    name: SortingDirection
+    scan_id: SortingDirection
+    arn: SortingDirection
+    policy_id: SortingDirection
 }
 
 type S3_cn_bucket @alias(property: "s3:bucket") {
@@ -384,6 +556,15 @@ input S3_cn_bucketInput {
     arn: StringScalarFilters
 }
 
+input S3_cn_bucketSort {
+    _id: SortingDirection
+    name: SortingDirection
+    scan_id: SortingDirection
+    server_side_default_encryption_rule_dot_algorithm: SortingDirection @alias(property: "server_side_default_encryption_rule.algorithm")
+    creation_date: SortingDirection
+    arn: SortingDirection
+}
+
 type Tag @alias(property: "tag") {
     _id: ID! @id
     scan_id: String
@@ -396,6 +577,12 @@ input TagInput {
     _id: ID @id
     scan_id: StringScalarFilters
     Name: StringScalarFilters
+}
+
+input TagSort {
+    _id: SortingDirection
+    scan_id: SortingDirection
+    Name: SortingDirection
 }
 
 type Kms_cn_key @alias(property: "kms:key") {
@@ -411,6 +598,13 @@ input Kms_cn_keyInput {
     arn: StringScalarFilters
     scan_id: StringScalarFilters
     key_id: StringScalarFilters
+}
+
+input Kms_cn_keySort {
+    _id: SortingDirection
+    arn: SortingDirection
+    scan_id: SortingDirection
+    key_id: SortingDirection
 }
 
 type Ec2_cn_volume @alias(property: "ec2:volume") {
@@ -444,6 +638,21 @@ input Ec2_cn_volumeInput {
     attachment_dot_delete_on_termination: StringScalarFilters @alias(property: "attachment.delete_on_termination")
 }
 
+input Ec2_cn_volumeSort {
+    _id: SortingDirection
+    encrypted: SortingDirection
+    availability_zone: SortingDirection
+    state: SortingDirection
+    arn: SortingDirection
+    attachment_dot_attach_time: SortingDirection @alias(property: "attachment.attach_time")
+    volume_type: SortingDirection
+    scan_id: SortingDirection
+    attachment_dot_state: SortingDirection @alias(property: "attachment.state")
+    size: SortingDirection
+    create_time: SortingDirection
+    attachment_dot_delete_on_termination: SortingDirection @alias(property: "attachment.delete_on_termination")
+}
+
 type Ec2_cn_route_hy_table @alias(property: "ec2:route-table") {
     _id: ID! @id
     route_dot_destination_cidr_block: String @alias(property: "route.destination_cidr_block")
@@ -475,6 +684,21 @@ input Ec2_cn_route_hy_tableInput {
     association_dot_route_table_association_id: StringScalarFilters @alias(property: "association.route_table_association_id")
 }
 
+input Ec2_cn_route_hy_tableSort {
+    _id: SortingDirection
+    route_dot_destination_cidr_block: SortingDirection @alias(property: "route.destination_cidr_block")
+    arn: SortingDirection
+    route_table_id: SortingDirection
+    association_dot_route_table_id: SortingDirection @alias(property: "association.route_table_id")
+    route_dot_origin: SortingDirection @alias(property: "route.origin")
+    route_dot_gateway_id: SortingDirection @alias(property: "route.gateway_id")
+    scan_id: SortingDirection
+    owner_id: SortingDirection
+    association_dot_main: SortingDirection @alias(property: "association.main")
+    route_dot_state: SortingDirection @alias(property: "route.state")
+    association_dot_route_table_association_id: SortingDirection @alias(property: "association.route_table_association_id")
+}
+
 type Resource_link @alias(property: "resource_link") {
     _id: ID! @id
 }
@@ -501,43 +725,43 @@ input StringScalarFilters {
 
 type Query {
     getNodeImage(filter: ImageInput): Image
-    getNodeImages(filter: ImageInput, options: Options): [Image]
+    getNodeImages(filter: ImageInput, options: Options, sort: [ImageSort!]): [Image]
     getNodeGuardduty_cn_detector(filter: Guardduty_cn_detectorInput): Guardduty_cn_detector
-    getNodeGuardduty_cn_detectors(filter: Guardduty_cn_detectorInput, options: Options): [Guardduty_cn_detector]
+    getNodeGuardduty_cn_detectors(filter: Guardduty_cn_detectorInput, options: Options, sort: [Guardduty_cn_detectorSort!]): [Guardduty_cn_detector]
     getNodeEc2_cn_vpc(filter: Ec2_cn_vpcInput): Ec2_cn_vpc
-    getNodeEc2_cn_vpcs(filter: Ec2_cn_vpcInput, options: Options): [Ec2_cn_vpc]
+    getNodeEc2_cn_vpcs(filter: Ec2_cn_vpcInput, options: Options, sort: [Ec2_cn_vpcSort!]): [Ec2_cn_vpc]
     getNodeIam_cn_role(filter: Iam_cn_roleInput): Iam_cn_role
-    getNodeIam_cn_roles(filter: Iam_cn_roleInput, options: Options): [Iam_cn_role]
+    getNodeIam_cn_roles(filter: Iam_cn_roleInput, options: Options, sort: [Iam_cn_roleSort!]): [Iam_cn_role]
     getNodeEc2_cn_network_hy_interface(filter: Ec2_cn_network_hy_interfaceInput): Ec2_cn_network_hy_interface
-    getNodeEc2_cn_network_hy_interfaces(filter: Ec2_cn_network_hy_interfaceInput, options: Options): [Ec2_cn_network_hy_interface]
+    getNodeEc2_cn_network_hy_interfaces(filter: Ec2_cn_network_hy_interfaceInput, options: Options, sort: [Ec2_cn_network_hy_interfaceSort!]): [Ec2_cn_network_hy_interface]
     getNodeRds_cn_db(filter: Rds_cn_dbInput): Rds_cn_db
-    getNodeRds_cn_dbs(filter: Rds_cn_dbInput, options: Options): [Rds_cn_db]
+    getNodeRds_cn_dbs(filter: Rds_cn_dbInput, options: Options, sort: [Rds_cn_dbSort!]): [Rds_cn_db]
     getNodeEc2_cn_instance(filter: Ec2_cn_instanceInput): Ec2_cn_instance
-    getNodeEc2_cn_instances(filter: Ec2_cn_instanceInput, options: Options): [Ec2_cn_instance]
+    getNodeEc2_cn_instances(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance]
     getNodeIam_cn_user(filter: Iam_cn_userInput): Iam_cn_user
-    getNodeIam_cn_users(filter: Iam_cn_userInput, options: Options): [Iam_cn_user]
+    getNodeIam_cn_users(filter: Iam_cn_userInput, options: Options, sort: [Iam_cn_userSort!]): [Iam_cn_user]
     getNodeEc2_cn_security_hy_group(filter: Ec2_cn_security_hy_groupInput): Ec2_cn_security_hy_group
-    getNodeEc2_cn_security_hy_groups(filter: Ec2_cn_security_hy_groupInput, options: Options): [Ec2_cn_security_hy_group]
+    getNodeEc2_cn_security_hy_groups(filter: Ec2_cn_security_hy_groupInput, options: Options, sort: [Ec2_cn_security_hy_groupSort!]): [Ec2_cn_security_hy_group]
     getNodeEc2_cn_internet_hy_gateway(filter: Ec2_cn_internet_hy_gatewayInput): Ec2_cn_internet_hy_gateway
-    getNodeEc2_cn_internet_hy_gateways(filter: Ec2_cn_internet_hy_gatewayInput, options: Options): [Ec2_cn_internet_hy_gateway]
+    getNodeEc2_cn_internet_hy_gateways(filter: Ec2_cn_internet_hy_gatewayInput, options: Options, sort: [Ec2_cn_internet_hy_gatewaySort!]): [Ec2_cn_internet_hy_gateway]
     getNodeEvents_cn_rule(filter: Events_cn_ruleInput): Events_cn_rule
-    getNodeEvents_cn_rules(filter: Events_cn_ruleInput, options: Options): [Events_cn_rule]
+    getNodeEvents_cn_rules(filter: Events_cn_ruleInput, options: Options, sort: [Events_cn_ruleSort!]): [Events_cn_rule]
     getNodeEc2_cn_subnet(filter: Ec2_cn_subnetInput): Ec2_cn_subnet
-    getNodeEc2_cn_subnets(filter: Ec2_cn_subnetInput, options: Options): [Ec2_cn_subnet]
+    getNodeEc2_cn_subnets(filter: Ec2_cn_subnetInput, options: Options, sort: [Ec2_cn_subnetSort!]): [Ec2_cn_subnet]
     getNodeIam_cn_instance_hy_profile(filter: Iam_cn_instance_hy_profileInput): Iam_cn_instance_hy_profile
-    getNodeIam_cn_instance_hy_profiles(filter: Iam_cn_instance_hy_profileInput, options: Options): [Iam_cn_instance_hy_profile]
+    getNodeIam_cn_instance_hy_profiles(filter: Iam_cn_instance_hy_profileInput, options: Options, sort: [Iam_cn_instance_hy_profileSort!]): [Iam_cn_instance_hy_profile]
     getNodeIam_cn_policy(filter: Iam_cn_policyInput): Iam_cn_policy
-    getNodeIam_cn_policys(filter: Iam_cn_policyInput, options: Options): [Iam_cn_policy]
+    getNodeIam_cn_policys(filter: Iam_cn_policyInput, options: Options, sort: [Iam_cn_policySort!]): [Iam_cn_policy]
     getNodeS3_cn_bucket(filter: S3_cn_bucketInput): S3_cn_bucket
-    getNodeS3_cn_buckets(filter: S3_cn_bucketInput, options: Options): [S3_cn_bucket]
+    getNodeS3_cn_buckets(filter: S3_cn_bucketInput, options: Options, sort: [S3_cn_bucketSort!]): [S3_cn_bucket]
     getNodeTag(filter: TagInput): Tag
-    getNodeTags(filter: TagInput, options: Options): [Tag]
+    getNodeTags(filter: TagInput, options: Options, sort: [TagSort!]): [Tag]
     getNodeKms_cn_key(filter: Kms_cn_keyInput): Kms_cn_key
-    getNodeKms_cn_keys(filter: Kms_cn_keyInput, options: Options): [Kms_cn_key]
+    getNodeKms_cn_keys(filter: Kms_cn_keyInput, options: Options, sort: [Kms_cn_keySort!]): [Kms_cn_key]
     getNodeEc2_cn_volume(filter: Ec2_cn_volumeInput): Ec2_cn_volume
-    getNodeEc2_cn_volumes(filter: Ec2_cn_volumeInput, options: Options): [Ec2_cn_volume]
+    getNodeEc2_cn_volumes(filter: Ec2_cn_volumeInput, options: Options, sort: [Ec2_cn_volumeSort!]): [Ec2_cn_volume]
     getNodeEc2_cn_route_hy_table(filter: Ec2_cn_route_hy_tableInput): Ec2_cn_route_hy_table
-    getNodeEc2_cn_route_hy_tables(filter: Ec2_cn_route_hy_tableInput, options: Options): [Ec2_cn_route_hy_table]
+    getNodeEc2_cn_route_hy_tables(filter: Ec2_cn_route_hy_tableInput, options: Options, sort: [Ec2_cn_route_hy_tableSort!]): [Ec2_cn_route_hy_table]
 }
 
 schema {

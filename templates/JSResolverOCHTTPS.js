@@ -229,9 +229,9 @@ function getSchemaQueryInfo(name) {
         graphQuery: null,
         args: [],
         graphDBIdArgName: '',
+        argOrderBy: [],
         argOptionsLimit: null,
         argOptionsOffset: null,
-        argOptionsOrderBy: null,
     };
 
     schemaDataModel.definitions.forEach(def => {
@@ -287,6 +287,8 @@ function getSchemaQueryInfo(name) {
                         getSchemaInputTypeArgs(arg.type.name.value, r);
                     } else if (arg.type.kind === 'NonNullType') {
                         getSchemaInputTypeArgs(arg.type.type.name.value, r);
+                    } else if (arg.type.kind === 'ListType') {
+                        getSchemaInputTypeArgs(arg.type.type.type.name.value, r);
                     } else if (arg.type.type.name.value === 'String' || arg.type.type.name.value === 'Int' || arg.type.type.name.value === 'ID') {
                         r.args.push({name: arg.name.value, type: arg.type.type.name.value});
                     } else {
@@ -376,9 +378,9 @@ function getSchemaFieldInfo(typeName, fieldName, pathName) {
         relationship: null,
         args:[],
         graphDBIdArgName: '',
+        argOrderBy: [],
         argOptionsLimit: null,
         argOptionsOffset: null,
-        argOptionsOrderBy: null,
     }
 
     schemaDataModel.definitions.forEach(def => {
@@ -424,6 +426,8 @@ function getSchemaFieldInfo(typeName, fieldName, pathName) {
                                     getSchemaInputTypeArgs(arg.type.name.value, r);
                                 } else if (arg.type.kind === 'NonNullType') {
                                     getSchemaInputTypeArgs(arg.type.type.name.value, r);
+                                } else if (arg.type.kind === 'ListType') {
+                                    getSchemaInputTypeArgs(arg.type.type.type.name.value, r);
                                 } else if (arg.type.type.name.value === 'String' || arg.type.type.name.value === 'Int' || arg.type.type.name.value === 'ID') {
                                     r.args.push({name: arg.name.value, type: arg.type.type.name.value});
                                 } else {
@@ -431,7 +435,6 @@ function getSchemaFieldInfo(typeName, fieldName, pathName) {
                                 }
                             });
                         }
-
                     }
                 });
 
@@ -482,6 +485,20 @@ function extractPositiveIntegerFieldValue(field) {
     throw new GraphQLError(`The ${field.name.value} value must be a positive integer`);
 }
 
+function setSortInfo(fields, schemaInfo) {
+    if (fields.length > 1) {
+        // too many keys
+        throw new Error('Cannot have more than one field in a single sort object. Please use multiple single-field sort objects instead');
+    }
+
+    if (fields[0]) {
+        const field = fields[0];
+        const fieldName = field.name.value;
+        const direction = field.value.value.toUpperCase();
+        schemaInfo.argOrderBy.push({field: fieldName, direction: direction});
+    }
+}
+
 function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo) {
     if (querySchemaInfo.graphQuery != null) {
         var gq = querySchemaInfo.graphQuery.replaceAll('this', querySchemaInfo.pathName);
@@ -498,9 +515,10 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
         const argsAndWhereClauses = extractQueryArgsAndWhereClauses(selection.arguments, querySchemaInfo);
         const queryArgs = argsAndWhereClauses?.queryArguments.length > 0 ? `{${argsAndWhereClauses.queryArguments.join(',')}}` : '';
         const whereClause = argsAndWhereClauses?.whereClauses.length > 0 ? ` WHERE ${argsAndWhereClauses.whereClauses.join(' AND ')}` : '';
+        const sortClause = querySchemaInfo.argOrderBy.length > 0 ? ` ORDER BY ${querySchemaInfo.argOrderBy.map(orderBy => `${orderBy.field === querySchemaInfo.graphDBIdArgName ? `ID(${querySchemaInfo.pathName})` : `${querySchemaInfo.pathName}.${orderBy.field}`} ${orderBy.direction}`).join(', ')}` : '';
         const skipClause = typeof querySchemaInfo.argOptionsOffset === 'number' ? ` SKIP ${querySchemaInfo.argOptionsOffset}` : '';
         const limitClause = typeof querySchemaInfo.argOptionsLimit === 'number' ? ` LIMIT ${querySchemaInfo.argOptionsLimit}` : '';
-        const withClause = limitClause || skipClause ? ` WITH ${querySchemaInfo.pathName}${skipClause}${limitClause}` : '';
+        const withClause = sortClause || limitClause || skipClause ? ` WITH ${querySchemaInfo.pathName}${sortClause}${skipClause}${limitClause}` : '';
         matchStatements.push(`MATCH (${querySchemaInfo.pathName}:\`${querySchemaInfo.returnTypeAlias}\`${queryArgs})${whereClause}${withClause}`);
     }
 
@@ -545,6 +563,12 @@ function extractQueryArgsAndWhereClauses(selectionArguments, querySchemaInfo) {
         } else if (selectionArgument.name?.value === 'options' && selectionArgument.value?.kind === 'ObjectValue') {
             // TODO change to set limit value on the returned object instead of mutating the querySchemaInfo
             setOptionsInSchemaInfo(selectionArgument.value.fields, querySchemaInfo);
+        } else if (selectionArgument.name?.value === 'sort' && selectionArgument.value?.kind === 'ListValue') {
+            selectionArgument.value.values.forEach(sortItem => {
+                if (sortItem.kind === 'ObjectValue') {
+                    setSortInfo(sortItem.fields, querySchemaInfo);
+                }
+            })
         } else if (selectionArgument.name?.value && selectionArgument.value?.value) {
             queryArguments.push(`${selectionArgument.name.value}:'${selectionArgument.value.value}'`);
         }
@@ -666,7 +690,7 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
 function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNamePath, lastType, variables = {}, fragments = {}}) {
     const schemaTypeInfo = getSchemaTypeInfo(lastType, fieldSchemaInfo.name, lastNamePath);
 
-    // check if the field has is a function with parameters, look for filters and options
+    // check if the field is a function with parameters, look for filters, options, and sort
     if (selection.arguments !== undefined) {
         selection.arguments.forEach(arg => {
             if (arg.value.kind === 'ObjectValue' && arg.name.value === 'options')
@@ -677,14 +701,16 @@ function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNam
     const argsAndWhereClauses = extractQueryArgsAndWhereClauses(selection.arguments, fieldSchemaInfo);
     const queryArgs = argsAndWhereClauses.queryArguments?.length > 0 ? `{${argsAndWhereClauses.queryArguments.join(',')}}` : '';
     const whereClause = argsAndWhereClauses.whereClauses?.length > 0 ? ` WHERE ${argsAndWhereClauses.whereClauses.join(' AND ')}` : '';
+    const orderByClause = fieldSchemaInfo.argOrderBy?.length ? ` WITH ${lastNamePath}, ${schemaTypeInfo.pathName} ORDER BY ${fieldSchemaInfo.argOrderBy.map(orderBy => `${orderBy.field === fieldSchemaInfo.graphDBIdArgName ? `ID(${schemaTypeInfo.pathName})` : `${schemaTypeInfo.pathName}.${orderBy.field}`} ${orderBy.direction}`).join(', ')}` : '';
 
     if (schemaTypeInfo.isRelationship) {
-        if (schemaTypeInfo.relationship.direction === 'IN') {
-            matchStatements.push(`OPTIONAL MATCH (${lastNamePath})<-[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]-(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArgs})${whereClause}`);
-        } else {
-            matchStatements.push(`OPTIONAL MATCH (${lastNamePath})-[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]->(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArgs})${whereClause}`);
+        const arrows = ['<-', '-', '->'];
+        if (schemaTypeInfo.relationship.direction !== 'IN') {
+            arrows.shift();
         }
+        matchStatements.push(`OPTIONAL MATCH (${lastNamePath})${arrows[0]}[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]${arrows[1]}(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArgs})${whereClause}${orderByClause}`);
     }
+
     const thisWithId = withStatements.push({carryOver: schemaTypeInfo.pathName, inLevel: '', content: ''}) - 1;
 
     if (schemaTypeInfo.isArray) {
@@ -736,7 +762,6 @@ function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNam
             withStatements[p].inLevel += schemaTypeInfo.pathName + '_one, ';
         }
     }
-
 }
 
 
@@ -971,7 +996,7 @@ function replaceFragmentSelections(selection, fragments) {
  */
 function extractCypherFieldsFromArgumentFields(queryArgumentFields, schemaInfo) {
     return queryArgumentFields.reduce((cypherFields, field) => {
-        const matchingArg = schemaInfo.args?.find(arg => field.name?.value === arg.name)
+        const matchingArg = schemaInfo.args?.find(arg => field.name?.value === arg.name);
         if (matchingArg) {
             let value = field.value?.value;
             if (field.value?.kind === 'IntValue' || field.value?.kind === 'FloatValue') {
