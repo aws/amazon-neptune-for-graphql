@@ -148,6 +148,7 @@ type Written_by @alias(property: "written_by") {
 
 input Options {
     limit: Int
+    offset: Int
 }
 
 input StringScalarFilters {

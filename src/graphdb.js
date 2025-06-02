@@ -290,6 +290,7 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     // input options
     r += `input Options {\n`;
     r += `\tlimit:Int\n`;
+    r += `\toffset:Int\n`;
     r += '}\n\n';
     
     r += 'input StringScalarFilters {\n' +

@@ -102,6 +102,7 @@ dist: Int
 
 input Options {
 limit:Int
+offset:Int
 }
 
 input StringScalarFilters {
