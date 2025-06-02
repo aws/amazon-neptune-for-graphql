@@ -74,6 +74,57 @@ function cleanseLabel(label) {
         .replaceAll("-", "_hy_");
 }
 
+/**
+ * Extracts node properties, ensuring each node has an ID property and any properties with special characters are 
+ * sanitized and aliased accordingly.
+ *
+ * @param {Object} node - The node object containing properties
+ * @param {Array<Object>} node.properties - Array of property objects
+ * @param {string} node.properties[].name - Property name
+ * @param {string} node.properties[].type - Property type
+ * @returns {Array<Object>} Formatted property objects with name, optional alias, and type
+ */
+function extractNodeProperties(node= {}) {
+    if (!node?.properties) {
+        return [];
+    }
+    const nodeProperties = node.properties.map(property => {
+        const sanitizedLabel = cleanseLabel(property.name);
+        return {
+            name: sanitizedLabel,
+            alias: property.name !== sanitizedLabel ? property.name : null,
+            type: property.name === 'id' ? 'ID' : property.type
+        };
+    });
+    if (!nodeProperties.some(property => property.type === 'ID')) {
+        nodeProperties.unshift({
+            name: '_id',
+            alias: null,
+            type: 'ID'
+        });
+    }
+    return nodeProperties;
+}
+
+/**
+ * Formats an array of property objects into a GraphQL schema string representation.
+ * Each property is formatted with its name, type, and optional alias.
+ *
+ * @param {Array<Object>} [properties=[]] - Array of property objects to format
+ * @param {string} properties[].name - The name of the property
+ * @param {string} properties[].type - The data type of the property
+ * @param {string} [properties[].alias] - Optional alias for the property
+ * @param {Map<string, string>} [typeOverrides=new Map()] - Map of type overrides where key is the original type and value is the new type
+ * @returns {string} Formatted string with each property on a new line, indented with a tab
+ */
+function formatProperties(properties = [], typeOverrides = new Map()) {
+    return properties.map(({ name, type, alias }) => {
+        const resolvedType = typeOverrides.get(type) ?? type;
+        const resolvedAlias = alias? ` @alias(property: "${alias}")` : '';
+        return `\t${name}: ${resolvedType}${resolvedAlias}\n`;
+    }).join('');
+}
+
 function graphDBInferenceSchema (graphbSchema, addMutations) {
     let r = '';
     const gdbs = JSON.parse(graphbSchema);
@@ -81,21 +132,6 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     checkForDuplicateNames(gdbs);
 
     gdbs.nodeStructures.forEach(node => {
-        // map with key=node property name and value=formatted string containing property name, type and optional alias
-        const nodePropertiesMap = new Map(node.properties.map(property => {
-            if (property.name === 'id') {
-                return [property.name, `\tid: ID\n`];
-            }
-            const sanitizedLabel = cleanseLabel(property.name);
-            let alias = '';
-            if (property.name !== sanitizedLabel) {
-                alias = ` @alias(property: "${property.name}")`;
-            }
-            return [property.name, `\t${sanitizedLabel}: ${property.type}${alias}\n`];
-        }));
-
-        const formattedNodeProperties = Array.from(nodePropertiesMap.values()).join('');
-
         // node type
         let nodeCase = cleanseLabel(node.label);
         if (changeCase) {
@@ -108,9 +144,9 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
         else {
             r += `type ${nodeCase} {\n`;
         }
-        
-        r += '\t_id: ID! @id\n';
-        r += formattedNodeProperties;
+
+        const nodeProperties = extractNodeProperties(node);
+        r += formatProperties(nodeProperties, new Map([['ID', 'ID! @id']]));
         
         let edgeTypes = [];
         gdbs.edgeStructures.forEach(edge => {            
@@ -162,10 +198,10 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
             });
         });
 
-        // Add edge types
+        // Add edge field types
         edgeTypes.forEach((edgeType) => {
             // resolve any collision with node properties with the same name by adding an underscore prefix
-            const aliasedEdgeType = nodePropertiesMap.has(edgeType)
+            const aliasedEdgeType = nodeProperties.some(property => property.name === edgeType)
                 ? `_${edgeType}`
                 : edgeType;
 
@@ -181,21 +217,18 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
 
         // input for the node type
         r += `input ${nodeCase}Input {\n`;
-        r += '\t_id: ID @id\n';
-        r += formattedNodeProperties;
+        r += formatProperties(nodeProperties, new Map([['ID', 'ID @id'], ['String', 'StringScalarFilters']]));
         r += '}\n\n';
-
+        
         if (addMutations) {
             // Create input for mutations
             r += `input ${nodeCase}CreateInput {\n`;
-            r += '\t_id: ID @id\n';
-            r += formattedNodeProperties;
+            r += formatProperties(nodeProperties, new Map([['ID', 'ID @id']]));
             r += '}\n\n';
 
             // Update input for mutations
             r += `input ${nodeCase}UpdateInput {\n`;
-            r += '\t_id: ID! @id\n';
-            r += formattedNodeProperties;
+            r += formatProperties(nodeProperties, new Map([['ID', 'ID! @id']]));
             r += '}\n\n';
         }
     })
@@ -258,6 +291,13 @@ function graphDBInferenceSchema (graphbSchema, addMutations) {
     r += `input Options {\n`;
     r += `\tlimit:Int\n`;
     r += '}\n\n';
+    
+    r += 'input StringScalarFilters {\n' +
+        '\teq: String\n' +
+        '\tcontains: String\n' +
+        '\tendsWith: String\n' +
+        '\tstartsWith: String\n' +
+        '}\n\n';
 
     // query
     r += `type Query {\n`;

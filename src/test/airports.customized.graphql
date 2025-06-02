@@ -9,9 +9,9 @@ contains:Contains
 
 input ContinentInput {
 _id: ID @id
-type: String
-code: String
-desc: String
+type: StringScalarFilters
+code: StringScalarFilters
+desc: StringScalarFilters
 }
 
 type Country @alias(property:"country") {
@@ -25,9 +25,9 @@ contains:Contains
 
 input CountryInput {
 _id: ID @id
-type: String
-code: String
-desc: String
+type: StringScalarFilters
+code: StringScalarFilters
+desc: StringScalarFilters
 }
 
 type Version @alias(property:"version") {
@@ -41,11 +41,11 @@ code: String
 
 input VersionInput {
 _id: ID @id
-date: String
-desc: String
-author: String
-type: String
-code: String
+date: StringScalarFilters
+desc: StringScalarFilters
+author: StringScalarFilters
+type: StringScalarFilters
+code: StringScalarFilters
 }
 
 type Airport @alias(property:"airport") {
@@ -73,17 +73,17 @@ route:Route
 
 input AirportInput {
 _id: ID @id
-type: String
-city: String
-icao: String
-code: String
-country: String
+type: StringScalarFilters
+city: StringScalarFilters
+icao: StringScalarFilters
+code: StringScalarFilters
+country: StringScalarFilters
 lat: Float
 longest: Int
 runways: Int
-desc: String
+desc: StringScalarFilters
 lon: Float
-region: String
+region: StringScalarFilters
 elev: Int
 }
 
@@ -102,6 +102,13 @@ dist: Int
 
 input Options {
 limit:Int
+}
+
+input StringScalarFilters {
+eq: String
+contains: String
+endsWith: String
+startsWith: String
 }
 
 type Query {
@@ -124,6 +131,10 @@ getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()
 type Mutation {
 createNodeAirport(input: AirportInput!): Airport
 updateNodeAirport(input: AirportInput!): Airport
+connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+createAirport(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
 }
 
 schema {

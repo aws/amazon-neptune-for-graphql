@@ -1,26 +1,26 @@
 type post {
     _id: ID! @id
     text: String
-    author:author
+    author: author
 }
 
 input postInput {
     _id: ID @id
-    text: String
+    text: StringScalarFilters
 }
 
 type author {
     _id: ID! @id
     username: String
-    author:author
+    author: author
 }
 
 input authorInput {
     _id: ID @id
-    username: String
+    username: StringScalarFilters
 }
 
-type _author @alias(property:"author") {
+type _author @alias(property: "author") {
     _id: ID! @id
     date: Date
 }
@@ -30,7 +30,14 @@ input _authorInput {
 }
 
 input Options {
-    limit:Int
+    limit: Int
+}
+
+input StringScalarFilters {
+    eq: String
+    contains: String
+    endsWith: String
+    startsWith: String
 }
 
 type Query {

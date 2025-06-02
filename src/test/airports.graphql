@@ -1,119 +1,126 @@
-type Continent @alias(property:"continent") {
-_id: ID! @id
-type: String
-code: String
-desc: String
-airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
-contains:Contains
+type Continent @alias(property: "continent") {
+    _id: ID! @id
+    type: String
+    code: String
+    desc: String
+    airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+    contains: Contains
 }
 
 input ContinentInput {
-_id: ID @id
-type: String
-code: String
-desc: String
+    _id: ID @id
+    type: StringScalarFilters
+    code: StringScalarFilters
+    desc: StringScalarFilters
 }
 
-type Country @alias(property:"country") {
-_id: ID! @id
-type: String
-code: String
-desc: String
-airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
-contains:Contains
+type Country @alias(property: "country") {
+    _id: ID! @id
+    type: String
+    code: String
+    desc: String
+    airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+    contains: Contains
 }
 
 input CountryInput {
-_id: ID @id
-type: String
-code: String
-desc: String
+    _id: ID @id
+    type: StringScalarFilters
+    code: StringScalarFilters
+    desc: StringScalarFilters
 }
 
-type Version @alias(property:"version") {
-_id: ID! @id
-date: String
-desc: String
-author: String
-type: String
-code: String
+type Version @alias(property: "version") {
+    _id: ID! @id
+    date: String
+    desc: String
+    author: String
+    type: String
+    code: String
 }
 
 input VersionInput {
-_id: ID @id
-date: String
-desc: String
-author: String
-type: String
-code: String
+    _id: ID @id
+    date: StringScalarFilters
+    desc: StringScalarFilters
+    author: StringScalarFilters
+    type: StringScalarFilters
+    code: StringScalarFilters
 }
 
-type Airport @alias(property:"airport") {
-_id: ID! @id
-type: String
-city: String
-icao: String
-code: String
-country: String
-lat: Float
-longest: Int
-runways: Int
-desc: String
-lon: Float
-region: String
-elev: Int
-continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
-countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
-airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:OUT)
-airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:IN)
-contains:Contains
-route:Route
+type Airport @alias(property: "airport") {
+    _id: ID! @id
+    type: String
+    city: String
+    icao: String
+    code: String
+    country: String
+    lat: Float
+    longest: Int
+    runways: Int
+    desc: String
+    lon: Float
+    region: String
+    elev: Int
+    continentContainsIn: Continent @relationship(edgeType: "contains", direction: IN)
+    countryContainsIn: Country @relationship(edgeType: "contains", direction: IN)
+    airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: OUT)
+    airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: IN)
+    contains: Contains
+    route: Route
 }
 
 input AirportInput {
-_id: ID @id
-type: String
-city: String
-icao: String
-code: String
-country: String
-lat: Float
-longest: Int
-runways: Int
-desc: String
-lon: Float
-region: String
-elev: Int
+    _id: ID @id
+    type: StringScalarFilters
+    city: StringScalarFilters
+    icao: StringScalarFilters
+    code: StringScalarFilters
+    country: StringScalarFilters
+    lat: Float
+    longest: Int
+    runways: Int
+    desc: StringScalarFilters
+    lon: Float
+    region: StringScalarFilters
+    elev: Int
 }
 
-type Contains @alias(property:"contains") {
-_id: ID! @id
+type Contains @alias(property: "contains") {
+    _id: ID! @id
 }
 
-type Route @alias(property:"route") {
-_id: ID! @id
-dist: Int
+type Route @alias(property: "route") {
+    _id: ID! @id
+    dist: Int
 }
 
 input RouteInput {
-dist: Int
+    dist: Int
 }
 
 input Options {
-limit:Int
+    limit: Int
+}
+
+input StringScalarFilters {
+    eq: String
+    contains: String
+    endsWith: String
+    startsWith: String
 }
 
 type Query {
-getNodeContinent(filter: ContinentInput): Continent
-getNodeContinents(filter: ContinentInput, options: Options): [Continent]
-getNodeCountry(filter: CountryInput): Country
-getNodeCountrys(filter: CountryInput, options: Options): [Country]
-getNodeVersion(filter: VersionInput): Version
-getNodeVersions(filter: VersionInput, options: Options): [Version]
-getNodeAirport(filter: AirportInput): Airport
-getNodeAirports(filter: AirportInput, options: Options): [Airport]
+    getNodeContinent(filter: ContinentInput): Continent
+    getNodeContinents(filter: ContinentInput, options: Options): [Continent]
+    getNodeCountry(filter: CountryInput): Country
+    getNodeCountrys(filter: CountryInput, options: Options): [Country]
+    getNodeVersion(filter: VersionInput): Version
+    getNodeVersions(filter: VersionInput, options: Options): [Version]
+    getNodeAirport(filter: AirportInput): Airport
+    getNodeAirports(filter: AirportInput, options: Options): [Airport]
 }
 
 schema {
-query: Query
+    query: Query
 }
