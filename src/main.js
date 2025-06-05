@@ -289,15 +289,11 @@ function processArgs() {
 /**
  * Saves the neptune schema to file
  */
-function saveNeptuneSchema() {
+function saveNeptuneSchema(outputFilePrefix) {
     // Output Neptune schema
     if (inputGraphDBSchema !== '') {
         if (outputNeptuneSchemaFile === '') {
-            if (createUpdatePipelineName === '') {
-                outputNeptuneSchemaFile = outputFolderPath + '/output.neptune.schema.json';
-            } else {
-                outputNeptuneSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.neptune.schema.json`;
-            }
+            outputNeptuneSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.neptune.schema.json`);
         }
 
         try {
@@ -394,8 +390,9 @@ async function main() {
     }
 
     createOutputFolder();
+    const outputFilePrefix = createUpdatePipelineName || createUpdatePipelineNeptuneDatabaseName || inputCDKpipelineName || inputCDKpipelineDatabaseName || 'output';
     // save the neptune schema early for troubleshooting purposes
-    saveNeptuneSchema();
+    saveNeptuneSchema(outputFilePrefix);
 
     // Option 2: inference GraphQL schema from graphDB schema
     if (inputGraphDBSchema != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
@@ -510,7 +507,7 @@ async function main() {
     if (inputGraphQLSchemaChanges != '') {
         inputGraphQLSchema = changeGraphQLSchema(inputGraphQLSchema, inputGraphQLSchemaChanges); 
     }
-
+    
     if (inputGraphQLSchema != '') {
         // Parse schema
         schemaModel = schemaParser(inputGraphQLSchema);
@@ -520,13 +517,7 @@ async function main() {
 
         // Generate schema for resolver
         const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
-
-        let resolverSchemaFile;
-        if (createUpdatePipelineName == '') {
-            resolverSchemaFile = `${outputFolderPath}/output.resolver.schema.json`
-        } else {
-            resolverSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.resolver.schema.json`
-        }
+        const resolverSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json`);
 
         try {
             writeFileSync(resolverSchemaFile, queryDataModelJSON);
@@ -562,12 +553,8 @@ async function main() {
     if (inputGraphQLSchema != '') {
     
         outputSchema = schemaStringify(schemaModel, false);
-        if ( outputSchemaFile == '' ) {
-            if (createUpdatePipelineName == '') { 
-                outputSchemaFile = outputFolderPath + '/output.schema.graphql';
-            } else {
-                outputSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.schema.graphql`;
-            } 
+        if (!outputSchemaFile) {
+            outputSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.schema.graphql`);
         }
 
         try {
@@ -580,12 +567,8 @@ async function main() {
 
         // Output GraphQL schema with directives
         outputSourceSchema = schemaStringify(schemaModel, true);
-        if ( outputSourceSchemaFile == '' ) {
-            if (createUpdatePipelineName == '') { 
-                outputSourceSchemaFile = outputFolderPath + '/output.source.schema.graphql';
-            } else {
-                outputSourceSchemaFile = `${outputFolderPath}/${createUpdatePipelineName}.source.schema.graphql`;
-            } 
+        if ( outputSourceSchemaFile === '' ) {
+            outputSourceSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.source.schema.graphql`)
         }   
 
         try {
@@ -609,12 +592,8 @@ async function main() {
 
 
         // Output Javascript resolver
-        if (outputJSResolverFile == '') {
-            if (createUpdatePipelineName == '') { 
-                outputJSResolverFile = outputFolderPath + '/output.resolver.graphql.js';
-            } else {
-                outputJSResolverFile = `${outputFolderPath}/${createUpdatePipelineName}.resolver.graphql.js`;
-            } 
+        if (outputJSResolverFile === '') {
+            outputJSResolverFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.graphql.js`);
         }
 
         try {
@@ -642,12 +621,7 @@ async function main() {
         // output Apollo zip
         if (createUpdateApolloServer || createUpdateApolloServerSubgraph) {
             const apolloZipPath = path.join(outputFolderPath, `apollo-server-${neptuneInfo.graphName}-${new Date().getTime()}.zip`);
-            let resolverSchemaFilePath;
-            if (createUpdatePipelineName == '') {
-                resolverSchemaFilePath = path.join(outputFolderPath, 'output.resolver.schema.json');
-            } else {
-                resolverSchemaFilePath = path.join(outputFolderPath, `${createUpdatePipelineName}.resolver.schema.json`);
-            }
+            const resolverSchemaFilePath = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json`);
             try {
                 if (!quiet) {
                     spinner = ora('Creating Apollo server ZIP file ...').start();
@@ -756,6 +730,7 @@ async function main() {
                     neptuneHost: neptuneHost,
                     neptunePort: neptunePort,
                     outputFolderPath: outputFolderPath,
+                    resolverFilePath: outputLambdaResolverFile,
                     neptuneType: neptuneType
                 });
             } catch (err) {

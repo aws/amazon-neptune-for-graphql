@@ -198,6 +198,7 @@ export function request(ctx) {
         payload: {
             field: ctx.info.fieldName, 
             arguments: args,
+            variables: ctx.info.variables,
             selectionSetGraphQL: ctx.info.selectionSetGraphQL,
             source 
         },
