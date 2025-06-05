@@ -742,11 +742,11 @@ function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNam
 
 /**
  * Recursively processes query selections
- * @param selections the query selections to process
- * @param lastNamePath the last name path of the parent selection
- * @param lastType the last type of the parent selection
- * @param variables optional variables referenced in the query
- * @param fragments optional fragment definitions referenced in the query
+ * @param {object} selections the query selections to process
+ * @param {string} lastNamePath the last name path of the parent selection
+ * @param {string} lastType the last type of the parent selection
+ * @param {object} variables optional variables referenced in the query
+ * @param {object} fragments optional fragment definitions referenced in the query
  */
 function selectionsRecurse({selections, lastNamePath, lastType, variables = {}, fragments = {}}) {
 
