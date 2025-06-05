@@ -142,7 +142,7 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
     for (const queryFile of queryFiles) {
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" +queryFile));
         if (query.graphql) {
-            const result = resolverModule.resolveGraphDBQuery(gql(query.graphql));
+            const result = resolverModule.resolveGraphDBQuery({queryObjOrStr: gql(query.graphql)});
             const httpResult = await queryNeptune(result.query, result.language, host, port, result.parameters);
                 
             let data = null;
