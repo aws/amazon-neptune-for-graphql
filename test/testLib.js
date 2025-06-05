@@ -49,18 +49,11 @@ function readJSONFile(fileName) {
     return JSON.parse(text);
 }
 
-
-function checkOutputFilesSize(outputFolder, files, referenceFolder) {    
-    files.forEach(file => {        
-        const stats = fs.statSync(`${outputFolder}/${file}`);
-        const referenceStats = fs.statSync(`${referenceFolder}/${file}`);
-        test('File size: ' + file, async () => {
-            expect.assertions(1);
-            expect(stats.size).toBe(referenceStats.size);
-        });
-    });
-}
-
+/**
+ * Checks that a given folder contains expected files.
+ * @param {string} folderPath the folder to check for files
+ * @param {string[]} fileNames the names of the files that are expected to be in the given folder
+ */
 function checkFolderContainsFiles(folderPath, fileNames= []) {
     fileNames.forEach(fileName => {
         test(`File ${fileName} exists in output folder ${folderPath}`, async () => {
@@ -70,11 +63,17 @@ function checkFolderContainsFiles(folderPath, fileNames= []) {
     });
 }
 
-function checkOutputFilesContent(outputFolder, files, referenceFolder) {    
-    files.forEach(file => {        
-        const stats = fs.readFileSync(`${outputFolder}/${file}`, 'utf8');
-        const referenceStats = fs.readFileSync(`${referenceFolder}/${file}`, 'utf8');        
-        checkOutputFileContent(file, stats, referenceStats);
+/**
+ * Compares the contents of files which are expected to be the same
+ * @param {object[]} files array of files to compare
+ * @param {string} files.expected path to the file with expected content
+ * @param {string} files.actual path to the file with actual content to compare with the associated expected file
+ */
+function compareFileContents(files = [{expected: '', actual: ''}]) {
+    files.forEach(file => {
+        const expectedStats = fs.readFileSync(file.expected, 'utf8');
+        const actualStats = fs.readFileSync(file.actual, 'utf8');
+        checkOutputFileContent(file, expectedStats, actualStats);
     });
 }
 
@@ -220,9 +219,8 @@ export {
     checkFileContains,
     checkFolderContainsFiles,
     checkOutputFileContent,
-    checkOutputFilesContent,
-    checkOutputFilesSize,
     checkOutputZipLambdaUsesSdk,
+    compareFileContents,
     loadResolver,
     readJSONFile,
     testApolloArtifacts,

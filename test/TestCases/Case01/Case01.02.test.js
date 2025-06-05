@@ -1,6 +1,5 @@
-import { readJSONFile, checkOutputFilesSize, checkOutputFilesContent, checkFolderContainsFiles } from '../../testLib';
-
-const casetest = readJSONFile('./test/TestCases/Case01/case.json');
+import { checkFolderContainsFiles, compareFileContents } from '../../testLib';
+import path from "path";
 
 describe('Validate output files', () => {
     const expectedFiles = [
@@ -10,7 +9,14 @@ describe('Validate output files', () => {
         'output.schema.graphql',
         'output.source.schema.graphql'
     ];
-    checkFolderContainsFiles('./test/TestCases/Case01/output', expectedFiles);
-    checkOutputFilesSize('./test/TestCases/Case01/output', casetest.testOutputFilesSize, './test/TestCases/Case01/outputReference');
-    checkOutputFilesContent('./test/TestCases/Case01/output', casetest.testOutputFilesContent, './test/TestCases/Case01/outputReference');
+    const outputFolder = './test/TestCases/Case01/output';
+    checkFolderContainsFiles(outputFolder, expectedFiles);
+    const referenceFolder = './test/TestCases/Case01/outputReference';
+    compareFileContents([{
+        expected: path.join(referenceFolder, 'output.schema.graphql'),
+        actual: path.join(outputFolder, 'output.schema.graphql')
+    }, {
+        expected: path.join(referenceFolder, 'output.source.schema.graphql'),
+        actual: path.join(outputFolder, 'output.source.schema.graphql')
+    }]);
 });

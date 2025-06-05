@@ -1,17 +1,40 @@
-import {checkFileContains, readJSONFile} from '../../testLib';
+import { checkFileContains, readJSONFile, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
+import path from "path";
 
-const casetest = readJSONFile('./test/TestCases/Case06/case.json');
+const casetest = readJSONFile('./test/TestCases/Case06/case01.json');
 let neptuneType = 'neptune-db';
 if (casetest.host.includes('neptune-graph')) {
     neptuneType = 'neptune-graph';
 }
-describe('Validate file content', () => {
+const outputFolderPath = './test/TestCases/Case06/case01-output';
+
+describe('Validate cdk pipeline with http resolver output content', () => {
     afterAll(async () => {
-        fs.rmSync('./test/TestCases/Case06/output', {recursive: true});
+        fs.rmSync(outputFolderPath, {recursive: true});
     });
 
-    checkFileContains('./test/TestCases/Case06/output/AirportCDKTestJest-cdk.js', [
+    test('Zip file contains expected files', async () => {
+        const expectedFiles = [
+            'index.mjs',
+            'node_modules',
+            'output.resolver.graphql.js',
+            'output.resolver.schema.json',
+            'package-lock.json',
+            'package.json',
+            'queryHttpNeptune.mjs'
+        ];
+        const unzippedFolder = path.join(outputFolderPath, 'cdk-unzipped');
+        const actualFiles = unzipAndGetContents(unzippedFolder, path.join(outputFolderPath, 'AirportCDKTestJest.zip'));
+        expect(actualFiles.toSorted()).toEqual(expectedFiles.toSorted());
+        
+        // resolver should be using axios http client
+        const fileContent = fs.readFileSync(path.join(unzippedFolder, 'index.mjs'), 'utf8');
+        expect(fileContent).toContain('axios');
+    });
+
+
+    checkFileContains(path.join(outputFolderPath, 'AirportCDKTestJest-cdk.js'), [
         'const NAME = \'AirportCDKTestJest\';',
         'const NEPTUNE_HOST = \'' + casetest.host + '\';',
         'const NEPTUNE_PORT = \'' + casetest.port + '\';',
