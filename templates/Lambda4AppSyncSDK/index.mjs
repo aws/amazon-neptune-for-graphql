@@ -26,9 +26,7 @@ function getClient() {
 
 function onError (location, error) {
     console.error(location, ': ', error.message);
-    return {             
-        "error": [{ "message": error.message}]
-    };
+    throw error;
 }
     
 
@@ -37,6 +35,9 @@ export const handler = async(event) => {
     let result = null;
 
     if (LOGGING_ENABLED) console.log(event);
+    if (event.selectionSetGraphQL.includes('...')) {
+        throw new Error('Fragments are not supported');
+    }
 
     let resolver = { query:'', parameters:{}, language: 'opencypher', fieldsAlias: {} };
 

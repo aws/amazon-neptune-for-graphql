@@ -40,6 +40,8 @@ export function resolveGraphDBQueryFromAppSyncEvent(event) {
     return resolveGraphDBQueryFromEvent({
         field: event.field,
         arguments: event.arguments,
+        // fragments not yet supported in app sync - see https://github.com/aws-samples/appsync-with-postgraphile-rds/issues/18
+        fragments: {},
         variables: event.variables,
         selectionSet: event.selectionSetGraphQL ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet : {}
     });
@@ -52,6 +54,7 @@ export function resolveGraphDBQueryFromAppSyncEvent(event) {
  * @param {object} event.arguments arguments that were passed into the query
  * @param {object} event.selectionSet the graphQL AST selection set
  * @param {object} event.variables optional query variables
+ * @param {object} event.fragments optional query fragments
  * @returns {string} the resolved graph db query
  */
 export function resolveGraphDBQueryFromEvent(event) {
@@ -91,7 +94,7 @@ export function resolveGraphDBQueryFromEvent(event) {
         arguments: args,
         selectionSet: event.selectionSet
     };
-    const obj = {
+    const queryDocument = {
         kind: 'Document',
         definitions: [
             {
@@ -105,7 +108,11 @@ export function resolveGraphDBQueryFromEvent(event) {
         ]
     };
 
-    const graphQuery = resolveGraphDBQuery(obj, event.variables);
+    const graphQuery = resolveGraphDBQuery({
+        queryObjOrStr: queryDocument, 
+        variables: event.variables, 
+        fragments: event.fragments
+    });
     return graphQuery;
 }
 
@@ -487,6 +494,7 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
     } else {
         const selection = obj.definitions[0].selectionSet.selections[0];
         replaceVariableArgsWithValues(selection, querySchemaInfo.variables);
+        replaceFragmentSelections(selection, querySchemaInfo.fragments);
         const argsAndWhereClauses = extractQueryArgsAndWhereClauses(selection.arguments, querySchemaInfo);
         const queryArgs = argsAndWhereClauses?.queryArguments.length > 0 ? `{${argsAndWhereClauses.queryArguments.join(',')}}` : '';
         const whereClause = argsAndWhereClauses?.whereClauses.length > 0 ? ` WHERE ${argsAndWhereClauses.whereClauses.join(' AND ')}` : '';
@@ -655,7 +663,7 @@ function createQueryFieldLeafStatement(fieldSchemaInfo, lastNamePath) {
 }
 
 
-function createTypeFieldStatementAndRecurse(selection, fieldSchemaInfo, lastNamePath, lastType, variables = {}) {
+function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNamePath, lastType, variables = {}, fragments = {}}) {
     const schemaTypeInfo = getSchemaTypeInfo(lastType, fieldSchemaInfo.name, lastNamePath);
 
     // check if the field has is a function with parameters, look for filters and options
@@ -686,7 +694,13 @@ function createTypeFieldStatementAndRecurse(selection, fieldSchemaInfo, lastName
     }
 
     withStatements[thisWithId].content += '{';
-    selectionsRecurse(selection.selectionSet.selections, schemaTypeInfo.pathName, schemaTypeInfo.type, variables);
+    selectionsRecurse({
+        selections: selection.selectionSet.selections,
+        lastNamePath: schemaTypeInfo.pathName,
+        lastType: schemaTypeInfo.type,
+        variables: variables,
+        fragments: fragments
+    });
     withStatements[thisWithId].content += '}';
 
     if (schemaTypeInfo.isArray) {
@@ -726,12 +740,20 @@ function createTypeFieldStatementAndRecurse(selection, fieldSchemaInfo, lastName
 }
 
 
-
-function selectionsRecurse(selections, lastNamePath, lastType, variables = {}) {
+/**
+ * Recursively processes query selections
+ * @param {object} selections the query selections to process
+ * @param {string} lastNamePath the last name path of the parent selection
+ * @param {string} lastType the last type of the parent selection
+ * @param {object} variables optional variables referenced in the query
+ * @param {object} fragments optional fragment definitions referenced in the query
+ */
+function selectionsRecurse({selections, lastNamePath, lastType, variables = {}, fragments = {}}) {
 
     selections.forEach(selection => {
         // replace any selection references to variables with the variable values
         replaceVariableArgsWithValues(selection, variables);
+        replaceFragmentSelections(selection, fragments);
         const fieldSchemaInfo = getSchemaFieldInfo(lastType, selection.name.value, lastNamePath);
 
         // check if is schema type
@@ -741,7 +763,14 @@ function selectionsRecurse(selections, lastNamePath, lastType, variables = {}) {
             return
         }
 
-        createTypeFieldStatementAndRecurse(selection, fieldSchemaInfo, lastNamePath, lastType, variables)
+        createTypeFieldStatementAndRecurse({
+            selection: selection,
+            fieldSchemaInfo: fieldSchemaInfo,
+            lastNamePath: lastNamePath,
+            lastType: lastType,
+            variables: variables,
+            fragments: fragments
+        })
     });
 };
 
@@ -788,7 +817,13 @@ function resolveGrapgDBqueryForGraphQLQuery (obj, querySchemaInfo) {
 
     withStatements[0].content = '{';
 
-    selectionsRecurse(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo.pathName, querySchemaInfo.returnType, querySchemaInfo.variables);
+    selectionsRecurse({
+        selections: obj.definitions[0].selectionSet.selections[0].selectionSet.selections,
+        lastNamePath: querySchemaInfo.pathName,
+        lastType: querySchemaInfo.returnType,
+        variables: querySchemaInfo.variables,
+        fragments: querySchemaInfo.fragments
+    });
 
     if (withStatements[0].content.slice(-2) == ', ')
         withStatements[0].content = withStatements[0].content.substring(0, withStatements[0].content.length - 2);
@@ -886,14 +921,47 @@ function convertToValueNode(value) {
  * @param variables the variables object
  */
 function replaceVariableArgsWithValues(selection, variables) {
-    const variableArgs = selection.arguments?.filter(arg => arg.value?.kind === 'Variable' 
-        && arg.value?.name?.value && variables.hasOwnProperty(arg.value.name.value));
-    variableArgs.forEach(arg => {
+    selection.arguments?.filter(arg => arg.value?.kind === 'Variable' 
+        && arg.value?.name?.value && variables.hasOwnProperty(arg.value.name.value))
+        .forEach(arg => {
         // replace variable reference with actual value
         arg.value = convertToValueNode(variables[arg.value.name.value]);
     });
 }
 
+/**
+ * Replaces any fragment references in the selection with the actual fragment selections.
+ * @param selection the graphQL selection to replace fragment references in
+ * @param fragments the fragment definitions object
+ */
+function replaceFragmentSelections(selection, fragments) {
+    // Early return if no selection set or selections
+    if (!selection?.selectionSet?.selections) {
+        return;
+    }
+
+    // Find all fragment spreads referenced in query selection
+    const fragmentSpreads = selection.selectionSet.selections.reduce((acc, fragmentSelection, index) => {
+        if (fragmentSelection?.kind === 'FragmentSpread' && fragmentSelection?.name?.value) {
+            if (fragments[fragmentSelection.name.value]) {
+                acc.push({ fragmentSelection, index });
+            } else {
+                throw new GraphQLError(`Fragment ${fragmentSelection.name.value} not found`);
+            }
+        }
+        return acc;
+    }, []);
+
+    // Process fragments in reverse order to maintain correct indices
+    fragmentSpreads.reverse().forEach(({ fragmentSelection, index }) => {
+        const fragment = fragments[fragmentSelection.name.value];
+        if (!fragment?.selectionSet?.selections) {
+            return;
+        }
+        // Replace fragment spread with actual fragment selections
+        selection.selectionSet.selections.splice(index, 1, ...fragment.selectionSet.selections);
+    });
+}
 
 /**
  * Extracts an array of cypher field name and value from the graphQL query argument fields.
@@ -945,16 +1013,32 @@ function extractFiltersFromQueryArgumentFields(queryArgumentFields, schemaInfo) 
 
 function returnStringOnly(selections, querySchemaInfo) {
     withStatements.push({carryOver: querySchemaInfo.pathName, inLevel:'', content:''});
-    selectionsRecurse(selections, querySchemaInfo.pathName, querySchemaInfo.returnType, querySchemaInfo.variables);
+    selectionsRecurse({
+        selections: selections,
+        lastNamePath: querySchemaInfo.pathName,
+        lastType: querySchemaInfo.returnType,
+        variables: querySchemaInfo.variables,
+        fragments: querySchemaInfo.fragments
+    });
     return `{${withStatements[0].content}}`
 }
 
+/**
+ * Processes a query selection and returns a string representation of the cypher return block.
+ * @param selection the query selection to process
+ * @param querySchemaInfo the schema info for the query
+ * @returns {string} the cypher return block string
+ */
+function getReturnBlockFromSelection(selection, querySchemaInfo) {
+    replaceFragmentSelections(selection, querySchemaInfo.fragments);
+    return returnStringOnly(selection.selectionSet.selections, querySchemaInfo);
+}
 
-function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
+function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
 
     // createNode
     if (querySchemaInfo.name.startsWith('createNode') && !querySchemaInfo.graphQuery) {
-        const queryFields = extractCypherFieldsFromArgumentFields(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
+        const queryFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
         const formattedQueryFields = queryFields.map(arg => {
             const param = querySchemaInfo.pathName + '_' + arg.name;
             Object.assign(parameters, { [param]: arg.value });
@@ -963,15 +1047,15 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         
         const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let returnBlock = `ID(${nodeName})`;
-        if (obj.definitions[0].selectionSet.selections[0].selectionSet) {
-            returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
+        if (queryAst.definitions[0].selectionSet.selections[0].selectionSet) {
+            returnBlock = getReturnBlockFromSelection(queryAst.definitions[0].selectionSet.selections[0], querySchemaInfo);
         }
         return `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${formattedQueryFields}})\nRETURN ${returnBlock}`;
     }
 
     // updateNode
     if (querySchemaInfo.name.startsWith('updateNode') && !querySchemaInfo.graphQuery) {
-        const queryFields = extractCypherFieldsFromArgumentFields(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
+        const queryFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
         
         const idField = queryFields.find(arg => arg.name === querySchemaInfo.graphDBIdArgName);
         const nodeID = idField.value;
@@ -980,8 +1064,8 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         Object.assign(parameters, {[idParam]: nodeID});
         
         let returnBlock = `ID(${nodeName})`;
-        if (obj.definitions[0].selectionSet.selections[0].selectionSet) {
-            returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
+        if (queryAst.definitions[0].selectionSet.selections[0].selectionSet) {
+            returnBlock = getReturnBlockFromSelection(queryAst.definitions[0].selectionSet.selections[0], querySchemaInfo);
         }
         // :( SET += is not working, so let's work around it.
         //let ocQuery = `MATCH (${nodeName}) WHERE ID(${nodeName}) = '${nodeID}' SET ${nodeName} += {${inputFields}} RETURN ${returnBlock}`;
@@ -993,12 +1077,20 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
             Object.assign(parameters, { [param]: arg.value });
             return `${nodeName}.${arg.name} = $${param}`;
         }).join(', ');
+        // FIXME handle update mutations with selection set that contains an edge
+        // example:
+        // updateNodeAirport(input: $input) {
+        //     id
+        //     airportRoutesIn {
+        //       code
+        //     }
+        //   }
         return `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${idParam}\nSET ${formattedFields}\nRETURN ${returnBlock}`;
     }
 
     // deleteNode
     if (querySchemaInfo.name.startsWith('deleteNode') && !querySchemaInfo.graphQuery) {
-        const nodeID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
+        const nodeID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let param  = nodeName + '_' + 'whereId';
         Object.assign(parameters, {[param]: nodeID});
@@ -1008,12 +1100,12 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
 
     // connect
     if (querySchemaInfo.name.startsWith('connectNode') && querySchemaInfo.graphQuery == null) {
-        let fromID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
-        let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;
+        let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
+        let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
         const edgeType = querySchemaInfo.name.match(new RegExp('Edge' + "(.*)" + ''))[1];
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         const egdgeTypeAlias = getTypeAlias(edgeType);
-        const returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
+        const returnBlock = getReturnBlockFromSelection(queryAst.definitions[0].selectionSet.selections[0], querySchemaInfo);
 
         let paramFromId  = edgeName + '_' + 'whereFromId';
         let paramToId  = edgeName + '_' + 'whereToId';
@@ -1026,16 +1118,16 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
 
     // updateEdge
     if (querySchemaInfo.name.startsWith('updateEdge') && querySchemaInfo.graphQuery == null) {
-        let fromID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
-        let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;
+        let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
+        let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
         let edgeType = querySchemaInfo.name.match(new RegExp('updateEdge' + "(.*)" + 'From'))[1];
         let egdgeTypeAlias = getTypeAlias(edgeType);
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let returnBlock = `ID(${edgeName})`;
-        if (obj.definitions[0].selectionSet.selections[0].selectionSet != undefined) {
-            returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
+        if (queryAst.definitions[0].selectionSet.selections[0].selectionSet) {
+            returnBlock = getReturnBlockFromSelection(queryAst.definitions[0].selectionSet.selections[0], querySchemaInfo);
         }
-        const fields = extractCypherFieldsFromArgumentFields(obj.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
+        const fields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[2].value.fields, querySchemaInfo);
         const formattedFields = fields.map(field => {
             const param = querySchemaInfo.pathName + '_' + field.name;
             Object.assign(parameters, { [param]: field.value });
@@ -1053,8 +1145,8 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
 
     // deleteEdge
     if (querySchemaInfo.name.startsWith('deleteEdge') && querySchemaInfo.graphQuery == null) {
-        let fromID = obj.definitions[0].selectionSet.selections[0].arguments[0].value.value;
-        let toID = obj.definitions[0].selectionSet.selections[0].arguments[1].value.value;
+        let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
+        let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
 
         const paramFromId  = edgeName + '_' + 'whereFromId';
@@ -1072,7 +1164,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
         let ocQuery = querySchemaInfo.graphQuery;
 
         if (ocQuery.includes('$input')) {
-            const inputFields = extractCypherFieldsFromArgumentFields(obj.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
+            const inputFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
             const formattedFields = inputFields.map(field => {
                 const param = querySchemaInfo.pathName + '_' + field.name;
                 Object.assign(parameters, { [param]: field.value });
@@ -1081,7 +1173,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
             
             ocQuery = ocQuery.replace('$input', formattedFields);
         } else {
-            obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
+            queryAst.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
                 ocQuery = ocQuery.replace('$' + arg.name.value, arg.value.value);
             });
         }
@@ -1090,7 +1182,7 @@ function resolveGrapgDBqueryForGraphQLMutation (obj, querySchemaInfo) {
             const statements = ocQuery.split(' RETURN ');
             const entityName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
             const body = statements[0].replace("this", entityName);
-            const returnBlock = returnStringOnly(obj.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
+            const returnBlock = returnStringOnly(queryAst.definitions[0].selectionSet.selections[0].selectionSet.selections, querySchemaInfo);
             ocQuery = body + '\nRETURN ' + returnBlock;
         }
 
@@ -1255,16 +1347,18 @@ function parseQueryInput(queryObjOrStr) {
  * Accepts a GraphQL document or query string and outputs the graphDB query.
  *
  * @param {(Object|string)} queryObjOrStr the GraphQL document containing an operation to resolve
- * @param variables optional query variables
- * @returns {string}
+ * @param {object} variables optional query variables
+ * @param {object} fragments optional query fragments
+ * @returns {string} resolved graph db query
  */
-export function resolveGraphDBQuery(queryObjOrStr, variables = {}) {
+export function resolveGraphDBQuery({queryObjOrStr, variables = {}, fragments = {}}) {
     let executeQuery =  { query:'', parameters: {}, language: 'opencypher', refactorOutput: null };
 
     const obj = parseQueryInput(queryObjOrStr);
 
     const querySchemaInfo = getSchemaQueryInfo(obj.definitions[0].selectionSet.selections[0].name.value);
     querySchemaInfo.variables = variables;
+    querySchemaInfo.fragments = fragments;
 
     if (querySchemaInfo.graphQuery != null) {
         if (querySchemaInfo.graphQuery.startsWith('g.V')) {

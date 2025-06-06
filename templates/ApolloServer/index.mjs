@@ -38,6 +38,7 @@ function resolve(info, args) {
         arguments: args,
         selectionSet: info.fieldNodes[0].selectionSet,
         variables: info.variableValues,
+        fragments: info.fragments
     };
 
     return resolveEvent(event).then((result) => {

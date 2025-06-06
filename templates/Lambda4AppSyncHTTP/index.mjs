@@ -41,9 +41,12 @@ if (process.env.NEPTUNE_IAM_AUTH_ENABLED === 'true') {
 rax.attach();
 
 export const handler = async (event) => {
-    // Create Neptune query from GraphQL query
+    if (LOGGING_ENABLED) console.log("Event: ", event);
+    if (event.selectionSetGraphQL.includes('...')) {
+        throw new Error('Fragments are not supported');
+    }
     try {
-        if (LOGGING_ENABLED) console.log("Event: ", event);
+        // Create Neptune query from GraphQL query
         const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
         let schemaModel = JSON.parse(schemaDataModelJSON);
         initSchema(schemaModel);
@@ -51,10 +54,8 @@ export const handler = async (event) => {
         if (LOGGING_ENABLED) console.log("Resolver: ", resolver);
         return queryNeptune(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`, resolver, {loggingEnabled: LOGGING_ENABLED})
     } catch (err) {
-        if (LOGGING_ENABLED) console.error(err);
-        return {
-            "error": [{ "message": err}]
-        };
+        console.error(err);
+        throw err;
     }
 
 };

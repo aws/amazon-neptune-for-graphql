@@ -14,6 +14,20 @@ code: StringScalarFilters
 desc: StringScalarFilters
 }
 
+input ContinentCreateInput {
+  _id: ID @id
+  type: String
+  code: String
+  desc: String
+}
+
+input ContinentUpdateInput {
+  _id: ID! @id
+  type: String
+  code: String
+  desc: String
+}
+
 type Country @alias(property:"country") {
 _id: ID! @id
 type: String
@@ -28,6 +42,20 @@ _id: ID @id
 type: StringScalarFilters
 code: StringScalarFilters
 desc: StringScalarFilters
+}
+
+input CountryCreateInput {
+  _id: ID @id
+  type: String
+  code: String
+  desc: String
+}
+
+input CountryUpdateInput {
+  _id: ID! @id
+  type: String
+  code: String
+  desc: String
 }
 
 type Version @alias(property:"version") {
@@ -46,6 +74,24 @@ desc: StringScalarFilters
 author: StringScalarFilters
 type: StringScalarFilters
 code: StringScalarFilters
+}
+
+input VersionCreateInput {
+  _id: ID @id
+  date: String
+  desc: String
+  author: String
+  type: String
+  code: String
+}
+
+input VersionUpdateInput {
+  _id: ID! @id
+  date: String
+  desc: String
+  author: String
+  type: String
+  code: String
 }
 
 type Airport @alias(property:"airport") {
@@ -85,6 +131,38 @@ desc: StringScalarFilters
 lon: Float
 region: StringScalarFilters
 elev: Int
+}
+
+input AirportCreateInput {
+  _id: ID @id
+  type: String
+  city: String
+  icao: String
+  code: String
+  country: String
+  lat: Float
+  longest: Int
+  runways: Int
+  desc: String
+  lon: Float
+  region: String
+  elev: Int
+}
+
+input AirportUpdateInput {
+  _id: ID! @id
+  type: String
+  city: String
+  icao: String
+  code: String
+  country: String
+  lat: Float
+  longest: Int
+  runways: Int
+  desc: String
+  lon: Float
+  region: String
+  elev: Int
 }
 
 type Contains @alias(property:"contains") {
@@ -130,12 +208,12 @@ getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()
 }
 
 type Mutation {
-createNodeAirport(input: AirportInput!): Airport
-updateNodeAirport(input: AirportInput!): Airport
+createNodeAirport(input: AirportCreateInput!): Airport
+updateNodeAirport(input: AirportUpdateInput!): Airport
 connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
 deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
 updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
-createAirport(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
+createAirport(input: AirportCreateInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
 }
 
 schema {

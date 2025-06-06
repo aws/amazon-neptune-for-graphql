@@ -68,6 +68,9 @@ function resolveGraphQuery(event) {
  * Converts incoming graphQL query into open cypher format and sends the query to neptune analytics query API.
  */
 export const handler = async (event) => {
+    if (event.selectionSetGraphQL.includes('...')) {
+        throw new Error('Fragments are not supported');
+    }
     let resolver = resolveGraphQuery(event);
 
     try {
