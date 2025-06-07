@@ -1,8 +1,13 @@
+enum SortingDirection {
+    ASC
+    DESC
+}
+
 type City @alias(property: "city") {
     _id: ID! @id
     name: String
-    personLivessIn(filter: PersonInput, options: Options): [Person] @relationship(edgeType: "lives", direction: IN)
-    restaurantWithinsIn(filter: RestaurantInput, options: Options): [Restaurant] @relationship(edgeType: "within", direction: IN)
+    personLivessIn(filter: PersonInput, options: Options, sort: [PersonSort!]): [Person] @relationship(edgeType: "lives", direction: IN)
+    restaurantWithinsIn(filter: RestaurantInput, options: Options, sort: [RestaurantSort!]): [Restaurant] @relationship(edgeType: "within", direction: IN)
     lives: Lives
     within: Within
 }
@@ -10,6 +15,11 @@ type City @alias(property: "city") {
 input CityInput {
     _id: ID @id
     name: StringScalarFilters
+}
+
+input CitySort {
+    _id: SortingDirection
+    name: SortingDirection
 }
 
 type Review @alias(property: "review") {
@@ -30,15 +40,22 @@ input ReviewInput {
     rating: Int
 }
 
+input ReviewSort {
+    _id: SortingDirection
+    body: SortingDirection
+    created_date: SortingDirection
+    rating: SortingDirection
+}
+
 type Person @alias(property: "person") {
     _id: ID! @id
     first_name: String
     last_name: String
     person_id: Int
     cityLivesOut: City @relationship(edgeType: "lives", direction: OUT)
-    reviewWrotesOut(filter: ReviewInput, options: Options): [Review] @relationship(edgeType: "wrote", direction: OUT)
-    personFriendssOut(filter: PersonInput, options: Options): [Person] @relationship(edgeType: "friends", direction: OUT)
-    personFriendssIn(filter: PersonInput, options: Options): [Person] @relationship(edgeType: "friends", direction: IN)
+    reviewWrotesOut(filter: ReviewInput, options: Options, sort: [ReviewSort!]): [Review] @relationship(edgeType: "wrote", direction: OUT)
+    personFriendssOut(filter: PersonInput, options: Options, sort: [PersonSort!]): [Person] @relationship(edgeType: "friends", direction: OUT)
+    personFriendssIn(filter: PersonInput, options: Options, sort: [PersonSort!]): [Person] @relationship(edgeType: "friends", direction: IN)
     lives: Lives
     wrote: Wrote
     friends: Friends
@@ -51,6 +68,13 @@ input PersonInput {
     person_id: Int
 }
 
+input PersonSort {
+    _id: SortingDirection
+    first_name: SortingDirection
+    last_name: SortingDirection
+    person_id: SortingDirection
+}
+
 type Restaurant @alias(property: "restaurant") {
     _id: ID! @id
     restaurant_id: Int
@@ -58,7 +82,7 @@ type Restaurant @alias(property: "restaurant") {
     address: String
     cityWithinOut: City @relationship(edgeType: "within", direction: OUT)
     cuisineServesOut: Cuisine @relationship(edgeType: "serves", direction: OUT)
-    reviewAboutsIn(filter: ReviewInput, options: Options): [Review] @relationship(edgeType: "about", direction: IN)
+    reviewAboutsIn(filter: ReviewInput, options: Options, sort: [ReviewSort!]): [Review] @relationship(edgeType: "about", direction: IN)
     within: Within
     serves: Serves
     about: About
@@ -71,16 +95,28 @@ input RestaurantInput {
     address: StringScalarFilters
 }
 
+input RestaurantSort {
+    _id: SortingDirection
+    restaurant_id: SortingDirection
+    name: SortingDirection
+    address: SortingDirection
+}
+
 type Cuisine @alias(property: "cuisine") {
     _id: ID! @id
     name: String
-    restaurantServessIn(filter: RestaurantInput, options: Options): [Restaurant] @relationship(edgeType: "serves", direction: IN)
+    restaurantServessIn(filter: RestaurantInput, options: Options, sort: [RestaurantSort!]): [Restaurant] @relationship(edgeType: "serves", direction: IN)
     serves: Serves
 }
 
 input CuisineInput {
     _id: ID @id
     name: StringScalarFilters
+}
+
+input CuisineSort {
+    _id: SortingDirection
+    name: SortingDirection
 }
 
 type State @alias(property: "state") {
@@ -92,6 +128,11 @@ type State @alias(property: "state") {
 input StateInput {
     _id: ID @id
     name: StringScalarFilters
+}
+
+input StateSort {
+    _id: SortingDirection
+    name: SortingDirection
 }
 
 type Lives @alias(property: "lives") {
@@ -132,17 +173,17 @@ input StringScalarFilters {
 
 type Query {
     getNodeCity(filter: CityInput): City
-    getNodeCitys(filter: CityInput, options: Options): [City]
+    getNodeCitys(filter: CityInput, options: Options, sort: [CitySort!]): [City]
     getNodeReview(filter: ReviewInput): Review
-    getNodeReviews(filter: ReviewInput, options: Options): [Review]
+    getNodeReviews(filter: ReviewInput, options: Options, sort: [ReviewSort!]): [Review]
     getNodePerson(filter: PersonInput): Person
-    getNodePersons(filter: PersonInput, options: Options): [Person]
+    getNodePersons(filter: PersonInput, options: Options, sort: [PersonSort!]): [Person]
     getNodeRestaurant(filter: RestaurantInput): Restaurant
-    getNodeRestaurants(filter: RestaurantInput, options: Options): [Restaurant]
+    getNodeRestaurants(filter: RestaurantInput, options: Options, sort: [RestaurantSort!]): [Restaurant]
     getNodeCuisine(filter: CuisineInput): Cuisine
-    getNodeCuisines(filter: CuisineInput, options: Options): [Cuisine]
+    getNodeCuisines(filter: CuisineInput, options: Options, sort: [CuisineSort!]): [Cuisine]
     getNodeState(filter: StateInput): State
-    getNodeStates(filter: StateInput, options: Options): [State]
+    getNodeStates(filter: StateInput, options: Options, sort: [StateSort!]): [State]
 }
 
 schema {

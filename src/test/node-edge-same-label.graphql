@@ -1,3 +1,8 @@
+enum SortingDirection {
+    ASC
+    DESC
+}
+
 type post {
     _id: ID! @id
     text: String
@@ -9,6 +14,11 @@ input postInput {
     text: StringScalarFilters
 }
 
+input postSort {
+    _id: SortingDirection
+    text: SortingDirection
+}
+
 type author {
     _id: ID! @id
     username: String
@@ -18,6 +28,11 @@ type author {
 input authorInput {
     _id: ID @id
     username: StringScalarFilters
+}
+
+input authorSort {
+    _id: SortingDirection
+    username: SortingDirection
 }
 
 type _author @alias(property: "author") {
@@ -43,9 +58,9 @@ input StringScalarFilters {
 
 type Query {
     getNodepost(filter: postInput): post
-    getNodeposts(filter: postInput, options: Options): [post]
+    getNodeposts(filter: postInput, options: Options, sort: [postSort!]): [post]
     getNodeauthor(filter: authorInput): author
-    getNodeauthors(filter: authorInput, options: Options): [author]
+    getNodeauthors(filter: authorInput, options: Options, sort: [authorSort!]): [author]
 }
 
 schema {

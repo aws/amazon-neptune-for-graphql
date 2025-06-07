@@ -116,6 +116,24 @@ test('should resolve app sync event queries with an integer id filter', () => {
     });
 });
 
+test('should resolve queries with sort arguments as a list', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { sort: [{ desc: 'ASC' }, { code: 'DESC' }, { city: 'DESC' }] },
+        selectionSetGraphQL: '{\n  desc\n  code\n  city\n}'
+    });
+
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`)' +
+            ' WITH getNodeAirports_Airport' +
+            ' ORDER BY getNodeAirports_Airport.desc ASC, getNodeAirports_Airport.code DESC, getNodeAirports_Airport.city DESC\n' +
+            'RETURN collect({desc: getNodeAirports_Airport.`desc`, code: getNodeAirports_Airport.`code`, city: getNodeAirports_Airport.`city`})',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
 test('should resolve app sync event gremlin query with argument', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
         field: 'getAirportWithGremlin',
@@ -195,6 +213,51 @@ test('should resolve app sync event with nested edge filters and variables', () 
             "getNodeAirports_Airport_country": "CA",
             "getNodeAirports_Airport_airportRoutesOut_country": "M"
         },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve app sync event with sort arguments as a list', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { sort: [{ desc: 'ASC' }, { code: 'DESC' }, { city: 'DESC' }] },
+        selectionSetGraphQL: '{\n  desc\n  code\n  city\n}'
+    });
+
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`)' +
+            ' WITH getNodeAirports_Airport' +
+            ' ORDER BY getNodeAirports_Airport.desc ASC, getNodeAirports_Airport.code DESC, getNodeAirports_Airport.city DESC\n' +
+            'RETURN collect({desc: getNodeAirports_Airport.`desc`, code: getNodeAirports_Airport.`code`, city: getNodeAirports_Airport.`city`})',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve app sync event with nested sort arguments', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { sort: [{desc: 'ASC'}, {code: 'DESC'}] },
+        variables: {},
+        selectionSetGraphQL: '{\n' +
+            '  desc\n' +
+            '  code\n' +
+            '  airportRoutesIn(sort: [{country : ASC}, {city : DESC}]) {\n' +
+            '    country\n' +
+            '    city\n' +
+            '  }\n' +
+            '}',
+    });
+
+    expect(result).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport ORDER BY getNodeAirports_Airport.desc ASC, getNodeAirports_Airport.code DESC\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`)\n' +
+            'WITH getNodeAirports_Airport, getNodeAirports_Airport_airportRoutesIn ORDER BY getNodeAirports_Airport_airportRoutesIn.country ASC, getNodeAirports_Airport_airportRoutesIn.city DESC\n' +
+            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({country: getNodeAirports_Airport_airportRoutesIn.`country`, city: getNodeAirports_Airport_airportRoutesIn.`city`}) END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
+            'RETURN collect({desc: getNodeAirports_Airport.`desc`, code: getNodeAirports_Airport.`code`, airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect})',
+        parameters: {},
         language: 'opencypher',
         refactorOutput: null
     });
@@ -1121,4 +1184,13 @@ test('should throw error for query with unknown fragment', () => {
             fragments: {}
         });
     }).toThrow('Fragment unknownFragment not found');
+});
+
+test('should throw error for query with multiple sort arguments in one object', () => {
+    expect(() => resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { sort: [ {desc: 'ASC'}, {code: 'DESC', country: 'ASC'} ] },
+        variables: {},
+        selectionSetGraphQL: '{\n  desc\n  code\n  country\n}',
+    }).toThrow('Cannot have more than one key in sort object'));
 });
