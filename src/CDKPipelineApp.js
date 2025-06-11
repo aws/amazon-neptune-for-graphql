@@ -32,7 +32,7 @@ let APPSYNC_SCHEMA = '';
 let APPSYNC_ATTACH_QUERY = [];
 let APPSYNC_ATTACH_MUTATION = [];
 let SCHEMA_MODEL = null;
-let thisOutputFolderPath = './output';
+let RELATIVE_OUTPUT_PATH = './output';
 
 async function getSchemaFields(typeName) {
     /*  To be updated as:
@@ -56,8 +56,8 @@ async function getSchemaFields(typeName) {
 
 async function createDeploymentFile(templateFolderPath, resolverFilePath) {
     try {
-        const zipFilePath = path.join(thisOutputFolderPath, `${NAME}.zip`);
-        const resolverSchemaFilePath = path.join(thisOutputFolderPath, `${NAME}.resolver.schema.json`)
+        const zipFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.zip`);
+        const resolverSchemaFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.resolver.schema.json`)
         await createLambdaDeploymentPackage({
             outputZipFilePath: zipFilePath,
             templateFolderPath: templateFolderPath,
@@ -96,9 +96,9 @@ async function createAWSpipelineCDK({
     SCHEMA_MODEL = schemaModel;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
-    thisOutputFolderPath = outputFolderPath;
+    RELATIVE_OUTPUT_PATH = outputFolderPath;
 
-    LAMBDA_ZIP_FILE = `${thisOutputFolderPath}/${NAME}.zip`;
+    LAMBDA_ZIP_FILE = `${RELATIVE_OUTPUT_PATH}/${NAME}.zip`;
     let spinner = null;
     let neptuneClusterInfo = null;
 

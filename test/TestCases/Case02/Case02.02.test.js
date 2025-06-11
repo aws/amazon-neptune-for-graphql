@@ -4,7 +4,7 @@ import fs from "fs";
 const outputFolderPath = './test/TestCases/Case02/output';
 
 describe('Validate output content', () => {
-    afterAll(async () => {
+    afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
     

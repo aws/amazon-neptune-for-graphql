@@ -10,7 +10,7 @@ async function executeUtility() {
 }
 
 describe('Cleanup resources', () => {
-    afterAll(async () => {
+    afterAll(() => {
         fs.rmSync('./test/TestCases/Case05/output', {recursive: true});
     });
 

@@ -7,7 +7,7 @@ const testDbInfo = parseNeptuneEndpoint(testCase.host + ':' + testCase.port);
 
 const outputFolderPath = './test/TestCases/Case09/output';
 describe('Validate Apollo Server Subgraph output artifacts', () => {
-    afterAll(async () => {
+    afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
 

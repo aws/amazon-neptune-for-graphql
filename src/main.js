@@ -395,8 +395,8 @@ async function main() {
     const outputFilePrefix = createUpdatePipelineName || 
         createUpdatePipelineNeptuneDatabaseName || 
         inputCDKpipelineName || 
-        inputCDKpipelineDatabaseName || 
-        `${neptuneInfo?.graphName ? neptuneInfo.graphName.concat('.') : ''}output`;
+        inputCDKpipelineDatabaseName ||
+        `${neptuneInfo?.graphName?.concat('.') || ''}output`;
     // save the neptune schema early for troubleshooting purposes
     saveNeptuneSchema(outputFilePrefix);
 

@@ -14,7 +14,7 @@ describe('Validate pipeline with http resolver output content', () => {
         'AirportsJestTest.zip'
     ]);
 
-    test('Zip file contains expected files', async () => {
+    test('Zip file contains expected files', () => {
         const expectedFiles = [
             'index.mjs',
             'node_modules',

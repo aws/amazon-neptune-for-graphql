@@ -10,11 +10,11 @@ if (casetest.host.includes('neptune-graph')) {
 const outputFolderPath = './test/TestCases/Case06/case01-output';
 
 describe('Validate cdk pipeline with http resolver output content', () => {
-    afterAll(async () => {
+    afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
 
-    test('Zip file contains expected files', async () => {
+    test('Zip file contains expected files', () => {
         const expectedFiles = [
             'index.mjs',
             'node_modules',

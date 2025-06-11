@@ -23,7 +23,7 @@ describe('Validate pipeline with sdk resolver output content', () => {
         actual: path.join(outputFolderPath, 'sdk.source.schema.graphql')
     }]);
     
-    test('Zip file contains expected files', async () => {
+    test('Zip file contains expected files', () => {
         const expectedFiles = [
             'index.mjs',
             'node_modules',

@@ -11,7 +11,7 @@ const neptuneSchema = readJSONFile(`./test/TestCases/Case04/output/${testDbInfo.
 const refNeptuneSchema = readJSONFile(`./test/TestCases/Case04/outputReference/output.neptune.schema.json`);
 
 describe('Validate output content', () => {
-    afterAll(async () => {
+    afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
 

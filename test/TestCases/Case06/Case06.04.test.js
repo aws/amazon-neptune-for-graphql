@@ -5,11 +5,11 @@ import path from "path";
 const outputFolderPath = './test/TestCases/Case06/case02-output';
 
 describe('Validate cdk pipeline with sdk resolver output content', () => {
-    afterAll(async () => {
+    afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
 
-    test('Zip file contains expected files', async () => {
+    test('Zip file contains expected files', () => {
         const expectedFiles = [
             'index.mjs',
             'node_modules',
