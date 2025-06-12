@@ -11,10 +11,6 @@ async function executeUtility() {
 }
 
 describe('Validate successful execution', () => {
-    afterAll(async () => {
-        fs.rmSync('./test/TestCases/Case02/output', {recursive: true});
-    });
-
     test('Execute utility: ' + casetest.argv.join(' '), async () => {
         expect(await executeUtility()).not.toBe(null);
     }, 600000);

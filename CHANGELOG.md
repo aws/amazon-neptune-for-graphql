@@ -32,6 +32,7 @@ This release contains new support for Apollo Server integration.
 * Fixed queries generated from an input schema which retrieve an array to have an option parameter with limit ([#97](https://github.com/aws/amazon-neptune-for-graphql/pull/97))
 * Fixed nested edge subqueries to return an empty array if no results were found (([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
 * Fixed usage of variables with nested edge subqueries (([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
+* Fixed cdk output file to contain previously missing files that were necessary to execute the lambda resolver (([#106](https://github.com/aws/amazon-neptune-for-graphql/pull/106))
 
 
 ### Features

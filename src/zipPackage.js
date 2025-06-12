@@ -19,6 +19,11 @@ import {fileURLToPath} from "url";
 async function createZip({targetZipFilePath, includePaths = [], includeContent = [], excludePatterns = []}) {
     const output = fs.createWriteStream(targetZipFilePath);
     const archive = archiver('zip', {zlib: {level: 9}});
+    const streamingCompletedPromise = new Promise((resolve, reject) => {
+        output.on('close', () => resolve());
+        archive.on('error', err => reject(err));
+    });
+    
     archive.pipe(output);
 
     includePaths.forEach(includePath => {
@@ -40,6 +45,7 @@ async function createZip({targetZipFilePath, includePaths = [], includeContent =
         archive.append(content.source, {name: content.target});
     });
     await archive.finalize();
+    await streamingCompletedPromise;
 }
 
 /**

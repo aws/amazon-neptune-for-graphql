@@ -12,11 +12,10 @@ permissions and limitations under the License.
 
 import { getNeptuneClusterDbInfoBy } from './pipelineResources.js'
 import { readFile, writeFile } from 'fs/promises';
-//import semver from 'semver';
-import fs from 'fs';
-import archiver from 'archiver';
 import ora from 'ora';
 import { loggerDebug, loggerError, loggerInfo, yellow } from "./logger.js";
+import path from "path";
+import { createLambdaDeploymentPackage } from "./zipPackage.js";
 
 let NAME = '';
 let REGION = '';
@@ -33,7 +32,7 @@ let APPSYNC_SCHEMA = '';
 let APPSYNC_ATTACH_QUERY = [];
 let APPSYNC_ATTACH_MUTATION = [];
 let SCHEMA_MODEL = null;
-let thisOutputFolderPath = './output';
+let RELATIVE_OUTPUT_PATH = './output';
 
 async function getSchemaFields(typeName) {
     /*  To be updated as:
@@ -55,15 +54,16 @@ async function getSchemaFields(typeName) {
     return r;
 }
 
-
-async function createDeploymentFile(folderPath, zipFilePath) {
+async function createDeploymentFile(templateFolderPath, resolverFilePath) {
     try {
-        const output = fs.createWriteStream(zipFilePath);
-        const archive = archiver('zip', { zlib: { level: 9 } });
-        archive.pipe(output);
-        archive.directory(folderPath, false);
-        archive.file('./output/output.resolver.graphql.js', { name: 'output.resolver.graphql.js' })
-        await archive.finalize();
+        const zipFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.zip`);
+        const resolverSchemaFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.resolver.schema.json`)
+        await createLambdaDeploymentPackage({
+            outputZipFilePath: zipFilePath,
+            templateFolderPath: templateFolderPath,
+            resolverFilePath: resolverFilePath,
+            resolverSchemaFilePath: resolverSchemaFilePath
+        });
     } catch (err) {
         loggerError('Error creating deployment zip file', err);
     }
@@ -84,6 +84,7 @@ async function createAWSpipelineCDK({
                                         neptuneHost,
                                         neptunePort,
                                         outputFolderPath,
+                                        resolverFilePath,
                                         neptuneType
                                     }) {
 
@@ -95,9 +96,9 @@ async function createAWSpipelineCDK({
     SCHEMA_MODEL = schemaModel;
     NEPTUNE_HOST = neptuneHost;
     NEPTUNE_PORT = neptunePort;
-    thisOutputFolderPath = outputFolderPath;
+    RELATIVE_OUTPUT_PATH = outputFolderPath;
 
-    LAMBDA_ZIP_FILE = `${thisOutputFolderPath}/${NAME}.zip`;
+    LAMBDA_ZIP_FILE = `${RELATIVE_OUTPUT_PATH}/${NAME}.zip`;
     let spinner = null;
     let neptuneClusterInfo = null;
 
@@ -152,7 +153,7 @@ async function createAWSpipelineCDK({
     }
          
     if (!quiet) spinner = ora('Creating ZIP ...').start();
-    await createDeploymentFile(lambdaFilesPath, LAMBDA_ZIP_FILE);
+    await createDeploymentFile(lambdaFilesPath, resolverFilePath);
     if (!quiet) spinner.succeed('Created ZIP File: ' + yellow(LAMBDA_ZIP_FILE));
     
     APPSYNC_ATTACH_QUERY = await getSchemaFields('Query');
