@@ -942,8 +942,26 @@ function convertToValueNode(value) {
 
 /**
  * Replaces any variable references in the selection with the actual value from the variables object.
- * @param selection the graphQL selection to replace variable references in
- * @param variables the variables object
+ * @param {object} selection the graphQL selection to replace variable references in
+ * @param {object} variables the variables object
+ */
+function replaceVariableArgsWithValues(selection, variables = {}) {
+    if (!selection?.arguments || !variables) {
+        return;
+    }
+
+    selection.arguments.forEach(arg => {
+        if (!arg.value) {
+            return;
+        }
+        replaceVariableInValue(arg.value, variables);
+    });
+}
+
+/**
+ * Recursively replaces any variable references in a value node with the variable value
+ * @param {Object} valueNode - The value node to process
+ * @param {Object} variables - The variables object containing values to substitute
  */
 function replaceVariableInValue(valueNode, variables = {}) {
     if (!valueNode || !variables) {
