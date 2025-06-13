@@ -902,6 +902,46 @@ test('should resolve query with nested edge filter and variables', () => {
     });
 });
 
+test('should resolve query with nested edge filter and nested scalar variables', () => {
+    const query = 'query GetNodeAirports($filter: AirportInput, $options: Options, $nestedFilter: AirportInput, $nestedOptions: Options) {\n' +
+        '  getNodeAirports(filter: {country: {eq: $country}}, options: {limit: $limit}) {\n' +
+        '    code\n' +
+        '    airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) {\n' +
+        '      code\n' +
+        '    }\n' +
+        '  }\n' +
+        '}';
+    const variables = {
+        "country": "CA",
+        "limit": 6
+    }
+    const result = resolveGraphDBQuery({queryObjOrStr: query, variables: variables});
+
+    expect(result).toMatchObject({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) ' +
+            'WHERE getNodeAirports_Airport.country = $getNodeAirports_Airport_country ' +
+            'WITH getNodeAirports_Airport LIMIT 6\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) ' +
+            'WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
+            'WITH getNodeAirports_Airport, ' +
+            'CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
+            'ELSE COLLECT({' +
+            'code: getNodeAirports_Airport_airportRoutesOut.`code`' +
+            '})[..6] ' +
+            'END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'RETURN collect({' +
+            'code: getNodeAirports_Airport.`code`, ' +
+            'airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect' +
+            '})[..6]',
+        parameters: {
+            getNodeAirports_Airport_country: "CA",
+            getNodeAirports_Airport_airportRoutesOut_country: "CA"
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
 test('should resolve custom mutation with @graphQuery directive and $input parameter', () => {
     const query = 'mutation MyMutation {\n' +
         '  createAirport(\n' +
