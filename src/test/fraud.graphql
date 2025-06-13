@@ -1,7 +1,12 @@
+enum SortingDirection {
+    ASC
+    DESC
+}
+
 type Dateofbirth @alias(property: "DateOfBirth") {
     _id: ID! @id
     value: String
-    accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
+    accountFeature_of_accountsOut(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
     FEATURE_OF_ACCOUNT: Feature_of_account
 }
 
@@ -10,17 +15,22 @@ input DateofbirthInput {
     value: StringScalarFilters
 }
 
+input DateofbirthSort {
+    _id: SortingDirection
+    value: SortingDirection
+}
+
 type Account {
     _id: ID! @id
     first_name: String
     account_number: String
     last_name: String
-    emailaddressFeature_of_accountsIn(filter: EmailaddressInput, options: Options): [Emailaddress] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: IN)
+    emailaddressFeature_of_accountsIn(filter: EmailaddressInput, options: Options, sort: [EmailaddressSort!]): [Emailaddress] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: IN)
     ipaddressFeature_of_accountIn: Ipaddress @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: IN)
     addressFeature_of_accountIn: Address @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: IN)
     dateofbirthFeature_of_accountIn: Dateofbirth @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: IN)
-    phonenumberFeature_of_accountsIn(filter: PhonenumberInput, options: Options): [Phonenumber] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: IN)
-    transactionAccount_edgesIn(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType: "ACCOUNT_EDGE", direction: IN)
+    phonenumberFeature_of_accountsIn(filter: PhonenumberInput, options: Options, sort: [PhonenumberSort!]): [Phonenumber] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: IN)
+    transactionAccount_edgesIn(filter: TransactionInput, options: Options, sort: [TransactionSort!]): [Transaction] @relationship(edgeType: "ACCOUNT_EDGE", direction: IN)
     FEATURE_OF_ACCOUNT: Feature_of_account
     ACCOUNT_EDGE: Account_edge
 }
@@ -32,16 +42,28 @@ input AccountInput {
     last_name: StringScalarFilters
 }
 
+input AccountSort {
+    _id: SortingDirection
+    first_name: SortingDirection
+    account_number: SortingDirection
+    last_name: SortingDirection
+}
+
 type Merchant {
     _id: ID! @id
     name: String
-    transactionMerchant_edgesIn(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType: "MERCHANT_EDGE", direction: IN)
+    transactionMerchant_edgesIn(filter: TransactionInput, options: Options, sort: [TransactionSort!]): [Transaction] @relationship(edgeType: "MERCHANT_EDGE", direction: IN)
     MERCHANT_EDGE: Merchant_edge
 }
 
 input MerchantInput {
     _id: ID @id
     name: StringScalarFilters
+}
+
+input MerchantSort {
+    _id: SortingDirection
+    name: SortingDirection
 }
 
 type Transaction {
@@ -63,10 +85,16 @@ input TransactionInput {
     created: StringScalarFilters
 }
 
+input TransactionSort {
+    _id: SortingDirection
+    amount: SortingDirection
+    created: SortingDirection
+}
+
 type Address {
     _id: ID! @id
     value: String
-    accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
+    accountFeature_of_accountsOut(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
     FEATURE_OF_ACCOUNT: Feature_of_account
 }
 
@@ -75,11 +103,16 @@ input AddressInput {
     value: StringScalarFilters
 }
 
+input AddressSort {
+    _id: SortingDirection
+    value: SortingDirection
+}
+
 type Phonenumber @alias(property: "PhoneNumber") {
     _id: ID! @id
     value: String
-    accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
-    transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType: "FEATURE_OF_TRANSACTION", direction: OUT)
+    accountFeature_of_accountsOut(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
+    transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options, sort: [TransactionSort!]): [Transaction] @relationship(edgeType: "FEATURE_OF_TRANSACTION", direction: OUT)
     FEATURE_OF_ACCOUNT: Feature_of_account
     FEATURE_OF_TRANSACTION: Feature_of_transaction
 }
@@ -89,11 +122,16 @@ input PhonenumberInput {
     value: StringScalarFilters
 }
 
+input PhonenumberSort {
+    _id: SortingDirection
+    value: SortingDirection
+}
+
 type Ipaddress @alias(property: "IpAddress") {
     _id: ID! @id
     value: String
-    accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
-    transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options): [Transaction] @relationship(edgeType: "FEATURE_OF_TRANSACTION", direction: OUT)
+    accountFeature_of_accountsOut(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
+    transactionFeature_of_transactionsOut(filter: TransactionInput, options: Options, sort: [TransactionSort!]): [Transaction] @relationship(edgeType: "FEATURE_OF_TRANSACTION", direction: OUT)
     FEATURE_OF_ACCOUNT: Feature_of_account
     FEATURE_OF_TRANSACTION: Feature_of_transaction
 }
@@ -103,16 +141,26 @@ input IpaddressInput {
     value: StringScalarFilters
 }
 
+input IpaddressSort {
+    _id: SortingDirection
+    value: SortingDirection
+}
+
 type Emailaddress @alias(property: "EmailAddress") {
     _id: ID! @id
     value: String
-    accountFeature_of_accountsOut(filter: AccountInput, options: Options): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
+    accountFeature_of_accountsOut(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account] @relationship(edgeType: "FEATURE_OF_ACCOUNT", direction: OUT)
     FEATURE_OF_ACCOUNT: Feature_of_account
 }
 
 input EmailaddressInput {
     _id: ID @id
     value: StringScalarFilters
+}
+
+input EmailaddressSort {
+    _id: SortingDirection
+    value: SortingDirection
 }
 
 type Feature_of_account @alias(property: "FEATURE_OF_ACCOUNT") {
@@ -145,21 +193,21 @@ input StringScalarFilters {
 
 type Query {
     getNodeDateofbirth(filter: DateofbirthInput): Dateofbirth
-    getNodeDateofbirths(filter: DateofbirthInput, options: Options): [Dateofbirth]
+    getNodeDateofbirths(filter: DateofbirthInput, options: Options, sort: [DateofbirthSort!]): [Dateofbirth]
     getNodeAccount(filter: AccountInput): Account
-    getNodeAccounts(filter: AccountInput, options: Options): [Account]
+    getNodeAccounts(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account]
     getNodeMerchant(filter: MerchantInput): Merchant
-    getNodeMerchants(filter: MerchantInput, options: Options): [Merchant]
+    getNodeMerchants(filter: MerchantInput, options: Options, sort: [MerchantSort!]): [Merchant]
     getNodeTransaction(filter: TransactionInput): Transaction
-    getNodeTransactions(filter: TransactionInput, options: Options): [Transaction]
+    getNodeTransactions(filter: TransactionInput, options: Options, sort: [TransactionSort!]): [Transaction]
     getNodeAddress(filter: AddressInput): Address
-    getNodeAddresss(filter: AddressInput, options: Options): [Address]
+    getNodeAddresss(filter: AddressInput, options: Options, sort: [AddressSort!]): [Address]
     getNodePhonenumber(filter: PhonenumberInput): Phonenumber
-    getNodePhonenumbers(filter: PhonenumberInput, options: Options): [Phonenumber]
+    getNodePhonenumbers(filter: PhonenumberInput, options: Options, sort: [PhonenumberSort!]): [Phonenumber]
     getNodeIpaddress(filter: IpaddressInput): Ipaddress
-    getNodeIpaddresss(filter: IpaddressInput, options: Options): [Ipaddress]
+    getNodeIpaddresss(filter: IpaddressInput, options: Options, sort: [IpaddressSort!]): [Ipaddress]
     getNodeEmailaddress(filter: EmailaddressInput): Emailaddress
-    getNodeEmailaddresss(filter: EmailaddressInput, options: Options): [Emailaddress]
+    getNodeEmailaddresss(filter: EmailaddressInput, options: Options, sort: [EmailaddressSort!]): [Emailaddress]
 }
 
 schema {

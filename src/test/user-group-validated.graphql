@@ -27,6 +27,11 @@ enum Role {
 "https://the-guild.dev/graphql/scalars/docs/scalars/email-address"
 scalar EmailAddress
 
+enum SortDirection {
+  ASC
+  DESC
+}
+
 input UserInput {
   userId: ID! @id
   firstName: String
@@ -51,6 +56,14 @@ input UserUpdateInput {
   email: EmailAddress
 }
 
+input UserSort {
+  userId: SortDirection
+  firstName: SortDirection
+  lastName: SortDirection
+  role: SortDirection
+  email: SortDirection
+}
+
 input GroupInput {
   _id: ID! @id
   name: String
@@ -66,6 +79,11 @@ input GroupUpdateInput {
   name: String
 }
 
+input GroupSort {
+  _id: SortDirection
+  name: SortDirection
+}
+
 input ModeratorInput {
   moderatorId: ID! @id
   name: String
@@ -79,6 +97,11 @@ input ModeratorCreateInput {
 input ModeratorUpdateInput {
   moderatorId: ID! @id
   name: String
+}
+
+input ModeratorSort {
+  moderatorId: SortDirection
+  name: SortDirection
 }
 
 type GroupEdge {
@@ -99,11 +122,11 @@ input StringScalarFilters {
 
 type Query {
   getNodeUser(filter: UserInput): User
-  getNodeUsers(filter: UserInput, options: Options): [User]
+  getNodeUsers(filter: UserInput, options: Options, sort: [UserSort!]): [User]
   getNodeGroup(filter: GroupInput): Group
-  getNodeGroups(filter: GroupInput, options: Options): [Group]
+  getNodeGroups(filter: GroupInput, options: Options, sort: [GroupSort!]): [Group]
   getNodeModerator(filter: ModeratorInput): Moderator
-  getNodeModerators(filter: ModeratorInput, options: Options): [Moderator]
+  getNodeModerators(filter: ModeratorInput, options: Options, sort: [ModeratorSort!]): [Moderator]
 }
 
 type Mutation {

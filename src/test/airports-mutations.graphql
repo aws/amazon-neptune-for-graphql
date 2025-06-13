@@ -1,9 +1,14 @@
+enum SortingDirection {
+  ASC
+  DESC
+}
+
 type Continent @alias(property:"continent") {
   _id: ID! @id
   type: String
   code: String
   desc: String
-  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
+  airportContainssOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"contains", direction:OUT)
   contains:Contains
 }
 
@@ -28,12 +33,19 @@ input ContinentUpdateInput {
   desc: String
 }
 
+input ContinentSort {
+  _id: SortingDirection
+  type: SortingDirection
+  code: SortingDirection
+  desc: SortingDirection
+}
+
 type Country @alias(property:"country") {
   _id: ID! @id
   type: String
   code: String
   desc: String
-  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"contains", direction:OUT)
+  airportContainssOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"contains", direction:OUT)
   contains:Contains
 }
 
@@ -56,6 +68,13 @@ input CountryUpdateInput {
   type: String
   code: String
   desc: String
+}
+
+input CountrySort {
+  _id: SortingDirection
+  type: SortingDirection
+  code: SortingDirection
+  desc: SortingDirection
 }
 
 type Version @alias(property:"version") {
@@ -94,6 +113,15 @@ input VersionUpdateInput {
   code: String
 }
 
+input VersionSort {
+  _id: SortingDirection
+  date: SortingDirection
+  desc: SortingDirection
+  author: SortingDirection
+  type: SortingDirection
+  code: SortingDirection
+}
+
 type Airport @alias(property:"airport") {
   _id: ID! @id
   type: String
@@ -110,8 +138,8 @@ type Airport @alias(property:"airport") {
   elev: Int
   continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
   countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
-  airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:OUT)
-  airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType:"route", direction:IN)
+  airportRoutesOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"route", direction:OUT)
+  airportRoutesIn(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"route", direction:IN)
   contains:Contains
   route:Route
 }
@@ -164,6 +192,22 @@ input AirportUpdateInput {
   elev: Int
 }
 
+input AirportSort {
+  _id: SortingDirection
+  type: SortingDirection
+  city: SortingDirection
+  icao: SortingDirection
+  code: SortingDirection
+  country: SortingDirection
+  lat: SortingDirection
+  longest: SortingDirection
+  runways: SortingDirection
+  desc: SortingDirection
+  lon: SortingDirection
+  region: SortingDirection
+  elev: SortingDirection
+}
+
 type Contains @alias(property:"contains") {
   _id: ID! @id
 }
@@ -191,13 +235,13 @@ input StringScalarFilters {
 
 type Query {
   getNodeContinent(filter: ContinentInput): Continent
-  getNodeContinents(filter: ContinentInput, options: Options): [Continent]
+  getNodeContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
   getNodeCountry(filter: CountryInput): Country
-  getNodeCountrys(filter: CountryInput, options: Options): [Country]
+  getNodeCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
   getNodeVersion(filter: VersionInput): Version
-  getNodeVersions(filter: VersionInput, options: Options): [Version]
+  getNodeVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
   getNodeAirport(filter: AirportInput): Airport
-  getNodeAirports(filter: AirportInput, options: Options): [Airport]
+  getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
 }
 
 type Mutation {

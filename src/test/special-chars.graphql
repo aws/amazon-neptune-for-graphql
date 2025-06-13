@@ -1,3 +1,8 @@
+enum SortingDirection {
+  ASC
+  DESC
+}
+
 type Abc_ex__dol_123_amp_efg @alias(property: "abc!$123&efg") {
         _id: ID! @id
         instance_type: String
@@ -16,12 +21,19 @@ input Abc_ex__dol_123_amp_efgInput {
         arn: StringScalarFilters
 }
 
+input Abc_ex__dol_123_amp_efgSort {
+ _id: SortingDirection
+ instance_type: SortingDirection
+ state: SortingDirection
+ arn: SortingDirection 
+}
+
 type Abc_op_123_cp__dot_efg_cn_456 @alias(property: "abc(123).efg:456") {
         _id: ID! @id
         name: String
         ip_range_dot_first_ip: String @alias(property: "ip_range.first_ip")
         ip_range_dot_last_ip: String @alias(property: "ip_range.last_ip")
-        abc_ex__dol_123_amp_efgResource_linksIn(filter: Abc_ex__dol_123_amp_efgInput, options: Options): [Abc_ex__dol_123_amp_efg] @relationship(edgeType: "resource_link", direction: IN)
+        abc_ex__dol_123_amp_efgResource_linksIn(filter: Abc_ex__dol_123_amp_efgInput, options: Options, sort: [Abc_ex__dol_123_amp_efgSort!]): [Abc_ex__dol_123_amp_efg] @relationship(edgeType: "resource_link", direction: IN)
         resource_link: Resource_link
 }
 
@@ -30,6 +42,13 @@ input Abc_op_123_cp__dot_efg_cn_456Input {
         name: StringScalarFilters
         ip_range_dot_first_ip: StringScalarFilters @alias(property: "ip_range.first_ip")
         ip_range_dot_last_ip: StringScalarFilters @alias(property: "ip_range.last_ip")
+}
+
+input Abc_op_123_cp__dot_efg_cn_456Sort {
+  _id: SortingDirection
+  name: SortingDirection
+  ip_range_dot_first_ip: SortingDirection @alias(property: "ip_range.first_ip")
+  ip_range_dot_last_ip: SortingDirection @alias(property: "ip_range.last_ip")
 }
 
 type Abc_eq_123_at__os_efg_cs_456 @alias(property: "abc=123@[efg]456") {
@@ -46,6 +65,13 @@ input Abc_eq_123_at__os_efg_cs_456Input {
         arn: StringScalarFilters
 }
 
+input Abc_eq_123_at__os_efg_cs_456Sort {
+  _id: SortingDirection
+  instance_type: SortingDirection
+  state: SortingDirection
+  arn: SortingDirection
+}
+
 type Abc_oc_123_cc__vb_efg_hy_456 @alias(property: "abc{123}|efg-456") {
         _id: ID! @id
         name: String
@@ -58,6 +84,13 @@ input Abc_oc_123_cc__vb_efg_hy_456Input {
         name: StringScalarFilters
         ip_range_dot_first_ip: StringScalarFilters @alias(property: "ip_range.first_ip")
         ip_range_dot_last_ip: StringScalarFilters @alias(property: "ip_range.last_ip")
+}
+
+input Abc_oc_123_cc__vb_efg_hy_456Sort {
+  _id: SortingDirection
+  name: SortingDirection
+  ip_range_dot_first_ip: SortingDirection @alias(property: "ip_range.first_ip")
+  ip_range_dot_last_ip: SortingDirection @alias(property: "ip_range.last_ip")
 }
 
 type Resource_link @alias(property: "resource_link") {
@@ -78,13 +111,13 @@ input StringScalarFilters {
 
 type Query {
         getNodeAbc_ex__dol_123_amp_efg(filter: Abc_ex__dol_123_amp_efgInput): Abc_ex__dol_123_amp_efg
-        getNodeAbc_ex__dol_123_amp_efgs(filter: Abc_ex__dol_123_amp_efgInput, options: Options): [Abc_ex__dol_123_amp_efg]
+        getNodeAbc_ex__dol_123_amp_efgs(filter: Abc_ex__dol_123_amp_efgInput, options: Options, sort: [Abc_ex__dol_123_amp_efgSort!]): [Abc_ex__dol_123_amp_efg]
         getNodeAbc_op_123_cp__dot_efg_cn_456(filter: Abc_op_123_cp__dot_efg_cn_456Input): Abc_op_123_cp__dot_efg_cn_456
-        getNodeAbc_op_123_cp__dot_efg_cn_456s(filter: Abc_op_123_cp__dot_efg_cn_456Input, options: Options): [Abc_op_123_cp__dot_efg_cn_456]
+        getNodeAbc_op_123_cp__dot_efg_cn_456s(filter: Abc_op_123_cp__dot_efg_cn_456Input, options: Options, sort: [Abc_op_123_cp__dot_efg_cn_456Sort!]): [Abc_op_123_cp__dot_efg_cn_456]
         getNodeAbc_eq_123_at__os_efg_cs_456(filter: Abc_eq_123_at__os_efg_cs_456Input): Abc_eq_123_at__os_efg_cs_456
-        getNodeAbc_eq_123_at__os_efg_cs_456s(filter: Abc_eq_123_at__os_efg_cs_456Input, options: Options): [Abc_eq_123_at__os_efg_cs_456]
+        getNodeAbc_eq_123_at__os_efg_cs_456s(filter: Abc_eq_123_at__os_efg_cs_456Input, options: Options, sort: [Abc_eq_123_at__os_efg_cs_456Sort!]): [Abc_eq_123_at__os_efg_cs_456]
         getNodeAbc_oc_123_cc__vb_efg_hy_456(filter: Abc_oc_123_cc__vb_efg_hy_456Input): Abc_oc_123_cc__vb_efg_hy_456
-        getNodeAbc_oc_123_cc__vb_efg_hy_456s(filter: Abc_oc_123_cc__vb_efg_hy_456Input, options: Options): [Abc_oc_123_cc__vb_efg_hy_456]
+        getNodeAbc_oc_123_cc__vb_efg_hy_456s(filter: Abc_oc_123_cc__vb_efg_hy_456Input, options: Options,  sort: [Abc_oc_123_cc__vb_efg_hy_456Sort!]): [Abc_oc_123_cc__vb_efg_hy_456]
 }
 
 schema {
