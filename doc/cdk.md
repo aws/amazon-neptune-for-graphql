@@ -105,7 +105,7 @@ new AppSyncNeptuneStack(app, 'your-CdkStack-name', {
 
 ### Run the CDK application
 
-To create CloudFormantion template:
+To create CloudFormation template:
 
 `cdk synth`
 
@@ -113,6 +113,6 @@ To deploy the CloudFormation template:
 
 `cdk deploy`
 
-To rollback your deployment:
+To roll back your deployment:
 
 `cdk destroy`

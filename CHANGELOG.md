@@ -59,3 +59,4 @@ This release contains new support for Apollo Server integration.
 * Enabled mutations for the Apollo Server ([#98](https://github.com/aws/amazon-neptune-for-graphql/pull/98))
 * Refactored integration tests to be less vulnerable to resolver logic changes ([#99](https://github.com/aws/amazon-neptune-for-graphql/pull/99))
 * Enabled usage of query fragments with Apollo Server ([#103](https://github.com/aws/amazon-neptune-for-graphql/pull/103))
+* Updated and proofread outdated documentation ([#107](https://github.com/aws/amazon-neptune-for-graphql/pull/107))
