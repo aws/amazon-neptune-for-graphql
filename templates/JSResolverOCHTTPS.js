@@ -942,16 +942,55 @@ function convertToValueNode(value) {
 
 /**
  * Replaces any variable references in the selection with the actual value from the variables object.
- * @param selection the graphQL selection to replace variable references in
- * @param variables the variables object
+ * @param {object} selection the graphQL selection to replace variable references in
+ * @param {object} variables the variables object
  */
-function replaceVariableArgsWithValues(selection, variables) {
-    selection.arguments?.filter(arg => arg.value?.kind === 'Variable' 
-        && arg.value?.name?.value && variables.hasOwnProperty(arg.value.name.value))
-        .forEach(arg => {
-        // replace variable reference with actual value
-        arg.value = convertToValueNode(variables[arg.value.name.value]);
+function replaceVariableArgsWithValues(selection, variables = {}) {
+    if (!selection?.arguments || !variables) {
+        return;
+    }
+
+    selection.arguments.forEach(arg => {
+        if (!arg.value) {
+            return;
+        }
+        replaceVariableInValue(arg.value, variables);
     });
+}
+
+/**
+ * Recursively replaces any variable references in a value node with the variable value
+ * @param {Object} valueNode - The value node to process
+ * @param {Object} variables - The variables object containing values to substitute
+ */
+function replaceVariableInValue(valueNode, variables = {}) {
+    if (!valueNode || !variables) {
+        return;
+    }
+    
+    if (valueNode.kind === 'Variable' &&
+        valueNode.name?.value &&
+        variables.hasOwnProperty(valueNode.name.value)) {
+        // replace the variable with actual value
+        Object.assign(valueNode, convertToValueNode(variables[valueNode.name.value]));
+        return;
+    }
+    
+    if (valueNode.kind === 'ObjectValue' && valueNode.fields) {
+        // replace any variables in the object value fields
+        valueNode.fields.forEach(field => {
+            replaceVariableInValue(field.value, variables);
+        });
+        return;
+    }
+    
+    if (valueNode.kind === 'ListValue' && valueNode.values) {
+        // replace any variables in the list values
+        valueNode.values.forEach(value => {
+            replaceVariableInValue(value, variables);
+        });
+        return;
+    }
 }
 
 /**
