@@ -979,9 +979,7 @@ function replaceVariableInValue(valueNode, variables = {}) {
     if (valueNode.kind === 'ObjectValue' && valueNode.fields) {
         // replace any variables in the object value fields
         valueNode.fields.forEach(field => {
-            if (field.value) {
-                replaceVariableInValue(field.value, variables);
-            }
+            replaceVariableInValue(field.value, variables);
         });
         return;
     }
