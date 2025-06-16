@@ -10,8 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { astFromValue, buildASTSchema, GraphQLError, GraphQLID, GraphQLInputObjectType, typeFromAST } from 'graphql';
-import { gql } from 'graphql-tag'; // GraphQL library to parse the GraphQL query
+import { astFromValue, buildASTSchema, GraphQLError, GraphQLID, GraphQLInputObjectType, parse, typeFromAST } from 'graphql';
 
 const useCallSubquery = false;
 
@@ -43,7 +42,7 @@ export function resolveGraphDBQueryFromAppSyncEvent(event) {
         // fragments not yet supported in app sync - see https://github.com/aws-samples/appsync-with-postgraphile-rds/issues/18
         fragments: {},
         variables: event.variables,
-        selectionSet: event.selectionSetGraphQL ? gql`${event.selectionSetGraphQL}`.definitions[0].selectionSet : {}
+        selectionSet: event.selectionSetGraphQL ? parse(event.selectionSetGraphQL).definitions[0].selectionSet : {}
     });
 }
 
@@ -1399,7 +1398,7 @@ function resolveGremlinQuery(obj, querySchemaInfo) {
 function parseQueryInput(queryObjOrStr) {
     // Backwards compatibility
     if (typeof queryObjOrStr === 'string') {
-        return gql(queryObjOrStr);
+        return parse(queryObjOrStr);
     }
 
     // Already in AST format
