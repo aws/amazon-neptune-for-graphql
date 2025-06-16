@@ -34,6 +34,7 @@ This release contains new support for Apollo Server integration.
 * Fixed usage of variables with nested edge subqueries (([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
 * Fixed cdk output file to contain previously missing files that were necessary to execute the lambda resolver (([#106](https://github.com/aws/amazon-neptune-for-graphql/pull/106))
 * Fixed resolution of nested variables in selection set arguments (([#108](https://github.com/aws/amazon-neptune-for-graphql/pull/108))
+* Changed resolver to use `graphql` `parse` instead of `graphql-tag` `gql` to avoid stale values due to caching (([#109](https://github.com/aws/amazon-neptune-for-graphql/pull/109))
 
 
 ### Features

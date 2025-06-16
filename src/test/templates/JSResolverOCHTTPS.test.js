@@ -1283,9 +1283,11 @@ test('should resolve multiple app sync events with updated variable values', () 
         field: 'getNodeAirports',
         arguments: { options: { limit: 3 } },
         selectionSetGraphQL: '{ code, airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) { code } }',
+        // initial variable values
         variables: { country: 'CA',  limit: 2}
     });
 
+    // first result should reflect initial variable values
     expect(firstResult).toEqual({
         query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport LIMIT 3\n' +
             'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
@@ -1300,9 +1302,11 @@ test('should resolve multiple app sync events with updated variable values', () 
         field: 'getNodeAirports',
         arguments: { options: { limit: 3 } },
         selectionSetGraphQL: '{ code, airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) { code } }',
+        // updated variable values
         variables: { country: 'MX',  limit: 1}
     });
 
+    // second result should reflect updated variable values
     expect(secondResult).toEqual({
         query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport LIMIT 3\n' +
             'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
