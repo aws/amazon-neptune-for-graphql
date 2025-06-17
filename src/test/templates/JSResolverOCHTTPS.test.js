@@ -1277,3 +1277,43 @@ test('should throw error for query with multiple sort arguments in one object', 
         });
     }).toThrow('Cannot have more than one field in a single sort object. Please use multiple single-field sort objects instead');
 });
+
+test('should resolve multiple app sync events with updated variable values', () => {
+    const firstResult = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: 3 } },
+        selectionSetGraphQL: '{ code, airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) { code } }',
+        // initial variable values
+        variables: { country: 'CA',  limit: 2}
+    });
+
+    // first result should reflect initial variable values
+    expect(firstResult).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport LIMIT 3\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
+            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesOut.`code`})[..2] END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'RETURN collect({code: getNodeAirports_Airport.`code`, airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect})[..3]',
+        parameters: { getNodeAirports_Airport_airportRoutesOut_country: 'CA'},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+
+    const secondResult = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeAirports',
+        arguments: { options: { limit: 3 } },
+        selectionSetGraphQL: '{ code, airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) { code } }',
+        // updated variable values
+        variables: { country: 'MX',  limit: 1}
+    });
+
+    // second result should reflect updated variable values
+    expect(secondResult).toEqual({
+        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport LIMIT 3\n' +
+            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
+            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesOut.`code`})[..1] END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'RETURN collect({code: getNodeAirports_Airport.`code`, airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect})[..3]',
+        parameters: { getNodeAirports_Airport_airportRoutesOut_country: 'MX'},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});

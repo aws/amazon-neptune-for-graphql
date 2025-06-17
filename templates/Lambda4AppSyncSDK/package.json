@@ -11,6 +11,6 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@aws-sdk/client-neptunedata": "3.403.0",
-    "graphql-tag": "2.12.6"
+    "graphql": "^16.8.1"
   }
 }
