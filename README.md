@@ -11,6 +11,10 @@ If you **start from a Neptune database with data**, the utility discovers the gr
 > 
 > This utility works for Property Graph databases only. Support for RDF has not yet been added.
 
+> [!NOTE]
+> 
+> This utility works for Property Graph databases only. Support for RDF has not yet been added.
+
 You can also **start with a GraphQL schema with your types and an empty Neptune database**. The utility will process your starting GraphQL schema and inference the directives required to map it to the Neptune database graph nodes and edges. You can also **start with a GraphQL schema with the directives**, that you have modified or created.
 
 The utility has the option to **generate the AWS resources** of the entire pipeline, including the AWS AppSync API, configuring the roles, data source, schema and resolver, and the AWS Lambda that queries Amazon Neptune.
