@@ -3,6 +3,7 @@ import fs, {readFileSync} from 'fs';
 import AdmZip from 'adm-zip';
 import gql from 'graphql-tag';
 import path from 'path';
+import { AppSyncClient, CreateApiKeyCommand, GetGraphqlApiCommand } from '@aws-sdk/client-appsync';
 
 const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
 const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
@@ -215,12 +216,69 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
     });
 }
 
+/**
+ * Executes a GraphQL query against an AWS AppSync API.
+ * This function creates a new API key, executes the query, and returns the response.
+ *
+ * @param {string} apiId - The AWS AppSync API ID
+ * @param {string} query - The GraphQL query to execute
+ * @param {object} variables - Variables to use with the GraphQL query
+ * @param {string} region - AWS region where the AppSync API is deployed
+ * @returns {Promise<object>} - The GraphQL query response
+ */
+async function executeAppSyncQuery(apiId, query, variables, region) {
+    // Create AppSync client
+    const appSyncClient = new AppSyncClient({ region });
+    
+    try {
+        // Create a new API key
+        const createKeyCommand = new CreateApiKeyCommand({
+            apiId: apiId,
+            description: 'jest test API key'
+        });
+        
+        console.log(`Creating API key for AppSync API: ${apiId}`);
+        const keyResponse = await appSyncClient.send(createKeyCommand);
+        const apiKey = keyResponse.apiKey.id;
+        
+        // Get the AppSync API URL
+        const getApiCommand = new GetGraphqlApiCommand({
+            apiId: apiId
+        });
+        
+        const apiDetails = await appSyncClient.send(getApiCommand);
+        const apiUrl = apiDetails.graphqlApi.uris.GRAPHQL;
+        
+        console.log(`Executing GraphQL query against: ${apiUrl}`);
+        
+        // Execute the GraphQL query
+        const response = await axios({
+            url: apiUrl,
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey
+            },
+            data: {
+                query: query,
+                variables: variables
+            }
+        });
+        
+        return response.data;
+    } catch (error) {
+        console.error('Error executing AppSync query:', error);
+        throw error;
+    }
+}
+
 export {
     checkFileContains,
     checkFolderContainsFiles,
     checkOutputFileContent,
     checkOutputZipLambdaUsesSdk,
     compareFileContents,
+    executeAppSyncQuery,
     loadResolver,
     readJSONFile,
     testApolloArtifacts,

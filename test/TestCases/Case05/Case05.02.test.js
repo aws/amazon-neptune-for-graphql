@@ -1,4 +1,4 @@
-import { checkFolderContainsFiles, unzipAndGetContents } from '../../testLib';
+import { checkFolderContainsFiles, executeAppSyncQuery, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
 import path from "path";
 
@@ -34,4 +34,12 @@ describe('Validate pipeline with http resolver output content', () => {
         const fileContent = fs.readFileSync(path.join(unzippedFolder, 'index.mjs'), 'utf8');
         expect(fileContent).toContain('axios');
     });
+
+    test('Can query app sync API successfully', async () => {
+        const awsResources = JSON.parse(fs.readFileSync(path.join(outputFolderPath, 'AirportsJestTest-resources.json'), 'utf8'));
+        const apiId = awsResources.AppSyncAPI;
+        const region = awsResources.region;
+        const response = await executeAppSyncQuery(apiId, 'query {getNodeContinents {code, desc}}', {}, region);
+        console.log(response);
+    }, 600000);
 });
