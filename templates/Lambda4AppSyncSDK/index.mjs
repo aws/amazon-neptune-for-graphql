@@ -8,6 +8,10 @@ const config = {
     endpoint: `https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`
 };
 
+const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+const schemaModel = JSON.parse(schemaDataModelJSON);
+initSchema(schemaModel);
+
 let client;
 
 function getClient() {
@@ -42,9 +46,6 @@ export const handler = async(event) => {
     let resolver = { query:'', parameters:{}, language: 'opencypher', fieldsAlias: {} };
 
     try {
-        const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
-        let schemaModel = JSON.parse(schemaDataModelJSON);
-        initSchema(schemaModel);
         resolver = resolveGraphDBQueryFromAppSyncEvent(event);
         if (LOGGING_ENABLED) console.log(JSON.stringify(resolver, null, 2));
     } catch (error) {

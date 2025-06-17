@@ -6,6 +6,10 @@ const PROTOCOL = 'https';
 const QUERY_LANGUAGE = 'OPEN_CYPHER';
 const RESOLVER_LANGUAGE = 'opencypher';
 
+const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+const schemaModel = JSON.parse(schemaDataModelJSON);
+initSchema(schemaModel);
+
 let client;
 
 function getClient() {
@@ -50,9 +54,6 @@ function log(message) {
  */
 function resolveGraphQuery(event) {
     try {
-        const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
-        let schemaModel = JSON.parse(schemaDataModelJSON);
-        initSchema(schemaModel);
         let resolver = resolveGraphDBQueryFromAppSyncEvent(event);
         if (resolver.language !== RESOLVER_LANGUAGE) {
             return onError('Unsupported resolver language:' + resolver.language)

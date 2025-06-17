@@ -7,13 +7,16 @@ import {readFileSync} from "fs";
 
 const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
+const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+const schemaModel = JSON.parse(schemaDataModelJSON);
+initSchema(schemaModel);
+
 const {
     AWS_ACCESS_KEY_ID,
     AWS_SECRET_ACCESS_KEY,
     AWS_SESSION_TOKEN,
     AWS_REGION
 } = process.env;
-
 
 if (process.env.NEPTUNE_IAM_AUTH_ENABLED === 'true') {
     let serviceName;
@@ -47,9 +50,6 @@ export const handler = async (event) => {
     }
     try {
         // Create Neptune query from GraphQL query
-        const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
-        let schemaModel = JSON.parse(schemaDataModelJSON);
-        initSchema(schemaModel);
         const resolver = resolveGraphDBQueryFromAppSyncEvent(event);
         if (LOGGING_ENABLED) console.log("Resolver: ", resolver);
         return queryNeptune(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`, resolver, {loggingEnabled: LOGGING_ENABLED})
