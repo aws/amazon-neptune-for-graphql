@@ -1,6 +1,14 @@
-import { NeptunedataClient, ExecuteOpenCypherQueryCommand, ExecuteGremlinQueryCommand } from "@aws-sdk/client-neptunedata";
-import {resolveGraphDBQueryFromAppSyncEvent, refactorGremlinqueryOutput, initSchema} from './output.resolver.graphql.js';
-import {readFileSync} from "fs";
+import {
+    ExecuteGremlinQueryCommand,
+    ExecuteOpenCypherQueryCommand,
+    NeptunedataClient
+} from "@aws-sdk/client-neptunedata";
+import {
+    initSchema,
+    refactorGremlinqueryOutput,
+    resolveGraphDBQueryFromAppSyncEvent
+} from './output.resolver.graphql.js';
+import { decompressGzipToString } from './util.mjs';
 
 const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
@@ -8,7 +16,7 @@ const config = {
     endpoint: `https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`
 };
 
-const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+const schemaDataModelJSON = await decompressGzipToString('output.resolver.schema.json.gz');
 const schemaModel = JSON.parse(schemaDataModelJSON);
 initSchema(schemaModel);
 

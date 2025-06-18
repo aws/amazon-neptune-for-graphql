@@ -1,16 +1,16 @@
-import {ExecuteQueryCommand, NeptuneGraphClient} from "@aws-sdk/client-neptune-graph";
-import {resolveGraphDBQueryFromAppSyncEvent, initSchema} from './output.resolver.graphql.js';
-import {readFileSync} from "fs";
+import { ExecuteQueryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
+import { initSchema, resolveGraphDBQueryFromAppSyncEvent } from './output.resolver.graphql.js';
+import { decompressGzipToString } from './util.mjs';
 
 const PROTOCOL = 'https';
 const QUERY_LANGUAGE = 'OPEN_CYPHER';
 const RESOLVER_LANGUAGE = 'opencypher';
 
-const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
+let client;
+
+const schemaDataModelJSON = await decompressGzipToString('output.resolver.schema.json.gz');
 const schemaModel = JSON.parse(schemaDataModelJSON);
 initSchema(schemaModel);
-
-let client;
 
 function getClient() {
     if (!client) {

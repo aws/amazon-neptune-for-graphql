@@ -19,7 +19,12 @@ import { validatedSchemaModel} from './schemaModelValidator.js';
 import { getNeptuneSchema, setGetNeptuneSchemaParameters } from './NeptuneSchema.js';
 import { createUpdateAWSpipeline, removeAWSpipelineResources } from './pipelineResources.js'
 import { createAWSpipelineCDK } from './CDKPipelineApp.js'
-import { createApolloDeploymentPackage, createLambdaDeploymentPackage, getModulePath } from './zipPackage.js'
+import {
+    createApolloDeploymentPackage,
+    createLambdaDeploymentPackage,
+    getModulePath,
+    toGzipFile
+} from './zipPackage.js'
 import { loggerDebug, loggerError, loggerInfo, loggerInit, yellow } from './logger.js';
 
 import ora from 'ora';
@@ -523,10 +528,11 @@ async function main() {
 
         // Generate schema for resolver
         const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
-        const resolverSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json`);
+        const resolverSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json.gz`);
 
         try {
-            writeFileSync(resolverSchemaFile, queryDataModelJSON);
+            // writeFileSync(resolverSchemaFile, queryDataModelJSON);
+            await toGzipFile(queryDataModelJSON, resolverSchemaFile);
             loggerInfo('Wrote schema for resolver to file: ' + yellow(resolverSchemaFile), {toConsole: true});
         } catch (err) {
             loggerError('Error writing schema for resolver to file: ' + yellow(resolverSchemaFile), err);
@@ -624,10 +630,11 @@ async function main() {
             break;
         }
 
+        const resolverSchemaFilePath = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json.gz`);
+        
         // output Apollo zip
         if (createUpdateApolloServer || createUpdateApolloServerSubgraph) {
             const apolloZipPath = path.join(outputFolderPath, `apollo-server-${neptuneInfo.graphName}-${new Date().getTime()}.zip`);
-            const resolverSchemaFilePath = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json`);
             try {
                 if (!quiet) {
                     spinner = ora('Creating Apollo server ZIP file ...').start();
@@ -665,7 +672,8 @@ async function main() {
                 await createLambdaDeploymentPackage({
                     outputZipFilePath: outputLambdaResolverZipFile,
                     templateFolderPath: path.join(__dirname, outputLambdaPackagePath),
-                    resolverFilePath: outputLambdaResolverFile
+                    resolverFilePath: outputLambdaResolverFile,
+                    resolverSchemaFilePath: resolverSchemaFilePath
                 });
                 if (!quiet) {
                     spinner.succeed('Created Lambda ZIP');
