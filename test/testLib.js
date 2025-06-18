@@ -217,16 +217,14 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
 }
 
 /**
- * Executes a GraphQL query against an AWS AppSync API.
- * This function creates a new API key, executes the query, and returns the response.
+ * Creates a new API key for an AWS AppSync API.
  *
  * @param {string} apiId - The AWS AppSync API ID
- * @param {string} query - The GraphQL query to execute
- * @param {object} variables - Variables to use with the GraphQL query
  * @param {string} region - AWS region where the AppSync API is deployed
- * @returns {Promise<object>} - The GraphQL query response
+ * @param {string} description - Description for the API key
+ * @returns {Promise<string>} - The API key
  */
-async function executeAppSyncQuery(apiId, query, variables, region) {
+async function createAppSyncApiKey(apiId, region, description = 'jest test API key') {
     // Create AppSync client
     const appSyncClient = new AppSyncClient({ region });
     
@@ -234,12 +232,34 @@ async function executeAppSyncQuery(apiId, query, variables, region) {
         // Create a new API key
         const createKeyCommand = new CreateApiKeyCommand({
             apiId: apiId,
-            description: 'jest test API key'
+            description: description
         });
         
         console.log(`Creating API key for AppSync API: ${apiId}`);
         const keyResponse = await appSyncClient.send(createKeyCommand);
         const apiKey = keyResponse.apiKey.id;
+        
+        return apiKey;
+    } catch (error) {
+        console.error('Error creating AppSync API key:', error);
+        throw error;
+    }
+}
+
+/**
+ * Executes a GraphQL query against an AWS AppSync API using the provided API key.
+ *
+ * @param {string} apiId - The AWS AppSync API ID
+ * @param {string} apiKey - The API key to use for authentication
+ * @param {string} query - The GraphQL query to execute
+ * @param {object} variables - Variables to use with the GraphQL query
+ * @param {string} region - AWS region where the AppSync API is deployed
+ * @returns {Promise<object>} - The GraphQL query response
+ */
+async function executeGraphQLQuery(apiId, apiKey, query, variables, region) {
+    try {
+        // Create AppSync client
+        const appSyncClient = new AppSyncClient({ region });
         
         // Get the AppSync API URL
         const getApiCommand = new GetGraphqlApiCommand({
@@ -264,12 +284,28 @@ async function executeAppSyncQuery(apiId, query, variables, region) {
                 variables: variables
             }
         });
-        
+
+        console.log('Received response from GraphQL query: ' + JSON.stringify(response.data));
         return response.data;
     } catch (error) {
-        console.error('Error executing AppSync query:', error);
+        console.error('Error executing GraphQL query:', error);
         throw error;
     }
+}
+
+/**
+ * Executes a GraphQL query against an AWS AppSync API.
+ * This function creates a new API key, executes the query, and returns the response.
+ *
+ * @param {string} apiId - The AWS AppSync API ID
+ * @param {string} query - The GraphQL query to execute
+ * @param {object} variables - Variables to use with the GraphQL query
+ * @param {string} region - AWS region where the AppSync API is deployed
+ * @returns {Promise<object>} - The GraphQL query response
+ */
+async function executeAppSyncQuery(apiId, query, variables, region) {
+    const apiKey = await createAppSyncApiKey(apiId, region);
+    return executeGraphQLQuery(apiId, apiKey, query, variables, region);
 }
 
 export {
@@ -278,7 +314,9 @@ export {
     checkOutputFileContent,
     checkOutputZipLambdaUsesSdk,
     compareFileContents,
+    createAppSyncApiKey,
     executeAppSyncQuery,
+    executeGraphQLQuery,
     loadResolver,
     readJSONFile,
     testApolloArtifacts,

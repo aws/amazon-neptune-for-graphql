@@ -39,7 +39,8 @@ describe('Validate pipeline with http resolver output content', () => {
         const awsResources = JSON.parse(fs.readFileSync(path.join(outputFolderPath, 'AirportsJestTest-resources.json'), 'utf8'));
         const apiId = awsResources.AppSyncAPI;
         const region = awsResources.region;
-        const response = await executeAppSyncQuery(apiId, 'query {getNodeContinents {code, desc}}', {}, region);
-        console.log(response);
+        const results = await executeAppSyncQuery(apiId, 'query {getNodeContinents {code}}', {}, region);
+        const codes = results.data.getNodeContinents.map(continent => continent.code).sort();
+        expect(codes).toEqual(['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']);
     }, 600000);
 });
