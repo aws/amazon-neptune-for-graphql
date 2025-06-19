@@ -90,9 +90,7 @@ To rollback, removing all the AWS resources run:
 
 # Starting from a GraphQL schema and an empty Neptune database
 You can start from an empty Neptune database and use a GraphQL API to create the data and query it. Running the command below, the utility will automate the creation of the AWS resources.
-
 Your *your-graphql-schema-file* must include the GraphQL schema types, like in the [TODO example](/doc/todoExample.md). The utility will analyze your schema and create an extended version based on your types. It will add queries and mutations for the nodes stored in the graph database, and in case your schema have nested types, it will add relationships between the types stored as edges in the graph database, again see the [TODO example](/doc/todoExample.md).
-
 The utility creates an AppSync GraphQL API and the required AWS resources, like a pair of IAM roles and a Lambda function with the GraphQL resolver code. As soon as the utility completes the execution, you will find in the AppSync console your new GraphQL API called *your-new-GraphQL-API-name*API. To test it, use the AppSync “Queries” from the menu.
 
 > [!TIP]
