@@ -96,7 +96,7 @@ Below is the GraphQL schema with directives, inferred by the utility.
 - For each node three mutations: create, update and delete. Selecting the node to delete using an id or the input for that node/type.
 - For edges two mutations: connect and delete. They take as input the ids of the from and to node, and in case the edge type has properties the correspondent input.
 
-> [!NOTE]
+> [!TIP]
 > The queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: *Customize the GraphQL schema with directives*.
 
 <details>

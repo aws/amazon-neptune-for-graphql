@@ -24,14 +24,19 @@ Let's now run this schema through the utility and create the GraphQL API in AWS 
 The utility created a new file in the *output* folder called *TodoExample.source.graphql*, and the GraphQL API in AppSync. As you can see below, the utility inferenced:
 
 - In the type *Todo* it added *@relationship* for a new type *CommentEdge*. This is instructing the resolver to connect *Todo* to *Comment* using a graph database edge called *CommentEdge*.
-- A new input called *TodoInput* was added to help the queries.
+- A new input called *TodoInput* was added to help with queries.
 - Two other new input types called *TodoCreateInput* and *TodoUpdateInput* were added to help with mutations.
 - The new input *TodoSort* was added to allow specifying sort order for the getNodeTodos query.
 - For each type (*Todo*, *Comment*) the utility added two queries. One to retrieve a single type using an id or any of the type fields listed in the input, and the second to retrive multiple values, filtered using the input of that type.
 - For each type three mutations: create, update and delete. Selecting the type to delete using an id or the input for that type. These mutation affect the data stored in The Neptune database.
 - For connections two mutations: connect and delete. They take as input the ids of the from and to. The ids are of used by Neptune, and the connection are edges in the graph database as mention earlier.
 
-Note: the queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: [Customize the GraphQL schema with directives](https://github.com/aws/amazon-neptune-for-graphql/blob/main/README.md/#customize-the-graphql-schema-with-directives).
+> [!TIP]
+> The queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: [Customize the GraphQL schema with directives](https://github.com/aws/amazon-neptune-for-graphql/blob/main/README.md/#customize-the-graphql-schema-with-directives).
+
+<details>
+
+<summary>Todo GraphQL Schema</summary>
 
 ```graphql
 enum SortingDirection {
@@ -57,10 +62,10 @@ type Comment {
 
 input TodoInput {
     _id: ID @id
-    name: String
-    description: String
+    name: StringScalarFilters
+    description: StringScalarFilters
     priority: Int
-    status: String
+    status: StringScalarFilters
 }
 
 input TodoCreateInput {
@@ -93,7 +98,7 @@ type CommentEdge {
 
 input CommentInput {
     _id: ID @id
-    content: String
+    content: StringScalarFilters
 }
 
 input CommentCreateInput {
@@ -145,6 +150,7 @@ schema {
   mutation: Mutation
 }
 ```
+</details>
 
 Now we are ready to create and query our data. 
 
