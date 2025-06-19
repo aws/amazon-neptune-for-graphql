@@ -1,4 +1,4 @@
-import { checkFolderContainsFiles, compareFileContents, unzipAndGetContents } from '../../testLib';
+import { checkFolderContainsFiles, compareFileContents, executeAppSyncQuery, unzipAndGetContents } from '../../testLib';
 import path from "path";
 import fs from "fs";
 
@@ -43,4 +43,13 @@ describe('Validate pipeline with sdk resolver output content', () => {
         const fileContent = fs.readFileSync(path.join(unzippedFolder, 'index.mjs'), 'utf8');
         expect(fileContent).toContain('@aws-sdk/client-neptune');
     });
+
+    test('Can query app sync API successfully', async () => {
+        const awsResources = JSON.parse(fs.readFileSync(path.join(outputFolderPath, 'AirportsJestSDKTest-resources.json'), 'utf8'));
+        const apiId = awsResources.AppSyncAPI;
+        const region = awsResources.region;
+        const results = await executeAppSyncQuery(apiId, 'query {getNodeContinents {code}}', {}, region);
+        const codes = results.data.getNodeContinents.map(continent => continent.code).sort();
+        expect(codes).toEqual(['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']);
+    }, 600000);
 });

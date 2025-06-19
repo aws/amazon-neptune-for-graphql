@@ -212,21 +212,14 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
  * @returns {Promise<string>} - The API key
  */
 async function createAppSyncApiKey(apiId, region, description = 'jest test API key') {
-    // Create AppSync client
     const appSyncClient = new AppSyncClient({ region });
-    
     try {
-        // Create a new API key
         const createKeyCommand = new CreateApiKeyCommand({
             apiId: apiId,
             description: description
         });
-        
-        console.log(`Creating API key for AppSync API: ${apiId}`);
         const keyResponse = await appSyncClient.send(createKeyCommand);
-        const apiKey = keyResponse.apiKey.id;
-        
-        return apiKey;
+        return keyResponse.apiKey.id;
     } catch (error) {
         console.error('Error creating AppSync API key:', error);
         throw error;
@@ -245,20 +238,13 @@ async function createAppSyncApiKey(apiId, region, description = 'jest test API k
  */
 async function executeGraphQLQuery(apiId, apiKey, query, variables, region) {
     try {
-        // Create AppSync client
         const appSyncClient = new AppSyncClient({ region });
-        
-        // Get the AppSync API URL
         const getApiCommand = new GetGraphqlApiCommand({
             apiId: apiId
         });
-        
         const apiDetails = await appSyncClient.send(getApiCommand);
         const apiUrl = apiDetails.graphqlApi.uris.GRAPHQL;
         
-        console.log(`Executing GraphQL query against: ${apiUrl}`);
-        
-        // Execute the GraphQL query
         const response = await axios({
             url: apiUrl,
             method: 'post',
@@ -272,7 +258,6 @@ async function executeGraphQLQuery(apiId, apiKey, query, variables, region) {
             }
         });
 
-        console.log('Received response from GraphQL query: ' + JSON.stringify(response.data));
         return response.data;
     } catch (error) {
         console.error('Error executing GraphQL query:', error);
@@ -288,10 +273,13 @@ async function executeGraphQLQuery(apiId, apiKey, query, variables, region) {
  * @param {string} query - The GraphQL query to execute
  * @param {object} variables - Variables to use with the GraphQL query
  * @param {string} region - AWS region where the AppSync API is deployed
+ * @param {string} apiKey - The optional API key to use for authentication - if not provided, a new API key will be created
  * @returns {Promise<object>} - The GraphQL query response
  */
-async function executeAppSyncQuery(apiId, query, variables, region) {
-    const apiKey = await createAppSyncApiKey(apiId, region);
+async function executeAppSyncQuery(apiId, query, variables, region, apiKey) {
+    if (!apiKey) {
+        apiKey = await createAppSyncApiKey(apiId, region);
+    }
     return executeGraphQLQuery(apiId, apiKey, query, variables, region);
 }
 
