@@ -23,7 +23,7 @@ import {
     createApolloDeploymentPackage,
     createLambdaDeploymentPackage,
     getModulePath,
-    toGzipFile
+    compressToGzipFile
 } from './zipPackage.js'
 import { loggerDebug, loggerError, loggerInfo, loggerInit, yellow } from './logger.js';
 
@@ -518,7 +518,8 @@ async function main() {
     if (inputGraphQLSchemaChanges != '') {
         inputGraphQLSchema = changeGraphQLSchema(inputGraphQLSchema, inputGraphQLSchemaChanges); 
     }
-    
+
+    const resolverSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json.gz`);
     if (inputGraphQLSchema != '') {
         // Parse schema
         schemaModel = schemaParser(inputGraphQLSchema);
@@ -528,12 +529,10 @@ async function main() {
 
         // Generate schema for resolver
         const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
-        const resolverSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json.gz`);
 
         try {
-            // writeFileSync(resolverSchemaFile, queryDataModelJSON);
-            await toGzipFile(queryDataModelJSON, resolverSchemaFile);
-            loggerInfo('Wrote schema for resolver to file: ' + yellow(resolverSchemaFile), {toConsole: true});
+            await compressToGzipFile(queryDataModelJSON, resolverSchemaFile);
+            loggerInfo('Wrote compressed schema for resolver to file: ' + yellow(resolverSchemaFile), {toConsole: true});
         } catch (err) {
             loggerError('Error writing schema for resolver to file: ' + yellow(resolverSchemaFile), err);
         }
@@ -629,8 +628,6 @@ async function main() {
                 }
             break;
         }
-
-        const resolverSchemaFilePath = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json.gz`);
         
         // output Apollo zip
         if (createUpdateApolloServer || createUpdateApolloServerSubgraph) {
@@ -643,7 +640,7 @@ async function main() {
                     zipFilePath: apolloZipPath,
                     resolverFilePath: outputLambdaResolverFile,
                     schemaFilePath: outputSchemaFile,
-                    resolverSchemaFilePath: resolverSchemaFilePath,
+                    resolverSchemaFilePath: resolverSchemaFile,
                     neptuneInfo: neptuneInfo,
                     isSubgraph: createUpdateApolloServerSubgraph
                 });
@@ -673,7 +670,7 @@ async function main() {
                     outputZipFilePath: outputLambdaResolverZipFile,
                     templateFolderPath: path.join(__dirname, outputLambdaPackagePath),
                     resolverFilePath: outputLambdaResolverFile,
-                    resolverSchemaFilePath: resolverSchemaFilePath
+                    resolverSchemaFilePath: resolverSchemaFile
                 });
                 if (!quiet) {
                     spinner.succeed('Created Lambda ZIP');

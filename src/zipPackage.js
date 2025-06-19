@@ -4,26 +4,26 @@ import path from "path";
 import { fileURLToPath } from "url";
 import zlib from 'zlib';
 
-export function toGzipFile(inputString, gzipFilePath) {
+/**
+ * Compresses a string and writes it to a gzip file.
+ * @param {string} inputString - The string to compress
+ * @param {string} gzipFilePath - The path to the gzip file to write
+ * @returns {Promise<void>} - A promise that resolves when the compression is complete
+ */
+export function compressToGzipFile(inputString, gzipFilePath) {
     return new Promise((resolve, reject) => {
-        // Convert the string to a buffer
         const buffer = Buffer.from(inputString, 'utf-8');
-
-        // Compress the buffer
         zlib.gzip(buffer, (error, compressedBuffer) => {
             if (error) {
                 reject(`Error compressing string: ${error.message}`);
                 return;
             }
-
-            // Write the compressed buffer to a file
             fs.writeFile(gzipFilePath, compressedBuffer, (writeError) => {
                 if (writeError) {
                     reject(`Error writing to file: ${writeError.message}`);
                     return;
                 }
-
-                resolve(gzipFilePath);
+                resolve();
             });
         });
     });
@@ -131,10 +131,9 @@ export async function createApolloDeploymentPackage({zipFilePath, resolverFilePa
             {source: resolverFilePath, target: 'output.resolver.graphql.js'},
             {source: schemaFilePath, target: 'output.schema.graphql'},
             {source: resolverSchemaFilePath, target: 'output.resolver.schema.json.gz'},
-
+            {source: path.join(modulePath, '/../templates/util.mjs')},
             // querying neptune using SDK not yet supported
-            {source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')},
-            {source: path.join(modulePath, '/../templates/util.mjs')}
+            {source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')}
         ],
         includeContent: [{source: envVars.join('\n'), target: '.env'}],
         // exclude node_modules from apollo package

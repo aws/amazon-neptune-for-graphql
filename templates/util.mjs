@@ -11,12 +11,12 @@ export function decompressGzipToString(inputFilePath) {
     return new Promise((resolve, reject) => {
         const readStream = createReadStream(inputFilePath);
         readStream.on('error', (err) => {
-            reject(`Error reading file: ${err.message}`);
+            reject(`Error reading gzip file: ${err.message}`);
         });
 
         const gunzip = zlib.createGunzip();
         gunzip.on('error', (err) => {
-            reject(`Error decompressing file: ${err.message}`);
+            reject(`Error decompressing gzip file: ${err.message}`);
         });
 
         // Collect the decompressed data chunks
