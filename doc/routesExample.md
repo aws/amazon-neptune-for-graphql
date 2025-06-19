@@ -96,8 +96,12 @@ Below is the GraphQL schema with directives, inferred by the utility.
 - For each node three mutations: create, update and delete. Selecting the node to delete using an id or the input for that node/type.
 - For edges two mutations: connect and delete. They take as input the ids of the from and to node, and in case the edge type has properties the correspondent input.
 
-Note: the queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: *Customize the GraphQL schema with directives*.
+> [!NOTE]
+> The queries and mutations you see below are recognized by the resolver based on the name pattern. If you need to customize it, first look at the documentation section: *Customize the GraphQL schema with directives*.
 
+<details>
+
+<summary>Air Routes GraphQL Schema</summary>
 
 ```graphql
 enum SortingDirection {
@@ -116,9 +120,9 @@ type Continent @alias(property: "continent") {
 
 input ContinentInput {
     _id: ID @id
-    code: String
-    type: String
-    desc: String
+    code: StringScalarFilters
+    type: StringScalarFilters
+    desc: StringScalarFilters
 }
 
 input ContinentCreateInput {
@@ -153,9 +157,9 @@ type Country @alias(property: "country") {
 
 input CountryInput {
     _id: ID @id
-    code: String
-    type: String
-    desc: String
+    code: StringScalarFilters
+    type: StringScalarFilters
+    desc: StringScalarFilters
 }
 
 input CountryCreateInput {
@@ -190,11 +194,11 @@ type Version @alias(property: "version") {
 
 input VersionInput {
     _id: ID @id
-    date: String
-    code: String
-    author: String
-    type: String
-    desc: String
+    date: StringScalarFilters
+    code: StringScalarFilters
+    author: StringScalarFilters
+    type: StringScalarFilters
+    desc: StringScalarFilters
 }
 
 input VersionCreateInput {
@@ -248,18 +252,18 @@ type Airport @alias(property: "airport") {
 
 input AirportInput {
     _id: ID @id
-    country: String
+    country: StringScalarFilters
     longest: Int
-    code: String
-    city: String
+    code: StringScalarFilters
+    city: StringScalarFilters
     elev: Int
-    icao: String
+    icao: StringScalarFilters
     lon: Float
     runways: Int
-    region: String
-    type: String
+    region: StringScalarFilters
+    type: StringScalarFilters
     lat: Float
-    desc: String
+    desc: StringScalarFilters
 }
 
 input AirportCreateInput {
@@ -372,6 +376,7 @@ schema {
     mutation: Mutation
 }
 ```
+</details>
 
 ## Let's use our new GraphQL API from AppSync console
 Below is a snapshot of the AppSync Queries console used to test our new GraphQL API named *AirRoutesExampleAPI*.
