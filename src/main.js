@@ -531,6 +531,7 @@ async function main() {
         const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);
 
         try {
+            // resolver schema is compressed for better schema initialization performance
             await compressToGzipFile(queryDataModelJSON, resolverSchemaFile);
             loggerInfo('Wrote compressed schema for resolver to file: ' + yellow(resolverSchemaFile), {toConsole: true});
         } catch (err) {
