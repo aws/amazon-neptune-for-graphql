@@ -1,4 +1,4 @@
-import { checkFolderContainsFiles, unzipAndGetContents } from '../../testLib';
+import { checkFolderContainsFiles, executeAppSyncQuery, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
 import path from "path";
 
@@ -7,7 +7,7 @@ const outputFolderPath = './test/TestCases/Case05/output';
 describe('Validate pipeline with http resolver output content', () => {
     checkFolderContainsFiles(outputFolderPath, [
         'AirportsJestTest.resolver.graphql.js',
-        'AirportsJestTest.resolver.schema.json',
+        'AirportsJestTest.resolver.schema.json.gz',
         'AirportsJestTest-resources.json',
         'AirportsJestTest.schema.graphql',
         'AirportsJestTest.source.schema.graphql',
@@ -19,10 +19,11 @@ describe('Validate pipeline with http resolver output content', () => {
             'index.mjs',
             'node_modules',
             'output.resolver.graphql.js',
-            'output.resolver.schema.json',
+            'output.resolver.schema.json.gz',
             'package-lock.json',
             'package.json',
-            'queryHttpNeptune.mjs'
+            'queryHttpNeptune.mjs',
+            'util.mjs'
         ];
         
         
@@ -34,4 +35,13 @@ describe('Validate pipeline with http resolver output content', () => {
         const fileContent = fs.readFileSync(path.join(unzippedFolder, 'index.mjs'), 'utf8');
         expect(fileContent).toContain('axios');
     });
+
+    test('Can query app sync API successfully', async () => {
+        const awsResources = JSON.parse(fs.readFileSync(path.join(outputFolderPath, 'AirportsJestTest-resources.json'), 'utf8'));
+        const apiId = awsResources.AppSyncAPI;
+        const region = awsResources.region;
+        const results = await executeAppSyncQuery(apiId, 'query {getNodeContinents {code}}', {}, region);
+        const codes = results.data.getNodeContinents.map(continent => continent.code).sort();
+        expect(codes).toEqual(['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']);
+    }, 600000);
 });

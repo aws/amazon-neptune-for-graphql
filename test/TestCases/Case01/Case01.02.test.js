@@ -5,7 +5,7 @@ describe('Validate output files', () => {
     const expectedFiles = [
         'output.resolver.graphql.js',
         'output.jsresolver.graphql.js',
-        'output.resolver.schema.json',
+        'output.resolver.schema.json.gz',
         'output.schema.graphql',
         'output.source.schema.graphql'
     ];

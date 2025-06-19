@@ -10,7 +10,7 @@ describe('Validate output content', () => {
     
     checkFolderContainsFiles(outputFolderPath, [
         'output.resolver.graphql.js',
-        'output.resolver.schema.json',
+        'output.resolver.schema.json.gz',
         'output.schema.graphql',
         'output.source.schema.graphql'
     ]);

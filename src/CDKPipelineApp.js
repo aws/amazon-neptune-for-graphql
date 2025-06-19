@@ -57,7 +57,7 @@ async function getSchemaFields(typeName) {
 async function createDeploymentFile(templateFolderPath, resolverFilePath) {
     try {
         const zipFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.zip`);
-        const resolverSchemaFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.resolver.schema.json`)
+        const resolverSchemaFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.resolver.schema.json.gz`)
         await createLambdaDeploymentPackage({
             outputZipFilePath: zipFilePath,
             templateFolderPath: templateFolderPath,

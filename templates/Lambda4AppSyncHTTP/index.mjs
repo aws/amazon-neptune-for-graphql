@@ -1,9 +1,9 @@
 import axios from "axios";
 import * as rax from 'retry-axios';
 import { aws4Interceptor } from "aws4-axios";
-import {resolveGraphDBQueryFromAppSyncEvent, initSchema} from './output.resolver.graphql.js';
-import {queryNeptune} from "./queryHttpNeptune.mjs";
-import {readFileSync} from "fs";
+import { initSchema, resolveGraphDBQueryFromAppSyncEvent } from './output.resolver.graphql.js';
+import { queryNeptune } from "./queryHttpNeptune.mjs";
+import { decompressGzipToString } from './util.mjs';
 
 const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
@@ -13,7 +13,6 @@ const {
     AWS_SESSION_TOKEN,
     AWS_REGION
 } = process.env;
-
 
 if (process.env.NEPTUNE_IAM_AUTH_ENABLED === 'true') {
     let serviceName;
@@ -40,6 +39,10 @@ if (process.env.NEPTUNE_IAM_AUTH_ENABLED === 'true') {
 
 rax.attach();
 
+const schemaDataModelJSON = await decompressGzipToString('output.resolver.schema.json.gz');
+const schemaModel = JSON.parse(schemaDataModelJSON);
+initSchema(schemaModel);
+
 export const handler = async (event) => {
     if (LOGGING_ENABLED) console.log("Event: ", event);
     if (event.selectionSetGraphQL.includes('...')) {
@@ -47,9 +50,6 @@ export const handler = async (event) => {
     }
     try {
         // Create Neptune query from GraphQL query
-        const schemaDataModelJSON = readFileSync('output.resolver.schema.json', 'utf-8');
-        let schemaModel = JSON.parse(schemaDataModelJSON);
-        initSchema(schemaModel);
         const resolver = resolveGraphDBQueryFromAppSyncEvent(event);
         if (LOGGING_ENABLED) console.log("Resolver: ", resolver);
         return queryNeptune(`https://${process.env.NEPTUNE_HOST}:${process.env.NEPTUNE_PORT}`, resolver, {loggingEnabled: LOGGING_ENABLED})

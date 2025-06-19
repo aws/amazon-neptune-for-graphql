@@ -17,7 +17,7 @@ describe('Validate output content', () => {
 
     checkFolderContainsFiles(outputFolderPath, [
         `${testDbInfo.graphName}.output.resolver.graphql.js`,
-        `${testDbInfo.graphName}.output.resolver.schema.json`,
+        `${testDbInfo.graphName}.output.resolver.schema.json.gz`,
         `${testDbInfo.graphName}.output.schema.graphql`,
         `${testDbInfo.graphName}.output.source.schema.graphql`
     ]);
@@ -25,7 +25,7 @@ describe('Validate output content', () => {
     // note that this test can be flaky depending on how the air routes sample data was loaded into neptune
     // for more consistent results, use neptune notebook %seed with gremlin language
     checkOutputFileContent(
-    `${testDbInfo.graphName}.output.neptune.schema.json`,
+    `${testDbInfo.graphName}.output.neptune.schema.json.gz`,
     sortNeptuneSchema(neptuneSchema),
     sortNeptuneSchema(refNeptuneSchema),
     { checkRefIntegrity: false }

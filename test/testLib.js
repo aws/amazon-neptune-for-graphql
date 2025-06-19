@@ -1,8 +1,10 @@
 import axios from 'axios';
-import fs, {readFileSync} from 'fs';
+import fs from 'fs';
 import AdmZip from 'adm-zip';
 import gql from 'graphql-tag';
 import path from 'path';
+import { AppSyncClient, CreateApiKeyCommand, GetGraphqlApiCommand } from '@aws-sdk/client-appsync';
+import { decompressGzipToString } from "../templates/util.mjs";
 
 const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
 const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
@@ -90,21 +92,6 @@ function checkOutputFileContent(file, actual, expected, options = {}) {
     });
 }
 
-
-/**
- * Unzips the given zip file and checks that the lambda uses the aws sdk
- */
-function checkOutputZipLambdaUsesSdk(outputFolder, zipFile) {
-    const zip = new AdmZip(zipFile);
-    const lambdaFile = 'index.mjs';
-    zip.extractEntryTo(lambdaFile, outputFolder + '/unzip', true, true);
-
-    const lambdaContent = fs.readFileSync(outputFolder + '/unzip/' + lambdaFile, 'utf8');
-    test('Lambda uses SDK: ' + lambdaFile, async () => {
-        expect(lambdaContent).toContain('@aws-sdk/client-neptune')
-    });
-}
-
 function checkFileContains(outputFile, expectedContent = []) {
     const fileContent = fs.readFileSync(outputFile, 'utf8');
     expectedContent.forEach(expected => {
@@ -133,7 +120,7 @@ async function loadResolver(file) {
 
 async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, schemaFile, host, port) {
     const resolverModule = await loadResolver(resolverFile);
-    const schemaDataModelJSON = readFileSync(schemaFile, 'utf-8');
+    const schemaDataModelJSON = await decompressGzipToString(schemaFile);
     let schemaModel = JSON.parse(schemaDataModelJSON);
     resolverModule.initSchema(schemaModel);
     const queryFiles = fs.readdirSync(queriesReferenceFolder);
@@ -187,12 +174,13 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
             '.env',
             'index.mjs',
             'output.resolver.graphql.js',
-            'output.resolver.schema.json',
+            'output.resolver.schema.json.gz',
             'package.json',
             'package-lock.json',
             'output.schema.graphql',
             'neptune.mjs',
-            'queryHttpNeptune.mjs'
+            'queryHttpNeptune.mjs',
+            'util.mjs'
         ];
 
         const files = fs.readdirSync(outputFolderPath);
@@ -215,12 +203,94 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
     });
 }
 
+/**
+ * Creates a new API key for an AWS AppSync API.
+ *
+ * @param {string} apiId - The AWS AppSync API ID
+ * @param {string} region - AWS region where the AppSync API is deployed
+ * @param {string} description - Description for the API key
+ * @returns {Promise<string>} - The API key
+ */
+async function createAppSyncApiKey(apiId, region, description = 'jest test API key') {
+    const appSyncClient = new AppSyncClient({ region });
+    try {
+        const createKeyCommand = new CreateApiKeyCommand({
+            apiId: apiId,
+            description: description
+        });
+        const keyResponse = await appSyncClient.send(createKeyCommand);
+        return keyResponse.apiKey.id;
+    } catch (error) {
+        console.error('Error creating AppSync API key:', error);
+        throw error;
+    }
+}
+
+/**
+ * Executes a GraphQL query against an AWS AppSync API using the provided API key.
+ *
+ * @param {string} apiId - The AWS AppSync API ID
+ * @param {string} apiKey - The API key to use for authentication
+ * @param {string} query - The GraphQL query to execute
+ * @param {object} variables - Variables to use with the GraphQL query
+ * @param {string} region - AWS region where the AppSync API is deployed
+ * @returns {Promise<object>} - The GraphQL query response
+ */
+async function executeGraphQLQuery(apiId, apiKey, query, variables, region) {
+    try {
+        const appSyncClient = new AppSyncClient({ region });
+        const getApiCommand = new GetGraphqlApiCommand({
+            apiId: apiId
+        });
+        const apiDetails = await appSyncClient.send(getApiCommand);
+        const apiUrl = apiDetails.graphqlApi.uris.GRAPHQL;
+        
+        const response = await axios({
+            url: apiUrl,
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey
+            },
+            data: {
+                query: query,
+                variables: variables
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error executing GraphQL query:', error);
+        throw error;
+    }
+}
+
+/**
+ * Executes a GraphQL query against an AWS AppSync API.
+ * This function creates a new API key, executes the query, and returns the response.
+ *
+ * @param {string} apiId - The AWS AppSync API ID
+ * @param {string} query - The GraphQL query to execute
+ * @param {object} variables - Variables to use with the GraphQL query
+ * @param {string} region - AWS region where the AppSync API is deployed
+ * @param {string} apiKey - The optional API key to use for authentication - if not provided, a new API key will be created
+ * @returns {Promise<object>} - The GraphQL query response
+ */
+async function executeAppSyncQuery(apiId, query, variables, region, apiKey) {
+    if (!apiKey) {
+        apiKey = await createAppSyncApiKey(apiId, region);
+    }
+    return executeGraphQLQuery(apiId, apiKey, query, variables, region);
+}
+
 export {
     checkFileContains,
     checkFolderContainsFiles,
     checkOutputFileContent,
-    checkOutputZipLambdaUsesSdk,
     compareFileContents,
+    createAppSyncApiKey,
+    executeAppSyncQuery,
+    executeGraphQLQuery,
     loadResolver,
     readJSONFile,
     testApolloArtifacts,

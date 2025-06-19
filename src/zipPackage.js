@@ -1,7 +1,33 @@
 import fs from 'fs';
 import archiver from 'archiver';
 import path from "path";
-import {fileURLToPath} from "url";
+import { fileURLToPath } from "url";
+import zlib from 'zlib';
+
+/**
+ * Compresses a string and writes it to a gzip file.
+ * @param {string} inputString - The string to compress
+ * @param {string} gzipFilePath - The path to the gzip file to write
+ * @returns {Promise<void>} - A promise that resolves when the compression is complete
+ */
+export function compressToGzipFile(inputString, gzipFilePath) {
+    return new Promise((resolve, reject) => {
+        const buffer = Buffer.from(inputString, 'utf-8');
+        zlib.gzip(buffer, (error, compressedBuffer) => {
+            if (error) {
+                reject(`Error compressing string: ${error.message}`);
+                return;
+            }
+            fs.writeFile(gzipFilePath, compressedBuffer, (writeError) => {
+                if (writeError) {
+                    reject(`Error writing to file: ${writeError.message}`);
+                    return;
+                }
+                resolve();
+            });
+        });
+    });
+}
 
 /**
  * Creates a zip file with specified contents.
@@ -59,16 +85,17 @@ async function createZip({targetZipFilePath, includePaths = [], includeContent =
  */
 export async function createLambdaDeploymentPackage({outputZipFilePath, templateFolderPath, resolverFilePath, resolverSchemaFilePath}) {
     const filePaths = [{source: templateFolderPath}, {source: resolverFilePath, target: 'output.resolver.graphql.js'}];
+    const modulePath = getModulePath();
     if (templateFolderPath.includes('HTTP')) {
         filePaths.push({
-            source: path.join(getModulePath(), '/../templates/queryHttpNeptune.mjs')
+            source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')
         })
     }
 
     filePaths.push({
         source: resolverSchemaFilePath,
-        target: 'output.resolver.schema.json'
-    })
+        target: 'output.resolver.schema.json.gz'
+    }, {source: path.join(modulePath, '/../templates/util.mjs')});
 
     await createZip({
         targetZipFilePath: outputZipFilePath,
@@ -103,8 +130,8 @@ export async function createApolloDeploymentPackage({zipFilePath, resolverFilePa
             {source: path.join(modulePath, '/../templates/ApolloServer')},
             {source: resolverFilePath, target: 'output.resolver.graphql.js'},
             {source: schemaFilePath, target: 'output.schema.graphql'},
-            {source: resolverSchemaFilePath, target: 'output.resolver.schema.json'},
-
+            {source: resolverSchemaFilePath, target: 'output.resolver.schema.json.gz'},
+            {source: path.join(modulePath, '/../templates/util.mjs')},
             // querying neptune using SDK not yet supported
             {source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')}
         ],
