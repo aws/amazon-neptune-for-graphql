@@ -14,9 +14,10 @@ describe('Validate cdk pipeline with sdk resolver output content', () => {
             'index.mjs',
             'node_modules',
             'output.resolver.graphql.js',
-            'output.resolver.schema.json',
+            'output.resolver.schema.json.gz',
             'package-lock.json',
-            'package.json'
+            'package.json',
+            'util.mjs'
         ];
         const unzippedFolder = path.join(outputFolderPath, 'cdk-unzipped');
         const actualFiles = unzipAndGetContents(unzippedFolder, path.join(outputFolderPath, 'AirportCDKSDKTestJest.zip'));

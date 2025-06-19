@@ -7,7 +7,7 @@ const referenceFolder = './test/TestCases/Case07/outputReference';
 
 describe('Validate pipeline with sdk resolver output content', () => {
     const expectedFiles = [
-        'AirportsJestSDKTest.resolver.schema.json',
+        'AirportsJestSDKTest.resolver.schema.json.gz',
         'AirportsJestSDKTest.zip',
         'AirportsJestSDKTest-resources.json',
         'sdk.resolver.graphql.js',
@@ -28,9 +28,10 @@ describe('Validate pipeline with sdk resolver output content', () => {
             'index.mjs',
             'node_modules',
             'output.resolver.graphql.js',
-            'output.resolver.schema.json',
+            'output.resolver.schema.json.gz',
             'package-lock.json',
-            'package.json'
+            'package.json',
+            'util.mjs'
         ];
 
 

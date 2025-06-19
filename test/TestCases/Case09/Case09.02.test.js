@@ -14,7 +14,7 @@ describe('Validate Apollo Server Subgraph output artifacts', () => {
     checkFolderContainsFiles(outputFolderPath, [
         `${testDbInfo.graphName}.output.neptune.schema.json`,
         `${testDbInfo.graphName}.output.resolver.graphql.js`,
-        `${testDbInfo.graphName}.output.resolver.schema.json`,
+        `${testDbInfo.graphName}.output.resolver.schema.json.gz`,
         `${testDbInfo.graphName}.output.schema.graphql`,
         `${testDbInfo.graphName}.output.source.schema.graphql`
     ]);

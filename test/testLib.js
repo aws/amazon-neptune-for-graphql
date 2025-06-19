@@ -1,9 +1,10 @@
 import axios from 'axios';
-import fs, {readFileSync} from 'fs';
+import fs from 'fs';
 import AdmZip from 'adm-zip';
 import gql from 'graphql-tag';
 import path from 'path';
 import { AppSyncClient, CreateApiKeyCommand, GetGraphqlApiCommand } from '@aws-sdk/client-appsync';
+import { decompressGzipToString } from "../templates/util.mjs";
 
 const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
 const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
@@ -91,21 +92,6 @@ function checkOutputFileContent(file, actual, expected, options = {}) {
     });
 }
 
-
-/**
- * Unzips the given zip file and checks that the lambda uses the aws sdk
- */
-function checkOutputZipLambdaUsesSdk(outputFolder, zipFile) {
-    const zip = new AdmZip(zipFile);
-    const lambdaFile = 'index.mjs';
-    zip.extractEntryTo(lambdaFile, outputFolder + '/unzip', true, true);
-
-    const lambdaContent = fs.readFileSync(outputFolder + '/unzip/' + lambdaFile, 'utf8');
-    test('Lambda uses SDK: ' + lambdaFile, async () => {
-        expect(lambdaContent).toContain('@aws-sdk/client-neptune')
-    });
-}
-
 function checkFileContains(outputFile, expectedContent = []) {
     const fileContent = fs.readFileSync(outputFile, 'utf8');
     expectedContent.forEach(expected => {
@@ -134,7 +120,7 @@ async function loadResolver(file) {
 
 async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, schemaFile, host, port) {
     const resolverModule = await loadResolver(resolverFile);
-    const schemaDataModelJSON = readFileSync(schemaFile, 'utf-8');
+    const schemaDataModelJSON = await decompressGzipToString(schemaFile);
     let schemaModel = JSON.parse(schemaDataModelJSON);
     resolverModule.initSchema(schemaModel);
     const queryFiles = fs.readdirSync(queriesReferenceFolder);
@@ -188,12 +174,13 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
             '.env',
             'index.mjs',
             'output.resolver.graphql.js',
-            'output.resolver.schema.json',
+            'output.resolver.schema.json.gz',
             'package.json',
             'package-lock.json',
             'output.schema.graphql',
             'neptune.mjs',
-            'queryHttpNeptune.mjs'
+            'queryHttpNeptune.mjs',
+            'util.mjs'
         ];
 
         const files = fs.readdirSync(outputFolderPath);
@@ -312,7 +299,6 @@ export {
     checkFileContains,
     checkFolderContainsFiles,
     checkOutputFileContent,
-    checkOutputZipLambdaUsesSdk,
     compareFileContents,
     createAppSyncApiKey,
     executeAppSyncQuery,
