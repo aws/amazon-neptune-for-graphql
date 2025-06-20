@@ -64,7 +64,7 @@ permissions and limitations under the License.
   event handlers to improve
   performance ([#111](https://github.com/aws/amazon-neptune-for-graphql/pull/111))
 * Updated and proofread outdated
-  documentation ([#107](https://github.com/aws/amazon-neptune-for-graphql/pull/107))
+  documentation (([#112](https://github.com/aws/amazon-neptune-for-graphql/pull/107)), ([#107](https://github.com/aws/amazon-neptune-for-graphql/pull/112)))
 
 ### Bug Fixes
 
