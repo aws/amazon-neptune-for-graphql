@@ -61,7 +61,7 @@ see [Using Amazon Neptune with graph notebooks](https://docs.aws.amazon.com/nept
 and [Using notebooks with Neptune Analytics](https://docs.aws.amazon.com/neptune-analytics/latest/userguide/notebooks.html).
 
 
-> [TIP!]
+> [!TIP]
 > The integration tests expect neptune db clusters to be loaded with the
 > airports `gremlin` sample dataset and neptune analytics graphs to be loaded with
 > the airports `opencypher` sample dataset (the gremlin airports dataset is not
