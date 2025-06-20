@@ -247,7 +247,7 @@ the [Air Routes Example](https://github.com/aws/amazon-neptune-for-graphql/blob/
 
 ```graphql
 type Airport @alias(property: "airport") {
-    ...
+  ...
   continentContainsIn: Continent @relationship(edgeType: "contains", direction: IN)
   countryContainsIn: Country @relationship(edgeType: "contains", direction: IN)
   airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: OUT)
