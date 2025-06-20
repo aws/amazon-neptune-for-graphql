@@ -123,17 +123,22 @@ the execution, you will find in the AppSync console your new GraphQL API called
 menu. (*Note: follow the setup instructions below to enable your environment to
 reach the Neptune database and create AWS resources.*)
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `<
-*your-neptune-database-endpoint:port*>
-` --create-update-aws-pipeline --create-update-aws-pipeline-name` <
-*your-new-GraphQL-API-name*>` --output-resolver-query-https`
+```
+neptune-for-graphql \
+  --input-graphdb-schema-neptune-endpoint <your-neptune-database-endpoint:port> \
+  --create-update-aws-pipeline \
+  --create-update-aws-pipeline-name <your-new-GraphQL-API-name> \
+  --output-resolver-query-https \
+```
 
 If you run the command above a second time, it will look again at the Neptune
 database data and update the AppSync API and the Lambda code.
 
 To rollback, removing all the AWS resources run:
 
-`neptune-for-graphql --remove-aws-pipeline-name` <*your-new-GraphQL-API-name*>
+```
+neptune-for-graphql --remove-aws-pipeline-name <your-new-GraphQL-API-name>
+```
 
 #### References:
 
@@ -167,10 +172,14 @@ menu.
 > Follow the setup instructions below to enable your environment to reach the
 > Neptune database and create AWS resources.
 
-`neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>
-` --create-update-aws-pipeline --create-update-aws-pipeline-name` <
-*your-new-GraphQL-API-name*>` --create-update-aws-pipeline-neptune-endpoint` <
-*your-neptune-database-endpoint:port*>  ` --output-resolver-query-https`
+```
+neptune-for-graphql \
+  --input-schema-file <your-graphql-schema-file> \
+  --create-update-aws-pipeline \
+  --create-update-aws-pipeline-name <your-new-GraphQL-API-name> \
+  --create-update-aws-pipeline-neptune-endpoint <your-neptune-database-endpoint:port> \
+  --output-resolver-query-https
+```
 
 #### References:
 
@@ -188,12 +197,14 @@ You can start from a GraphQL schema with directives for a graph database. For
 the list of supported directives see the section
 below [Customize the GraphQL schema with directives](#customize-the-graphql-schema-with-directives).
 
-`neptune-for-graphql --input-schema-file `<
-*your-graphql-schema-file-with-directives*>
-` --create-update-aws-pipeline --create-update-aws-pipeline-name` <
-*your-new-GraphQL-API-name*> `--create-update-aws-pipeline-neptune-endpoint` <
-*your-neptune-database-endpoint:port*>` --output-resolver-query-https`
-
+```
+neptune-for-graphql \
+  --input-schema-file <your-graphql-schema-file-with-directives> \
+  --create-update-aws-pipeline \
+  --create-update-aws-pipeline-name <your-new-GraphQL-API-name> \
+  --create-update-aws-pipeline-neptune-endpoint <your-neptune-database-endpoint:port> \
+  --output-resolver-query-https
+```
 
 <br>
 

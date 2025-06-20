@@ -82,7 +82,7 @@ The original file looks like this:
 #!/usr/bin/env node
 
 const cdk = require('aws-cdk-lib');
-const {CdkStack} = require('../lib/cdk-stack');
+const { CdkStack } = require('../lib/cdk-stack');
 
 const app = new cdk.App();
 new CdkStack(app, 'CdkStack', {
@@ -118,7 +118,7 @@ The end result should look something like this:
 #!/usr/bin/env node
 
 const cdk = require('aws-cdk-lib');
-const {AppSyncNeptuneStack} = require('../lib/your-new-GraphQL-API-name-cdk');
+const { AppSyncNeptuneStack } = require('../lib/your-new-GraphQL-API-name-cdk');
 
 const app = new cdk.App();
 new AppSyncNeptuneStack(app, 'your-CdkStack-name', {
