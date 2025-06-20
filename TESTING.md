@@ -29,8 +29,8 @@ the following prerequisites to run:
 2. neptune db cluster or graph which is accessible from the machine running the
    tests and
    is [loaded with the airports sample dataset](#loading-airports-sample-data-into-neptune)
-3, AWS credentials configured appropriately on the machine running the tests to
-   allow query access to the neptune db or cluster
+   3, AWS credentials configured appropriately on the machine running the tests
+   to allow query access to the neptune db or cluster
 4. AWS IAM configured to allow creation of AWS resources necessary to deploy an
    App Sync API
 5. environment variables `AIR_ROUTES_DB_HOST` and `AIR_ROUTES_DB_PORT` set to
