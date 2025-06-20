@@ -13,31 +13,40 @@ Steps:
 9. Attach to each GraphQL Schema operation the resolver function
 10. Test using the AppSync Queries
 
-The resources configuration change to access a Neptune Database in a VPC or with IAM enabled. The following instruction are marked (VPC) or (IAM) to differentiate it. 
+The resources configuration change to access a Neptune Database in a VPC or with
+IAM enabled. The following instruction are marked (VPC) or (IAM) to
+differentiate it.
 
 ## 1 . Run Neptune Graph Utility
 
-Run the Neptune GraphQL Utility to generate the resolver code for the Lambda, and the GraphQL schema for AppSync.
+Run the Neptune GraphQL Utility to generate the resolver code for the Lambda,
+and the GraphQL schema for AppSync.
 
-Starting from an existing Neptune database.
-Run the command below passing your Neptune cluster endpoint and port.
-You can run the utility from a personal computer where you setup an SSH tunnel to an EC2 instance in the same VPC of your Neptune DB (VPC), or run the utility from an EC2 instance in the same Neptune VPC (if VPC), or with a Neptune IAM role (if IAM).
+Starting from an existing Neptune database. Run the command below passing your
+Neptune cluster endpoint and port. You can run the utility from a personal
+computer where you setup an SSH tunnel to an EC2 instance in the same VPC of
+your Neptune DB (VPC), or run the utility from an EC2 instance in the same
+Neptune VPC (if VPC), or with a Neptune IAM role (if IAM).
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint` <*your-database-endpoint:port*>
+`neptune-for-graphql --input-graphdb-schema-neptune-endpoint` <
+*your-database-endpoint:port*>
 
-The default output location for the GraphQL schema file to use in AppSync schema is: ./output/output.schema.graphql
+The default output location for the GraphQL schema file to use in AppSync schema
+is: ./output/output.schema.graphql
 <br>
-The default output location of Lambda resolver file is: ./output/output.resolver.graphql.js
+The default output location of Lambda resolver file is:
+./output/output.resolver.graphql.js
 <br>
 The default output location of the Lambda zip: is: ./output/output.lambda.zip
 
-
 ## 3. Create the Lambda
 
-Create the AWS Lambda that will receive the AppSync query requests, resolve it into a Neptune graph query, query the Neptune database and return the result to AppSync.
-To create the Lambda you have two options:
+Create the AWS Lambda that will receive the AppSync query requests, resolve it
+into a Neptune graph query, query the Neptune database and return the result to
+AppSync. To create the Lambda you have two options:
 
 ### Create Lambda IAM execution role
+
 1. Create the Lambda execution role for the Lambda
     1. Create a new IAM Role for the Lambda function
     2. Attach the policy `AWSLambdaBasicExecutionRole`
@@ -55,13 +64,18 @@ To create the Lambda you have two options:
     ```
 
 
-1. go to the Neptune documentation here https://docs.aws.amazon.com/neptune/latest/userguide/get-started-cfn-lambda.html, can run the CloudFormation template that creates the Lambda. Lambda runtime is Node.js 18x.
-     (NOTE: the Neptune CloudFormation to create the Lambda is outdated, the nodejs12.x is no longer supported by Lambda)
+1. go to the Neptune documentation
+   here https://docs.aws.amazon.com/neptune/latest/userguide/get-started-cfn-lambda.html,
+   can run the CloudFormation template that creates the Lambda. Lambda runtime
+   is Node.js 18x.
+   (NOTE: the Neptune CloudFormation to create the Lambda is outdated, the
+   nodejs12.x is no longer supported by Lambda)
 2. go to Lambda console
     1. Create a new function, author from scratch
     2. Name the function ( you will point AppSync to this fucntion)
     3. Runtime: Node.js 18.x
-    4. Open Advance settings, enable VPC, and select your Neptune DB VPC, Subnets and Security Group.
+    4. Open Advance settings, enable VPC, and select your Neptune DB VPC,
+       Subnets and Security Group.
     5. Create the function
     6. Open the Lambda Environment Variables and add:
         1. NEPTUNE_HOST= your database endpoint
@@ -106,19 +120,20 @@ Select “Functions” from the AppSync menu of your new API
 import { util } from '@aws-appsync/utils';
 
 export function request(ctx) {
-  const {source, args} = ctx
-  return {
-    operation: 'Invoke',
-    payload: {
-        field: ctx.info.fieldName, 
-        arguments: args,
-        selectionSetGraphQL: ctx.info.selectionSetGraphQL,
-        source },
-  };
+    const {source, args} = ctx
+    return {
+        operation: 'Invoke',
+        payload: {
+            field: ctx.info.fieldName,
+            arguments: args,
+            selectionSetGraphQL: ctx.info.selectionSetGraphQL,
+            source
+        },
+    };
 }
 
 export function response(ctx) {
-  return ctx.result;
+    return ctx.result;
 }
 ```
 
@@ -126,17 +141,20 @@ export function response(ctx) {
 
 Select “Schema” from the AppSync menu of your new API
 
-1. Replace the AppSync Schema with the content of the Neptune GraphQL Utility output in the file with default named  ./output/output.schema.graphql.
+1. Replace the AppSync Schema with the content of the Neptune GraphQL Utility
+   output in the file with default named ./output/output.schema.graphql.
 2. Save Schema
 
 ## 9. Attach to each GraphQL Schema operation the resolver function
 
 1. Scroll through the “Resolvers” list to Query
     1. for each field in the Query section select “Attach”
-    2. In the “Create pipeline resolver” 
+    2. In the “Create pipeline resolver”
         1. “Add function“ selecting the AppSync function you just created
         2. Select “Create”
-2. Go back to the AppSync Schema, and repeat the step above for each field in the Resolvers Query and Mutation section. Note: you might have to repeat it 10-30 times :(
+2. Go back to the AppSync Schema, and repeat the step above for each field in
+   the Resolvers Query and Mutation section. Note: you might have to repeat it
+   10-30 times :(
 3. Congratulation you have now a GraphQL API for your Neptune database
 
 ## 10. Test using the AppSync Queries
