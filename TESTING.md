@@ -29,9 +29,11 @@ the following prerequisites to run:
 2. neptune db cluster or graph which is accessible from the machine running the
    tests and
    is [loaded with the airports sample dataset](#loading-airports-sample-data-into-neptune)
-2. aws credentials configured appropriately on the machine running the tests to
+3, AWS credentials configured appropriately on the machine running the tests to
    allow query access to the neptune db or cluster
-3. environment variables `AIR_ROUTES_DB_HOST` and `AIR_ROUTES_DB_PORT` set to
+4. AWS IAM configured to allow creation of AWS resources necessary to deploy an
+   App Sync API
+5. environment variables `AIR_ROUTES_DB_HOST` and `AIR_ROUTES_DB_PORT` set to
    identify the neptune db cluster or graph, for example:
 
 ```
@@ -63,7 +65,8 @@ and [Using notebooks with Neptune Analytics](https://docs.aws.amazon.com/neptune
 
 > [!TIP]
 > The integration tests expect neptune db clusters to be loaded with the
-> airports `gremlin` sample dataset and neptune analytics graphs to be loaded with
+> airports `gremlin` sample dataset and neptune analytics graphs to be loaded
+> with
 > the airports `opencypher` sample dataset (the gremlin airports dataset is not
 > available for neptune analytics).
 
