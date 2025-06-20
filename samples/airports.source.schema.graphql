@@ -14,9 +14,9 @@ type Continent @alias(property: "continent") {
 
 input ContinentInput {
   id: ID @id
-  code: String
-  type: String
-  desc: String
+  code: StringScalarFilters
+  type: StringScalarFilters
+  desc: StringScalarFilters
 }
 
 input ContinentCreateInput {
@@ -51,9 +51,9 @@ type Country @alias(property: "country") {
 
 input CountryInput {
   _id: ID @id
-  code: String
-  type: String
-  desc: String
+  code: StringScalarFilters
+  type: StringScalarFilters
+  desc: StringScalarFilters
 }
 
 input CountryCreateInput {
@@ -88,11 +88,11 @@ type Version @alias(property: "version") {
 
 input VersionInput {
   _id: ID @id
-  date: String
-  code: String
-  author: String
-  type: String
-  desc: String
+  date: StringScalarFilters
+  code: StringScalarFilters
+  author: StringScalarFilters
+  type: StringScalarFilters
+  desc: StringScalarFilters
 }
 
 input VersionCreateInput {
@@ -147,18 +147,18 @@ type Airport @alias(property: "airport") {
 
 input AirportInput {
   _id: ID @id
-  country: String
+  country: StringScalarFilters
   longest: Int
-  code: String
-  city: String
+  code: StringScalarFilters
+  city: StringScalarFilters
   elev: Int
-  icao: String
+  icao: StringScalarFilters
   lon: Float
   runways: Int
-  region: String
-  type: String
+  region: StringScalarFilters
+  type: StringScalarFilters
   lat: Float
-  desc: String
+  desc: StringScalarFilters
 }
 
 input AirportCreateInput {
