@@ -1,0 +1,163 @@
+{
+  "edgeStructures": [
+    {
+      "directions": [
+        {
+          "from": "continent",
+          "relationship": "ONE-MANY",
+          "to": "airport"
+        },
+        {
+          "from": "country",
+          "relationship": "ONE-MANY",
+          "to": "airport"
+        }
+      ],
+      "label": "contains",
+      "properties": [
+        {
+          "name": "id",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "directions": [
+        {
+          "from": "airport",
+          "relationship": "MANY-MANY",
+          "to": "airport"
+        }
+      ],
+      "label": "route",
+      "properties": [
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "dist",
+          "type": "Int"
+        }
+      ]
+    }
+  ],
+  "nodeStructures": [
+    {
+      "label": "airport",
+      "properties": [
+        {
+          "name": "city",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "continent",
+          "type": "String"
+        },
+        {
+          "name": "country",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "elev",
+          "type": "Int"
+        },
+        {
+          "name": "icao",
+          "type": "String"
+        },
+        {
+          "name": "id",
+          "type": "String"
+        },
+        {
+          "name": "lat",
+          "type": "Float"
+        },
+        {
+          "name": "lon",
+          "type": "Float"
+        },
+        {
+          "name": "longest",
+          "type": "Int"
+        },
+        {
+          "name": "region",
+          "type": "String"
+        },
+        {
+          "name": "runways",
+          "type": "Int"
+        }
+      ]
+    },
+    {
+      "label": "continent",
+      "properties": [
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "id",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "country",
+      "properties": [
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "id",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "version",
+      "properties": [
+        {
+          "name": "author",
+          "type": "String"
+        },
+        {
+          "name": "code",
+          "type": "String"
+        },
+        {
+          "name": "date",
+          "type": "String"
+        },
+        {
+          "name": "desc",
+          "type": "String"
+        },
+        {
+          "name": "id",
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 {
     "name": "graphQuery Gremlin type",
     "description": "Query using Gremlin returning a type",
+    "neptuneType": "neptune-db",
     "graphql": "query MyQuery {\n getAirportWithGremlin(code: \"SEA\") {\n _id\n city\n runways\n }\n }\n",
     "result": {
         "_id": "22",
