@@ -1,66 +1,78 @@
 # Deploy the GraphQL API resources with CDK
 
-If your organization require using CDK to deploy AWS resources, here an end to
-end example.
-<br>
-Note: likely your organization has a CDK application that deploy other AWS
-resources. The team that maintain the CDK application can integrate the GraphQL
-API deployment using two files from the GraphQL utility output; the
-*output/your-new-GraphQL-API-name-cdk.js* and the
-*output/your-new-GraphQL-API-name.zip*.
+If your organization requires using CDK to deploy AWS resources, here is an end
+to end example.
+
+> [!NOTE]
+>
+> Likely your organization has a CDK application that deploys other AWS
+> resources. The team that maintains the CDK application can integrate the
+> GraphQL
+> API deployment using two files from the GraphQL utility output; the
+> `output/your-new-GraphQL-API-name-cdk.js` and the
+> `output/your-new-GraphQL-API-name.zip`.
 
 ## Create the CDK assets
 
 Example starting from an Amazon Neptune database endpoint. In this case the
 utility uses the Neptune endpoint to discover the region and database name.
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `<
-*your-neptune-database-endpoint:port*>
-` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` <
-*your-new-GraphQL-API-name*> `--output-resolver-query-https`
+```
+neptune-for-graphql \
+    --input-graphdb-schema-neptune-endpoint <your-neptune-database-endpoint:port> \
+    --output-aws-pipeline-cdk \
+    --output-aws-pipeline-cdk-name <your-new-GraphQL-API-name> \
+    --output-resolver-query-https \
+```
 
 Example starting from a GraphQL schema.
 
-`neptune-for-graphql --input-schema-file `<*your-graphql-schema-file*>
-` --output-aws-pipeline-cdk --output-aws-pipeline-cdk-name` <
-*your-new-GraphQL-API-name*>` --output-aws-pipeline-cdk-neptune-endpoint` <
-*your-neptune-database-endpoint:port*>` --output-resolver-query-https`
+```
+neptune-for-graphql \
+    --input-schema-file <your-graphql-schema-file> \
+    --output-aws-pipeline-cdk \
+    --output-aws-pipeline-cdk-name <your-new-GraphQL-API-name> \
+    --output-aws-pipeline-cdk-neptune-endpoint <your-neptune-database-endpoint:port> \
+    --output-resolver-query-https \
+```
 
 ## An example on how to test the CDK utility output
 
 ### Install the CDK
 
-`npm install -g aws-cdk`
-<br>
-`cdk --version`
+```
+npm install -g aws-cdk
+cdk --version
+```
 
 ### Create a CDK application
 
 Create a directory *your-CDK-dir* for your CDK application, CD in the new
 directory and initialize the CDK application.
 
-`md` *your-CDK-dir*
-<br>
-`cd ` *your-CDK-dir*
-<br>
-`cdk init app --language javascript`
+```
+mkdir your-CDK-dir
+cd your-CDK-dir
+cdk init app --language javascript
+```
 
 Install CDK libraries used by the GraphQL utility.
 
-`npm install @aws-cdk/aws-iam`
-<br>
-`npm install @aws-cdk/aws-ec2`
-<br>
-`npm install @aws-cdk/aws-appsync`
+```
+npm install @aws-cdk/aws-iam
+npm install @aws-cdk/aws-ec2
+npm install @aws-cdk/aws-appsync
+```
 
 ### Integrate the GraphQL utility CDK output to the CDK application
 
 Copy from the utility CDK output files from the *output* directory in the CDK
 application.
 
-`cp  output/`*your-new-GraphQL-API-name*`-cdk.js /lib`
-<br>
-`cp  output/`*your-new-GraphQL-API-name*`.zip .`
+```
+cp  output/your-new-GraphQL-API-name-cdk.js /lib
+cp  output/your-new-GraphQL-API-name.zip .
+```
 
 Update the CDK test project, editing the file `bin/`*your-CDK-dir*`.js`
 <br>

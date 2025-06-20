@@ -28,8 +28,9 @@ computer where you setup an SSH tunnel to an EC2 instance in the same VPC of
 your Neptune DB (VPC), or run the utility from an EC2 instance in the same
 Neptune VPC (if VPC), or with a Neptune IAM role (if IAM).
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint` <
-*your-database-endpoint:port*>
+```
+neptune-for-graphql --input-graphdb-schema-neptune-endpoint <your-database-endpoint:port>
+````
 
 The default output location for the GraphQL schema file to use in AppSync schema
 is: ./output/output.schema.graphql

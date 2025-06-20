@@ -8,9 +8,12 @@ Routes data.
 Then, you can run the Neptune GraphQL Utility command below to create an AppSync
 GraphQL API.
 
-`neptune-for-graphql --input-graphdb-schema-neptune-endpoint `<
-*your-neptune-database-endpoint:port*>
-` --create-update-aws-pipeline --create-update-aws-pipeline-name AriRoutesExample`
+```
+neptune-for-graphql \
+  --input-graphdb-schema-neptune-endpoint <your-neptune-database-endpoint:port> \
+  --create-update-aws-pipeline \
+  --create-update-aws-pipeline-name AriRoutesExample
+```
 
 The command will log the graph database schema it finds, the files it creates,
 and the AWS resources it creates or modifies during execution. If you ever want

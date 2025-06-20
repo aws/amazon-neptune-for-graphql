@@ -19,13 +19,13 @@ permissions and limitations under the License.
 ### Features
 
 * Support output of zip package of Apollo Server
-  artifacts (([#70](https://github.com/aws/amazon-neptune-for-graphql/pull/70)), ([#72](https://github.com/aws/amazon-neptune-for-graphql/pull/72)), ([#73](https://github.com/aws/amazon-neptune-for-graphql/pull/73)), ([#75](https://github.com/aws/amazon-neptune-for-graphql/pull/75)), ([#76](https://github.com/aws/amazon-neptune-for-graphql/pull/76)))
+  artifacts ([#70](https://github.com/aws/amazon-neptune-for-graphql/pull/70), [#72](https://github.com/aws/amazon-neptune-for-graphql/pull/72), [#73](https://github.com/aws/amazon-neptune-for-graphql/pull/73), [#75](https://github.com/aws/amazon-neptune-for-graphql/pull/75), [#76](https://github.com/aws/amazon-neptune-for-graphql/pull/76))
 * Allow filtering using string comparison operators `eq`, `contains`,
   `startsWith`,
-  `endsWith` (([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
+  `endsWith` ([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
 * Added pagination support through the addition of an `offset` argument in query
   options which can be used in combination with the existing
-  `limit` (([#102](https://github.com/aws/amazon-neptune-for-graphql/pull/102))
+  `limit` ([#102](https://github.com/aws/amazon-neptune-for-graphql/pull/102))
 * Added support for queries with
   sorting ([#105](https://github.com/aws/amazon-neptune-for-graphql/pull/105))
 
@@ -64,7 +64,7 @@ permissions and limitations under the License.
   event handlers to improve
   performance ([#111](https://github.com/aws/amazon-neptune-for-graphql/pull/111))
 * Updated and proofread outdated
-  documentation (([#112](https://github.com/aws/amazon-neptune-for-graphql/pull/107)), ([#107](https://github.com/aws/amazon-neptune-for-graphql/pull/112)))
+  documentation ([#112](https://github.com/aws/amazon-neptune-for-graphql/pull/107), [#107](https://github.com/aws/amazon-neptune-for-graphql/pull/112))
 
 ### Bug Fixes
 
@@ -90,14 +90,14 @@ permissions and limitations under the License.
   an option parameter with
   limit ([#97](https://github.com/aws/amazon-neptune-for-graphql/pull/97))
 * Fixed nested edge subqueries to return an empty array if no results were
-  found (([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
+  found ([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
 * Fixed usage of variables with nested edge
-  subqueries (([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
+  subqueries ([#100](https://github.com/aws/amazon-neptune-for-graphql/pull/100))
 * Fixed cdk output file to contain previously missing files that were necessary
   to execute the lambda
-  resolver (([#106](https://github.com/aws/amazon-neptune-for-graphql/pull/106))
+  resolver ([#106](https://github.com/aws/amazon-neptune-for-graphql/pull/106))
 * Fixed resolution of nested variables in selection set
-  arguments (([#108](https://github.com/aws/amazon-neptune-for-graphql/pull/108))
+  arguments ([#108](https://github.com/aws/amazon-neptune-for-graphql/pull/108))
 * Changed resolver to use `graphql` `parse` instead of `graphql-tag` `gql` to
   avoid stale values due to
-  caching (([#109](https://github.com/aws/amazon-neptune-for-graphql/pull/109))
+  caching ([#109](https://github.com/aws/amazon-neptune-for-graphql/pull/109))

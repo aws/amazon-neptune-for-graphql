@@ -28,8 +28,14 @@ type Comment {
 Let's now run this schema through the utility and create the GraphQL API in AWS
 AppSync. *(Note: pls provide a reachable, empty Neptune database endpoint)*
 
-`neptune-for-graphql --input-schema-file ./samples/todo.schema.graphql --create-update-aws-pipeline --create-update-aws-pipeline-name TodoExample --create-update-aws-pipeline-neptune-endpoint` <
-*your-neptune-database-endpoint:port*> ` --output-resolver-query-https`
+```
+neptune-for-graphql \
+  --input-schema-file ./samples/todo.schema.graphql \
+  --create-update-aws-pipeline \
+  --create-update-aws-pipeline-name TodoExample \
+  --create-update-aws-pipeline-neptune-endpoint <your-neptune-database-endpoint:port> \
+  --output-resolver-query-https
+```
 
 The utility created a new file in the *output* folder called
 *TodoExample.source.graphql*, and the GraphQL API in AppSync. As you can see
