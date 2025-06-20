@@ -1,9 +1,9 @@
 {
     "name": "graphQuery type",
-    "description": "Query using a graphQuery returing a type",
-    "graphql": "query MyQuery {\n getAirportConnection(fromCode: \"SEA\", country: \"US\", toCode: \"BLQ\") {\n city\n code\n }\n }\n",
+    "description": "Query using a graphQuery returning a type",
+    "graphql": "query MyQuery {\n getAirportConnection(fromCode: \"YKF\", country: \"US\", toCode: \"ORD\") {\n city\n code\n }\n }\n",
     "result":{
-        "code": "PHL",
-        "city": "Philadelphia"
+        "code": "YYC",
+        "city": "Calgary"
     }
 }

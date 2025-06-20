@@ -1,6 +1,7 @@
 {
     "name": "graphQuery Gremlin scalar",
     "description": "Query using Gremlin returning a scalar",
+    "neptuneType": "neptune-db",
     "graphql": "query MyQuery {\n getCountriesCountGremlin\n }\n",
     "result":237
 }

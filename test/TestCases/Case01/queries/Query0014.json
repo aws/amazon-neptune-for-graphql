@@ -1,8 +1,8 @@
 {
     "name": "Field graphQuery outboundRoutesCount",
     "description": "",
-    "graphql": "query MyQuery {\n getNodeAirport(filter: {code: \"SEA\"}) {\n outboundRoutesCount\n }\n }",
+    "graphql": "query MyQuery {\n getNodeAirport(filter: {code: \"YYZ\"}) {\n outboundRoutesCount\n }\n }",
     "result":{
-        "outboundRoutesCount": 122
+        "outboundRoutesCount": 195
     }
 }

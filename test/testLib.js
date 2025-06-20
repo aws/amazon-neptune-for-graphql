@@ -5,9 +5,27 @@ import gql from 'graphql-tag';
 import path from 'path';
 import { AppSyncClient, CreateApiKeyCommand, GetGraphqlApiCommand } from '@aws-sdk/client-appsync';
 import { decompressGzipToString } from "../templates/util.mjs";
+import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
+import { aws4Interceptor } from "aws4-axios";
+import { parseNeptuneEndpoint } from "../src/util.js";
 
 const HOST_PLACEHOLDER = '<AIR_ROUTES_DB_HOST>';
 const PORT_PLACEHOLDER = '<AIR_ROUTES_DB_PORT>';
+
+async function configureAxiosInterceptor(region, neptuneType) {
+    const credentialProvider = fromNodeProviderChain();
+    const cred = await credentialProvider();
+
+    const interceptor = aws4Interceptor({
+        options: {
+            region: region,
+            service: neptuneType,
+        },
+        credentials: cred
+    });
+
+    axios.interceptors.request.use(interceptor);
+}
 
 async function queryNeptune(q, language, host, port, param) {    
     try {
@@ -119,6 +137,9 @@ async function loadResolver(file) {
 }
 
 async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, schemaFile, host, port) {
+    const neptuneInfo = parseNeptuneEndpoint(`${host}:${port}`);
+    await configureAxiosInterceptor(neptuneInfo.region, neptuneInfo.neptuneType);
+    
     const resolverModule = await loadResolver(resolverFile);
     const schemaDataModelJSON = await decompressGzipToString(schemaFile);
     let schemaModel = JSON.parse(schemaDataModelJSON);
@@ -128,6 +149,11 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
     for (const queryFile of queryFiles) {
         const query = JSON.parse(fs.readFileSync(queriesReferenceFolder + "/" +queryFile));
         if (query.graphql) {
+            if (query.neptuneType && query.neptuneType !== neptuneInfo.neptuneType) {
+                console.log(`Skipping query ${queryFile} as it is not applicable for current neptuneType ${neptuneInfo.neptuneType}`);
+                continue;
+            }
+            console.log(`Executing query: ${queryFile} ${query.graphql}`);
             const result = resolverModule.resolveGraphDBQuery({queryObjOrStr: gql(query.graphql)});
             const httpResult = await queryNeptune(result.query, result.language, host, port, result.parameters);
                 
