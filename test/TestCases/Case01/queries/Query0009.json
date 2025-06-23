@@ -1,6 +1,7 @@
 {
     "name": "graphQuery Gremlin type array",
     "description": "Query using Gremlin returning a type array",
+    "neptuneType": "neptune-db",
     "graphql": "query MyQuery {\n  getContinentsWithGremlin {\n code\n }\n }\n",
     "result": [
         {

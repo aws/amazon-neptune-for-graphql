@@ -7,8 +7,10 @@ const casetest = readJSONFile('./test/TestCases/Case04/case.json');
 const testDbInfo = parseNeptuneEndpoint(casetest.host + ':' + casetest.port);
 const outputFolderPath = './test/TestCases/Case04/output';
 
-const neptuneSchema = readJSONFile(`./test/TestCases/Case04/output/${testDbInfo.graphName}.output.neptune.schema.json`);
-const refNeptuneSchema = readJSONFile(`./test/TestCases/Case04/outputReference/output.neptune.schema.json`);
+const schemaFile = `${testDbInfo.graphName}.output.neptune.schema.json`;
+const neptuneSchema = readJSONFile(`./test/TestCases/Case04/output/${schemaFile}`);
+const refSchemaFile = `output.neptune.${testDbInfo.neptuneType.replace('neptune-', '')}.schema.json`;
+const refNeptuneSchema = readJSONFile(`./test/TestCases/Case04/outputReference/${refSchemaFile}`);
 
 describe('Validate output content', () => {
     afterAll(() => {
@@ -25,7 +27,7 @@ describe('Validate output content', () => {
     // note that this test can be flaky depending on how the air routes sample data was loaded into neptune
     // for more consistent results, use neptune notebook %seed with gremlin language
     checkOutputFileContent(
-    `${testDbInfo.graphName}.output.neptune.schema.json.gz`,
+    schemaFile,
     sortNeptuneSchema(neptuneSchema),
     sortNeptuneSchema(refNeptuneSchema),
     { checkRefIntegrity: false }
