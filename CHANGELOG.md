@@ -107,3 +107,5 @@ permissions and limitations under the License.
 * Fixed nested edge subqueries with sorting to pass the edge variable so that it
   can be referenced further in the
   query ([#114](https://github.com/aws/amazon-neptune-for-graphql/pull/114))
+* Fixed Apollo template to reference `graphql` `parse` instead of `graphql-tag`
+  `gql` ([#116](https://github.com/aws/amazon-neptune-for-graphql/pull/116))

@@ -2,13 +2,13 @@ import {ApolloServer} from '@apollo/server';
 import {startStandaloneServer} from '@apollo/server/standalone';
 import {buildSubgraphSchema} from '@apollo/subgraph';
 import {readFileSync} from 'fs';
-import {gql} from 'graphql-tag';
+import {parse} from 'graphql';
 import {resolveEvent} from './neptune.mjs'
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const typeDefs = gql(readFileSync('./output.schema.graphql', 'utf-8'));
+const typeDefs = parse(readFileSync('./output.schema.graphql', 'utf-8'));
 const queryDefinition = typeDefs.definitions.find(
     definition => definition.kind === 'ObjectTypeDefinition' && definition.name.value === 'Query'
 );
