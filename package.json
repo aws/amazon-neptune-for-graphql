@@ -42,6 +42,7 @@
     "./templates/CDKTemplate.js",
     "./templates/queryHttpNeptune.mjs",
     "./templates/JSResolverOCHTTPS.js",
+    "./templates/util.mjs",
     "./templates/Lambda4AppSyncHTTP/index.mjs",
     "./templates/Lambda4AppSyncHTTP/package.json",
     "./templates/Lambda4AppSyncSDK/index.mjs",
