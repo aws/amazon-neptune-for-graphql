@@ -700,7 +700,9 @@ function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNam
     const argsAndWhereClauses = extractQueryArgsAndWhereClauses(selection.arguments, fieldSchemaInfo);
     const queryArgs = argsAndWhereClauses.queryArguments?.length > 0 ? `{${argsAndWhereClauses.queryArguments.join(',')}}` : '';
     const whereClause = argsAndWhereClauses.whereClauses?.length > 0 ? ` WHERE ${argsAndWhereClauses.whereClauses.join(' AND ')}` : '';
-    const orderByClause = fieldSchemaInfo.argOrderBy?.length ? ` WITH ${lastNamePath}, ${schemaTypeInfo.pathName} ORDER BY ${fieldSchemaInfo.argOrderBy.map(orderBy => `${orderBy.field === fieldSchemaInfo.graphDBIdArgName ? `ID(${schemaTypeInfo.pathName})` : `${schemaTypeInfo.pathName}.${orderBy.field}`} ${orderBy.direction}`).join(', ')}` : '';
+    const edgePath = schemaTypeInfo.isRelationship ? `${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}` : '';
+    const withClause = `${[lastNamePath, schemaTypeInfo.pathName, edgePath].filter(path => path !== '').join(', ')}`;
+    const orderByClause = fieldSchemaInfo.argOrderBy?.length ? ` WITH ${withClause} ORDER BY ${fieldSchemaInfo.argOrderBy.map(orderBy => `${orderBy.field === fieldSchemaInfo.graphDBIdArgName ? `ID(${schemaTypeInfo.pathName})` : `${schemaTypeInfo.pathName}.${orderBy.field}`} ${orderBy.direction}`).join(', ')}` : '';
 
     if (schemaTypeInfo.isRelationship) {
         const arrows = ['<-', '-', '->'];

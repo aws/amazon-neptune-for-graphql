@@ -104,3 +104,6 @@ permissions and limitations under the License.
 * Changed resolver to use `graphql` `parse` instead of `graphql-tag` `gql` to
   avoid stale values due to
   caching ([#109](https://github.com/aws/amazon-neptune-for-graphql/pull/109))
+* Fixed nested edge subqueries with sorting to pass the edge variable so that it
+  can be referenced further in the
+  query ([#114](https://github.com/aws/amazon-neptune-for-graphql/pull/114))
