@@ -109,3 +109,6 @@ permissions and limitations under the License.
   query ([#114](https://github.com/aws/amazon-neptune-for-graphql/pull/114))
 * Fixed Apollo template to reference `graphql` `parse` instead of `graphql-tag`
   `gql` ([#116](https://github.com/aws/amazon-neptune-for-graphql/pull/116))
+* Fixed deployment of AWS resources if a pipeline name is not provided as an
+  input
+  option ([#117](https://github.com/aws/amazon-neptune-for-graphql/pull/117))
