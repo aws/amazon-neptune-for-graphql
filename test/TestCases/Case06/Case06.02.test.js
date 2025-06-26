@@ -1,4 +1,4 @@
-import { checkFileContains, readJSONFile, unzipAndGetContents } from '../../testLib';
+import { checkFileContains, checkFolderContainsFiles, readJSONFile, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
 import path from "path";
 
@@ -13,6 +13,15 @@ describe('Validate cdk pipeline with http resolver output content', () => {
     afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
+
+    checkFolderContainsFiles(outputFolderPath, [
+        'AirportCDKTestJest.resolver.graphql.js',
+        'AirportCDKTestJest.resolver.schema.json.gz',
+        'AirportCDKTestJest.schema.graphql',
+        'AirportCDKTestJest.source.schema.graphql',
+        'AirportCDKTestJest-cdk.js',
+        'AirportCDKTestJest.zip'
+    ]);
 
     test('Zip file contains expected files', () => {
         const expectedFiles = [

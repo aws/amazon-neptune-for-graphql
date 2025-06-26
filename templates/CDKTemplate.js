@@ -163,11 +163,15 @@ class AppSyncNeptuneStack extends Stack {
                 ]       
             })
         );
-                
-        // AppSync: DataSource
-        const dataSource = new CfnDataSource(this, NAME + 'DataSource', {
+
+       // some resources names cannot have dashes
+       const sanitizedName = NAME.replaceAll('-', '_');
+       
+       // AppSync: DataSource
+       const dataSourceName = `${sanitizedName}DataSource`;
+       const dataSource = new CfnDataSource(this, dataSourceName, {
             apiId: itemsGraphQLApi.attrApiId,
-            name: NAME + 'DataSource',
+            name: dataSourceName,
             type: 'AWS_LAMBDA',
             lambdaConfig: {
                 lambdaFunctionArn: LAMBDA_ARN,
@@ -181,10 +185,11 @@ class AppSyncNeptuneStack extends Stack {
 
                
         // AppSync: Function        
-        const functionappSync = new CfnFunctionConfiguration(this, NAME + 'Function', {
+       const functionName = `${sanitizedName}Function`;
+       const functionappSync = new CfnFunctionConfiguration(this, functionName, {
             apiId: itemsGraphQLApi.attrApiId,
-            dataSourceName: NAME + 'DataSource',
-            name: NAME + 'Function',
+            dataSourceName: dataSourceName,
+            name: functionName,
             runtime: {
                 name: "APPSYNC_JS",
                 runtimeVersion: "1.0.0",

@@ -1,4 +1,4 @@
-import { unzipAndGetContents } from '../../testLib';
+import { checkFolderContainsFiles, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
 import path from "path";
 
@@ -8,6 +8,15 @@ describe('Validate cdk pipeline with sdk resolver output content', () => {
     afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
+
+    checkFolderContainsFiles(outputFolderPath, [
+        'AirportCDKSDKTestJest.resolver.graphql.js',
+        'AirportCDKSDKTestJest.resolver.schema.json.gz',
+        'AirportCDKSDKTestJest.schema.graphql',
+        'AirportCDKSDKTestJest.source.schema.graphql',
+        'AirportCDKSDKTestJest-cdk.js',
+        'AirportCDKSDKTestJest.zip'
+    ]);
 
     test('Zip file contains expected files', () => {
         const expectedFiles = [

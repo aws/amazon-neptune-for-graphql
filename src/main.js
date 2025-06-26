@@ -401,7 +401,8 @@ async function main() {
         createUpdatePipelineNeptuneDatabaseName || 
         inputCDKpipelineName || 
         inputCDKpipelineDatabaseName ||
-        `${neptuneInfo?.graphName?.concat('.') || ''}output`;
+        neptuneInfo?.graphName ||
+        'output';
     // save the neptune schema early for troubleshooting purposes
     saveNeptuneSchema(outputFilePrefix);
 
@@ -591,8 +592,8 @@ async function main() {
         }
 
         // Output Lambda resolver
-        if (outputLambdaResolverFile == '') { 
-            outputLambdaResolverFile = outputFolderPath + '/output.resolver.graphql.js'; 
+        if (!outputLambdaResolverFile) { 
+            outputLambdaResolverFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.graphql.js`); 
         }
 
         try {
@@ -659,11 +660,10 @@ async function main() {
 
         if  ( !(createUpdatePipeline || inputCDKpipeline) && createLambdaZip) {
 
-            if (outputLambdaResolverZipFile == '' && outputLambdaResolverZipName == '')  
-                outputLambdaResolverZipFile = outputFolderPath + '/output.lambda.zip';
-            
-            if (outputLambdaResolverZipFile == '' && outputLambdaResolverZipName != '')  
-                outputLambdaResolverZipFile = outputFolderPath + '/' + outputLambdaResolverZipName + '.zip';
+            if (!outputLambdaResolverZipFile) {
+                const zipName = outputLambdaResolverZipName || `${outputFilePrefix}.lambda`;
+                outputLambdaResolverZipFile = path.join(outputFolderPath, `${zipName}.zip`);
+            }
 
             try {
                 if (!quiet) spinner = ora('Creating Lambda ZIP ...').start();
@@ -693,21 +693,24 @@ async function main() {
                 let neptuneHost = neptuneInfo.host;
                 let neptunePort = neptuneInfo.port;
 
-                await createUpdateAWSpipeline(  createUpdatePipelineName, 
-                                                createUpdatePipelineNeptuneDatabaseName, 
-                                                createUpdatePipelineRegion,
-                                                outputSchema,
-                                                schemaModel,
-                                                __dirname + outputLambdaPackagePath,
-                                                outputSchemaMutations,
-                                                quiet,
-                                                __dirname,
-                                                isNeptuneIAMAuth,
-                                                neptuneHost,
-                                                neptunePort,
-                                                outputFolderPath,
-                                                outputLambdaResolverFile,
-                                                neptuneType );
+                await createUpdateAWSpipeline({
+                    pipelineName: createUpdatePipelineName,
+                    neptuneDBName: createUpdatePipelineNeptuneDatabaseName,
+                    neptuneDBregion: createUpdatePipelineRegion,
+                    appSyncSchema: outputSchema,
+                    schemaModel: schemaModel,
+                    lambdaFilesPath: __dirname + outputLambdaPackagePath,
+                    addMutations: outputSchemaMutations,
+                    quietI: quiet,
+                    __dirname: __dirname,
+                    isNeptuneIAMAuth: isNeptuneIAMAuth,
+                    neptuneHost: neptuneHost,
+                    neptunePort: neptunePort,
+                    outputFolderPath: outputFolderPath,
+                    resolverFilePath: outputLambdaResolverFile,
+                    resolverSchemaFilePath: resolverSchemaFile,
+                    neptuneType: neptuneType
+                });
             } catch (err) {
                 loggerError('Error creating AWS pipeline', err);
             }
@@ -743,6 +746,7 @@ async function main() {
                     neptunePort: neptunePort,
                     outputFolderPath: outputFolderPath,
                     resolverFilePath: outputLambdaResolverFile,
+                    resolverSchemaFilePath: resolverSchemaFile,
                     neptuneType: neptuneType
                 });
             } catch (err) {
