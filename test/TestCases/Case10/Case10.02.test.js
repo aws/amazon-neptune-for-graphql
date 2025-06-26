@@ -3,7 +3,7 @@ import path from "path";
 import { parseNeptuneEndpoint } from "../../../src/util.js";
 import fs from "fs";
 
-const outputFolderPath = './test/TestCases/Case10/output';
+const outputFolderPath = './test/TestCases/Case10/pipeline-no-name-output';
 const dbHost = process.env['AIR_ROUTES_DB_HOST'];
 const dbPort = process.env['AIR_ROUTES_DB_PORT'];
 const neptuneInfo = parseNeptuneEndpoint(`${dbHost}:${dbPort}`);

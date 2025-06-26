@@ -3,7 +3,7 @@
     "description":"",
     "argv":["--quiet",
             "--input-graphdb-schema-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
-            "--output-folder-path", "./test/TestCases/Case04/output",
+            "--output-folder-path", "./test/TestCases/Case04/get-db-schema-output",
             "--output-no-lambda-zip"],
     "host": "<AIR_ROUTES_DB_HOST>",
     "port": "<AIR_ROUTES_DB_PORT>",

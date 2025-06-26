@@ -2,10 +2,10 @@ import { checkFolderContainsFiles, readJSONFile, testApolloArtifacts } from '../
 import fs from "fs";
 import {parseNeptuneEndpoint} from "../../../src/util.js";
 
-const testCase = readJSONFile('./test/TestCases/Case09/case01.json');
+const testCase = readJSONFile('./test/TestCases/Case09/apollo-subgraph.json');
 const testDbInfo = parseNeptuneEndpoint(testCase.host + ':' + testCase.port);
 
-const outputFolderPath = './test/TestCases/Case09/output';
+const outputFolderPath = './test/TestCases/Case09/apollo-subgraph-output';
 describe('Validate Apollo Server Subgraph output artifacts', () => {
     afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});

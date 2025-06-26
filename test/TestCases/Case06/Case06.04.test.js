@@ -2,7 +2,7 @@ import { checkFolderContainsFiles, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
 import path from "path";
 
-const outputFolderPath = './test/TestCases/Case06/case02-output';
+const outputFolderPath = './test/TestCases/Case06/cdk-pipeline-sdk-resolver-output';
 
 describe('Validate cdk pipeline with sdk resolver output content', () => {
     afterAll(() => {

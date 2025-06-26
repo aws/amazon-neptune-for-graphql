@@ -1,7 +1,7 @@
 import { readJSONFile } from '../../testLib';
 import { main } from "../../../src/main";
 
-const casetest = readJSONFile('./test/TestCases/Case10/case01.json');
+const casetest = readJSONFile('./test/TestCases/Case10/pipeline-no-name.json');
 
 async function executeUtility() {
     process.argv = casetest.argv;

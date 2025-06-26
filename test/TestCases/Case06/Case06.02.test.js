@@ -2,12 +2,12 @@ import { checkFileContains, checkFolderContainsFiles, readJSONFile, unzipAndGetC
 import fs from "fs";
 import path from "path";
 
-const casetest = readJSONFile('./test/TestCases/Case06/case01.json');
+const casetest = readJSONFile('./test/TestCases/Case06/cdk-pipeline-http-resolver.json');
 let neptuneType = 'neptune-db';
 if (casetest.host.includes('neptune-graph')) {
     neptuneType = 'neptune-graph';
 }
-const outputFolderPath = './test/TestCases/Case06/case01-output';
+const outputFolderPath = './test/TestCases/Case06/cdk-pipeline-http-resolver-output';
 
 describe('Validate cdk pipeline with http resolver output content', () => {
     afterAll(() => {

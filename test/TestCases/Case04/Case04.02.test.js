@@ -2,13 +2,14 @@ import { readJSONFile, checkOutputFileContent, checkFolderContainsFiles } from '
 import { sortNeptuneSchema } from './util';
 import fs from "fs";
 import { parseNeptuneEndpoint } from "../../../src/util.js";
+import path from "path";
 
-const casetest = readJSONFile('./test/TestCases/Case04/case.json');
+const casetest = readJSONFile('./test/TestCases/Case04/get-db-schema.json');
 const testDbInfo = parseNeptuneEndpoint(casetest.host + ':' + casetest.port);
-const outputFolderPath = './test/TestCases/Case04/output';
+const outputFolderPath = './test/TestCases/Case04/get-db-schema-output';
 
 const schemaFile = `${testDbInfo.graphName}.neptune.schema.json`;
-const neptuneSchema = readJSONFile(`./test/TestCases/Case04/output/${schemaFile}`);
+const neptuneSchema = readJSONFile(path.join(outputFolderPath, schemaFile));
 const refSchemaFile = `output.neptune.${testDbInfo.neptuneType.replace('neptune-', '')}.schema.json`;
 const refNeptuneSchema = readJSONFile(`./test/TestCases/Case04/outputReference/${refSchemaFile}`);
 

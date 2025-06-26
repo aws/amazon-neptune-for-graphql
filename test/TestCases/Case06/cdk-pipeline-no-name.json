@@ -3,7 +3,7 @@
     "description":"Create CDK pipeline without pipeline name",
     "argv":["--quiet", 
             "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
-            "--output-folder-path", "./test/TestCases/Case06/case03-output",
+            "--output-folder-path", "./test/TestCases/Case06/cdk-pipeline-no-name-output",
             "--output-aws-pipeline-cdk",
             "--output-aws-pipeline-cdk-region", "us-east-1",
             "--output-aws-pipeline-cdk-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",

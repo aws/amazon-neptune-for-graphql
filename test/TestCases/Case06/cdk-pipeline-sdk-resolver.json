@@ -3,7 +3,7 @@
     "description":"Create CDK pipeline with sdk resolver",
     "argv":["--quiet", 
             "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
-            "--output-folder-path", "./test/TestCases/Case06/case02-output",
+            "--output-folder-path", "./test/TestCases/Case06/cdk-pipeline-sdk-resolver-output",
             "--output-aws-pipeline-cdk",
             "--output-aws-pipeline-cdk-name", "AirportCDKSDKTestJest",
             "--output-aws-pipeline-cdk-neptune-database-name", "airport00",

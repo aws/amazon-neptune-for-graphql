@@ -3,7 +3,7 @@
     "description":"Create pipeline zip without specifying pipeline name",
     "argv":["--quiet",
             "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
-            "--output-folder-path", "./test/TestCases/Case10/output",
+            "--output-folder-path", "./test/TestCases/Case10/pipeline-no-name-output",
             "--create-update-aws-pipeline-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
             "--output-resolver-query-https"],
     "host": "<AIR_ROUTES_DB_HOST>",
