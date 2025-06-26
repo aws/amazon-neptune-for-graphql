@@ -392,11 +392,11 @@ async function createLambdaRole() {
  * Creates the lambda deployment ZIP package
  * @param templateFolderPath the path to the template folder that contains contents to add to the zip
  * @param resolverFilePath the path to the resolver file that should be added to the zip
+ * @param resolverSchemaFilePath the path to the resolver schema file that should be added to the zip
  * @returns {Promise<Buffer<ArrayBufferLike>>}
  */
-async function createDeploymentPackage(templateFolderPath, resolverFilePath) {
+async function createDeploymentPackage({templateFolderPath, resolverFilePath, resolverSchemaFilePath}) {
     const zipFilePath = path.join(thisOutputFolderPath, `${NAME}.zip`);
-    const resolverSchemaFilePath = path.join(thisOutputFolderPath, `${NAME}.resolver.schema.json.gz`)
     await createLambdaDeploymentPackage({
         outputZipFilePath: zipFilePath,
         templateFolderPath: templateFolderPath,
@@ -535,11 +535,15 @@ async function createAppSyncAPI() {
     const apiKey = response.apiKey.id;
     succeedSpinner('Created API key', {logLevel: 'info'});
 
+    // some resource names cannot have dashes
+    const sanitizedName = NAME.replaceAll('-', '_');
+    
     // create datasource
     startSpinner('Creating DataSource ...', true);
+    const dataSourceName = `${sanitizedName}DataSource`;
     params = {
         apiId: apiId,
-        name: NAME + 'DataSource',       
+        name: dataSourceName,       
         type: "AWS_LAMBDA",
         serviceRoleArn: LAMBDA_INVOCATION_ROLE,
         lambdaConfig: {
@@ -548,15 +552,16 @@ async function createAppSyncAPI() {
     };    
     command = new CreateDataSourceCommand(params);
     response = await appSyncClient.send(command);
-    succeedSpinner('Created DataSource: ' + yellow(NAME+'DataSource'), {logLevel: 'debug'});
+    succeedSpinner('Created DataSource: ' + yellow(dataSourceName), {logLevel: 'debug'});
     loggerInfo('Created datasource');
 
     // create function
     startSpinner('Creating Function ...', true);
+    const functionName = `${sanitizedName}Function`;
     params = {
         apiId: apiId,
-        name: NAME+'Function',       
-        dataSourceName: NAME+'DataSource',
+        name: functionName,       
+        dataSourceName: dataSourceName,
         runtime: {
             name: "APPSYNC_JS",
             runtimeVersion: "1.0.0",
@@ -591,7 +596,7 @@ export function response(ctx) {
     await sleep(5000);
     let functionId = response.functionConfiguration.functionId;    
     storeResource({AppSyncAPIFunction: functionId});
-    succeedSpinner('Created Function: ' + yellow(NAME+'Function'), {logLevel: 'debug'});
+    succeedSpinner('Created Function: ' + yellow(functionName), {logLevel: 'debug'});
     loggerInfo('Created function');
 
     // Upload schema
@@ -917,21 +922,24 @@ async function updateAppSyncAPI(resources) {
 }
 
 
-async function createUpdateAWSpipeline (    pipelineName,
-                                            neptuneDBName,
-                                            neptuneDBregion,
-                                            appSyncSchema,
-                                            schemaModel,
-                                            lambdaFilesPath,
-                                            addMutations,
-                                            quietI,
-                                            __dirname,
-                                            isNeptuneIAMAuth,
-                                            neptuneHost,
-                                            neptunePort,
-                                            outputFolderPath,
-                                            resolverFilePath,
-                                            neptuneType) {
+async function createUpdateAWSpipeline({
+                                           pipelineName,
+                                           neptuneDBName,
+                                           neptuneDBregion,
+                                           appSyncSchema,
+                                           schemaModel,
+                                           lambdaFilesPath,
+                                           addMutations,
+                                           quietI,
+                                           __dirname,
+                                           isNeptuneIAMAuth,
+                                           neptuneHost,
+                                           neptunePort,
+                                           outputFolderPath,
+                                           resolverFilePath,
+                                           resolverSchemaFilePath,
+                                           neptuneType
+                                       }) {
 
     NAME = pipelineName;
     REGION = neptuneDBregion;
@@ -1002,7 +1010,11 @@ async function createUpdateAWSpipeline (    pipelineName,
             }
 
             startSpinner('Creating ZIP ...', true);
-            ZIP = await createDeploymentPackage(LAMBDA_FILES_PATH, resolverFilePath);
+            ZIP = await createDeploymentPackage({
+                templateFolderPath: LAMBDA_FILES_PATH,
+                resolverFilePath: resolverFilePath,
+                resolverSchemaFilePath: resolverSchemaFilePath
+            });
             succeedSpinner('Created ZIP File: ' + yellow(LAMBDA_FILES_PATH), {logLevel: 'info'});
 
             await createLambdaRole();
@@ -1034,7 +1046,11 @@ async function createUpdateAWSpipeline (    pipelineName,
         }  
 
         startSpinner('Creating ZIP ...', true);
-        ZIP = await createDeploymentPackage(LAMBDA_FILES_PATH, resolverFilePath);
+        ZIP = await createDeploymentPackage({
+            templateFolderPath: LAMBDA_FILES_PATH,
+            resolverFilePath: resolverFilePath,
+            resolverSchemaFilePath: resolverSchemaFilePath
+        });
         succeedSpinner('Created ZIP File: ' + yellow(LAMBDA_FILES_PATH), {logLevel: 'info'});
 
         loggerInfo('Updating Lambda function', {toConsole: true});

@@ -1,0 +1,15 @@
+{
+    "name": "Integration Test (Air Routes) CDK HTTP Pipeline",
+    "description":"Create CDK pipeline with http resolver",
+    "argv":["--quiet", 
+            "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
+            "--output-folder-path", "./test/TestCases/Case06/cdk-pipeline-http-resolver-output",
+            "--output-aws-pipeline-cdk",
+            "--output-aws-pipeline-cdk-name", "AirportCDKTestJest",
+            "--output-aws-pipeline-cdk-neptune-database-name", "airport00",
+            "--output-aws-pipeline-cdk-region", "us-east-1",
+            "--output-aws-pipeline-cdk-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
+            "--output-resolver-query-https"],
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>"
+}

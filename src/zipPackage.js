@@ -84,18 +84,19 @@ async function createZip({targetZipFilePath, includePaths = [], includeContent =
  * @returns {Promise<Buffer<ArrayBufferLike>>}
  */
 export async function createLambdaDeploymentPackage({outputZipFilePath, templateFolderPath, resolverFilePath, resolverSchemaFilePath}) {
-    const filePaths = [{source: templateFolderPath}, {source: resolverFilePath, target: 'output.resolver.graphql.js'}];
     const modulePath = getModulePath();
+    const filePaths = [
+        {source: templateFolderPath},
+        {source: resolverFilePath, target: 'output.resolver.graphql.js'},
+        {source: resolverSchemaFilePath, target: 'output.resolver.schema.json.gz'},
+        {source: path.join(modulePath, '/../templates/util.mjs')}
+    ];
+
     if (templateFolderPath.includes('HTTP')) {
         filePaths.push({
             source: path.join(modulePath, '/../templates/queryHttpNeptune.mjs')
         })
     }
-
-    filePaths.push({
-        source: resolverSchemaFilePath,
-        target: 'output.resolver.schema.json.gz'
-    }, {source: path.join(modulePath, '/../templates/util.mjs')});
 
     await createZip({
         targetZipFilePath: outputZipFilePath,

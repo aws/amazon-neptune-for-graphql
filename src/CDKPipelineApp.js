@@ -54,10 +54,9 @@ async function getSchemaFields(typeName) {
     return r;
 }
 
-async function createDeploymentFile(templateFolderPath, resolverFilePath) {
+async function createDeploymentFile({templateFolderPath, resolverFilePath, resolverSchemaFilePath}) {
     try {
         const zipFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.zip`);
-        const resolverSchemaFilePath = path.join(RELATIVE_OUTPUT_PATH, `${NAME}.resolver.schema.json.gz`)
         await createLambdaDeploymentPackage({
             outputZipFilePath: zipFilePath,
             templateFolderPath: templateFolderPath,
@@ -85,6 +84,7 @@ async function createAWSpipelineCDK({
                                         neptunePort,
                                         outputFolderPath,
                                         resolverFilePath,
+                                        resolverSchemaFilePath,
                                         neptuneType
                                     }) {
 
@@ -153,7 +153,11 @@ async function createAWSpipelineCDK({
     }
          
     if (!quiet) spinner = ora('Creating ZIP ...').start();
-    await createDeploymentFile(lambdaFilesPath, resolverFilePath);
+    await createDeploymentFile({
+        templateFolderPath: lambdaFilesPath,
+        resolverFilePath: resolverFilePath,
+        resolverSchemaFilePath: resolverSchemaFilePath
+    });
     if (!quiet) spinner.succeed('Created ZIP File: ' + yellow(LAMBDA_ZIP_FILE));
     
     APPSYNC_ATTACH_QUERY = await getSchemaFields('Query');

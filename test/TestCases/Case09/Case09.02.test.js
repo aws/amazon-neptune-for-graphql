@@ -2,21 +2,21 @@ import { checkFolderContainsFiles, readJSONFile, testApolloArtifacts } from '../
 import fs from "fs";
 import {parseNeptuneEndpoint} from "../../../src/util.js";
 
-const testCase = readJSONFile('./test/TestCases/Case09/case01.json');
+const testCase = readJSONFile('./test/TestCases/Case09/apollo-subgraph.json');
 const testDbInfo = parseNeptuneEndpoint(testCase.host + ':' + testCase.port);
 
-const outputFolderPath = './test/TestCases/Case09/output';
+const outputFolderPath = './test/TestCases/Case09/apollo-subgraph-output';
 describe('Validate Apollo Server Subgraph output artifacts', () => {
     afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
 
     checkFolderContainsFiles(outputFolderPath, [
-        `${testDbInfo.graphName}.output.neptune.schema.json`,
-        `${testDbInfo.graphName}.output.resolver.graphql.js`,
-        `${testDbInfo.graphName}.output.resolver.schema.json.gz`,
-        `${testDbInfo.graphName}.output.schema.graphql`,
-        `${testDbInfo.graphName}.output.source.schema.graphql`
+        `${testDbInfo.graphName}.neptune.schema.json`,
+        `${testDbInfo.graphName}.resolver.graphql.js`,
+        `${testDbInfo.graphName}.resolver.schema.json.gz`,
+        `${testDbInfo.graphName}.schema.graphql`,
+        `${testDbInfo.graphName}.source.schema.graphql`
     ]);
 
     testApolloArtifacts(outputFolderPath, testDbInfo, true);

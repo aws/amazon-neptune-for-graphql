@@ -1,18 +1,27 @@
-import { checkFileContains, readJSONFile, unzipAndGetContents } from '../../testLib';
+import { checkFileContains, checkFolderContainsFiles, readJSONFile, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
 import path from "path";
 
-const casetest = readJSONFile('./test/TestCases/Case06/case01.json');
+const casetest = readJSONFile('./test/TestCases/Case06/cdk-pipeline-http-resolver.json');
 let neptuneType = 'neptune-db';
 if (casetest.host.includes('neptune-graph')) {
     neptuneType = 'neptune-graph';
 }
-const outputFolderPath = './test/TestCases/Case06/case01-output';
+const outputFolderPath = './test/TestCases/Case06/cdk-pipeline-http-resolver-output';
 
 describe('Validate cdk pipeline with http resolver output content', () => {
     afterAll(() => {
         fs.rmSync(outputFolderPath, {recursive: true});
     });
+
+    checkFolderContainsFiles(outputFolderPath, [
+        'AirportCDKTestJest.resolver.graphql.js',
+        'AirportCDKTestJest.resolver.schema.json.gz',
+        'AirportCDKTestJest.schema.graphql',
+        'AirportCDKTestJest.source.schema.graphql',
+        'AirportCDKTestJest-cdk.js',
+        'AirportCDKTestJest.zip'
+    ]);
 
     test('Zip file contains expected files', () => {
         const expectedFiles = [

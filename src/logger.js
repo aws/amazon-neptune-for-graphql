@@ -72,7 +72,7 @@ function loggerError(errorMessage, error) {
     let toLog = removeYellow(errorMessage);
     if (error) {
         toConsole = toConsole + ': ' + error.message + ' - Please see ' + logFileDestination + ' for more details';
-        toLog = toLog + '\n' + JSON.stringify(error, null, 4);
+        toLog = toLog + ': ' + error.message + '\n' + JSON.stringify(error, null, 4);
     }
     console.error(toConsole);
     fileLogger.error(toLog);

@@ -4,7 +4,7 @@
     "argv":["--quiet",
             "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
             "--create-update-apollo-server-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
-            "--output-folder-path", "./test/TestCases/Case09/case09-02-output",
+            "--output-folder-path", "./test/TestCases/Case09/apollo-subgraph-input-schema-output",
             "--create-update-apollo-server-subgraph",
             "--output-resolver-query-https"],
     "host": "<AIR_ROUTES_DB_HOST>",
