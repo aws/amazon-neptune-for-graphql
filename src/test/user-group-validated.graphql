@@ -4,17 +4,26 @@ type User {
   lastName: String
   role: Role
   email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
 }
 
 type Group {
   _id: ID! @id
   name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
 }
 
 type Moderator {
   moderatorId: ID! @id
   name: String
   moderates: Group @relationship(type: "GroupEdge", direction: OUT)
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
   groupEdge: GroupEdge
 }
 
@@ -38,6 +47,11 @@ input UserInput {
   lastName: String
   role: Role
   email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
 }
 
 input UserCreateInput {
@@ -46,6 +60,11 @@ input UserCreateInput {
   lastName: String
   role: Role
   email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
 }
 
 input UserUpdateInput {
@@ -54,6 +73,11 @@ input UserUpdateInput {
   lastName: String
   role: Role
   email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
 }
 
 input UserSort {
@@ -62,46 +86,67 @@ input UserSort {
   lastName: SortDirection
   role: SortDirection
   email: SortDirection
+  dateOfBirth: SortDirection
+  lastLoginTime: SortDirection
+  phoneNumber: SortDirection
+  profilePictureUrl: SortDirection
+  ipAddress: SortDirection
 }
 
 input GroupInput {
   _id: ID! @id
   name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
 }
 
 input GroupCreateInput {
   _id: ID @id
   name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
 }
 
 input GroupUpdateInput {
   _id: ID! @id
   name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
 }
 
 input GroupSort {
   _id: SortDirection
   name: SortDirection
+  dailyMeetingTime: SortDirection
+  metadata: SortDirection
 }
 
 input ModeratorInput {
   moderatorId: ID! @id
   name: String
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
 }
 
 input ModeratorCreateInput {
   moderatorId: ID @id
   name: String
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
 }
 
 input ModeratorUpdateInput {
   moderatorId: ID! @id
   name: String
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
 }
 
 input ModeratorSort {
   moderatorId: SortDirection
   name: SortDirection
+  contactEmail: SortDirection
+  appointedTimestamp: SortDirection
 }
 
 type GroupEdge {

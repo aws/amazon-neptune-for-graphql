@@ -112,3 +112,6 @@ permissions and limitations under the License.
 * Fixed deployment of AWS resources if a pipeline name is not provided as an
   input
   option ([#117](https://github.com/aws/amazon-neptune-for-graphql/pull/117))
+* Fixed invalid schema generation when AWS AppSync scalar types are used in 
+  an input 
+  schema ([#118](https://github.com/aws/amazon-neptune-for-graphql/pull/118))

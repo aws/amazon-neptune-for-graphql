@@ -1,6 +1,6 @@
 import { ExecuteQueryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune-graph";
 import { initSchema, resolveGraphDBQueryFromAppSyncEvent } from './output.resolver.graphql.js';
-import { decompressGzipToString } from './util.mjs';
+import { decompressGzipToString, injectAwsScalarDefinitions } from './util.mjs';
 
 const PROTOCOL = 'https';
 const QUERY_LANGUAGE = 'OPEN_CYPHER';
@@ -10,6 +10,7 @@ let client;
 
 const schemaDataModelJSON = await decompressGzipToString('output.resolver.schema.json.gz');
 const schemaModel = JSON.parse(schemaDataModelJSON);
+injectAwsScalarDefinitions(schemaModel);
 initSchema(schemaModel);
 
 function getClient() {

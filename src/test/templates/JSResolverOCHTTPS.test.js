@@ -2,6 +2,7 @@ import { initSchema, resolveGraphDBQueryFromAppSyncEvent, resolveGraphDBQuery, r
 import {readFileSync} from "fs";
 import {schemaParser} from "../../schemaParser.js";
 import {validatedSchemaModel} from "../../schemaModelValidator.js";
+import {injectAwsScalarDefinitions} from "../../../templates/util.mjs";
 import { gql } from "graphql-tag";
 
 beforeAll(() => {
@@ -13,6 +14,7 @@ beforeAll(() => {
 
     schemaDataModel = JSON.stringify(schemaDataModel, null, 2);
     const schemaModel = JSON.parse(schemaDataModel);
+    injectAwsScalarDefinitions(schemaModel);
     initSchema(schemaModel);
 });
 
@@ -313,7 +315,7 @@ test('should resolve app sync event with nested sort and nested selection', () =
     });
 });
 
-test('should resolve AppSync event with ID field as both top-level and nested sort argument', () => {
+test('should resolve app sync event with ID field as both top-level and nested sort argument', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
         field: 'getNodeAirports',
         arguments: { sort: [ { _id: 'ASC' } ] },
@@ -334,6 +336,42 @@ test('should resolve AppSync event with ID field as both top-level and nested so
             'WITH getNodeAirports_Airport, getNodeAirports_Airport_airportRoutesIn, getNodeAirports_Airport_airportRoutesIn_route ORDER BY ID(getNodeAirports_Airport_airportRoutesIn) DESC\n' +
             'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getNodeAirports_Airport_airportRoutesIn)}) END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({_id:ID(getNodeAirports_Airport), airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect})',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve app sync event with AWS AppSync scalars as field types', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getNodeCountry',
+        arguments: {},
+        variables: {},
+        selectionSetGraphQL: '{\n' +
+            '  createdTimestamp\n' +
+            '  emergencyLine\n' +
+            '  foundingDate\n' +
+            '  gatewayIp\n' +
+            '  governmentSite\n' +
+            '  localOfficeTime\n' +
+            '  metadataJson\n' +
+            '  officialEmail\n' +
+            '  updatedAt\n' +
+            '}',
+        source: null
+    });
+
+    expect(result).toEqual({
+        query: 'MATCH (getNodeCountry_Country:`country`)\n' +
+            'RETURN {createdTimestamp: getNodeCountry_Country.`createdTimestamp`, ' +
+            'emergencyLine: getNodeCountry_Country.`emergencyLine`, ' +
+            'foundingDate: getNodeCountry_Country.`foundingDate`, ' +
+            'gatewayIp: getNodeCountry_Country.`gatewayIp`, ' +
+            'governmentSite: getNodeCountry_Country.`governmentSite`, ' +
+            'localOfficeTime: getNodeCountry_Country.`localOfficeTime`, ' +
+            'metadataJson: getNodeCountry_Country.`metadataJson`, ' +
+            'officialEmail: getNodeCountry_Country.`officialEmail`, ' +
+            'updatedAt: getNodeCountry_Country.`updatedAt`} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null

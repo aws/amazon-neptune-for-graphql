@@ -21,7 +21,7 @@ const typesToAdd = [];
 const queriesToAdd = [];
 const mutationsToAdd = [];
 const enumTypes = [];
-const customScalarTypes = [];
+const customScalarTypes = ['AWSDate', 'AWSTime', 'AWSDateTime', 'AWSTimestamp', 'AWSEmail', 'AWSJSON', 'AWSPhone', 'AWSURL', 'AWSIPAddress'];
 
 function lowercaseFirstCharacter(inputString) {
     if (inputString.length === 0) {     

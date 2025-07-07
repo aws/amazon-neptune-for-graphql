@@ -216,7 +216,7 @@ You might want to use it as is, or change it. Below are ways to change it.
 ### Please no mutations in my schema
 
 In case you don't want your Graph API having the option of updating your
-database data, add the the CLI option `--output-schema-no-mutations`.
+database data, add the CLI option `--output-schema-no-mutations`.
 
 ### @alias
 
@@ -510,6 +510,34 @@ resolvers, the absence of the custom scalar resolvers will bypass important data
 validation for fields using custom scalar types.
 See [Apollo Custom Scalars](https://www.apollographql.com/docs/apollo-server/schema/custom-scalars)
 for more details on how to attach custom scalar resolvers with Apollo Server.
+
+### AWS AppSync Scalars
+
+AWS AppSync provides a set of extended scalar types that go beyond the default GraphQL 
+scalars like `String`, `Int`, and `Boolean`. 
+
+Refer to 
+[AWS AppSync scalars](https://docs.aws.amazon.com/appsync/latest/devguide/scalars.html#graph-ql-aws-appsync-scalars)
+for more details on each of the scalar types.
+
+These scalar types can be used in your schema (specified via `--input-schema-file`) just
+like any other standard scalar when working with **AWS AppSync**. You simply reference 
+them in your schema, and AppSync handles the parsing and validation automatically. 
+For example, you can define a field as an `AWSEmail` or `AWSDateTime` without needing to 
+implement any custom logic as AppSync will enforce the correct format at runtime.
+
+```graphql
+type User {
+  id: ID!
+  email: AWSEmail!
+  createdAt: AWSDateTime!
+  metadata: AWSJSON
+}
+```
+
+However, it's important to note that these scalars are specific to AppSync and are not 
+part of the official GraphQL specification. Thus, these scalars types are **not automatically
+recognized by the Apollo Server** as it is with AppSync.
 
 # Known limitations
 

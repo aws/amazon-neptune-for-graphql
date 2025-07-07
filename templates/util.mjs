@@ -34,3 +34,37 @@ export function decompressGzipToString(inputFilePath) {
         readStream.pipe(gunzip);
     });
 }
+
+/**
+ * Injects AWS scalar type definitions into a GraphQL schema model.
+ *
+ * This function adds predefined AWS AppSync scalar types to the schema's definitions array.
+ *
+ * @param {Object} schemaModel - The GraphQL schema model object that contains a definitions array
+ */
+export function injectAwsScalarDefinitions(schemaModel) {
+    const awsScalarTypes = [
+        'AWSDate',
+        'AWSTime',
+        'AWSDateTime',
+        'AWSTimestamp',
+        'AWSEmail',
+        'AWSJSON',
+        'AWSPhone',
+        'AWSURL',
+        'AWSIPAddress'
+    ];
+
+    const awsScalars = awsScalarTypes
+        .map(scalarName => ({
+            kind: "ScalarTypeDefinition",
+            name: {
+                kind: "Name",
+                value: scalarName
+            },
+            directives: []
+        }));
+
+    // Add to the definitions array
+    schemaModel.definitions.push(...awsScalars);
+}

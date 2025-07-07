@@ -2,7 +2,7 @@
 
 You can start from a GraphQL schema without directives and an empty Neptune
 database. The utility will inference directives, input, queries and mutations,
-and create the the GraphQL API. Then, you can use GraphQL to create, mutate and
+and create the GraphQL API. Then, you can use GraphQL to create, mutate and
 query the data stored in a Neptune database without the need to know how to use
 a graph query language.
 
@@ -23,6 +23,7 @@ type Todo {
 type Comment {
     content: String
 }
+
 ```
 
 Let's now run this schema through the utility and create the GraphQL API in AWS
@@ -39,7 +40,7 @@ neptune-for-graphql \
 
 The utility created a new file in the *output* folder called
 *TodoExample.source.graphql*, and the GraphQL API in AppSync. As you can see
-below, the utility inferenced:
+below, the utility inferences:
 
 - In the type *Todo* it added *@relationship* for a new type *CommentEdge*. This
   is instructing the resolver to connect *Todo* to *Comment* using a graph
@@ -51,7 +52,7 @@ below, the utility inferenced:
   getNodeTodos query.
 - For each type (*Todo*, *Comment*) the utility added two queries. One to
   retrieve a single type using an id or any of the type fields listed in the
-  input, and the second to retrive multiple values, filtered using the input of
+  input, and the second to retrieve multiple values, filtered using the input of
   that type.
 - For each type three mutations: create, update and delete. Selecting the type
   to delete using an id or the input for that type. These mutation affect the
@@ -71,11 +72,6 @@ below, the utility inferenced:
 <summary>Todo GraphQL Schema</summary>
 
 ```graphql
-enum SortingDirection {
-    ASC
-    DESC
-}
-
 type Todo {
     _id: ID! @id
     name: String
@@ -90,6 +86,11 @@ type Todo {
 type Comment {
     _id: ID! @id
     content: String
+}
+
+enum SortingDirection {
+  ASC
+  DESC
 }
 
 input TodoInput {

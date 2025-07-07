@@ -45,6 +45,15 @@ type Country @alias(property: "country") {
   type: String
   code: String
   desc: String
+  foundingDate: AWSDate
+  localOfficeTime: AWSTime
+  updatedAt: AWSDateTime
+  createdTimestamp: AWSTimestamp
+  officialEmail: AWSEmail
+  metadataJson: AWSJSON
+  governmentSite: AWSURL
+  emergencyLine: AWSPhone
+  gatewayIp: AWSIPAddress
   airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
   contains: Contains
 }
@@ -54,6 +63,15 @@ _id: ID @id
 type: StringScalarFilters
 code: StringScalarFilters
 desc: StringScalarFilters
+foundingDate: AWSDate
+localOfficeTime: AWSTime
+updatedAt: AWSDateTime
+createdTimestamp: AWSTimestamp
+officialEmail: AWSEmail
+metadataJson: AWSJSON
+governmentSite: AWSURL
+emergencyLine: AWSPhone
+gatewayIp: AWSIPAddress
 }
 
 input CountryCreateInput {
@@ -61,6 +79,15 @@ input CountryCreateInput {
   type: String
   code: String
   desc: String
+  foundingDate: AWSDate
+  localOfficeTime: AWSTime
+  updatedAt: AWSDateTime
+  createdTimestamp: AWSTimestamp
+  officialEmail: AWSEmail
+  metadataJson: AWSJSON
+  governmentSite: AWSURL
+  emergencyLine: AWSPhone
+  gatewayIp: AWSIPAddress
 }
 
 input CountryUpdateInput {
@@ -68,6 +95,15 @@ input CountryUpdateInput {
   type: String
   code: String
   desc: String
+  foundingDate: AWSDate
+  localOfficeTime: AWSTime
+  updatedAt: AWSDateTime
+  createdTimestamp: AWSTimestamp
+  officialEmail: AWSEmail
+  metadataJson: AWSJSON
+  governmentSite: AWSURL
+  emergencyLine: AWSPhone
+  gatewayIp: AWSIPAddress
 }
 
 input CountrySort {
@@ -75,6 +111,15 @@ input CountrySort {
   type: SortingDirection
   code: SortingDirection
   desc: SortingDirection
+  foundingDate: SortingDirection
+  localOfficeTime: SortingDirection
+  updatedAt: SortingDirection
+  createdTimestamp: SortingDirection
+  officialEmail: SortingDirection
+  metadataJson: SortingDirection
+  governmentSite: SortingDirection
+  emergencyLine: SortingDirection
+  gatewayIp: SortingDirection
 }
 
 type Version @alias(property: "version") {
