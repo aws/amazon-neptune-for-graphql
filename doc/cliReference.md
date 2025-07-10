@@ -1,4 +1,4 @@
-# Neptune GraphQL Utility Command Line options Reference
+# Neptune GraphQL Utility Command Line options Reference - v2.0.0
 
 `--help, --h, -help, -h`
 <br>

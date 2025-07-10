@@ -1,4 +1,4 @@
-# **Amazon Neptune Utility for GraphQL&trade; Tests**
+# **Amazon Neptune Utility for GraphQL&trade; Tests - v2.0.0**
 
 The Amazon Neptune Utility for GraphQL project contains unit and integration
 tests. When contributing changes to the project, one should ensure that these

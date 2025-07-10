@@ -1,4 +1,4 @@
-# Deploy the GraphQL API resources with CDK
+# Deploy the GraphQL API resources with CDK - v2.0.0
 
 If your organization requires using CDK to deploy AWS resources, here is an end
 to end example.

@@ -14,7 +14,7 @@ permissions and limitations under the License.
 
 # amazon-neptune-for-graphql CHANGELOG
 
-## Release v1.2.0 (Release Date: TBD)
+## Release v2.0.0
 
 ### Features
 

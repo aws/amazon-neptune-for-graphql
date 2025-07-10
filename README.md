@@ -1,7 +1,7 @@
 <br>
 <img src="https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/utilityRunning.gif" width="180" height="100">
 
-# **Amazon Neptune utility for GraphQL&trade; schemas and resolvers**
+# **Amazon Neptune utility for GraphQL&trade; schemas and resolvers - v2.0.0**
 
 The Amazon Neptune utility for GraphQL&trade; is a Node.js command-line utility
 to help with the creation and maintenance of a GraphQL API for the Amazon
@@ -31,6 +31,11 @@ modified or created.
 The utility has the option to **generate the AWS resources** of the entire
 pipeline, including the AWS AppSync API, configuring the roles, data source,
 schema and resolver, and the AWS Lambda that queries Amazon Neptune.
+
+Alternatively, you can also **generate Apollo Server artifacts** through the utility
+as a self-hosted solution that includes a standalone Node.js application with 
+all dependencies, resolvers, and Neptune connectivity pre-configured to 
+query Amazon Neptune.
 
 If you have a **few queries** with a static number of input parameters and
 return fields, and you are willing to code your GraphQL resolver, look at these
@@ -102,7 +107,7 @@ pulldown menu.
 
 #### Next Step
 
-- Install Node.js
+- Install Node.js.
 - [Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
   if you need to create the AWS resources, or you need an IAM role to access the
   Neptune database.
@@ -404,7 +409,7 @@ For Example:
 
 # AWS resources for the GraphQL API
 
-You have three option to created the GraphQL API pipeline:
+You have three options to create the GraphQL API pipeline:
 
 - Let the utility create the AWS resources
 - Let the utility create a CDK file, then you run it
@@ -555,8 +560,8 @@ recognized by the Apollo Server** as it is with AppSync.
   or `--create-update-apollo-server-subgraph`which contain custom scalars
   require manual steps to add custom scalar resolvers for additional query
   validation.
-- Query fragments are supported for Apollo Server but not yet for App Sync
-- Inline fragments are not yet supported
+- Query fragments are supported for Apollo Server but not yet for App Sync.
+- Inline fragments are not yet supported.
 - When working with sort values as variables, Apollo Server may not support an
   array variable but will accept variables inside an array. For example
   ```sort: $test``` with variable ```{"test": [{"country": "ASC"}]}``` may
