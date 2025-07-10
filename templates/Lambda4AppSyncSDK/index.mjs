@@ -8,7 +8,7 @@ import {
     refactorGremlinqueryOutput,
     resolveGraphDBQueryFromAppSyncEvent
 } from './output.resolver.graphql.js';
-import { decompressGzipToString } from './util.mjs';
+import { decompressGzipToString, injectAwsScalarDefinitions } from './util.mjs';
 
 const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
@@ -18,6 +18,7 @@ const config = {
 
 const schemaDataModelJSON = await decompressGzipToString('output.resolver.schema.json.gz');
 const schemaModel = JSON.parse(schemaDataModelJSON);
+injectAwsScalarDefinitions(schemaModel);
 initSchema(schemaModel);
 
 let client;

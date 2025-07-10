@@ -3,7 +3,7 @@ import * as rax from 'retry-axios';
 import { aws4Interceptor } from "aws4-axios";
 import { initSchema, resolveGraphDBQueryFromAppSyncEvent } from './output.resolver.graphql.js';
 import { queryNeptune } from "./queryHttpNeptune.mjs";
-import { decompressGzipToString } from './util.mjs';
+import { decompressGzipToString, injectAwsScalarDefinitions } from './util.mjs';
 
 const LOGGING_ENABLED = process.env.LOGGING_ENABLED;
 
@@ -41,6 +41,7 @@ rax.attach();
 
 const schemaDataModelJSON = await decompressGzipToString('output.resolver.schema.json.gz');
 const schemaModel = JSON.parse(schemaDataModelJSON);
+injectAwsScalarDefinitions(schemaModel);
 initSchema(schemaModel);
 
 export const handler = async (event) => {

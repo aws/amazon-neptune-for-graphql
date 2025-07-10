@@ -4,16 +4,25 @@ type User {
     lastName: String
     role: Role
     email: EmailAddress
+    dateOfBirth: AWSDate
+    lastLoginTime: AWSDateTime
+    phoneNumber: AWSPhone
+    profilePictureUrl: AWSURL
+    ipAddress: AWSIPAddress
 }
 
 type Group {
     name: String
+    dailyMeetingTime: AWSTime
+    metadata: AWSJSON
 }
 
 type Moderator {
     moderatorId: ID!
     name: String
     moderates: Group
+    contactEmail: AWSEmail
+    appointedTimestamp: AWSTimestamp
 }
 
 enum Role {

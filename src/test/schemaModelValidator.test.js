@@ -28,9 +28,9 @@ describe('validatedSchemaModel', () => {
         const groupType = objTypeDefs.find(def => def.name.value === 'Group');
         const moderatorType = objTypeDefs.find(def => def.name.value === 'Moderator');
 
-        expect(userType.fields).toHaveLength(5);
-        expect(groupType.fields).toHaveLength(2);
-        expect(moderatorType.fields).toHaveLength(4);
+        expect(userType.fields).toHaveLength(10);
+        expect(groupType.fields).toHaveLength(4);
+        expect(moderatorType.fields).toHaveLength(6);
 
         const userIdFields = getIdFields(userType);
         const groupIdFields = getIdFields(groupType);
