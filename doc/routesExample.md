@@ -226,9 +226,7 @@ Below is the GraphQL schema with directives, inferred by the utility.
 > on the name pattern. If you need to customize it, first look at the
 > documentation section: *Customize the GraphQL schema with directives*.
 
-<details>
-
-<summary>Air Routes GraphQL Schema</summary>
+**Air Routes GraphQL Schema**
 
 ```graphql
 enum SortingDirection {
@@ -503,8 +501,6 @@ schema {
     mutation: Mutation
 }
 ```
-
-</details>
 
 ## Let's use our new GraphQL API from AppSync console
 
