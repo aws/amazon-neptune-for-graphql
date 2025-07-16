@@ -1,8 +1,9 @@
 {
-    "name": "Mutation: create node",
-    "description": "",
-    "graphql": "mutation MyMutation {\n createNodeAirport(input: {code: \"NAX\", city: \"Reggio Emilia\"}) {\n code\n }\n }",
+    "name": "Mutation: update node",
+    "description": "update seattle airport node for neptune-db",
+    "neptuneType": "neptune-db",
+    "graphql": "mutation MyMutation {\n updateAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }",
     "result":{
-        "code": "NAX"
+        "city": "Seattle"
     }
 }

@@ -116,14 +116,14 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodeStadium(filter: StadiumInput): Stadium
-    getNodeStadiums(filter: StadiumInput, options: Options, sort: [StadiumSort!]): [Stadium]
-    getNodeLeague(filter: LeagueInput): League
-    getNodeLeagues(filter: LeagueInput, options: Options, sort: [LeagueSort!]): [League]
-    getNodeTeam(filter: TeamInput): Team
-    getNodeTeams(filter: TeamInput, options: Options, sort: [TeamSort!]): [Team]
-    getNodeCity(filter: CityInput): City
-    getNodeCitys(filter: CityInput, options: Options, sort: [CitySort!]): [City]
+    getStadium(filter: StadiumInput): Stadium
+    getStadiums(filter: StadiumInput, options: Options, sort: [StadiumSort!]): [Stadium]
+    getLeague(filter: LeagueInput): League
+    getLeagues(filter: LeagueInput, options: Options, sort: [LeagueSort!]): [League]
+    getTeam(filter: TeamInput): Team
+    getTeams(filter: TeamInput, options: Options, sort: [TeamSort!]): [Team]
+    getCity(filter: CityInput): City
+    getCitys(filter: CityInput, options: Options, sort: [CitySort!]): [City]
 }
 
 schema {

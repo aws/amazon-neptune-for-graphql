@@ -1,7 +1,7 @@
 {
     "name": "Field alias",
     "description": "Map type name to different graph db property name",
-    "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n desc2\n }\n }\n",
+    "graphql": "query MyQuery {\n getAirportCustom(code: \"SEA\") {\n desc2\n }\n }\n",
     "result":{
         "desc2": "Seattle-Tacoma"
       }

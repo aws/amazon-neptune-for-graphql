@@ -70,7 +70,7 @@ As you can see below, the utility inferences:
 - Two other new input types called *TodoCreateInput* and *TodoUpdateInput* were
   added to help with mutations.
 - The new input *TodoSort* was added to allow specifying sort order for the
-  getNodeTodos query.
+  getTodos query.
 - For each type (*Todo*, *Comment*) the utility added two queries. One to
   retrieve a single type using an id or any of the type fields listed in the
   input, and the second to retrieve multiple values, filtered using the input of
@@ -180,21 +180,21 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodeTodo(filter: TodoInput): Todo
-    getNodeTodos(filter: TodoInput, options: Options, sort: [TodoSort!]): [Todo]
-    getNodeComment(filter: CommentInput): Comment
-    getNodeComments(filter: CommentInput, options: Options, sort: [CommentSort!]): [Comment]
+    getTodo(filter: TodoInput): Todo
+    getTodos(filter: TodoInput, options: Options, sort: [TodoSort!]): [Todo]
+    getComment(filter: CommentInput): Comment
+    getComments(filter: CommentInput, options: Options, sort: [CommentSort!]): [Comment]
 }
 
 type Mutation {
-    createNodeTodo(input: TodoCreateInput!): Todo
-    updateNodeTodo(input: TodoUpdateInput!): Todo
-    deleteNodeTodo(_id: ID!): Boolean
-    connectNodeTodoToNodeCommentEdgeCommentEdge(from_id: ID!, to_id: ID!): CommentEdge
-    deleteEdgeCommentEdgeFromTodoToComment(from_id: ID!, to_id: ID!): Boolean
-    createNodeComment(input: CommentInput!): Comment
-    updateNodeComment(input: CommentInput!): Comment
-    deleteNodeComment(_id: ID!): Boolean
+    createTodo(input: TodoCreateInput!): Todo
+    updateTodo(input: TodoUpdateInput!): Todo
+    deleteTodo(_id: ID!): Boolean
+    connectTodoToCommentThroughCommentEdge(from_id: ID!, to_id: ID!): CommentEdge
+    deleteCommentEdgeConnectionFromTodoToComment(from_id: ID!, to_id: ID!): Boolean
+    createComment(input: CommentInput!): Comment
+    updateComment(input: CommentInput!): Comment
+    deleteComment(_id: ID!): Boolean
 }
 
 schema {
@@ -216,7 +216,7 @@ For **Apollo** the Documentation panel shows you the queries and mutations
 You can then pick a query, the input parameters and the
 return fields for both.
 
-The picture shows the creation of a node type *Todo*, using the *createNodeTodo*
+The picture shows the creation of a node type *Todo*, using the *createTodo*
 mutation.
 
 AppSync:
@@ -227,7 +227,7 @@ Apollo:
 
 ![Apollo Create Todo](images/todoCreateApollo.png)
 
-Here, we are querying all the Todos with *getNodeTodos* query.
+Here, we are querying all the Todos with *getTodos* query.
 
 AppSync:
 
@@ -237,7 +237,7 @@ Apollo:
 
 ![Apollo Query Todos](images/todoGetTodosApollo.png)
 
-After having created one *Comment* using *createNodeComment*, we use the Ids to
+After having created one *Comment* using *createComment*, we use the Ids to
 connect them using the mutation *connectNodeTodoToNodeCommentEdgeCommentEdge*
 
 Here is a nested query being used to retrieve Todos and their attached comments.

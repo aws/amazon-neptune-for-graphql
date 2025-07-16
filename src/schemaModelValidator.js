@@ -190,17 +190,17 @@ function addNode(def, { queryPrefix = '', mutationPrefix = ''} = {}) {
     typesToAdd.push(`input ${name}Sort {\n${print(sortFields)}\n}`);
 
     // Create query
-    const getSingleQueryName = `${queryPrefix}getNode${name}`;
+    const getSingleQueryName = `${queryPrefix}get${name}`;
     queriesToAdd.push(`${getSingleQueryName}(filter: ${name}Input): ${name}\n`);
-    const getMultipleQueryName = `${queryPrefix}getNode${name}s`;
+    const getMultipleQueryName = `${queryPrefix}get${name}s`;
     queriesToAdd.push(`${getMultipleQueryName}(filter: ${name}Input, options: Options, sort: [${name}Sort!]): [${name}]\n`);
 
     // Create mutation
-    const createMutationName = `${mutationPrefix}createNode${name}`;
+    const createMutationName = `${mutationPrefix}create${name}`;
     mutationsToAdd.push(`${createMutationName}(input: ${name}CreateInput!): ${name}\n`);
-    const updateMutationName = `${mutationPrefix}updateNode${name}`;
+    const updateMutationName = `${mutationPrefix}update${name}`;
     mutationsToAdd.push(`${updateMutationName}(input: ${name}UpdateInput!): ${name}\n`);
-    const deleteMutationName = `${mutationPrefix}deleteNode${name}`;
+    const deleteMutationName = `${mutationPrefix}delete${name}`;
     mutationsToAdd.push(`${deleteMutationName}(${print(idFieldToInputValue(idField))}): Boolean\n`);
 
     loggerInfo(`Added input type: ${yellow(name+'Input')}`);
@@ -221,12 +221,12 @@ function addEdge(from, to, edgeName, { mutationPrefix = ''} = {}) {
         typesToAdd.push(`type ${edgeName} {\n  _id: ID! @id\n}`);
 
         // Create mutation
-        mutationsToAdd.push(`${mutationPrefix}connectNode${from}ToNode${to}Edge${edgeName}(from_id: ID!, to_id: ID!): ${edgeName}\n`);
-        mutationsToAdd.push(`${mutationPrefix}deleteEdge${edgeName}From${from}To${to}(from_id: ID!, to_id: ID!): Boolean\n`);
+        mutationsToAdd.push(`${mutationPrefix}connect${from}To${to}Through${edgeName}(from_id: ID!, to_id: ID!): ${edgeName}\n`);
+        mutationsToAdd.push(`${mutationPrefix}delete${edgeName}ConnectionFrom${from}To${to}(from_id: ID!, to_id: ID!): Boolean\n`);
 
         loggerInfo(`Added type for edge: ${yellow(edgeName)}`);
-        loggerInfo(`Added mutation: ${yellow(`connectNode${from}ToNode${to}Edge${edgeName}`)}`);
-        loggerInfo(`Added mutation: ${yellow(`deleteEdge${edgeName}From${from}To${to}`)}`);
+        loggerInfo(`Added mutation: ${yellow(`connect${from}To${to}Through${edgeName}`)}`);
+        loggerInfo(`Added mutation: ${yellow(`delete${edgeName}ConnectionFrom${from}To${to}`)}`);
     }
 }
 

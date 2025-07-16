@@ -166,26 +166,26 @@ input StringScalarFilters {
 }
 
 type Query {
-  getNodeUser(filter: UserInput): User
-  getNodeUsers(filter: UserInput, options: Options, sort: [UserSort!]): [User]
-  getNodeGroup(filter: GroupInput): Group
-  getNodeGroups(filter: GroupInput, options: Options, sort: [GroupSort!]): [Group]
-  getNodeModerator(filter: ModeratorInput): Moderator
-  getNodeModerators(filter: ModeratorInput, options: Options, sort: [ModeratorSort!]): [Moderator]
+  getUser(filter: UserInput): User
+  getUsers(filter: UserInput, options: Options, sort: [UserSort!]): [User]
+  getGroup(filter: GroupInput): Group
+  getGroups(filter: GroupInput, options: Options, sort: [GroupSort!]): [Group]
+  getModerator(filter: ModeratorInput): Moderator
+  getModerators(filter: ModeratorInput, options: Options, sort: [ModeratorSort!]): [Moderator]
 }
 
 type Mutation {
-  createNodeUser(input: UserCreateInput!): User
-  updateNodeUser(input: UserUpdateInput!): User
-  deleteNodeUser(userId: ID!): Boolean
-  createNodeGroup(input: GroupCreateInput!): Group
-  updateNodeGroup(input: GroupUpdateInput!): Group
-  deleteNodeGroup(_id: ID!): Boolean
-  createNodeModerator(input: ModeratorCreateInput!): Moderator
-  updateNodeModerator(input: ModeratorUpdateInput!): Moderator
-  deleteNodeModerator(moderatorId: ID!): Boolean
-  connectNodeModeratorToNodeGroupEdgeGroupEdge(from_id: ID!, to_id: ID!): GroupEdge
-  deleteEdgeGroupEdgeFromModeratorToGroup(from_id: ID!, to_id: ID!): Boolean
+  createUser(input: UserCreateInput!): User
+  updateUser(input: UserUpdateInput!): User
+  deleteUser(userId: ID!): Boolean
+  createGroup(input: GroupCreateInput!): Group
+  updateGroup(input: GroupUpdateInput!): Group
+  deleteGroup(_id: ID!): Boolean
+  createModerator(input: ModeratorCreateInput!): Moderator
+  updateModerator(input: ModeratorUpdateInput!): Moderator
+  deleteModerator(moderatorId: ID!): Boolean
+  connectModeratorToGroupThroughGroupEdge(from_id: ID!, to_id: ID!): GroupEdge
+  deleteGroupEdgeConnectionFromModeratorToGroup(from_id: ID!, to_id: ID!): Boolean
 }
 
 schema {

@@ -1,9 +1,10 @@
 {
-    "name": "Get by _id",
+    "name": "Limit option",
     "description": "",
-    "neptuneType": "neptune-db",
-    "graphql": "query MyQuery {\n getNodeAirport(filter: {_id: \"22\"}) {\n city\n }\n }",
-    "result":{
-        "city": "Seattle"
-    }
+    "graphql": "query MyQuery {\n getAirports(options: {limit: 1}, filter: {code: \"SEA\"}) {\n city }\n }",
+    "result":[
+        {
+          "city": "Seattle"
+        }
+      ]
 }

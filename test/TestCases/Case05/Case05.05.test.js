@@ -36,8 +36,8 @@ describe('Validate pipeline with prefixes content', () => {
         const awsResources = JSON.parse(fs.readFileSync(path.join(outputFolderPath, 'AirportsJestPrefixTest-resources.json'), 'utf8'));
         const apiId = awsResources.AppSyncAPI;
         const region = awsResources.region;
-        const results = await executeAppSyncQuery(apiId, 'query {airportsQueryPrefix_getNodeContinents {code}}', {}, region);
-        const codes = results.data.airportsQueryPrefix_getNodeContinents.map(continent => continent.code).sort();
+        const results = await executeAppSyncQuery(apiId, 'query {airportsQueryPrefix_getContinents {code}}', {}, region);
+        const codes = results.data.airportsQueryPrefix_getContinents.map(continent => continent.code).sort();
         expect(codes).toEqual(['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']);
     }, 600000);
 
@@ -47,7 +47,7 @@ describe('Validate pipeline with prefixes content', () => {
         const region = awsResources.region;
 
         const mutation = `mutation {
-            airportsMutationPrefix_createNodeAirport(input: {
+            airportsMutationPrefix_createAirport(input: {
                 code: "TEST"
             }) {
                 _id
@@ -56,12 +56,12 @@ describe('Validate pipeline with prefixes content', () => {
         }`;
 
         const results = await executeAppSyncQuery(apiId, mutation, {}, region);
-        const createdCode = results.data.airportsMutationPrefix_createNodeAirport.code;
+        const createdCode = results.data.airportsMutationPrefix_createAirport.code;
         expect(createdCode).toBe("TEST");
 
-        const deleteMutation = `mutation {airportsMutationPrefix_deleteNodeAirport(_id: "${results.data.airportsMutationPrefix_createNodeAirport._id}")}`;
+        const deleteMutation = `mutation {airportsMutationPrefix_deleteAirport(_id: "${results.data.airportsMutationPrefix_createAirport._id}")}`;
         const deleteResults = await executeAppSyncQuery(apiId, deleteMutation, {}, region);
-        const deleteResult = deleteResults.data.airportsMutationPrefix_deleteNodeAirport;
+        const deleteResult = deleteResults.data.airportsMutationPrefix_deleteAirport;
         expect(deleteResult).toBe(true);
     }, 600000);
 });

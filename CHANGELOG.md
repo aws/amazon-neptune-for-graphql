@@ -69,6 +69,7 @@ permissions and limitations under the License.
 * Fixed integration tests such that they are successful when executed against a
   neptune analytics graph and added testing
   documentation ([#113](https://github.com/aws/amazon-neptune-for-graphql/pull/113))
+* Updated query and mutation names to be less graph-specific ([#124](https://github.com/aws/amazon-neptune-for-graphql/pull/124))
 
 ### Bug Fixes
 

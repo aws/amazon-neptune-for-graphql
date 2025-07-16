@@ -192,22 +192,22 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodeDateofbirth(filter: DateofbirthInput): Dateofbirth
-    getNodeDateofbirths(filter: DateofbirthInput, options: Options, sort: [DateofbirthSort!]): [Dateofbirth]
-    getNodeAccount(filter: AccountInput): Account
-    getNodeAccounts(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account]
-    getNodeMerchant(filter: MerchantInput): Merchant
-    getNodeMerchants(filter: MerchantInput, options: Options, sort: [MerchantSort!]): [Merchant]
-    getNodeTransaction(filter: TransactionInput): Transaction
-    getNodeTransactions(filter: TransactionInput, options: Options, sort: [TransactionSort!]): [Transaction]
-    getNodeAddress(filter: AddressInput): Address
-    getNodeAddresss(filter: AddressInput, options: Options, sort: [AddressSort!]): [Address]
-    getNodePhonenumber(filter: PhonenumberInput): Phonenumber
-    getNodePhonenumbers(filter: PhonenumberInput, options: Options, sort: [PhonenumberSort!]): [Phonenumber]
-    getNodeIpaddress(filter: IpaddressInput): Ipaddress
-    getNodeIpaddresss(filter: IpaddressInput, options: Options, sort: [IpaddressSort!]): [Ipaddress]
-    getNodeEmailaddress(filter: EmailaddressInput): Emailaddress
-    getNodeEmailaddresss(filter: EmailaddressInput, options: Options, sort: [EmailaddressSort!]): [Emailaddress]
+    getDateofbirth(filter: DateofbirthInput): Dateofbirth
+    getDateofbirths(filter: DateofbirthInput, options: Options, sort: [DateofbirthSort!]): [Dateofbirth]
+    getAccount(filter: AccountInput): Account
+    getAccounts(filter: AccountInput, options: Options, sort: [AccountSort!]): [Account]
+    getMerchant(filter: MerchantInput): Merchant
+    getMerchants(filter: MerchantInput, options: Options, sort: [MerchantSort!]): [Merchant]
+    getTransaction(filter: TransactionInput): Transaction
+    getTransactions(filter: TransactionInput, options: Options, sort: [TransactionSort!]): [Transaction]
+    getAddress(filter: AddressInput): Address
+    getAddresss(filter: AddressInput, options: Options, sort: [AddressSort!]): [Address]
+    getPhonenumber(filter: PhonenumberInput): Phonenumber
+    getPhonenumbers(filter: PhonenumberInput, options: Options, sort: [PhonenumberSort!]): [Phonenumber]
+    getIpaddress(filter: IpaddressInput): Ipaddress
+    getIpaddresss(filter: IpaddressInput, options: Options, sort: [IpaddressSort!]): [Ipaddress]
+    getEmailaddress(filter: EmailaddressInput): Emailaddress
+    getEmailaddresss(filter: EmailaddressInput, options: Options, sort: [EmailaddressSort!]): [Emailaddress]
 }
 
 schema {

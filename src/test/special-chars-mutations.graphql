@@ -166,33 +166,33 @@ input StringScalarFilters {
 }
 
 type Query {
-  getNodeAbc_ex__dol_123_amp_efg(filter: Abc_ex__dol_123_amp_efgInput): Abc_ex__dol_123_amp_efg
-  getNodeAbc_ex__dol_123_amp_efgs(filter: Abc_ex__dol_123_amp_efgInput, options: Options, sort: [Abc_ex__dol_123_amp_efgSort!]): [Abc_ex__dol_123_amp_efg]
-  getNodeAbc_op_123_cp__dot_efg_cn_456(filter: Abc_op_123_cp__dot_efg_cn_456Input): Abc_op_123_cp__dot_efg_cn_456
-  getNodeAbc_op_123_cp__dot_efg_cn_456s(filter: Abc_op_123_cp__dot_efg_cn_456Input, options: Options, sort: [Abc_op_123_cp__dot_efg_cn_456Sort!]): [Abc_op_123_cp__dot_efg_cn_456]
-  getNodeAbc_eq_123_at__os_efg_cs_456(filter: Abc_eq_123_at__os_efg_cs_456Input): Abc_eq_123_at__os_efg_cs_456
-  getNodeAbc_eq_123_at__os_efg_cs_456s(filter: Abc_eq_123_at__os_efg_cs_456Input, options: Options, sort: [Abc_eq_123_at__os_efg_cs_456Sort!]): [Abc_eq_123_at__os_efg_cs_456]
-  getNodeAbc_oc_123_cc__vb_efg_hy_456(filter: Abc_oc_123_cc__vb_efg_hy_456Input): Abc_oc_123_cc__vb_efg_hy_456
-  getNodeAbc_oc_123_cc__vb_efg_hy_456s(filter: Abc_oc_123_cc__vb_efg_hy_456Input, options: Options, sort: [Abc_oc_123_cc__vb_efg_hy_456Sort!]): [Abc_oc_123_cc__vb_efg_hy_456]
+  getAbc_ex__dol_123_amp_efg(filter: Abc_ex__dol_123_amp_efgInput): Abc_ex__dol_123_amp_efg
+  getAbc_ex__dol_123_amp_efgs(filter: Abc_ex__dol_123_amp_efgInput, options: Options, sort: [Abc_ex__dol_123_amp_efgSort!]): [Abc_ex__dol_123_amp_efg]
+  getAbc_op_123_cp__dot_efg_cn_456(filter: Abc_op_123_cp__dot_efg_cn_456Input): Abc_op_123_cp__dot_efg_cn_456
+  getAbc_op_123_cp__dot_efg_cn_456s(filter: Abc_op_123_cp__dot_efg_cn_456Input, options: Options, sort: [Abc_op_123_cp__dot_efg_cn_456Sort!]): [Abc_op_123_cp__dot_efg_cn_456]
+  getAbc_eq_123_at__os_efg_cs_456(filter: Abc_eq_123_at__os_efg_cs_456Input): Abc_eq_123_at__os_efg_cs_456
+  getAbc_eq_123_at__os_efg_cs_456s(filter: Abc_eq_123_at__os_efg_cs_456Input, options: Options, sort: [Abc_eq_123_at__os_efg_cs_456Sort!]): [Abc_eq_123_at__os_efg_cs_456]
+  getAbc_oc_123_cc__vb_efg_hy_456(filter: Abc_oc_123_cc__vb_efg_hy_456Input): Abc_oc_123_cc__vb_efg_hy_456
+  getAbc_oc_123_cc__vb_efg_hy_456s(filter: Abc_oc_123_cc__vb_efg_hy_456Input, options: Options, sort: [Abc_oc_123_cc__vb_efg_hy_456Sort!]): [Abc_oc_123_cc__vb_efg_hy_456]
 }
 
 type Mutation {
-  createNodeAbc_ex__dol_123_amp_efg(input: Abc_ex__dol_123_amp_efgCreateInput!): Abc_ex__dol_123_amp_efg
-  updateNodeAbc_ex__dol_123_amp_efg(input: Abc_ex__dol_123_amp_efgUpdateInput!): Abc_ex__dol_123_amp_efg
-  deleteNodeAbc_ex__dol_123_amp_efg(_id: ID!): Boolean
-  createNodeAbc_op_123_cp__dot_efg_cn_456(input: Abc_op_123_cp__dot_efg_cn_456CreateInput!): Abc_op_123_cp__dot_efg_cn_456
-  updateNodeAbc_op_123_cp__dot_efg_cn_456(input: Abc_op_123_cp__dot_efg_cn_456UpdateInput!): Abc_op_123_cp__dot_efg_cn_456
-  deleteNodeAbc_op_123_cp__dot_efg_cn_456(_id: ID!): Boolean
-  createNodeAbc_eq_123_at__os_efg_cs_456(input: Abc_eq_123_at__os_efg_cs_456CreateInput!): Abc_eq_123_at__os_efg_cs_456
-  updateNodeAbc_eq_123_at__os_efg_cs_456(input: Abc_eq_123_at__os_efg_cs_456UpdateInput!): Abc_eq_123_at__os_efg_cs_456
-  deleteNodeAbc_eq_123_at__os_efg_cs_456(_id: ID!): Boolean
-  createNodeAbc_oc_123_cc__vb_efg_hy_456(input: Abc_oc_123_cc__vb_efg_hy_456CreateInput!): Abc_oc_123_cc__vb_efg_hy_456
-  updateNodeAbc_oc_123_cc__vb_efg_hy_456(input: Abc_oc_123_cc__vb_efg_hy_456UpdateInput!): Abc_oc_123_cc__vb_efg_hy_456
-  deleteNodeAbc_oc_123_cc__vb_efg_hy_456(_id: ID!): Boolean
-  connectNodeAbc_ex__dol_123_amp_efgToNodeAbc_op_123_cp__dot_efg_cn_456EdgeResource_link(from_id: ID!, to_id: ID!): Resource_link
-  deleteEdgeResource_linkFromAbc_ex__dol_123_amp_efgToAbc_op_123_cp__dot_efg_cn_456(from_id: ID!, to_id: ID!): Boolean
-  connectNodeAbc_ex__dol_123_amp_efgToNodeAbc_ex__dol_123_amp_efgEdgeResource_link(from_id: ID!, to_id: ID!): Resource_link
-  deleteEdgeResource_linkFromAbc_ex__dol_123_amp_efgToAbc_ex__dol_123_amp_efg(from_id: ID!, to_id: ID!): Boolean
+  createAbc_ex__dol_123_amp_efg(input: Abc_ex__dol_123_amp_efgCreateInput!): Abc_ex__dol_123_amp_efg
+  updateAbc_ex__dol_123_amp_efg(input: Abc_ex__dol_123_amp_efgUpdateInput!): Abc_ex__dol_123_amp_efg
+  deleteAbc_ex__dol_123_amp_efg(_id: ID!): Boolean
+  createAbc_op_123_cp__dot_efg_cn_456(input: Abc_op_123_cp__dot_efg_cn_456CreateInput!): Abc_op_123_cp__dot_efg_cn_456
+  updateAbc_op_123_cp__dot_efg_cn_456(input: Abc_op_123_cp__dot_efg_cn_456UpdateInput!): Abc_op_123_cp__dot_efg_cn_456
+  deleteAbc_op_123_cp__dot_efg_cn_456(_id: ID!): Boolean
+  createAbc_eq_123_at__os_efg_cs_456(input: Abc_eq_123_at__os_efg_cs_456CreateInput!): Abc_eq_123_at__os_efg_cs_456
+  updateAbc_eq_123_at__os_efg_cs_456(input: Abc_eq_123_at__os_efg_cs_456UpdateInput!): Abc_eq_123_at__os_efg_cs_456
+  deleteAbc_eq_123_at__os_efg_cs_456(_id: ID!): Boolean
+  createAbc_oc_123_cc__vb_efg_hy_456(input: Abc_oc_123_cc__vb_efg_hy_456CreateInput!): Abc_oc_123_cc__vb_efg_hy_456
+  updateAbc_oc_123_cc__vb_efg_hy_456(input: Abc_oc_123_cc__vb_efg_hy_456UpdateInput!): Abc_oc_123_cc__vb_efg_hy_456
+  deleteAbc_oc_123_cc__vb_efg_hy_456(_id: ID!): Boolean
+  connectAbc_ex__dol_123_amp_efgToAbc_op_123_cp__dot_efg_cn_456ThroughResource_link(from_id: ID!, to_id: ID!): Resource_link
+  deleteResource_linkConnectionFromAbc_ex__dol_123_amp_efgToAbc_op_123_cp__dot_efg_cn_456(from_id: ID!, to_id: ID!): Boolean
+  connectAbc_ex__dol_123_amp_efgToAbc_ex__dol_123_amp_efgThroughResource_link(from_id: ID!, to_id: ID!): Resource_link
+  deleteResource_linkConnectionFromAbc_ex__dol_123_amp_efgToAbc_ex__dol_123_amp_efg(from_id: ID!, to_id: ID!): Boolean
 }
 
 schema {

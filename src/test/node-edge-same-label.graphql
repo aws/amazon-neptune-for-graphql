@@ -57,10 +57,10 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodepost(filter: postInput): post
-    getNodeposts(filter: postInput, options: Options, sort: [postSort!]): [post]
-    getNodeauthor(filter: authorInput): author
-    getNodeauthors(filter: authorInput, options: Options, sort: [authorSort!]): [author]
+    getpost(filter: postInput): post
+    getposts(filter: postInput, options: Options, sort: [postSort!]): [post]
+    getauthor(filter: authorInput): author
+    getauthors(filter: authorInput, options: Options, sort: [authorSort!]): [author]
 }
 
 schema {

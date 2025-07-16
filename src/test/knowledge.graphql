@@ -216,24 +216,24 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodeDate(filter: DateInput): Date
-    getNodeDates(filter: DateInput, options: Options, sort: [DateSort!]): [Date]
-    getNodeOther(filter: OtherInput): Other
-    getNodeOthers(filter: OtherInput, options: Options, sort: [OtherSort!]): [Other]
-    getNodePost(filter: PostInput): Post
-    getNodePosts(filter: PostInput, options: Options, sort: [PostSort!]): [Post]
-    getNodeAuthor(filter: AuthorInput): Author
-    getNodeAuthors(filter: AuthorInput, options: Options, sort: [AuthorSort!]): [Author]
-    getNodeOrganization(filter: OrganizationInput): Organization
-    getNodeOrganizations(filter: OrganizationInput, options: Options, sort: [OrganizationSort!]): [Organization]
-    getNodeLocation(filter: LocationInput): Location
-    getNodeLocations(filter: LocationInput, options: Options, sort: [LocationSort!]): [Location]
-    getNodeTag(filter: TagInput): Tag
-    getNodeTags(filter: TagInput, options: Options, sort: [TagSort!]): [Tag]
-    getNodeTitle(filter: TitleInput): Title
-    getNodeTitles(filter: TitleInput, options: Options, sort: [TitleSort!]): [Title]
-    getNodeCommercial_item(filter: Commercial_itemInput): Commercial_item
-    getNodeCommercial_items(filter: Commercial_itemInput, options: Options, sort: [Commercial_itemSort!]): [Commercial_item]
+    getDate(filter: DateInput): Date
+    getDates(filter: DateInput, options: Options, sort: [DateSort!]): [Date]
+    getOther(filter: OtherInput): Other
+    getOthers(filter: OtherInput, options: Options, sort: [OtherSort!]): [Other]
+    getPost(filter: PostInput): Post
+    getPosts(filter: PostInput, options: Options, sort: [PostSort!]): [Post]
+    getAuthor(filter: AuthorInput): Author
+    getAuthors(filter: AuthorInput, options: Options, sort: [AuthorSort!]): [Author]
+    getOrganization(filter: OrganizationInput): Organization
+    getOrganizations(filter: OrganizationInput, options: Options, sort: [OrganizationSort!]): [Organization]
+    getLocation(filter: LocationInput): Location
+    getLocations(filter: LocationInput, options: Options, sort: [LocationSort!]): [Location]
+    getTag(filter: TagInput): Tag
+    getTags(filter: TagInput, options: Options, sort: [TagSort!]): [Tag]
+    getTitle(filter: TitleInput): Title
+    getTitles(filter: TitleInput, options: Options, sort: [TitleSort!]): [Title]
+    getCommercial_item(filter: Commercial_itemInput): Commercial_item
+    getCommercial_items(filter: Commercial_itemInput, options: Options, sort: [Commercial_itemSort!]): [Commercial_item]
 }
 
 schema {

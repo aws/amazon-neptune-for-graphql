@@ -334,27 +334,26 @@ The function parameters *filter*, *options*, and *sort* are reserved.
 
 ```graphql
 type Query {
-    getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+    getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
 }
 ```
 
-The beginning of query names *getNode...*, and the beginning of the mutations
-names like *createNode...*, *updateNode...*, *deleteNode...*, *connectNode...*,
-*updateEdge...*, and *deleteEdge...*.
+Queries and mutations are automatically generated with friendly names 
+matching the node & edge labels.
 
 ```graphql
 type Query {
-    getNodeAirport(id: ID, filter: AirportInput): Airport
-    getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+    getAirport(id: ID, filter: AirportInput): Airport
+    getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
 }
 
 type Mutation {
-    createNodeAirport(input: AirportCreateInput!): Airport
-    updateNodeAirport(id: ID!, input: AirportUpdateInput!): Airport
-    deleteNodeAirport(id: ID!): Boolean
-    connectNodeAirportToNodeAirportEdgeRoute(from: ID!, to: ID!, edge: RouteInput!): Route
-    updateEdgeRouteFromAirportToAirport(from: ID!, to: ID!, edge: RouteInput!): Route
-    deleteEdgeRouteFromAirportToAirport(from: ID!, to: ID!): Boolean
+    createAirport(input: AirportCreateInput!): Airport
+    updateAirport(id: ID!, input: AirportUpdateInput!): Airport
+    deleteAirport(id: ID!): Boolean
+    connectAirportToAirportThroughRoute(from: ID!, to: ID!, edge: RouteInput!): Route
+    updateRouteConnectionFromAirportToAirport(from: ID!, to: ID!, edge: RouteInput!): Route
+    deleteRouteConnectionFromAirportToAirport(from: ID!, to: ID!): Boolean
 }
 ```
 
@@ -392,13 +391,13 @@ For Example:
   },
   {
     "type": "Mutation",
-    "field": "deleteNodeVersion",
+    "field": "deleteVersion",
     "action": "remove",
     "value": ""
   },
   {
     "type": "Mutation",
-    "field": "createNodeVersion",
+    "field": "createVersion",
     "action": "remove",
     "value": ""
   }

@@ -724,44 +724,44 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodeImage(filter: ImageInput): Image
-    getNodeImages(filter: ImageInput, options: Options, sort: [ImageSort!]): [Image]
-    getNodeGuardduty_cn_detector(filter: Guardduty_cn_detectorInput): Guardduty_cn_detector
-    getNodeGuardduty_cn_detectors(filter: Guardduty_cn_detectorInput, options: Options, sort: [Guardduty_cn_detectorSort!]): [Guardduty_cn_detector]
-    getNodeEc2_cn_vpc(filter: Ec2_cn_vpcInput): Ec2_cn_vpc
-    getNodeEc2_cn_vpcs(filter: Ec2_cn_vpcInput, options: Options, sort: [Ec2_cn_vpcSort!]): [Ec2_cn_vpc]
-    getNodeIam_cn_role(filter: Iam_cn_roleInput): Iam_cn_role
-    getNodeIam_cn_roles(filter: Iam_cn_roleInput, options: Options, sort: [Iam_cn_roleSort!]): [Iam_cn_role]
-    getNodeEc2_cn_network_hy_interface(filter: Ec2_cn_network_hy_interfaceInput): Ec2_cn_network_hy_interface
-    getNodeEc2_cn_network_hy_interfaces(filter: Ec2_cn_network_hy_interfaceInput, options: Options, sort: [Ec2_cn_network_hy_interfaceSort!]): [Ec2_cn_network_hy_interface]
-    getNodeRds_cn_db(filter: Rds_cn_dbInput): Rds_cn_db
-    getNodeRds_cn_dbs(filter: Rds_cn_dbInput, options: Options, sort: [Rds_cn_dbSort!]): [Rds_cn_db]
-    getNodeEc2_cn_instance(filter: Ec2_cn_instanceInput): Ec2_cn_instance
-    getNodeEc2_cn_instances(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance]
-    getNodeIam_cn_user(filter: Iam_cn_userInput): Iam_cn_user
-    getNodeIam_cn_users(filter: Iam_cn_userInput, options: Options, sort: [Iam_cn_userSort!]): [Iam_cn_user]
-    getNodeEc2_cn_security_hy_group(filter: Ec2_cn_security_hy_groupInput): Ec2_cn_security_hy_group
-    getNodeEc2_cn_security_hy_groups(filter: Ec2_cn_security_hy_groupInput, options: Options, sort: [Ec2_cn_security_hy_groupSort!]): [Ec2_cn_security_hy_group]
-    getNodeEc2_cn_internet_hy_gateway(filter: Ec2_cn_internet_hy_gatewayInput): Ec2_cn_internet_hy_gateway
-    getNodeEc2_cn_internet_hy_gateways(filter: Ec2_cn_internet_hy_gatewayInput, options: Options, sort: [Ec2_cn_internet_hy_gatewaySort!]): [Ec2_cn_internet_hy_gateway]
-    getNodeEvents_cn_rule(filter: Events_cn_ruleInput): Events_cn_rule
-    getNodeEvents_cn_rules(filter: Events_cn_ruleInput, options: Options, sort: [Events_cn_ruleSort!]): [Events_cn_rule]
-    getNodeEc2_cn_subnet(filter: Ec2_cn_subnetInput): Ec2_cn_subnet
-    getNodeEc2_cn_subnets(filter: Ec2_cn_subnetInput, options: Options, sort: [Ec2_cn_subnetSort!]): [Ec2_cn_subnet]
-    getNodeIam_cn_instance_hy_profile(filter: Iam_cn_instance_hy_profileInput): Iam_cn_instance_hy_profile
-    getNodeIam_cn_instance_hy_profiles(filter: Iam_cn_instance_hy_profileInput, options: Options, sort: [Iam_cn_instance_hy_profileSort!]): [Iam_cn_instance_hy_profile]
-    getNodeIam_cn_policy(filter: Iam_cn_policyInput): Iam_cn_policy
-    getNodeIam_cn_policys(filter: Iam_cn_policyInput, options: Options, sort: [Iam_cn_policySort!]): [Iam_cn_policy]
-    getNodeS3_cn_bucket(filter: S3_cn_bucketInput): S3_cn_bucket
-    getNodeS3_cn_buckets(filter: S3_cn_bucketInput, options: Options, sort: [S3_cn_bucketSort!]): [S3_cn_bucket]
-    getNodeTag(filter: TagInput): Tag
-    getNodeTags(filter: TagInput, options: Options, sort: [TagSort!]): [Tag]
-    getNodeKms_cn_key(filter: Kms_cn_keyInput): Kms_cn_key
-    getNodeKms_cn_keys(filter: Kms_cn_keyInput, options: Options, sort: [Kms_cn_keySort!]): [Kms_cn_key]
-    getNodeEc2_cn_volume(filter: Ec2_cn_volumeInput): Ec2_cn_volume
-    getNodeEc2_cn_volumes(filter: Ec2_cn_volumeInput, options: Options, sort: [Ec2_cn_volumeSort!]): [Ec2_cn_volume]
-    getNodeEc2_cn_route_hy_table(filter: Ec2_cn_route_hy_tableInput): Ec2_cn_route_hy_table
-    getNodeEc2_cn_route_hy_tables(filter: Ec2_cn_route_hy_tableInput, options: Options, sort: [Ec2_cn_route_hy_tableSort!]): [Ec2_cn_route_hy_table]
+    getImage(filter: ImageInput): Image
+    getImages(filter: ImageInput, options: Options, sort: [ImageSort!]): [Image]
+    getGuardduty_cn_detector(filter: Guardduty_cn_detectorInput): Guardduty_cn_detector
+    getGuardduty_cn_detectors(filter: Guardduty_cn_detectorInput, options: Options, sort: [Guardduty_cn_detectorSort!]): [Guardduty_cn_detector]
+    getEc2_cn_vpc(filter: Ec2_cn_vpcInput): Ec2_cn_vpc
+    getEc2_cn_vpcs(filter: Ec2_cn_vpcInput, options: Options, sort: [Ec2_cn_vpcSort!]): [Ec2_cn_vpc]
+    getIam_cn_role(filter: Iam_cn_roleInput): Iam_cn_role
+    getIam_cn_roles(filter: Iam_cn_roleInput, options: Options, sort: [Iam_cn_roleSort!]): [Iam_cn_role]
+    getEc2_cn_network_hy_interface(filter: Ec2_cn_network_hy_interfaceInput): Ec2_cn_network_hy_interface
+    getEc2_cn_network_hy_interfaces(filter: Ec2_cn_network_hy_interfaceInput, options: Options, sort: [Ec2_cn_network_hy_interfaceSort!]): [Ec2_cn_network_hy_interface]
+    getRds_cn_db(filter: Rds_cn_dbInput): Rds_cn_db
+    getRds_cn_dbs(filter: Rds_cn_dbInput, options: Options, sort: [Rds_cn_dbSort!]): [Rds_cn_db]
+    getEc2_cn_instance(filter: Ec2_cn_instanceInput): Ec2_cn_instance
+    getEc2_cn_instances(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance]
+    getIam_cn_user(filter: Iam_cn_userInput): Iam_cn_user
+    getIam_cn_users(filter: Iam_cn_userInput, options: Options, sort: [Iam_cn_userSort!]): [Iam_cn_user]
+    getEc2_cn_security_hy_group(filter: Ec2_cn_security_hy_groupInput): Ec2_cn_security_hy_group
+    getEc2_cn_security_hy_groups(filter: Ec2_cn_security_hy_groupInput, options: Options, sort: [Ec2_cn_security_hy_groupSort!]): [Ec2_cn_security_hy_group]
+    getEc2_cn_internet_hy_gateway(filter: Ec2_cn_internet_hy_gatewayInput): Ec2_cn_internet_hy_gateway
+    getEc2_cn_internet_hy_gateways(filter: Ec2_cn_internet_hy_gatewayInput, options: Options, sort: [Ec2_cn_internet_hy_gatewaySort!]): [Ec2_cn_internet_hy_gateway]
+    getEvents_cn_rule(filter: Events_cn_ruleInput): Events_cn_rule
+    getEvents_cn_rules(filter: Events_cn_ruleInput, options: Options, sort: [Events_cn_ruleSort!]): [Events_cn_rule]
+    getEc2_cn_subnet(filter: Ec2_cn_subnetInput): Ec2_cn_subnet
+    getEc2_cn_subnets(filter: Ec2_cn_subnetInput, options: Options, sort: [Ec2_cn_subnetSort!]): [Ec2_cn_subnet]
+    getIam_cn_instance_hy_profile(filter: Iam_cn_instance_hy_profileInput): Iam_cn_instance_hy_profile
+    getIam_cn_instance_hy_profiles(filter: Iam_cn_instance_hy_profileInput, options: Options, sort: [Iam_cn_instance_hy_profileSort!]): [Iam_cn_instance_hy_profile]
+    getIam_cn_policy(filter: Iam_cn_policyInput): Iam_cn_policy
+    getIam_cn_policys(filter: Iam_cn_policyInput, options: Options, sort: [Iam_cn_policySort!]): [Iam_cn_policy]
+    getS3_cn_bucket(filter: S3_cn_bucketInput): S3_cn_bucket
+    getS3_cn_buckets(filter: S3_cn_bucketInput, options: Options, sort: [S3_cn_bucketSort!]): [S3_cn_bucket]
+    getTag(filter: TagInput): Tag
+    getTags(filter: TagInput, options: Options, sort: [TagSort!]): [Tag]
+    getKms_cn_key(filter: Kms_cn_keyInput): Kms_cn_key
+    getKms_cn_keys(filter: Kms_cn_keyInput, options: Options, sort: [Kms_cn_keySort!]): [Kms_cn_key]
+    getEc2_cn_volume(filter: Ec2_cn_volumeInput): Ec2_cn_volume
+    getEc2_cn_volumes(filter: Ec2_cn_volumeInput, options: Options, sort: [Ec2_cn_volumeSort!]): [Ec2_cn_volume]
+    getEc2_cn_route_hy_table(filter: Ec2_cn_route_hy_tableInput): Ec2_cn_route_hy_table
+    getEc2_cn_route_hy_tables(filter: Ec2_cn_route_hy_tableInput, options: Options, sort: [Ec2_cn_route_hy_tableSort!]): [Ec2_cn_route_hy_table]
 }
 
 schema {

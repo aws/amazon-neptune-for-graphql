@@ -166,26 +166,26 @@ input StringScalarFilters {
 }
 
 type Query {
-  userGroupQueryTest_getNodeUser(filter: UserInput): User
-  userGroupQueryTest_getNodeUsers(filter: UserInput, options: Options, sort: [UserSort!]): [User]
-  userGroupQueryTest_getNodeGroup(filter: GroupInput): Group
-  userGroupQueryTest_getNodeGroups(filter: GroupInput, options: Options, sort: [GroupSort!]): [Group]
-  userGroupQueryTest_getNodeModerator(filter: ModeratorInput): Moderator
-  userGroupQueryTest_getNodeModerators(filter: ModeratorInput, options: Options, sort: [ModeratorSort!]): [Moderator]
+  userGroupQueryTest_getUser(filter: UserInput): User
+  userGroupQueryTest_getUsers(filter: UserInput, options: Options, sort: [UserSort!]): [User]
+  userGroupQueryTest_getGroup(filter: GroupInput): Group
+  userGroupQueryTest_getGroups(filter: GroupInput, options: Options, sort: [GroupSort!]): [Group]
+  userGroupQueryTest_getModerator(filter: ModeratorInput): Moderator
+  userGroupQueryTest_getModerators(filter: ModeratorInput, options: Options, sort: [ModeratorSort!]): [Moderator]
 }
 
 type Mutation {
-  userGroupMutationTest_createNodeUser(input: UserCreateInput!): User
-  userGroupMutationTest_updateNodeUser(input: UserUpdateInput!): User
-  userGroupMutationTest_deleteNodeUser(userId: ID!): Boolean
-  userGroupMutationTest_createNodeGroup(input: GroupCreateInput!): Group
-  userGroupMutationTest_updateNodeGroup(input: GroupUpdateInput!): Group
-  userGroupMutationTest_deleteNodeGroup(_id: ID!): Boolean
-  userGroupMutationTest_createNodeModerator(input: ModeratorCreateInput!): Moderator
-  userGroupMutationTest_updateNodeModerator(input: ModeratorUpdateInput!): Moderator
-  userGroupMutationTest_deleteNodeModerator(moderatorId: ID!): Boolean
-  userGroupMutationTest_connectNodeModeratorToNodeGroupEdgeGroupEdge(from_id: ID!, to_id: ID!): GroupEdge
-  userGroupMutationTest_deleteEdgeGroupEdgeFromModeratorToGroup(from_id: ID!, to_id: ID!): Boolean
+  userGroupMutationTest_createUser(input: UserCreateInput!): User
+  userGroupMutationTest_updateUser(input: UserUpdateInput!): User
+  userGroupMutationTest_deleteUser(userId: ID!): Boolean
+  userGroupMutationTest_createGroup(input: GroupCreateInput!): Group
+  userGroupMutationTest_updateGroup(input: GroupUpdateInput!): Group
+  userGroupMutationTest_deleteGroup(_id: ID!): Boolean
+  userGroupMutationTest_createModerator(input: ModeratorCreateInput!): Moderator
+  userGroupMutationTest_updateModerator(input: ModeratorUpdateInput!): Moderator
+  userGroupMutationTest_deleteModerator(moderatorId: ID!): Boolean
+  userGroupMutationTest_connectModeratorToGroupThroughGroupEdge(from_id: ID!, to_id: ID!): GroupEdge
+  userGroupMutationTest_deleteGroupEdgeConnectionFromModeratorToGroup(from_id: ID!, to_id: ID!): Boolean
 }
 
 schema {

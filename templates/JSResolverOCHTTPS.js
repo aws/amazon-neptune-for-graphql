@@ -832,7 +832,7 @@ function finalizeGraphQuery(matchStatements, withStatements, returnString) {
 }
 
 
-function resolveGrapgDBqueryForGraphQLQuery (obj, querySchemaInfo) {
+function resolveGraphDBqueryForGraphQLQuery (obj, querySchemaInfo) {
 
     createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo);
 
@@ -1099,10 +1099,10 @@ function getReturnBlockFromSelection(selection, querySchemaInfo) {
     return returnStringOnly(selection.selectionSet.selections, querySchemaInfo);
 }
 
-function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
+function resolveGraphDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
 
-    // createNode
-    if (querySchemaInfo.name.includes('createNode') && !querySchemaInfo.graphQuery) {
+    // create
+    if (querySchemaInfo.name.endsWith(`create${querySchemaInfo.returnType}`) && !querySchemaInfo.graphQuery) {
         const queryFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
         const formattedQueryFields = queryFields.map(arg => {
             const param = querySchemaInfo.pathName + '_' + arg.name;
@@ -1118,58 +1118,64 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
         return `CREATE (${nodeName}:\`${querySchemaInfo.returnTypeAlias}\` {${formattedQueryFields}})\nRETURN ${returnBlock}`;
     }
 
-    // updateNode
-    if (querySchemaInfo.name.includes('updateNode') && !querySchemaInfo.graphQuery) {
-        const queryFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
-        
-        const idField = queryFields.find(arg => arg.name === querySchemaInfo.graphDBIdArgName);
-        const nodeID = idField.value;
-        const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
-        const idParam  = `${nodeName}_${idField.name}`;
-        Object.assign(parameters, {[idParam]: nodeID});
-        
-        let returnBlock = `ID(${nodeName})`;
-        if (queryAst.definitions[0].selectionSet.selections[0].selectionSet) {
-            returnBlock = getReturnBlockFromSelection(queryAst.definitions[0].selectionSet.selections[0], querySchemaInfo);
+    // update
+    if (querySchemaInfo.name.endsWith(`update${querySchemaInfo.returnType}`) && !querySchemaInfo.graphQuery) {
+        const nameWithoutUpdate = querySchemaInfo.name.split('update').pop();
+        if (getTypeDefs(nameWithoutUpdate).length) {
+            const queryFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
+            
+            const idField = queryFields.find(arg => arg.name === querySchemaInfo.graphDBIdArgName);
+            const nodeID = idField.value;
+            const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+            const idParam  = `${nodeName}_${idField.name}`;
+            Object.assign(parameters, {[idParam]: nodeID});
+            
+            let returnBlock = `ID(${nodeName})`;
+            if (queryAst.definitions[0].selectionSet.selections[0].selectionSet) {
+                returnBlock = getReturnBlockFromSelection(queryAst.definitions[0].selectionSet.selections[0], querySchemaInfo);
+            }
+            // :( SET += is not working, so let's work around it.
+            //let ocQuery = `MATCH (${nodeName}) WHERE ID(${nodeName}) = '${nodeID}' SET ${nodeName} += {${inputFields}} RETURN ${returnBlock}`;
+            // workaround:
+            const formattedFields = queryFields.filter(arg => {
+            return arg.name !== querySchemaInfo.graphDBIdArgName;
+            }).map(arg => {
+                const param = querySchemaInfo.pathName + '_' + arg.name;
+                Object.assign(parameters, { [param]: arg.value });
+                return `${nodeName}.${arg.name} = $${param}`;
+            }).join(', ');
+            // FIXME handle update mutations with selection set that contains an edge
+            // example:
+            // updateNodeAirport(input: $input) {
+            //     id
+            //     airportRoutesIn {
+            //       code
+            //     }
+            //   }
+            return `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${idParam}\nSET ${formattedFields}\nRETURN ${returnBlock}`;
         }
-        // :( SET += is not working, so let's work around it.
-        //let ocQuery = `MATCH (${nodeName}) WHERE ID(${nodeName}) = '${nodeID}' SET ${nodeName} += {${inputFields}} RETURN ${returnBlock}`;
-        // workaround:
-        const formattedFields = queryFields.filter(arg => {
-           return arg.name !== querySchemaInfo.graphDBIdArgName;
-        }).map(arg => {
-            const param = querySchemaInfo.pathName + '_' + arg.name;
-            Object.assign(parameters, { [param]: arg.value });
-            return `${nodeName}.${arg.name} = $${param}`;
-        }).join(', ');
-        // FIXME handle update mutations with selection set that contains an edge
-        // example:
-        // updateNodeAirport(input: $input) {
-        //     id
-        //     airportRoutesIn {
-        //       code
-        //     }
-        //   }
-        return `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${idParam}\nSET ${formattedFields}\nRETURN ${returnBlock}`;
     }
 
-    // deleteNode
-    if (querySchemaInfo.name.includes('deleteNode') && !querySchemaInfo.graphQuery) {
-        const nodeID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
-        const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
-        let param  = nodeName + '_' + 'whereId';
-        Object.assign(parameters, {[param]: nodeID});
-        const ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nDETACH DELETE ${nodeName}\nRETURN true`;
-        return ocQuery;
+    // delete
+    if (querySchemaInfo.name.includes('delete') && querySchemaInfo.returnType === 'Boolean' && !querySchemaInfo.graphQuery) {
+        const nameWithoutDelete = querySchemaInfo.name.split('delete').pop();
+        if (getTypeDefs(nameWithoutDelete).length) {
+            const nodeID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
+            const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
+            let param  = nodeName + '_' + 'whereId';
+            Object.assign(parameters, {[param]: nodeID});
+            const ocQuery = `MATCH (${nodeName})\nWHERE ID(${nodeName}) = $${param}\nDETACH DELETE ${nodeName}\nRETURN true`;
+            return ocQuery;
+        }
     }
 
     // connect
-    if (querySchemaInfo.name.includes('connectNode') && querySchemaInfo.graphQuery == null) {
+    if (querySchemaInfo.name.includes('connect') && querySchemaInfo.name.endsWith(`Through${querySchemaInfo.returnType}`) && querySchemaInfo.graphQuery == null) {
         let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
-        const edgeType = querySchemaInfo.name.match(new RegExp('Edge' + "(.*)" + ''))[1];
+        const edgeType = querySchemaInfo.name.match(new RegExp('Through' + "(.*)" + ''))[1];
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
-        const egdgeTypeAlias = getTypeAlias(edgeType);
+        const edgeTypeAlias = getTypeAlias(edgeType);
         const returnBlock = getReturnBlockFromSelection(queryAst.definitions[0].selectionSet.selections[0], querySchemaInfo);
 
         let paramFromId  = edgeName + '_' + 'whereFromId';
@@ -1177,16 +1183,16 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
         Object.assign(parameters, {[paramFromId]: fromID});
         Object.assign(parameters, {[paramToId]: toID});
         
-        const ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${egdgeTypeAlias}\`]->(to)\nRETURN ${returnBlock}`;
+        const ocQuery = `MATCH (from), (to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nCREATE (from)-[${edgeName}:\`${edgeTypeAlias}\`]->(to)\nRETURN ${returnBlock}`;
         return ocQuery;
     }
 
-    // updateEdge
-    if (querySchemaInfo.name.includes('updateEdge') && querySchemaInfo.graphQuery == null) {
+    // update connection
+    if (querySchemaInfo.name.includes(`update${querySchemaInfo.returnType}Connection`) && querySchemaInfo.graphQuery == null) {
         let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
-        let edgeType = querySchemaInfo.name.match(new RegExp('updateEdge' + "(.*)" + 'From'))[1];
-        let egdgeTypeAlias = getTypeAlias(edgeType);
+        let edgeType = querySchemaInfo.name.match(new RegExp('update' + "(.*)" + 'Connection'))[1];
+        let edgeTypeAlias = getTypeAlias(edgeType);
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let returnBlock = `ID(${edgeName})`;
         if (queryAst.definitions[0].selectionSet.selections[0].selectionSet) {
@@ -1204,12 +1210,12 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
         Object.assign(parameters, {[paramFromId]: fromID});
         Object.assign(parameters, {[paramToId]: toID});
 
-        const ocQuery = `MATCH (from)-[${edgeName}:\`${egdgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${formattedFields}\nRETURN ${returnBlock}`;
+        const ocQuery = `MATCH (from)-[${edgeName}:\`${edgeTypeAlias}\`]->(to)\nWHERE ID(from) = $${paramFromId} AND ID(to) = $${paramToId}\nSET ${formattedFields}\nRETURN ${returnBlock}`;
         return  ocQuery;
     }
 
-    // deleteEdge
-    if (querySchemaInfo.name.includes('deleteEdge') && querySchemaInfo.graphQuery == null) {
+    // delete connection
+    if (querySchemaInfo.name.includes('delete') && querySchemaInfo.name.includes('ConnectionFrom') && querySchemaInfo.graphQuery == null) {
         let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
@@ -1254,6 +1260,7 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
         return ocQuery;
     }
 
+    console.error(`Could not resolve cypher query for ${querySchemaInfo.name}`);
     return '';
 }
 
@@ -1268,11 +1275,11 @@ function resolveOpenCypherQuery(obj, querySchemaInfo) {
     parameters = {};
 
     if (querySchemaInfo.type === 'Query') {
-        ocQuery = resolveGrapgDBqueryForGraphQLQuery(obj, querySchemaInfo);
+        ocQuery = resolveGraphDBqueryForGraphQLQuery(obj, querySchemaInfo);
     }
 
     if (querySchemaInfo.type === 'Mutation') {
-        ocQuery = resolveGrapgDBqueryForGraphQLMutation(obj, querySchemaInfo);
+        ocQuery = resolveGraphDBqueryForGraphQLMutation(obj, querySchemaInfo);
     }
 
     return ocQuery;
