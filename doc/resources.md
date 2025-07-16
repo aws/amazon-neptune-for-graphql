@@ -1,4 +1,4 @@
-# Detailed AWS Resources
+# Detailed AWS Resources - v2.0.0
 
 Steps:
 

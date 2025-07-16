@@ -1,4 +1,4 @@
-# TODO Example: Starting from a GraphQL schema with no directives
+# TODO Example: Starting from a GraphQL schema with no directives - v2.0.0
 
 You can start from a GraphQL schema without directives and an empty Neptune
 database. The utility will inference directives, input, queries and mutations,
@@ -26,9 +26,11 @@ type Comment {
 
 ```
 
-Let's now run this schema through the utility and create the GraphQL API in AWS
-AppSync. *(Note: pls provide a reachable, empty Neptune database endpoint)*
+Let's now run this schema through the utility and create the GraphQL API in AWS AppSync
+and Apollo Server
+*(Note: please provide a reachable, empty Neptune database endpoint)*
 
+**AppSync** command:
 ```
 neptune-for-graphql \
   --input-schema-file ./samples/todo.schema.graphql \
@@ -38,9 +40,28 @@ neptune-for-graphql \
   --output-resolver-query-https
 ```
 
-The utility created a new file in the *output* folder called
-*TodoExample.source.graphql*, and the GraphQL API in AppSync. As you can see
-below, the utility inferences:
+**Apollo** command:
+```
+neptune-for-graphql \
+  --input-schema-file ./samples/todo.schema.graphql \
+  --create-update-apollo-server-neptune-endpoint <your-neptune-database-endpoint:port> \
+  --create-update-apollo-server \
+  --output-resolver-query-https
+```
+
+For **Apollo** the utility should have generated a zip file containing all the resources.
+After unzipping the file you get a complete Apollo Server application that
+provides the same GraphQL API capabilities as AppSync but as a self-hosted,
+customizable solution that you can deploy anywhere.
+
+For details on starting the Apollo server, refer to [Generate Apollo Artifacts](https://github.com/aws/amazon-neptune-for-graphql/blob/main/README.md#generate-apollo-server-artifacts). After the server is started the graphQL application can be accessed in a browser by visiting `http://localhost:4000/`. 
+
+For **AppSync**, the utility created a new file in the *output* folder called
+*TodoExample.source.schema.graphql* and the GraphQL API in AppSync. For the
+**Apollo Server**, the utility created a new file in the *output* folder called
+*\<neptune-database-name\>.source.schema.graphql*.
+
+As you can see below, the utility inferences:
 
 - In the type *Todo* it added *@relationship* for a new type *CommentEdge*. This
   is instructing the resolver to connect *Todo* to *Comment* using a graph
@@ -67,9 +88,7 @@ below, the utility inferences:
 > documentation
 > section: [Customize the GraphQL schema with directives](https://github.com/aws/amazon-neptune-for-graphql/blob/main/README.md/#customize-the-graphql-schema-with-directives).
 
-<details>
-
-<summary>Todo GraphQL Schema</summary>
+## Todo GraphQL Source Schema
 
 ```graphql
 type Todo {
@@ -184,34 +203,59 @@ schema {
 }
 ```
 
-</details>
-
+## Creating and Querying the Data
 Now we are ready to create and query our data.
 
-Below is a snapshot of the AppSync Queries console used to test our new GraphQL
-API named *TodoExampleAPI*. In the middle window, the Explorer shows you the
-queries and mutations. You can then pick a query, the input parameters and the
-return fields.
+Below are snapshots of the AppSync and Apollo Queries console used to test our new GraphQL
+API (named *TodoExampleAPI* for AppSync). 
+
+For **AppSync** the Explorer panel shows you the queries and mutations.
+
+For **Apollo** the Documentation panel shows you the queries and mutations
+
+You can then pick a query, the input parameters and the
+return fields for both.
 
 The picture shows the creation of a node type *Todo*, using the *createNodeTodo*
 mutation.
 
-![Create](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/todoCreate.png)
+AppSync:
+
+![AppSync Create Todo](images/todoCreate.png)
+
+Apollo:
+
+![Apollo Create Todo](images/todoCreateApollo.png)
 
 Here, we are querying all the Todos with *getNodeTodos* query.
 
-![Query](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/todoGetTodos.png)
+AppSync:
+
+![AppSync Query Todos](images/todoGetTodos.png)
+
+Apollo:
+
+![Apollo Query Todos](images/todoGetTodosApollo.png)
 
 After having created one *Comment* using *createNodeComment*, we use the Ids to
 connect them using the mutation *connectNodeTodoToNodeCommentEdgeCommentEdge*
 
 Here is a nested query being used to retrieve Todos and their attached comments.
 
-![Query](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/todoNestedQuery.png)
+AppSync:
+
+![AppSync Query Todos and Comments](images/todoNestedQuery.png)
+
+Apollo:
+
+![Apollo Query Todos and Comments](images/todoNestedQueryApollo.png)
 
 The solution illustrated in this example is fully functional and can be used as
-is. If you wish, you can make changes to the *TodoExample.source.graphql* file
-by following the instructions in the section: *Customize the GraphQL schema with
-directives*. The edited schema can then be used by running the utility again
+is. 
+
+For AppSync, if you wish you can make changes to the *TodoExample.source.schema.graphql* file
+(for Apollo it would be the *\<neptune-database-name\>.source.schema.graphql* file),
+by following the instructions in the section [Customize the GraphQL schema with
+directives](/README.md#customize-the-graphql-schema-with-directives). The edited schema can then be used by running the utility again
 with the command, `--input-schema-file`. The utility will then modify the
 GraphQL API.

@@ -1,27 +1,38 @@
-# Air Routes Example: Starting from a Neptune database with data
+# Air Routes Example: Starting from a Neptune database with data - v2.0.0
 
 Amazon Neptune uses the Air Routes dataset in several Notebook tutorials. If you
 don't have a Neptune database with the Air Routes data you can create a new
 database, and follow one of the Notebook tutorials to seed it with the Air
 Routes data.
 
-Then, you can run the Neptune GraphQL Utility command below to create an AppSync
-GraphQL API.
+Then, you can run the Neptune GraphQL Utility to create an AppSync GraphQL 
+API or generate Apollo Server artifacts.
 
+**AppSync** command
 ```
 neptune-for-graphql \
   --input-graphdb-schema-neptune-endpoint <your-neptune-database-endpoint:port> \
   --create-update-aws-pipeline \
-  --create-update-aws-pipeline-name AriRoutesExample
+  --create-update-aws-pipeline-name AirRoutesExample \
+  --output-resolver-query-https
 ```
 
-The command will log the graph database schema it finds, the files it creates,
-and the AWS resources it creates or modifies during execution. If you ever want
-to run the command while logging only errors, use the `--quiet` CLI option.
+**Apollo** command
+```
+neptune-for-graphql \
+  --input-graphdb-schema-neptune-endpoint <your-neptune-database-endpoint:port> \
+  --create-update-apollo-server \
+  --output-resolver-query-https
+```
+
+The utility will log the graph database schema it finds, 
+the files it creates, and any AWS resources it creates or modifies during execution. 
+If you ever want to run the command while logging only errors, 
+use the `--quiet` CLI option.
 
 ![Running](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/utilityRunning.gif)
 
-The utility creates these files naming them based on the
+For **AppSync**, the utility creates these files naming them based on the
 `--create-update-aws-pipeline-name` option, in our case `AirRoutesExample`:
 
 | *file*                                 | *description*                        |
@@ -33,11 +44,22 @@ The utility creates these files naming them based on the
 | AirRoutesExample.neptune.schema.json   | the graph schema it discovered       |
 | AirRoutesExample-resources.json        | the list of AWS Resources it created |
 
+For the **Apollo Server**, the utility creates the files below while naming
+them based on the name of your Neptune database. For example, if the
+Neptune database name was `air-routes-example`:
+
+| *file*                                   | *description*                        |
+|------------------------------------------|--------------------------------------|
+| apollo-server-air-routes-example-<timestamp>.zip                   | the Apollo Server zip file           |
+| air-routes-example.source.schema.graphql | the GraphQL schema with directives   |
+| air-routes-example.schema.graphql        | the GraphQL schema                   |
+| air-routes-example.resolver.graphql.js   | the JavaScript resolver              |
+| air-routes-example.neptune.schema.json   | the graph schema it discovered       |
+
 ## The graph schema it discovered
 
-Below is the content of the file, AirRoutesExample.neptune.schema.json. The
-files contain nodes, edges, properties, and edges cardinality. The utility then
-uses this data to inference the GraphQL schema.
+Below is the content of the file, `AirRoutesExample.neptune.schema.json` (or `air-routes-example.neptune.schema.json` for Apollo Server). The file contains nodes, edges, properties, 
+and edges cardinality. The utility then uses this data to inference the GraphQL schema.
 
 ```json
 {
@@ -226,7 +248,7 @@ Below is the GraphQL schema with directives, inferred by the utility.
 > on the name pattern. If you need to customize it, first look at the
 > documentation section: *Customize the GraphQL schema with directives*.
 
-**Air Routes GraphQL Schema**
+## Air Routes GraphQL Schema
 
 ```graphql
 enum SortingDirection {
@@ -518,6 +540,22 @@ the edge type *route*, and *dist* is a property of the edge.
 You can then follow the AppSync documentation on how to call the GraphQL API
 from your application, enable caching and other AppSync API features.
 
-![AppSync Queries UI](https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/AppSyncQuery.png)
+![AppSync Queries UI](images/AppSyncQuery.png)
 
+## Using the new GraphQL API from the Apollo Server
 
+If you had opted to use Apollo Server instead of App Sync with the `--create-update-apollo-server` option, you will need to execute the following steps to start the Apollo Server and access the Queries console:
+
+1. unzip apollo-server-<identifier>-<timestamp>.zip
+2. change directory into the unzipped folder
+3. execute `npm install` to install required dependencies
+4. execute `node index.mjs` to start the Apollo Server
+5. access the graphQL application in a browser by visiting http://localhost:4000/
+
+Below is a snapshot of the Apollo Server Queries console used to test our new GraphQL
+API. On the left, the Documentation panel shows you the queries and mutations. 
+You can then pick a query, the input parameters and the return fields.
+
+The GraphQL query generated in the Operations panel follows the same pattern as the AppSync GraphQL query above.
+
+![Apollo Queries UI](images/ApolloQuery.png)
