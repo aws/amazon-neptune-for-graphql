@@ -124,6 +124,8 @@ Parameters
 [--input-graphdb-schema <value>                             -ig  ]
 [--input-graphdb-schema-file <value>                        -igf ]
 [--input-graphdb-schema-neptune-endpoint <value>            -ie  ]
+[--query-prefix <value>                                     -qp  ]
+[--mutation-prefix <value>                                  -mp  ]
 
 [--output-folder-path <value>                               -o   ]  default: ./output
 [--output-schema-file <value>                               -os  ]  default: output.schema.graphql

@@ -1,0 +1,272 @@
+enum SortingDirection {
+  ASC
+  DESC
+}
+
+type Continent @alias(property:"continent") {
+  _id: ID! @id
+  type: String
+  code: String
+  desc: String
+  airportContainssOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"contains", direction:OUT)
+  contains:Contains
+}
+
+input ContinentInput {
+  _id: ID @id
+  type: StringScalarFilters
+  code: StringScalarFilters
+  desc: StringScalarFilters
+}
+
+input ContinentCreateInput {
+  _id: ID @id
+  type: String
+  code: String
+  desc: String
+}
+
+input ContinentUpdateInput {
+  _id: ID! @id
+  type: String
+  code: String
+  desc: String
+}
+
+input ContinentSort {
+  _id: SortingDirection
+  type: SortingDirection
+  code: SortingDirection
+  desc: SortingDirection
+}
+
+type Country @alias(property:"country") {
+  _id: ID! @id
+  type: String
+  code: String
+  desc: String
+  airportContainssOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"contains", direction:OUT)
+  contains:Contains
+}
+
+input CountryInput {
+  _id: ID @id
+  type: StringScalarFilters
+  code: StringScalarFilters
+  desc: StringScalarFilters
+}
+
+input CountryCreateInput {
+  _id: ID @id
+  type: String
+  code: String
+  desc: String
+}
+
+input CountryUpdateInput {
+  _id: ID! @id
+  type: String
+  code: String
+  desc: String
+}
+
+input CountrySort {
+  _id: SortingDirection
+  type: SortingDirection
+  code: SortingDirection
+  desc: SortingDirection
+}
+
+type Version @alias(property:"version") {
+  _id: ID! @id
+  date: String
+  desc: String
+  author: String
+  type: String
+  code: String
+}
+
+input VersionInput {
+  _id: ID @id
+  date: StringScalarFilters
+  desc: StringScalarFilters
+  author: StringScalarFilters
+  type: StringScalarFilters
+  code: StringScalarFilters
+}
+
+input VersionCreateInput {
+  _id: ID @id
+  date: String
+  desc: String
+  author: String
+  type: String
+  code: String
+}
+
+input VersionUpdateInput {
+  _id: ID! @id
+  date: String
+  desc: String
+  author: String
+  type: String
+  code: String
+}
+
+input VersionSort {
+  _id: SortingDirection
+  date: SortingDirection
+  desc: SortingDirection
+  author: SortingDirection
+  type: SortingDirection
+  code: SortingDirection
+}
+
+type Airport @alias(property:"airport") {
+  _id: ID! @id
+  type: String
+  city: String
+  icao: String
+  code: String
+  country: String
+  lat: Float
+  longest: Int
+  runways: Int
+  desc: String
+  lon: Float
+  region: String
+  elev: Int
+  continentContainsIn: Continent @relationship(edgeType:"contains", direction:IN)
+  countryContainsIn: Country @relationship(edgeType:"contains", direction:IN)
+  airportRoutesOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"route", direction:OUT)
+  airportRoutesIn(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType:"route", direction:IN)
+  contains:Contains
+  route:Route
+}
+
+input AirportInput {
+  _id: ID @id
+  type: StringScalarFilters
+  city: StringScalarFilters
+  icao: StringScalarFilters
+  code: StringScalarFilters
+  country: StringScalarFilters
+  lat: Float
+  longest: Int
+  runways: Int
+  desc: StringScalarFilters
+  lon: Float
+  region: StringScalarFilters
+  elev: Int
+}
+
+input AirportCreateInput {
+  _id: ID @id
+  type: String
+  city: String
+  icao: String
+  code: String
+  country: String
+  lat: Float
+  longest: Int
+  runways: Int
+  desc: String
+  lon: Float
+  region: String
+  elev: Int
+}
+
+input AirportUpdateInput {
+  _id: ID! @id
+  type: String
+  city: String
+  icao: String
+  code: String
+  country: String
+  lat: Float
+  longest: Int
+  runways: Int
+  desc: String
+  lon: Float
+  region: String
+  elev: Int
+}
+
+input AirportSort {
+  _id: SortingDirection
+  type: SortingDirection
+  city: SortingDirection
+  icao: SortingDirection
+  code: SortingDirection
+  country: SortingDirection
+  lat: SortingDirection
+  longest: SortingDirection
+  runways: SortingDirection
+  desc: SortingDirection
+  lon: SortingDirection
+  region: SortingDirection
+  elev: SortingDirection
+}
+
+type Contains @alias(property:"contains") {
+  _id: ID! @id
+}
+
+type Route @alias(property:"route") {
+  _id: ID! @id
+  dist: Int
+}
+
+input RouteInput {
+  dist: Int
+}
+
+input Options {
+  limit:Int
+  offset: Int
+}
+
+input StringScalarFilters {
+  eq: String
+  contains: String
+  endsWith: String
+  startsWith: String
+}
+
+type Query {
+  airportsQueryTest_getNodeContinent(filter: ContinentInput): Continent
+  airportsQueryTest_getNodeContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
+  airportsQueryTest_getNodeCountry(filter: CountryInput): Country
+  airportsQueryTest_getNodeCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
+  airportsQueryTest_getNodeVersion(filter: VersionInput): Version
+  airportsQueryTest_getNodeVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
+  airportsQueryTest_getNodeAirport(filter: AirportInput): Airport
+  airportsQueryTest_getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+}
+
+type Mutation {
+  airportsMutationTest_createNodeContinent(input: ContinentCreateInput!): Continent
+  airportsMutationTest_updateNodeContinent(input: ContinentUpdateInput!): Continent
+  airportsMutationTest_deleteNodeContinent(_id: ID!): Boolean
+  airportsMutationTest_createNodeCountry(input: CountryCreateInput!): Country
+  airportsMutationTest_updateNodeCountry(input: CountryUpdateInput!): Country
+  airportsMutationTest_deleteNodeCountry(_id: ID!): Boolean
+  airportsMutationTest_createNodeVersion(input: VersionCreateInput!): Version
+  airportsMutationTest_updateNodeVersion(input: VersionUpdateInput!): Version
+  airportsMutationTest_deleteNodeVersion(_id: ID!): Boolean
+  airportsMutationTest_createNodeAirport(input: AirportCreateInput!): Airport
+  airportsMutationTest_updateNodeAirport(input: AirportUpdateInput!): Airport
+  airportsMutationTest_deleteNodeAirport(_id: ID!): Boolean
+  airportsMutationTest_connectNodeContinentToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  airportsMutationTest_deleteEdgeContainsFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutationTest_connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  airportsMutationTest_deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutationTest_connectNodeAirportToNodeAirportEdgeRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  airportsMutationTest_updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  airportsMutationTest_deleteEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

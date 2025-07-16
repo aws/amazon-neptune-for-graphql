@@ -38,6 +38,21 @@ test('should resolve app sync event queries with a filter', () => {
     });
 });
 
+test('should resolve app sync event for query with prefix', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'airportQuery_getNodeAirport',
+        arguments: { filter: { code: {eq: 'SEA'} } },
+        selectionSetGraphQL: '{ city }'
+    });
+    expect(result).toEqual({
+        query: 'MATCH (airportQuery_getNodeAirport_Airport:`airport`) WHERE airportQuery_getNodeAirport_Airport.code = $airportQuery_getNodeAirport_Airport_code\n' +
+            'RETURN {city: airportQuery_getNodeAirport_Airport.`city`} LIMIT 1',
+        parameters: { airportQuery_getNodeAirport_Airport_code: 'SEA' },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
 test('should resolve app sync event queries with an empty filter object', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
         field: 'getNodeAirport',
@@ -1046,6 +1061,107 @@ test('should resolve custom mutation with @graphQuery directive and $input param
             createAirport_Airport_code: "TEST",
             createAirport_Airport_country: "CA",
             createAirport_Airport_desc: "Test Airport"
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should inference create node mutation with a prefix', () => {
+    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n airportMutation_createNodeAirport(input: {code: \"NAX\", city: \"Reggio Emilia\"}) {\n code\n }\n }'});
+
+    expect(result).toMatchObject({
+        query: 'CREATE (airportMutation_createNodeAirport_Airport:`airport` {code: $airportMutation_createNodeAirport_Airport_code, city: $airportMutation_createNodeAirport_Airport_city})\n' +
+            'RETURN {code: airportMutation_createNodeAirport_Airport.`code`}',
+        parameters: {
+            airportMutation_createNodeAirport_Airport_code: 'NAX',
+            airportMutation_createNodeAirport_Airport_city: 'Reggio Emilia'
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should inference update node mutation with a prefix', () => {
+    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n airportMutation_updateNodeAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }'});
+
+    expect(result).toMatchObject({
+        query: 'MATCH (airportMutation_updateNodeAirport_Airport)\n' +
+            'WHERE ID(airportMutation_updateNodeAirport_Airport) = $airportMutation_updateNodeAirport_Airport__id\n' +
+            'SET airportMutation_updateNodeAirport_Airport.city = $airportMutation_updateNodeAirport_Airport_city\n' +
+            'RETURN {city: airportMutation_updateNodeAirport_Airport.`city`}',
+        parameters: {
+            airportMutation_updateNodeAirport_Airport_city: 'Seattle',
+            airportMutation_updateNodeAirport_Airport__id: '22'
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve mutation to connect nodes with a prefix', () => {
+    const query = 'mutation ConnectCountryToAirport {\n' +
+        '  airportMutation_connectNodeCountryToNodeAirportEdgeContains(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\") {\n' +
+        '    _id\n' +
+        '  }\n' +
+        '}';
+    const result = resolveGraphDBQuery({queryObjOrStr: query});
+
+    expect(result).toMatchObject({
+        query: 'MATCH (from), (to)\n' +
+            'WHERE ID(from) = $airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId ' +
+            'AND ID(to) = $airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId\n' +
+            'CREATE (from)-[airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains:`contains`]->(to)\n' +
+            'RETURN {_id:ID(airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains)}',
+        parameters: {
+            airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
+            airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve mutation to delete edge between nodes with a prefix', () => {
+    const query = 'mutation DeleteEdgeContainsFromCountryToAirport {\n' +
+        '  airportMutation_deleteEdgeContainsFromCountryToAirport(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\")\n' +
+        '}';
+    const result = resolveGraphDBQuery({queryObjOrStr: query});
+
+    expect(result).toMatchObject({
+        query: 'MATCH (from)-[airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean]->(to)\n' +
+            'WHERE ID(from) = $airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereFromId ' +
+            'AND ID(to) = $airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereToId\n' +
+            'DELETE airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean\n' +
+            'RETURN true',
+        parameters: {
+            airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
+            airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should resolve mutation to update edge between nodes with a prefix', () => {
+    const query = 'mutation UpdateEdgeRouteFromAirportToAirport {\n' +
+        '  airportMutation_updateEdgeRouteFromAirportToAirport(from_id: \"99\", to_id: \"48\", edge: { dist: 123 }) {\n' +
+        '    _id\n' +
+        '    dist\n' +
+        '  }\n' +
+        '}';
+    const result = resolveGraphDBQuery({queryObjOrStr: query});
+
+    expect(result).toMatchObject({
+        query: 'MATCH (from)-[airportMutation_updateEdgeRouteFromAirportToAirport_Route:`route`]->(to)\n' +
+            'WHERE ID(from) = $airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereFromId ' +
+            'AND ID(to) = $airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereToId\n' +
+            'SET airportMutation_updateEdgeRouteFromAirportToAirport_Route.dist = $airportMutation_updateEdgeRouteFromAirportToAirport_Route_dist\n' +
+            'RETURN {_id:ID(airportMutation_updateEdgeRouteFromAirportToAirport_Route), dist: airportMutation_updateEdgeRouteFromAirportToAirport_Route.`dist`}',
+        parameters: {
+            airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereFromId: '99',
+            airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereToId: '48',
+            airportMutation_updateEdgeRouteFromAirportToAirport_Route_dist: 123
         },
         language: 'opencypher',
         refactorOutput: null
