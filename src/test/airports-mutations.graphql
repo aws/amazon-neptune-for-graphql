@@ -234,36 +234,36 @@ input StringScalarFilters {
 }
 
 type Query {
-  getNodeContinent(filter: ContinentInput): Continent
-  getNodeContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
-  getNodeCountry(filter: CountryInput): Country
-  getNodeCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
-  getNodeVersion(filter: VersionInput): Version
-  getNodeVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
-  getNodeAirport(filter: AirportInput): Airport
-  getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+  airportsQuery_getNodeContinent(filter: ContinentInput): Continent
+  airportsQuery_getNodeContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
+  airportsQuery_getNodeCountry(filter: CountryInput): Country
+  airportsQuery_getNodeCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
+  airportsQuery_getNodeVersion(filter: VersionInput): Version
+  airportsQuery_getNodeVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
+  airportsQuery_getNodeAirport(filter: AirportInput): Airport
+  airportsQuery_getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
 }
 
 type Mutation {
-  createNodeContinent(input: ContinentCreateInput!): Continent
-  updateNodeContinent(input: ContinentUpdateInput!): Continent
-  deleteNodeContinent(_id: ID!): Boolean
-  createNodeCountry(input: CountryCreateInput!): Country
-  updateNodeCountry(input: CountryUpdateInput!): Country
-  deleteNodeCountry(_id: ID!): Boolean
-  createNodeVersion(input: VersionCreateInput!): Version
-  updateNodeVersion(input: VersionUpdateInput!): Version
-  deleteNodeVersion(_id: ID!): Boolean
-  createNodeAirport(input: AirportCreateInput!): Airport
-  updateNodeAirport(input: AirportUpdateInput!): Airport
-  deleteNodeAirport(_id: ID!): Boolean
-  connectNodeContinentToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
-  deleteEdgeContainsFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
-  connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
-  deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
-  connectNodeAirportToNodeAirportEdgeRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
-  updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
-  deleteEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutation_createNodeContinent(input: ContinentCreateInput!): Continent
+  airportsMutation_updateNodeContinent(input: ContinentUpdateInput!): Continent
+  airportsMutation_deleteNodeContinent(_id: ID!): Boolean
+  airportsMutation_createNodeCountry(input: CountryCreateInput!): Country
+  airportsMutation_updateNodeCountry(input: CountryUpdateInput!): Country
+  airportsMutation_deleteNodeCountry(_id: ID!): Boolean
+  airportsMutation_createNodeVersion(input: VersionCreateInput!): Version
+  airportsMutation_updateNodeVersion(input: VersionUpdateInput!): Version
+  airportsMutation_deleteNodeVersion(_id: ID!): Boolean
+  airportsMutation_createNodeAirport(input: AirportCreateInput!): Airport
+  airportsMutation_updateNodeAirport(input: AirportUpdateInput!): Airport
+  airportsMutation_deleteNodeAirport(_id: ID!): Boolean
+  airportsMutation_connectNodeContinentToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  airportsMutation_deleteEdgeContainsFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutation_connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+  airportsMutation_deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutation_connectNodeAirportToNodeAirportEdgeRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  airportsMutation_updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  airportsMutation_deleteEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
 }
 
 schema {

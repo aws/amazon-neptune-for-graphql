@@ -10,7 +10,11 @@ describe('validatedSchemaModel', () => {
         loggerInit('./output', false, 'silent');
 
         const schema = readFileSync('./src/test/user-group.graphql');
-        model = validatedSchemaModel(schemaParser(schema));
+        model = validatedSchemaModel(schemaParser(schema), {
+            inputQueryPrefix: 'userGroupQuery_',
+            inputMutationPrefix: 'userGroupMutation_'
+        });
+
     });
 
     test('types definitions should be as expected', () => {

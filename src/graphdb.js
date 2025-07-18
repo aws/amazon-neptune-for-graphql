@@ -125,9 +125,28 @@ function formatProperties(properties = [], typeOverrides = new Map()) {
     }).join('');
 }
 
-function graphDBInferenceSchema (graphdbSchema, addMutations) {
+/**
+ * Generates a GraphQL schema for a graph database based on provided node and edge structures.
+ *
+ * This function takes a graph database schema definition and transforms it into a complete GraphQL schema
+ * with types, inputs, queries, and optionally mutations. It handles node and edge relationships,
+ * property definitions, filtering, sorting, and pagination.
+ *
+ * @param {string} graphdbSchema - A JSON string representing the graph database schema with nodeStructures and edgeStructures
+ * @param {boolean} addMutations - Whether to include mutation operations in the generated schema
+ * @param {Object} options - Configuration options for the schema generation
+ * @param {string} [options.inputQueryPrefix=''] - Prefix to add to all query operation names
+ * @param {string} [options.inputMutationPrefix=''] - Prefix to add to all mutation operation names
+ *
+ * @returns {string} A complete GraphQL schema definition as a string
+ */
+function graphDBInferenceSchema (graphdbSchema, addMutations, options = {}) {
     let r = '';
     const gdbs = JSON.parse(graphdbSchema);
+    const {
+        inputQueryPrefix = '',
+        inputMutationPrefix = ''
+    } = options;
 
     checkForDuplicateNames(gdbs);
 
@@ -319,8 +338,8 @@ function graphDBInferenceSchema (graphdbSchema, addMutations) {
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
         let nodeCase = toPascalCase(cleanseLabel(node.label));
-        r += `\tgetNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
-        r += `\tgetNode${nodeCase}s(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}]\n`;
+        r += `\t${inputQueryPrefix}getNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
+        r += `\t${inputQueryPrefix}getNode${nodeCase}s(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}]\n`;
     });
     r += '}\n\n';
 
@@ -329,9 +348,9 @@ function graphDBInferenceSchema (graphdbSchema, addMutations) {
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
             let nodeCase = toPascalCase(cleanseLabel(node.label));
-            r += `\tcreateNode${nodeCase}(input: ${nodeCase}CreateInput!): ${nodeCase}\n`;
-            r += `\tupdateNode${nodeCase}(input: ${nodeCase}UpdateInput!): ${nodeCase}\n`;
-            r += `\tdeleteNode${nodeCase}(_id: ID!): Boolean\n`;
+            r += `\t${inputMutationPrefix}createNode${nodeCase}(input: ${nodeCase}CreateInput!): ${nodeCase}\n`;
+            r += `\t${inputMutationPrefix}updateNode${nodeCase}(input: ${nodeCase}UpdateInput!): ${nodeCase}\n`;
+            r += `\t${inputMutationPrefix}deleteNode${nodeCase}(_id: ID!): Boolean\n`;
         });    
 
         gdbs.edgeStructures.forEach(edge => {
@@ -341,12 +360,12 @@ function graphDBInferenceSchema (graphdbSchema, addMutations) {
                 let edgeCase = toPascalCase(cleanseLabel(edge.label));
 
                 if (edge.properties.length > 0) {               
-                    r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
-                    r += `\tupdateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
+                    r += `\t${inputMutationPrefix}connectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
+                    r += `\t${inputMutationPrefix}updateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
                 } else {
-                    r += `\tconnectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;
+                    r += `\t${inputMutationPrefix}connectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;
                 }
-                r += `\tdeleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
+                r += `\t${inputMutationPrefix}deleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
             });
         });
         r += '}\n\n';
