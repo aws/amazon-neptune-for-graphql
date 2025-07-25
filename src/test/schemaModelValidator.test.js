@@ -5,11 +5,11 @@ import { schemaParser, schemaStringify } from '../schemaParser.js';
 
 describe('validatedSchemaModel', () => {
     let model;
+    const schema = readFileSync('./src/test/user-group.graphql', 'utf-8');
 
     beforeAll(() => {
         loggerInit('./output', false, 'silent');
 
-        const schema = readFileSync('./src/test/user-group.graphql');
         model = validatedSchemaModel(schemaParser(schema));
     });
 
@@ -104,14 +104,54 @@ describe('validatedSchemaModel', () => {
     
     test('should output expected validated schema', () => {
         const actual = schemaStringify(model, true);
-        const expected = readFileSync('./src/test/user-group-validated.graphql', 'utf8')
+        const expected = readFileSync('./src/test/user-group-validated.graphql', 'utf8');
         expect(actual).toBe(expected); 
     });
+
+    test('should output expected validated schema with query prefixes', async () => {
+        const schemaValidator = await loadSchemaValidator();
+        const modelQueryPrefix = schemaValidator.validatedSchemaModel(schemaParser(schema), {
+            queryPrefix: 'userGroupQuery_'
+        });
+
+        const actual = schemaStringify(modelQueryPrefix, true);
+        const expected = readFileSync('./src/test/user-group-validated-with-query-prefix.graphql', 'utf8');
+        expect(actual).toBe(expected);
+    })
+
+    test('should output expected validated schema with mutation prefixes', async () => {
+        const schemaValidator = await loadSchemaValidator();
+        const modelMutationPrefix = schemaValidator.validatedSchemaModel(schemaParser(schema), {
+            mutationPrefix: 'userGroupMutation_'
+        });
+
+        const actual = schemaStringify(modelMutationPrefix, true);
+        const expected = readFileSync('./src/test/user-group-validated-with-mutation-prefix.graphql', 'utf8');
+        expect(actual).toBe(expected);
+    })
+
+    test('should output expected validated schema with query and mutation prefixes', async () => {
+        const schemaValidator = await loadSchemaValidator();
+        const modelPrefixes = schemaValidator.validatedSchemaModel(schemaParser(schema), {
+            queryPrefix: 'userGroupQueryTest_',
+            mutationPrefix: 'userGroupMutationTest_'
+        });
+
+        const actual = schemaStringify(modelPrefixes, true);
+        const expected = readFileSync('./src/test/user-group-validated-with-prefixes.graphql', 'utf8');
+        expect(actual).toBe(expected);
+    })
 
     function getIdFields(objTypeDef) {
         return objTypeDef.fields.filter(
             field =>
                 field.directives.some(directive => directive.name.value === 'id')
         );
+    }
+
+    async function loadSchemaValidator() {
+        // Use timestamp to get fresh module
+        const timestamp = Date.now();
+        return await import(`../schemaModelValidator.js?t=${timestamp}`);
     }
 });

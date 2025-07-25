@@ -1,0 +1,17 @@
+{
+    "name": "Unit Test (Air Routes) Pipeline with Prefixes",
+    "description":"Create pipeline with query and mutation prefixes",
+    "argv":["--quiet",
+            "--input-schema-file", "./test/TestCases/Case05/input/airportsPrefix.source.schema.graphql",
+            "--query-prefix", "airportsQueryPrefix_",
+            "--mutation-prefix", "airportsMutationPrefix_",
+            "--output-folder-path", "./test/TestCases/Case05/output",
+            "--create-update-aws-pipeline",
+            "--create-update-aws-pipeline-name", "AirportsJestPrefixTest",
+            "--create-update-aws-pipeline-neptune-endpoint", "<AIR_ROUTES_DB_HOST>:<AIR_ROUTES_DB_PORT>",
+            "--output-resolver-query-https"],
+    "host": "<AIR_ROUTES_DB_HOST>",
+    "port": "<AIR_ROUTES_DB_PORT>",
+    "testOutputFilesSize": ["output.resolver.graphql.js", "output.schema.graphql", "output.source.schema.graphql"],
+    "testOutputFilesContent": ["output.schema.graphql", "output.source.schema.graphql"]
+}

@@ -15,7 +15,6 @@ import { GraphQLID, print } from 'graphql';
 import {gql} from 'graphql-tag'
 import { loggerInfo, yellow } from "./logger.js";
 
-let quiet = false;
 // TODO change variables to local scope instead of global so this module can be used against multiple schemas
 const typesToAdd = [];
 const queriesToAdd = [];
@@ -137,7 +136,7 @@ function injectChanges(schemaModel) {
 }
 
 
-function addNode(def) {
+function addNode(def, { queryPrefix = '', mutationPrefix = ''} = {}) {
     let name = def.name.value;
     const idField = getIdFieldWithDirective(def);
 
@@ -191,34 +190,39 @@ function addNode(def) {
     typesToAdd.push(`input ${name}Sort {\n${print(sortFields)}\n}`);
 
     // Create query
-    queriesToAdd.push(`getNode${name}(filter: ${name}Input): ${name}\n`);
-    queriesToAdd.push(`getNode${name}s(filter: ${name}Input, options: Options, sort: [${name}Sort!]): [${name}]\n`);
+    const getSingleQueryName = `${queryPrefix}getNode${name}`;
+    queriesToAdd.push(`${getSingleQueryName}(filter: ${name}Input): ${name}\n`);
+    const getMultipleQueryName = `${queryPrefix}getNode${name}s`;
+    queriesToAdd.push(`${getMultipleQueryName}(filter: ${name}Input, options: Options, sort: [${name}Sort!]): [${name}]\n`);
 
     // Create mutation
-    mutationsToAdd.push(`createNode${name}(input: ${name}CreateInput!): ${name}\n`);
-    mutationsToAdd.push(`updateNode${name}(input: ${name}UpdateInput!): ${name}\n`);
-    mutationsToAdd.push(`deleteNode${name}(${print(idFieldToInputValue(idField))}): Boolean\n`);
+    const createMutationName = `${mutationPrefix}createNode${name}`;
+    mutationsToAdd.push(`${createMutationName}(input: ${name}CreateInput!): ${name}\n`);
+    const updateMutationName = `${mutationPrefix}updateNode${name}`;
+    mutationsToAdd.push(`${updateMutationName}(input: ${name}UpdateInput!): ${name}\n`);
+    const deleteMutationName = `${mutationPrefix}deleteNode${name}`;
+    mutationsToAdd.push(`${deleteMutationName}(${print(idFieldToInputValue(idField))}): Boolean\n`);
 
     loggerInfo(`Added input type: ${yellow(name+'Input')}`);
     loggerInfo(`Added input type: ${yellow(name+'CreateInput')}`);
     loggerInfo(`Added input type: ${yellow(name+'UpdateInput')}`);
-    loggerInfo(`Added query: ${yellow('getNode' + name)}`);
-    loggerInfo(`Added query: ${yellow('getNode' + name + 's')}`);
-    loggerInfo(`Added mutation: ${yellow('createNode' + name)}`);
-    loggerInfo(`Added mutation: ${yellow('updateNode' + name)}`);
-    loggerInfo(`Added mutation: ${yellow('deleteNode' + name)}`);
+    loggerInfo(`Added query: ${yellow(getSingleQueryName)}`);
+    loggerInfo(`Added query: ${yellow(getMultipleQueryName)}`);
+    loggerInfo(`Added mutation: ${yellow(createMutationName)}`);
+    loggerInfo(`Added mutation: ${yellow(updateMutationName)}`);
+    loggerInfo(`Added mutation: ${yellow(deleteMutationName)}`);
 }
 
 
-function addEdge(from, to, edgeName) {    
+function addEdge(from, to, edgeName, { mutationPrefix = ''} = {}) {
     if (!typesToAdd.some((str) => str.startsWith(`type ${edgeName}`))) {
 
         // Create type
         typesToAdd.push(`type ${edgeName} {\n  _id: ID! @id\n}`);
 
         // Create mutation
-        mutationsToAdd.push(`connectNode${from}ToNode${to}Edge${edgeName}(from_id: ID!, to_id: ID!): ${edgeName}\n`);    
-        mutationsToAdd.push(`deleteEdge${edgeName}From${from}To${to}(from_id: ID!, to_id: ID!): Boolean\n`);
+        mutationsToAdd.push(`${mutationPrefix}connectNode${from}ToNode${to}Edge${edgeName}(from_id: ID!, to_id: ID!): ${edgeName}\n`);
+        mutationsToAdd.push(`${mutationPrefix}deleteEdge${edgeName}From${from}To${to}(from_id: ID!, to_id: ID!): Boolean\n`);
 
         loggerInfo(`Added type for edge: ${yellow(edgeName)}`);
         loggerInfo(`Added mutation: ${yellow(`connectNode${from}ToNode${to}Edge${edgeName}`)}`);
@@ -325,7 +329,7 @@ function isScalarOrEnum(type) {
 }
 
 
-function inferGraphDatabaseDirectives(schemaModel) {
+function inferGraphDatabaseDirectives(schemaModel, { queryPrefix = '', mutationPrefix = ''} = {}) {
     
     var currentType = '';
     let referencedType = '';
@@ -358,7 +362,7 @@ function inferGraphDatabaseDirectives(schemaModel) {
                     }
                 }
 
-                addNode(def);
+                addNode(def,{ queryPrefix, mutationPrefix });
                 const edgesTypeToAdd = [];
 
                 // add relationships
@@ -378,7 +382,7 @@ function inferGraphDatabaseDirectives(schemaModel) {
                                 edgeName = referencedType + 'Edge';
                                 loggerInfo("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));
                                 addRelationshipDirective(field, edgeName, 'OUT');
-                                addEdge(currentType, referencedType, edgeName);
+                                addEdge(currentType, referencedType, edgeName, { mutationPrefix });
                                 if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);                                
                             }                 
                             catch {}
@@ -394,7 +398,7 @@ function inferGraphDatabaseDirectives(schemaModel) {
                         edgeName = referencedType + 'Edge';
                         loggerInfo("Infer graph database directive in type: " + yellow(currentType) + " field: " + yellow(field.name.value) + " referenced type: " + yellow(referencedType) + " graph relationship: " + yellow(edgeName));
                         addRelationshipDirective(field, edgeName, 'OUT');
-                        addEdge(currentType, referencedType, edgeName);
+                        addEdge(currentType, referencedType, edgeName, { mutationPrefix });
                         if (!edgesTypeToAdd.includes(edgeName)) edgesTypeToAdd.push(edgeName);
                     }
                 });
@@ -429,12 +433,10 @@ function inferGraphDatabaseDirectives(schemaModel) {
 }
 
 
-function validatedSchemaModel (schemaModel, quietInput) {
-    quiet = quietInput;    
-    
+function validatedSchemaModel (schemaModel, { queryPrefix = '', mutationPrefix = ''} = {}) {
     if (!isGraphDBDirectives(schemaModel)) {
         loggerInfo("The schema model does not contain any graph database directives.");
-        schemaModel = inferGraphDatabaseDirectives(schemaModel);
+        schemaModel = inferGraphDatabaseDirectives(schemaModel, { queryPrefix, mutationPrefix });
     }    
  
     return schemaModel;

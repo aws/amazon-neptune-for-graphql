@@ -1,0 +1,194 @@
+type User {
+  userId: ID! @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
+}
+
+type Group {
+  _id: ID! @id
+  name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
+}
+
+type Moderator {
+  moderatorId: ID! @id
+  name: String
+  moderates: Group @relationship(type: "GroupEdge", direction: OUT)
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
+  groupEdge: GroupEdge
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+
+"https://the-guild.dev/graphql/scalars/docs/scalars/email-address"
+scalar EmailAddress
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+input UserInput {
+  userId: ID! @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
+}
+
+input UserCreateInput {
+  userId: ID @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
+}
+
+input UserUpdateInput {
+  userId: ID! @id
+  firstName: String
+  lastName: String
+  role: Role
+  email: EmailAddress
+  dateOfBirth: AWSDate
+  lastLoginTime: AWSDateTime
+  phoneNumber: AWSPhone
+  profilePictureUrl: AWSURL
+  ipAddress: AWSIPAddress
+}
+
+input UserSort {
+  userId: SortDirection
+  firstName: SortDirection
+  lastName: SortDirection
+  role: SortDirection
+  email: SortDirection
+  dateOfBirth: SortDirection
+  lastLoginTime: SortDirection
+  phoneNumber: SortDirection
+  profilePictureUrl: SortDirection
+  ipAddress: SortDirection
+}
+
+input GroupInput {
+  _id: ID! @id
+  name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
+}
+
+input GroupCreateInput {
+  _id: ID @id
+  name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
+}
+
+input GroupUpdateInput {
+  _id: ID! @id
+  name: String
+  dailyMeetingTime: AWSTime
+  metadata: AWSJSON
+}
+
+input GroupSort {
+  _id: SortDirection
+  name: SortDirection
+  dailyMeetingTime: SortDirection
+  metadata: SortDirection
+}
+
+input ModeratorInput {
+  moderatorId: ID! @id
+  name: String
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
+}
+
+input ModeratorCreateInput {
+  moderatorId: ID @id
+  name: String
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
+}
+
+input ModeratorUpdateInput {
+  moderatorId: ID! @id
+  name: String
+  contactEmail: AWSEmail
+  appointedTimestamp: AWSTimestamp
+}
+
+input ModeratorSort {
+  moderatorId: SortDirection
+  name: SortDirection
+  contactEmail: SortDirection
+  appointedTimestamp: SortDirection
+}
+
+type GroupEdge {
+  _id: ID! @id
+}
+
+input Options {
+  limit: Int
+  offset: Int
+}
+
+input StringScalarFilters {
+  eq: String
+  contains: String
+  endsWith: String
+  startsWith: String
+}
+
+type Query {
+  userGroupQuery_getNodeUser(filter: UserInput): User
+  userGroupQuery_getNodeUsers(filter: UserInput, options: Options, sort: [UserSort!]): [User]
+  userGroupQuery_getNodeGroup(filter: GroupInput): Group
+  userGroupQuery_getNodeGroups(filter: GroupInput, options: Options, sort: [GroupSort!]): [Group]
+  userGroupQuery_getNodeModerator(filter: ModeratorInput): Moderator
+  userGroupQuery_getNodeModerators(filter: ModeratorInput, options: Options, sort: [ModeratorSort!]): [Moderator]
+}
+
+type Mutation {
+  createNodeUser(input: UserCreateInput!): User
+  updateNodeUser(input: UserUpdateInput!): User
+  deleteNodeUser(userId: ID!): Boolean
+  createNodeGroup(input: GroupCreateInput!): Group
+  updateNodeGroup(input: GroupUpdateInput!): Group
+  deleteNodeGroup(_id: ID!): Boolean
+  createNodeModerator(input: ModeratorCreateInput!): Moderator
+  updateNodeModerator(input: ModeratorUpdateInput!): Moderator
+  deleteNodeModerator(moderatorId: ID!): Boolean
+  connectNodeModeratorToNodeGroupEdgeGroupEdge(from_id: ID!, to_id: ID!): GroupEdge
+  deleteEdgeGroupEdgeFromModeratorToGroup(from_id: ID!, to_id: ID!): Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

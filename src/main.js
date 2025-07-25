@@ -54,6 +54,8 @@ let inputGraphQLSchemaChangesFile = '';
 let inputGraphDBSchema = '';
 let inputGraphDBSchemaFile = '';
 let inputGraphDBSchemaNeptuneEndpoint = '';
+let inputQueryPrefix = '';
+let inputMutationPrefix = '';
 let queryLanguage = 'opencypher'; // or TODO 'gremlin' or 'sparql'
 let queryClient = 'sdk';          // or 'http'
 let isNeptuneIAMAuth = false;
@@ -167,6 +169,14 @@ function processArgs() {
             case '-og':
             case '--output-neptune-schema-file':
                 outputNeptuneSchemaFile = array[index + 1];
+            break;
+            case '-qp':
+            case '--query-prefix':
+                inputQueryPrefix = array[index + 1];
+            break;
+            case '-mp':
+            case '--mutation-prefix':
+                inputMutationPrefix = array[index + 1];
             break;
             case '-org':
             case '--output-resolver-query-gremlin':
@@ -409,7 +419,11 @@ async function main() {
     // Option 2: inference GraphQL schema from graphDB schema
     if (inputGraphDBSchema != '' && inputGraphQLSchema == '' && inputGraphQLSchemaFile == '') {
         loggerInfo('Inferencing GraphQL schema from graphDB schema', {toConsole: true});
-        inputGraphQLSchema = graphDBInferenceSchema(inputGraphDBSchema, outputSchemaMutations);
+        inputGraphQLSchema = graphDBInferenceSchema(inputGraphDBSchema, {
+            addMutations: outputSchemaMutations,
+            queryPrefix: inputQueryPrefix,
+            mutationPrefix: inputMutationPrefix
+        });
     }
 
     // Option 1: load
@@ -526,7 +540,10 @@ async function main() {
         schemaModel = schemaParser(inputGraphQLSchema);
         
         // Validate schema
-        schemaModel = validatedSchemaModel(schemaModel, quiet);
+        schemaModel = validatedSchemaModel(schemaModel, {
+            queryPrefix: inputQueryPrefix,
+            mutationPrefix: inputMutationPrefix
+        });
 
         // Generate schema for resolver
         const queryDataModelJSON = JSON.stringify(schemaModel, null, 2);

@@ -28,6 +28,7 @@ permissions and limitations under the License.
   `limit` ([#102](https://github.com/aws/amazon-neptune-for-graphql/pull/102))
 * Added support for queries with
   sorting ([#105](https://github.com/aws/amazon-neptune-for-graphql/pull/105))
+* Added options to prefix query and mutation names ([#120](https://github.com/aws/amazon-neptune-for-graphql/pull/120))
 
 ### Improvements
 
