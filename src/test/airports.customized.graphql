@@ -291,6 +291,7 @@ getNodeCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [
 getNodeVersion(filter: VersionInput): Version
 getNodeVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
 getNodeAirport(filter: AirportInput): Airport
+airportQuery_getNodeAirport(filter: AirportInput): Airport
 getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
 getAirportWithGremlin(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
 getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
@@ -298,10 +299,15 @@ getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()
 
 type Mutation {
 createNodeAirport(input: AirportCreateInput!): Airport
+airportMutation_createNodeAirport(input: AirportCreateInput!): Airport
 updateNodeAirport(input: AirportUpdateInput!): Airport
+airportMutation_updateNodeAirport(input: AirportUpdateInput!): Airport
 connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
+airportMutation_connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
 deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+airportMutation_deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
 updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+airportMutation_updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
 createAirport(input: AirportCreateInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
 }
 

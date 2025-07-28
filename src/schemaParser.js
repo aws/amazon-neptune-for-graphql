@@ -10,15 +10,11 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import gql from 'graphql-tag';
-import { print, visit } from 'graphql';
+import { print, visit, parse } from 'graphql';
 
 
 function schemaParser (schema) {
-    const typeDefs = gql`
-        ${schema}
-    `;
-	return typeDefs;
+    return parse(schema);
 }
 
 function schemaStringify (schemaModel, directives = true) {

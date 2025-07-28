@@ -1102,7 +1102,7 @@ function getReturnBlockFromSelection(selection, querySchemaInfo) {
 function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
 
     // createNode
-    if (querySchemaInfo.name.startsWith('createNode') && !querySchemaInfo.graphQuery) {
+    if (querySchemaInfo.name.includes('createNode') && !querySchemaInfo.graphQuery) {
         const queryFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
         const formattedQueryFields = queryFields.map(arg => {
             const param = querySchemaInfo.pathName + '_' + arg.name;
@@ -1119,7 +1119,7 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
     }
 
     // updateNode
-    if (querySchemaInfo.name.startsWith('updateNode') && !querySchemaInfo.graphQuery) {
+    if (querySchemaInfo.name.includes('updateNode') && !querySchemaInfo.graphQuery) {
         const queryFields = extractCypherFieldsFromArgumentFields(queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.fields, querySchemaInfo);
         
         const idField = queryFields.find(arg => arg.name === querySchemaInfo.graphDBIdArgName);
@@ -1154,7 +1154,7 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
     }
 
     // deleteNode
-    if (querySchemaInfo.name.startsWith('deleteNode') && !querySchemaInfo.graphQuery) {
+    if (querySchemaInfo.name.includes('deleteNode') && !querySchemaInfo.graphQuery) {
         const nodeID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         const nodeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;
         let param  = nodeName + '_' + 'whereId';
@@ -1164,7 +1164,7 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
     }
 
     // connect
-    if (querySchemaInfo.name.startsWith('connectNode') && querySchemaInfo.graphQuery == null) {
+    if (querySchemaInfo.name.includes('connectNode') && querySchemaInfo.graphQuery == null) {
         let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
         const edgeType = querySchemaInfo.name.match(new RegExp('Edge' + "(.*)" + ''))[1];
@@ -1182,7 +1182,7 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
     }
 
     // updateEdge
-    if (querySchemaInfo.name.startsWith('updateEdge') && querySchemaInfo.graphQuery == null) {
+    if (querySchemaInfo.name.includes('updateEdge') && querySchemaInfo.graphQuery == null) {
         let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
         let edgeType = querySchemaInfo.name.match(new RegExp('updateEdge' + "(.*)" + 'From'))[1];
@@ -1209,7 +1209,7 @@ function resolveGrapgDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
     }
 
     // deleteEdge
-    if (querySchemaInfo.name.startsWith('deleteEdge') && querySchemaInfo.graphQuery == null) {
+    if (querySchemaInfo.name.includes('deleteEdge') && querySchemaInfo.graphQuery == null) {
         let fromID = queryAst.definitions[0].selectionSet.selections[0].arguments[0].value.value;
         let toID = queryAst.definitions[0].selectionSet.selections[0].arguments[1].value.value;
         const edgeName = querySchemaInfo.name + '_' + querySchemaInfo.returnType;

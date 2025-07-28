@@ -4,7 +4,7 @@ import { loggerInit } from "../logger.js";
 import * as prettier from "prettier";
 
 test('node with same property and edge label should add underscore prefix', () => {
-    expect(graphDBInferenceSchema(readFile('./src/test/node-edge-same-property-neptune-schema.json'), false)).toContain('_commonName:Commonname');
+    expect(graphDBInferenceSchema(readFile('./src/test/node-edge-same-property-neptune-schema.json'))).toContain('_commonName:Commonname');
 });
 
 test('should properly replace special chars in schema', async () => {
@@ -28,6 +28,34 @@ test('should output airport schema', async () => {
 test('should correctly generate mutation input types after outputting airport schema', async () => {
     const actual = await inferGraphQLSchema('./src/test/airports-neptune-schema.json', { addMutations: true });
     const expected = await loadGraphQLSchema('./src/test/airports-mutations.graphql');
+    expect(actual).toBe(expected);
+});
+
+test('should correctly generate airport schema with query prefixes', async () => {
+    const actual = await inferGraphQLSchema('./src/test/airports-neptune-schema.json', {
+        addMutations: true,
+        queryPrefix: 'airportsQuery_'
+    });
+    const expected = await loadGraphQLSchema('./src/test/airports-mutations-query-prefix.graphql');
+    expect(actual).toBe(expected);
+});
+
+test('should correctly generate airport schema with mutation prefixes', async () => {
+    const actual = await inferGraphQLSchema('./src/test/airports-neptune-schema.json', {
+        addMutations: true,
+        mutationPrefix: 'airportsMutation_'
+    });
+    const expected = await loadGraphQLSchema('./src/test/airports-mutations-mutation-prefix.graphql');
+    expect(actual).toBe(expected);
+});
+
+test('should correctly generate airport schema with both query and mutation prefixes', async () => {
+    const actual = await inferGraphQLSchema('./src/test/airports-neptune-schema.json', {
+        addMutations: true,
+        queryPrefix: 'airportsQueryTest_',
+        mutationPrefix: 'airportsMutationTest_'
+    });
+    const expected = await loadGraphQLSchema('./src/test/airports-mutations-with-prefixes.graphql');
     expect(actual).toBe(expected);
 });
 
@@ -68,9 +96,9 @@ test('should alias edge with same label as node', async () => {
     expect(actual).toBe(expected);
 });
 
-async function inferGraphQLSchema(neptuneSchemaFilePath, options = { addMutations: false }) {
+async function inferGraphQLSchema(neptuneSchemaFilePath, { addMutations = false, queryPrefix = '', mutationPrefix = ''} = {}) {
     let neptuneSchema = readFile(neptuneSchemaFilePath);
-    let inferredSchema = graphDBInferenceSchema(neptuneSchema, options.addMutations);
+    let inferredSchema = graphDBInferenceSchema(neptuneSchema, {addMutations, queryPrefix, mutationPrefix});
     return await sanitizeWhitespace(inferredSchema);
 }
 

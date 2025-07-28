@@ -94,6 +94,14 @@ database you can edit a graphdb schema as use it as input.
 The Neptune database endpoint from which the utility extract the graphdb schema.
 Format: `host:port`
 
+`--query-prefix`
+<br>
+Optional prefix to add to generated query names in the GraphQL schema.
+
+`--mutation-prefix`
+<br>
+Optional prefix to add to generated mutation names in the GraphQL schema.
+
 ## Output options
 
 `--output-folder-path <value>, -o <value>`
