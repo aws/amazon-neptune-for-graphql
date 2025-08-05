@@ -234,7 +234,7 @@ input StringScalarFilters {
 }
 
 type Query {
-  getAirportCustom(code: String): Airport
+  getAirportByCode(code: String): Airport
   getAirportConnection(fromCode: String!, toCode: String!): Airport @cypher(statement: "MATCH (:airport{code: '$fromCode'})-[:route]->(this:airport)-[:route]->(:airport{code:'$toCode'})")
   getAirportWithGremlin(code:String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
   getAirportsWithGremlin: [Airport] @graphQuery(statement: "g.V().hasLabel('airport').elementMap().fold()")    
@@ -251,9 +251,9 @@ type Query {
 }
 
 type Mutation {
-  createAirportCustom(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
+  createAirportWithCypher(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
   addRoute(fromAirportCode:String, toAirportCode:String, dist:Int): Route @graphQuery(statement: "MATCH (from:airport{code:'$fromAirportCode'}), (to:airport{code:'$toAirportCode'}) CREATE (from)-[this:route{dist:$dist}]->(to) RETURN this")
-  deleteAirportCustom(id: ID): Int @graphQuery(statement: "MATCH (this:airport) WHERE ID(this) = '$id' DETACH DELETE this")
+  deleteAirportWithCypher(id: ID): Int @graphQuery(statement: "MATCH (this:airport) WHERE ID(this) = '$id' DETACH DELETE this")
 
   createContinent(input: ContinentCreateInput!): Continent
   updateContinent(input: ContinentUpdateInput!): Continent
