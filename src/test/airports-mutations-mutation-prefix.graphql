@@ -234,36 +234,36 @@ input StringScalarFilters {
 }
 
 type Query {
-  getNodeContinent(filter: ContinentInput): Continent
-  getNodeContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
-  getNodeCountry(filter: CountryInput): Country
-  getNodeCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
-  getNodeVersion(filter: VersionInput): Version
-  getNodeVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
-  getNodeAirport(filter: AirportInput): Airport
-  getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+  getContinent(filter: ContinentInput): Continent
+  getContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
+  getCountry(filter: CountryInput): Country
+  getCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
+  getVersion(filter: VersionInput): Version
+  getVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
+  getAirport(filter: AirportInput): Airport
+  getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
 }
 
 type Mutation {
-  airportsMutation_createNodeContinent(input: ContinentCreateInput!): Continent
-  airportsMutation_updateNodeContinent(input: ContinentUpdateInput!): Continent
-  airportsMutation_deleteNodeContinent(_id: ID!): Boolean
-  airportsMutation_createNodeCountry(input: CountryCreateInput!): Country
-  airportsMutation_updateNodeCountry(input: CountryUpdateInput!): Country
-  airportsMutation_deleteNodeCountry(_id: ID!): Boolean
-  airportsMutation_createNodeVersion(input: VersionCreateInput!): Version
-  airportsMutation_updateNodeVersion(input: VersionUpdateInput!): Version
-  airportsMutation_deleteNodeVersion(_id: ID!): Boolean
-  airportsMutation_createNodeAirport(input: AirportCreateInput!): Airport
-  airportsMutation_updateNodeAirport(input: AirportUpdateInput!): Airport
-  airportsMutation_deleteNodeAirport(_id: ID!): Boolean
-  airportsMutation_connectNodeContinentToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
-  airportsMutation_deleteEdgeContainsFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
-  airportsMutation_connectNodeCountryToNodeAirportEdgeContains(from_id: ID!, to_id: ID!): Contains
-  airportsMutation_deleteEdgeContainsFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
-  airportsMutation_connectNodeAirportToNodeAirportEdgeRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
-  airportsMutation_updateEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
-  airportsMutation_deleteEdgeRouteFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutation_createContinent(input: ContinentCreateInput!): Continent
+  airportsMutation_updateContinent(input: ContinentUpdateInput!): Continent
+  airportsMutation_deleteContinent(_id: ID!): Boolean
+  airportsMutation_createCountry(input: CountryCreateInput!): Country
+  airportsMutation_updateCountry(input: CountryUpdateInput!): Country
+  airportsMutation_deleteCountry(_id: ID!): Boolean
+  airportsMutation_createVersion(input: VersionCreateInput!): Version
+  airportsMutation_updateVersion(input: VersionUpdateInput!): Version
+  airportsMutation_deleteVersion(_id: ID!): Boolean
+  airportsMutation_createAirport(input: AirportCreateInput!): Airport
+  airportsMutation_updateAirport(input: AirportUpdateInput!): Airport
+  airportsMutation_deleteAirport(_id: ID!): Boolean
+  airportsMutation_connectContinentToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
+  airportsMutation_deleteContainsConnectionFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutation_connectCountryToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
+  airportsMutation_deleteContainsConnectionFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportsMutation_connectAirportToAirportThroughRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  airportsMutation_updateRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  airportsMutation_deleteRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
 }
 
 schema {

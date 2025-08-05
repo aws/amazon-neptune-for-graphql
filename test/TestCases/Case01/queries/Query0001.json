@@ -1,7 +1,7 @@
 {  
     "name": "getAirport",
     "description": "Inference query from return type",
-    "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n city \n }\n}",
+    "graphql": "query MyQuery {\n getAirportCustom(code: \"SEA\") {\n city \n }\n}",
     "result":{
         "city": "Seattle"
     }

@@ -25,14 +25,14 @@ afterEach(() => {
 
 test('should resolve app sync event queries with a filter', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirport',
+        field: 'getAirport',
         arguments: { filter: { code: {eq: 'SEA'} } },
         selectionSetGraphQL: '{ city }'
     });
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
-            'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
-        parameters: { getNodeAirport_Airport_code: 'SEA' },
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
+            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
+        parameters: { getAirport_Airport_code: 'SEA' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -40,14 +40,14 @@ test('should resolve app sync event queries with a filter', () => {
 
 test('should resolve app sync event for query with prefix', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'airportQuery_getNodeAirport',
+        field: 'airportQuery_getAirport',
         arguments: { filter: { code: {eq: 'SEA'} } },
         selectionSetGraphQL: '{ city }'
     });
     expect(result).toEqual({
-        query: 'MATCH (airportQuery_getNodeAirport_Airport:`airport`) WHERE airportQuery_getNodeAirport_Airport.code = $airportQuery_getNodeAirport_Airport_code\n' +
-            'RETURN {city: airportQuery_getNodeAirport_Airport.`city`} LIMIT 1',
-        parameters: { airportQuery_getNodeAirport_Airport_code: 'SEA' },
+        query: 'MATCH (airportQuery_getAirport_Airport:`airport`) WHERE airportQuery_getAirport_Airport.code = $airportQuery_getAirport_Airport_code\n' +
+            'RETURN {city: airportQuery_getAirport_Airport.`city`} LIMIT 1',
+        parameters: { airportQuery_getAirport_Airport_code: 'SEA' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -55,14 +55,14 @@ test('should resolve app sync event for query with prefix', () => {
 
 test('should resolve app sync event queries with an empty filter object', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirport',
+        field: 'getAirport',
         arguments: { filter: {} },
         selectionSetGraphQL: '{ city }'
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirport_Airport:`airport`)\n' +
-            'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
+        query: 'MATCH (getAirport_Airport:`airport`)\n' +
+            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -71,14 +71,14 @@ test('should resolve app sync event queries with an empty filter object', () => 
 
 test('should resolve app sync event queries without a filter', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirport',
+        field: 'getAirport',
         arguments: {},
         selectionSetGraphQL: '{ city }'
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirport_Airport:`airport`)\n' +
-            'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
+        query: 'MATCH (getAirport_Airport:`airport`)\n' +
+            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -87,15 +87,15 @@ test('should resolve app sync event queries without a filter', () => {
 
 test('should resolve app sync event queries with a filter that contains numeric and string values', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { filter: { country: {eq: 'US'}, runways: 3 } },
         selectionSetGraphQL: '{ city }'
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WHERE getNodeAirports_Airport.country = $getNodeAirports_Airport_country AND getNodeAirports_Airport.runways = $getNodeAirports_Airport_runways\n' +
-            'RETURN collect({city: getNodeAirports_Airport.`city`})',
-        parameters: { getNodeAirports_Airport_country: 'US',  getNodeAirports_Airport_runways: 3},
+        query: 'MATCH (getAirports_Airport:`airport`) WHERE getAirports_Airport.country = $getAirports_Airport_country AND getAirports_Airport.runways = $getAirports_Airport_runways\n' +
+            'RETURN collect({city: getAirports_Airport.`city`})',
+        parameters: { getAirports_Airport_country: 'US',  getAirports_Airport_runways: 3},
         language: 'opencypher',
         refactorOutput: null
     });
@@ -103,15 +103,15 @@ test('should resolve app sync event queries with a filter that contains numeric 
 
 test('should resolve app sync event queries with a string id filter', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirport',
+        field: 'getAirport',
         arguments: { filter: { _id: '22' } },
         selectionSetGraphQL: '{ city }'
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport__id\n' +
-            'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
-        parameters: { getNodeAirport_Airport__id: '22'},
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE ID(getAirport_Airport) = $getAirport_Airport__id\n' +
+            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
+        parameters: { getAirport_Airport__id: '22'},
         language: 'opencypher',
         refactorOutput: null
     });
@@ -119,15 +119,15 @@ test('should resolve app sync event queries with a string id filter', () => {
 
 test('should resolve app sync event queries with an integer id filter', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirport',
+        field: 'getAirport',
         arguments: { filter: { _id: 22 } },
         selectionSetGraphQL: '{ city }'
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport__id\n' +
-            'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
-        parameters: { getNodeAirport_Airport__id: '22'},
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE ID(getAirport_Airport) = $getAirport_Airport__id\n' +
+            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
+        parameters: { getAirport_Airport__id: '22'},
         language: 'opencypher',
         refactorOutput: null
     });
@@ -165,7 +165,7 @@ test('should resolve app sync event gremlin query without arguments or selection
 
 test('should resolve app sync event with nested edge filters and variables', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: {
             filter: {
                 country: {
@@ -198,19 +198,19 @@ test('should resolve app sync event with nested edge filters and variables', () 
     });
 
     expect(result).toMatchObject({
-        query: "MATCH (getNodeAirports_Airport:`airport`) " +
-            "WHERE getNodeAirports_Airport.country = $getNodeAirports_Airport_country " +
-            "WITH getNodeAirports_Airport LIMIT 6\n" +
-            "OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) " +
-            "WHERE getNodeAirports_Airport_airportRoutesOut.country STARTS WITH $getNodeAirports_Airport_airportRoutesOut_country\n" +
-            "WITH getNodeAirports_Airport, " +
-            "CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] " +
-            "ELSE COLLECT({_id:ID(getNodeAirports_Airport_airportRoutesOut), city: getNodeAirports_Airport_airportRoutesOut.`city`, code: getNodeAirports_Airport_airportRoutesOut.`code`})[..2] " +
-            "END AS getNodeAirports_Airport_airportRoutesOut_collect\n" +
-            "RETURN collect({_id:ID(getNodeAirports_Airport), city: getNodeAirports_Airport.`city`, code: getNodeAirports_Airport.`code`, airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect})[..6]",
+        query: "MATCH (getAirports_Airport:`airport`) " +
+            "WHERE getAirports_Airport.country = $getAirports_Airport_country " +
+            "WITH getAirports_Airport LIMIT 6\n" +
+            "OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) " +
+            "WHERE getAirports_Airport_airportRoutesOut.country STARTS WITH $getAirports_Airport_airportRoutesOut_country\n" +
+            "WITH getAirports_Airport, " +
+            "CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] " +
+            "ELSE COLLECT({_id:ID(getAirports_Airport_airportRoutesOut), city: getAirports_Airport_airportRoutesOut.`city`, code: getAirports_Airport_airportRoutesOut.`code`})[..2] " +
+            "END AS getAirports_Airport_airportRoutesOut_collect\n" +
+            "RETURN collect({_id:ID(getAirports_Airport), city: getAirports_Airport.`city`, code: getAirports_Airport.`code`, airportRoutesOut: getAirports_Airport_airportRoutesOut_collect})[..6]",
         parameters: {
-            "getNodeAirports_Airport_country": "CA",
-            "getNodeAirports_Airport_airportRoutesOut_country": "M"
+            "getAirports_Airport_country": "CA",
+            "getAirports_Airport_airportRoutesOut_country": "M"
         },
         language: 'opencypher',
         refactorOutput: null
@@ -219,16 +219,16 @@ test('should resolve app sync event with nested edge filters and variables', () 
 
 test('should resolve app sync event with sort arguments as a list', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { sort: [{ desc: 'ASC' }, { code: 'DESC' }, { city: 'DESC' }] },
         selectionSetGraphQL: '{\n  desc\n  code\n  city\n}'
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`)' +
-            ' WITH getNodeAirports_Airport' +
-            ' ORDER BY getNodeAirports_Airport.desc ASC, getNodeAirports_Airport.code DESC, getNodeAirports_Airport.city DESC\n' +
-            'RETURN collect({desc: getNodeAirports_Airport.`desc`, code: getNodeAirports_Airport.`code`, city: getNodeAirports_Airport.`city`})',
+        query: 'MATCH (getAirports_Airport:`airport`)' +
+            ' WITH getAirports_Airport' +
+            ' ORDER BY getAirports_Airport.desc ASC, getAirports_Airport.code DESC, getAirports_Airport.city DESC\n' +
+            'RETURN collect({desc: getAirports_Airport.`desc`, code: getAirports_Airport.`code`, city: getAirports_Airport.`city`})',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -237,7 +237,7 @@ test('should resolve app sync event with sort arguments as a list', () => {
 
 test('should resolve app sync event with nested sort arguments', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { sort: [{desc: 'ASC'}, {code: 'DESC'}] },
         variables: {},
         selectionSetGraphQL: '{\n' +
@@ -251,11 +251,11 @@ test('should resolve app sync event with nested sort arguments', () => {
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport ORDER BY getNodeAirports_Airport.desc ASC, getNodeAirports_Airport.code DESC\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getNodeAirports_Airport, getNodeAirports_Airport_airportRoutesIn, getNodeAirports_Airport_airportRoutesIn_route ORDER BY getNodeAirports_Airport_airportRoutesIn.country ASC, getNodeAirports_Airport_airportRoutesIn.city DESC\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({country: getNodeAirports_Airport_airportRoutesIn.`country`, city: getNodeAirports_Airport_airportRoutesIn.`city`}) END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
-            'RETURN collect({desc: getNodeAirports_Airport.`desc`, code: getNodeAirports_Airport.`code`, airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect})',
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY getAirports_Airport.desc ASC, getAirports_Airport.code DESC\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY getAirports_Airport_airportRoutesIn.country ASC, getAirports_Airport_airportRoutesIn.city DESC\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({country: getAirports_Airport_airportRoutesIn.`country`, city: getAirports_Airport_airportRoutesIn.`city`}) END AS getAirports_Airport_airportRoutesIn_collect\n' +
+            'RETURN collect({desc: getAirports_Airport.`desc`, code: getAirports_Airport.`code`, airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -264,7 +264,7 @@ test('should resolve app sync event with nested sort arguments', () => {
 
 test('should resolve app sync event with nested sort arguments and variables', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { options: { limit: 1 }, sort: [ { country: 'ASC' }, { city: 'ASC' } ] },
         variables: {
             nestedOptions: { limit: 1 },
@@ -285,11 +285,11 @@ test('should resolve app sync event with nested sort arguments and variables', (
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport ORDER BY getNodeAirports_Airport.country ASC, getNodeAirports_Airport.city ASC LIMIT 1\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getNodeAirports_Airport, getNodeAirports_Airport_airportRoutesIn, getNodeAirports_Airport_airportRoutesIn_route ORDER BY getNodeAirports_Airport_airportRoutesIn.country DESC, getNodeAirports_Airport_airportRoutesIn.code DESC\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getNodeAirports_Airport_airportRoutesIn), city: getNodeAirports_Airport_airportRoutesIn.`city`, code: getNodeAirports_Airport_airportRoutesIn.`code`, country: getNodeAirports_Airport_airportRoutesIn.`country`})[..1] END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
-            'RETURN collect({_id:ID(getNodeAirports_Airport), city: getNodeAirports_Airport.`city`, code: getNodeAirports_Airport.`code`, country: getNodeAirports_Airport.`country`, airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect})[..1]',
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY getAirports_Airport.country ASC, getAirports_Airport.city ASC LIMIT 1\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY getAirports_Airport_airportRoutesIn.country DESC, getAirports_Airport_airportRoutesIn.code DESC\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getAirports_Airport_airportRoutesIn), city: getAirports_Airport_airportRoutesIn.`city`, code: getAirports_Airport_airportRoutesIn.`code`, country: getAirports_Airport_airportRoutesIn.`country`})[..1] END AS getAirports_Airport_airportRoutesIn_collect\n' +
+            'RETURN collect({_id:ID(getAirports_Airport), city: getAirports_Airport.`city`, code: getAirports_Airport.`code`, country: getAirports_Airport.`country`, airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})[..1]',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -298,7 +298,7 @@ test('should resolve app sync event with nested sort arguments and variables', (
 
 test('should resolve app sync event with nested sort and nested selection', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: {},
         variables: {
             nestedSort: [ { country: 'DESC'} ]
@@ -315,15 +315,15 @@ test('should resolve app sync event with nested sort and nested selection', () =
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`)\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getNodeAirports_Airport, getNodeAirports_Airport_airportRoutesIn, getNodeAirports_Airport_airportRoutesIn_route ' +
-            'ORDER BY getNodeAirports_Airport_airportRoutesIn.country DESC\n' +
-            'WITH getNodeAirports_Airport, getNodeAirports_Airport_airportRoutesIn, {dist: getNodeAirports_Airport_airportRoutesIn_route.`dist`} AS getNodeAirports_Airport_airportRoutesIn_route_one\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
-            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesIn.`code`, route: getNodeAirports_Airport_airportRoutesIn_route_one}) ' +
-            'END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
-            'RETURN collect({code: getNodeAirports_Airport.`code`, airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect})',
+        query: 'MATCH (getAirports_Airport:`airport`)\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ' +
+            'ORDER BY getAirports_Airport_airportRoutesIn.country DESC\n' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, {dist: getAirports_Airport_airportRoutesIn_route.`dist`} AS getAirports_Airport_airportRoutesIn_route_one\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getAirports_Airport_airportRoutesIn.`code`, route: getAirports_Airport_airportRoutesIn_route_one}) ' +
+            'END AS getAirports_Airport_airportRoutesIn_collect\n' +
+            'RETURN collect({code: getAirports_Airport.`code`, airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -332,7 +332,7 @@ test('should resolve app sync event with nested sort and nested selection', () =
 
 test('should resolve app sync event with ID field as both top-level and nested sort argument', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { sort: [ { _id: 'ASC' } ] },
         variables: {
             nestedSort: [ { _id: 'DESC'} ]
@@ -346,11 +346,11 @@ test('should resolve app sync event with ID field as both top-level and nested s
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport ORDER BY ID(getNodeAirports_Airport) ASC\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getNodeAirports_Airport, getNodeAirports_Airport_airportRoutesIn, getNodeAirports_Airport_airportRoutesIn_route ORDER BY ID(getNodeAirports_Airport_airportRoutesIn) DESC\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getNodeAirports_Airport_airportRoutesIn)}) END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
-            'RETURN collect({_id:ID(getNodeAirports_Airport), airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect})',
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY ID(getAirports_Airport) ASC\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY ID(getAirports_Airport_airportRoutesIn) DESC\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getAirports_Airport_airportRoutesIn)}) END AS getAirports_Airport_airportRoutesIn_collect\n' +
+            'RETURN collect({_id:ID(getAirports_Airport), airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -359,7 +359,7 @@ test('should resolve app sync event with ID field as both top-level and nested s
 
 test('should resolve app sync event with AWS AppSync scalars as field types', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeCountry',
+        field: 'getCountry',
         arguments: {},
         variables: {},
         selectionSetGraphQL: '{\n' +
@@ -377,16 +377,16 @@ test('should resolve app sync event with AWS AppSync scalars as field types', ()
     });
 
     expect(result).toEqual({
-        query: 'MATCH (getNodeCountry_Country:`country`)\n' +
-            'RETURN {createdTimestamp: getNodeCountry_Country.`createdTimestamp`, ' +
-            'emergencyLine: getNodeCountry_Country.`emergencyLine`, ' +
-            'foundingDate: getNodeCountry_Country.`foundingDate`, ' +
-            'gatewayIp: getNodeCountry_Country.`gatewayIp`, ' +
-            'governmentSite: getNodeCountry_Country.`governmentSite`, ' +
-            'localOfficeTime: getNodeCountry_Country.`localOfficeTime`, ' +
-            'metadataJson: getNodeCountry_Country.`metadataJson`, ' +
-            'officialEmail: getNodeCountry_Country.`officialEmail`, ' +
-            'updatedAt: getNodeCountry_Country.`updatedAt`} LIMIT 1',
+        query: 'MATCH (getCountry_Country:`country`)\n' +
+            'RETURN {createdTimestamp: getCountry_Country.`createdTimestamp`, ' +
+            'emergencyLine: getCountry_Country.`emergencyLine`, ' +
+            'foundingDate: getCountry_Country.`foundingDate`, ' +
+            'gatewayIp: getCountry_Country.`gatewayIp`, ' +
+            'governmentSite: getCountry_Country.`governmentSite`, ' +
+            'localOfficeTime: getCountry_Country.`localOfficeTime`, ' +
+            'metadataJson: getCountry_Country.`metadataJson`, ' +
+            'officialEmail: getCountry_Country.`officialEmail`, ' +
+            'updatedAt: getCountry_Country.`updatedAt`} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -397,11 +397,11 @@ test('should resolve app sync event with AWS AppSync scalars as field types', ()
 
 // Query0001
 test('should inference query from return type (Query0001)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(code: \"SEA\") {\n city \n }\n}'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n city \n }\n}'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirport_Airport:`airport`{code:'SEA'})\n" +
-            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
+        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+            'RETURN {city: getAirportByCode_Airport.`city`} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -410,11 +410,11 @@ test('should inference query from return type (Query0001)', () => {
 
 // Query0002
 test('should get neptune_id (Query0002)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(code: \"SEA\") {\n _id\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n _id\n }\n }'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirport_Airport:`airport`{code:'SEA'})\n" +
-            'RETURN {_id:ID(getAirport_Airport)} LIMIT 1',
+        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+            'RETURN {_id:ID(getAirportByCode_Airport)} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -423,17 +423,17 @@ test('should get neptune_id (Query0002)', () => {
 
 // Query0003
 test('should inference query with nested types single and array, references in and out (Query0003)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(code: \"YKM\") {\n city\n continentContainsIn {\n desc\n }\n countryContainsIn {\n desc\n }\n airportRoutesOut {\n code\n }\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"YKM\") {\n city\n continentContainsIn {\n desc\n }\n countryContainsIn {\n desc\n }\n airportRoutesOut {\n code\n }\n }\n }'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirport_Airport:`airport`{code:'YKM'})\n" +
-            'OPTIONAL MATCH (getAirport_Airport)<-[getAirport_Airport_continentContainsIn_contains:contains]-(getAirport_Airport_continentContainsIn:`continent`)\n' +
-            'OPTIONAL MATCH (getAirport_Airport)<-[getAirport_Airport_countryContainsIn_contains:contains]-(getAirport_Airport_countryContainsIn:`country`)\n' +
-            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:`airport`)\n' +
-            'WITH getAirport_Airport, getAirport_Airport_continentContainsIn, getAirport_Airport_countryContainsIn, CASE WHEN getAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirport_Airport_airportRoutesOut.`code`}) END AS getAirport_Airport_airportRoutesOut_collect\n' +
-            'WITH getAirport_Airport, getAirport_Airport_continentContainsIn, getAirport_Airport_airportRoutesOut_collect, {desc: getAirport_Airport_countryContainsIn.`desc`} AS getAirport_Airport_countryContainsIn_one\n' +
-            'WITH getAirport_Airport, getAirport_Airport_countryContainsIn_one, getAirport_Airport_airportRoutesOut_collect, {desc: getAirport_Airport_continentContainsIn.`desc`} AS getAirport_Airport_continentContainsIn_one\n' +
-            'RETURN {city: getAirport_Airport.`city`, continentContainsIn: getAirport_Airport_continentContainsIn_one, countryContainsIn: getAirport_Airport_countryContainsIn_one, airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1',
+        query: "MATCH (getAirportByCode_Airport:`airport`{code:'YKM'})\n" +
+            'OPTIONAL MATCH (getAirportByCode_Airport)<-[getAirportByCode_Airport_continentContainsIn_contains:contains]-(getAirportByCode_Airport_continentContainsIn:`continent`)\n' +
+            'OPTIONAL MATCH (getAirportByCode_Airport)<-[getAirportByCode_Airport_countryContainsIn_contains:contains]-(getAirportByCode_Airport_countryContainsIn:`country`)\n' +
+            'OPTIONAL MATCH (getAirportByCode_Airport)-[getAirportByCode_Airport_airportRoutesOut_route:route]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
+            'WITH getAirportByCode_Airport, getAirportByCode_Airport_continentContainsIn, getAirportByCode_Airport_countryContainsIn, CASE WHEN getAirportByCode_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirportByCode_Airport_airportRoutesOut.`code`}) END AS getAirportByCode_Airport_airportRoutesOut_collect\n' +
+            'WITH getAirportByCode_Airport, getAirportByCode_Airport_continentContainsIn, getAirportByCode_Airport_airportRoutesOut_collect, {desc: getAirportByCode_Airport_countryContainsIn.`desc`} AS getAirportByCode_Airport_countryContainsIn_one\n' +
+            'WITH getAirportByCode_Airport, getAirportByCode_Airport_countryContainsIn_one, getAirportByCode_Airport_airportRoutesOut_collect, {desc: getAirportByCode_Airport_continentContainsIn.`desc`} AS getAirportByCode_Airport_continentContainsIn_one\n' +
+            'RETURN {city: getAirportByCode_Airport.`city`, continentContainsIn: getAirportByCode_Airport_continentContainsIn_one, countryContainsIn: getAirportByCode_Airport_countryContainsIn_one, airportRoutesOut: getAirportByCode_Airport_airportRoutesOut_collect} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -442,14 +442,14 @@ test('should inference query with nested types single and array, references in a
 
 // Query0004
 test('should get edge properties in nested array (Query0004)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(code: \"SEA\") {\n airportRoutesOut {\n code\n route {\n dist\n }\n }\n }\n }\n'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n airportRoutesOut {\n code\n route {\n dist\n }\n }\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirport_Airport:`airport`{code:'SEA'})\n" +
-            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:`airport`)\n' +
-            'WITH getAirport_Airport, getAirport_Airport_airportRoutesOut, {dist: getAirport_Airport_airportRoutesOut_route.`dist`} AS getAirport_Airport_airportRoutesOut_route_one\n' +
-            'WITH getAirport_Airport, CASE WHEN getAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirport_Airport_airportRoutesOut.`code`, route: getAirport_Airport_airportRoutesOut_route_one}) END AS getAirport_Airport_airportRoutesOut_collect\n' +
-            'RETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1',
+        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+            'OPTIONAL MATCH (getAirportByCode_Airport)-[getAirportByCode_Airport_airportRoutesOut_route:route]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
+            'WITH getAirportByCode_Airport, getAirportByCode_Airport_airportRoutesOut, {dist: getAirportByCode_Airport_airportRoutesOut_route.`dist`} AS getAirportByCode_Airport_airportRoutesOut_route_one\n' +
+            'WITH getAirportByCode_Airport, CASE WHEN getAirportByCode_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirportByCode_Airport_airportRoutesOut.`code`, route: getAirportByCode_Airport_airportRoutesOut_route_one}) END AS getAirportByCode_Airport_airportRoutesOut_collect\n' +
+            'RETURN {airportRoutesOut: getAirportByCode_Airport_airportRoutesOut_collect} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -458,13 +458,13 @@ test('should get edge properties in nested array (Query0004)', () => {
 
 // Query0005
 test('should return type with graph query returning a scalar (Query0005)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(code: \"SEA\") {\n outboundRoutesCount\n }\n }\n'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n outboundRoutesCount\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirport_Airport:`airport`{code:'SEA'})\n" +
-            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_outboundRoutesCount_r:route]->(getAirport_Airport_outboundRoutesCount_a)\n' +
-            'WITH getAirport_Airport, count(getAirport_Airport_outboundRoutesCount_r) AS getAirport_Airport_outboundRoutesCount\n' +
-            'RETURN {outboundRoutesCount:getAirport_Airport_outboundRoutesCount} LIMIT 1',
+        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+            'OPTIONAL MATCH (getAirportByCode_Airport)-[getAirportByCode_Airport_outboundRoutesCount_r:route]->(getAirportByCode_Airport_outboundRoutesCount_a)\n' +
+            'WITH getAirportByCode_Airport, count(getAirportByCode_Airport_outboundRoutesCount_r) AS getAirportByCode_Airport_outboundRoutesCount\n' +
+            'RETURN {outboundRoutesCount:getAirportByCode_Airport_outboundRoutesCount} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -473,11 +473,11 @@ test('should return type with graph query returning a scalar (Query0005)', () =>
 
 // Query0006
 test('should map type name to different graph db property name (Query0006)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(code: \"SEA\") {\n desc\n }\n }\n'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n desc\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirport_Airport:`airport`{code:'SEA'})\n" +
-            'RETURN {desc: getAirport_Airport.`desc`} LIMIT 1',
+        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+            'RETURN {desc: getAirportByCode_Airport.`desc`} LIMIT 1',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -566,12 +566,12 @@ test('should resolve query using Gremlin returning a scalar (Query0010)', () => 
 
 // Query0011
 test('should inference query using filter (Query0011)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirport(filter: {code: {eq: \"SEA\"}}) {\n city \n }\n}'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(filter: {code: {eq: \"SEA\"}}) {\n city \n }\n}'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
-            'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
-        parameters: { getNodeAirport_Airport_code: 'SEA' },
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
+            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
+        parameters: { getAirport_Airport_code: 'SEA' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -579,14 +579,14 @@ test('should inference query using filter (Query0011)', () => {
 
 // Query0012
 test('should apply limit to results returned from a nested edge (Query0012)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirport(filter: {code: {eq: \"SEA\"}}) {\n airportRoutesOut(options: {limit: 2}) {\n code\n }\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(filter: {code: {eq: \"SEA\"}}) {\n airportRoutesOut(options: {limit: 2}) {\n code\n }\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
-            'OPTIONAL MATCH (getNodeAirport_Airport)-[getNodeAirport_Airport_airportRoutesOut_route:route]->(getNodeAirport_Airport_airportRoutesOut:`airport`)\n' +
-            'WITH getNodeAirport_Airport, CASE WHEN getNodeAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getNodeAirport_Airport_airportRoutesOut.`code`})[..2] END AS getNodeAirport_Airport_airportRoutesOut_collect\n' +
-            'RETURN {airportRoutesOut: getNodeAirport_Airport_airportRoutesOut_collect} LIMIT 1',
-        parameters: { getNodeAirport_Airport_code: 'SEA' },
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
+            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:`airport`)\n' +
+            'WITH getAirport_Airport, CASE WHEN getAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirport_Airport_airportRoutesOut.`code`})[..2] END AS getAirport_Airport_airportRoutesOut_collect\n' +
+            'RETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1',
+        parameters: { getAirport_Airport_code: 'SEA' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -594,16 +594,16 @@ test('should apply limit to results returned from a nested edge (Query0012)', ()
 
 // Query0013
 test('should inference query with filter in nested edge (Query0013)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirport(filter: {code: {eq: \"SEA\"}}) {\n airportRoutesOut(filter: {code: {eq: \"LAX\"}}) {\n city\n }\n city\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(filter: {code: {eq: \"SEA\"}}) {\n airportRoutesOut(filter: {code: {eq: \"LAX\"}}) {\n city\n }\n city\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
-            'OPTIONAL MATCH (getNodeAirport_Airport)-[getNodeAirport_Airport_airportRoutesOut_route:route]->(getNodeAirport_Airport_airportRoutesOut:`airport`) WHERE getNodeAirport_Airport_airportRoutesOut.code = $getNodeAirport_Airport_airportRoutesOut_code\n' +
-            'WITH getNodeAirport_Airport, CASE WHEN getNodeAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({city: getNodeAirport_Airport_airportRoutesOut.`city`}) END AS getNodeAirport_Airport_airportRoutesOut_collect\n' +
-            'RETURN {airportRoutesOut: getNodeAirport_Airport_airportRoutesOut_collect, city: getNodeAirport_Airport.`city`} LIMIT 1',
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
+            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:`airport`) WHERE getAirport_Airport_airportRoutesOut.code = $getAirport_Airport_airportRoutesOut_code\n' +
+            'WITH getAirport_Airport, CASE WHEN getAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({city: getAirport_Airport_airportRoutesOut.`city`}) END AS getAirport_Airport_airportRoutesOut_collect\n' +
+            'RETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect, city: getAirport_Airport.`city`} LIMIT 1',
         parameters: {
-            getNodeAirport_Airport_code: 'SEA',
-            getNodeAirport_Airport_airportRoutesOut_code: 'LAX'
+            getAirport_Airport_code: 'SEA',
+            getAirport_Airport_airportRoutesOut_code: 'LAX'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -612,14 +612,14 @@ test('should inference query with filter in nested edge (Query0013)', () => {
 
 // Query0014
 test('should inference query using field graphQuery outboundRoutesCount (Query0014)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirport(filter: {code: {eq: \"SEA\"}}) {\n outboundRoutesCount\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(filter: {code: {eq: \"SEA\"}}) {\n outboundRoutesCount\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
-            'OPTIONAL MATCH (getNodeAirport_Airport)-[getNodeAirport_Airport_outboundRoutesCount_r:route]->(getNodeAirport_Airport_outboundRoutesCount_a)\n' +
-            'WITH getNodeAirport_Airport, count(getNodeAirport_Airport_outboundRoutesCount_r) AS getNodeAirport_Airport_outboundRoutesCount\n' +
-            'RETURN {outboundRoutesCount:getNodeAirport_Airport_outboundRoutesCount} LIMIT 1',
-        parameters: { getNodeAirport_Airport_code: 'SEA' },
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
+            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_outboundRoutesCount_r:route]->(getAirport_Airport_outboundRoutesCount_a)\n' +
+            'WITH getAirport_Airport, count(getAirport_Airport_outboundRoutesCount_r) AS getAirport_Airport_outboundRoutesCount\n' +
+            'RETURN {outboundRoutesCount:getAirport_Airport_outboundRoutesCount} LIMIT 1',
+        parameters: { getAirport_Airport_code: 'SEA' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -627,14 +627,14 @@ test('should inference query using field graphQuery outboundRoutesCount (Query00
 
 // Query0015
 test('should inference query with mutation create node (Query0015)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n createNodeAirport(input: {code: \"NAX\", city: \"Reggio Emilia\"}) {\n code\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n createAirport(input: {code: \"NAX\", city: \"Reggio Emilia\"}) {\n code\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'CREATE (createNodeAirport_Airport:`airport` {code: $createNodeAirport_Airport_code, city: $createNodeAirport_Airport_city})\n' +
-            'RETURN {code: createNodeAirport_Airport.`code`}',
+        query: 'CREATE (createAirport_Airport:`airport` {code: $createAirport_Airport_code, city: $createAirport_Airport_city})\n' +
+            'RETURN {code: createAirport_Airport.`code`}',
         parameters: {
-            createNodeAirport_Airport_code: 'NAX',
-            createNodeAirport_Airport_city: 'Reggio Emilia'
+            createAirport_Airport_code: 'NAX',
+            createAirport_Airport_city: 'Reggio Emilia'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -643,16 +643,16 @@ test('should inference query with mutation create node (Query0015)', () => {
 
 // Query0016
 test('should inference query with mutation update node (Query0016)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n updateNodeAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n updateAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (updateNodeAirport_Airport)\n' +
-            'WHERE ID(updateNodeAirport_Airport) = $updateNodeAirport_Airport__id\n' +
-            'SET updateNodeAirport_Airport.city = $updateNodeAirport_Airport_city\n' +
-            'RETURN {city: updateNodeAirport_Airport.`city`}',
+        query: 'MATCH (updateAirport_Airport)\n' +
+            'WHERE ID(updateAirport_Airport) = $updateAirport_Airport__id\n' +
+            'SET updateAirport_Airport.city = $updateAirport_Airport_city\n' +
+            'RETURN {city: updateAirport_Airport.`city`}',
         parameters: {
-            updateNodeAirport_Airport_city: 'Seattle',
-            updateNodeAirport_Airport__id: '22'
+            updateAirport_Airport_city: 'Seattle',
+            updateAirport_Airport__id: '22'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -661,7 +661,7 @@ test('should inference query with mutation update node (Query0016)', () => {
 
 test('should resolve mutation to connect nodes', () => {
     const query = 'mutation ConnectCountryToAirport {\n' +
-        '  connectNodeCountryToNodeAirportEdgeContains(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\") {\n' +
+        '  connectCountryToAirportThroughContains(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\") {\n' +
         '    _id\n' +
         '  }\n' +
         '}';
@@ -669,13 +669,13 @@ test('should resolve mutation to connect nodes', () => {
 
     expect(result).toMatchObject({
         query: 'MATCH (from), (to)\n' +
-            'WHERE ID(from) = $connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId ' +
-            'AND ID(to) = $connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId\n' +
-            'CREATE (from)-[connectNodeCountryToNodeAirportEdgeContains_Contains:`contains`]->(to)\n' +
-            'RETURN {_id:ID(connectNodeCountryToNodeAirportEdgeContains_Contains)}',
+            'WHERE ID(from) = $connectCountryToAirportThroughContains_Contains_whereFromId ' +
+            'AND ID(to) = $connectCountryToAirportThroughContains_Contains_whereToId\n' +
+            'CREATE (from)-[connectCountryToAirportThroughContains_Contains:`contains`]->(to)\n' +
+            'RETURN {_id:ID(connectCountryToAirportThroughContains_Contains)}',
         parameters: {
-            connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
-            connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
+            connectCountryToAirportThroughContains_Contains_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
+            connectCountryToAirportThroughContains_Contains_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -683,20 +683,20 @@ test('should resolve mutation to connect nodes', () => {
 });
 
 test('should resolve mutation to delete edge between nodes', () => {
-    const query = 'mutation DeleteEdgeContainsFromCountryToAirport {\n' +
-        '  deleteEdgeContainsFromCountryToAirport(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\")\n' +
+    const query = 'mutation DeleteContainsConnectionFromCountryToAirport {\n' +
+        '  deleteContainsConnectionFromCountryToAirport(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\")\n' +
         '}';
     const result = resolveGraphDBQuery({queryObjOrStr: query});
 
     expect(result).toMatchObject({
-        query: 'MATCH (from)-[deleteEdgeContainsFromCountryToAirport_Boolean]->(to)\n' +
-            'WHERE ID(from) = $deleteEdgeContainsFromCountryToAirport_Boolean_whereFromId ' +
-            'AND ID(to) = $deleteEdgeContainsFromCountryToAirport_Boolean_whereToId\n' +
-            'DELETE deleteEdgeContainsFromCountryToAirport_Boolean\n' +
+        query: 'MATCH (from)-[deleteContainsConnectionFromCountryToAirport_Boolean]->(to)\n' +
+            'WHERE ID(from) = $deleteContainsConnectionFromCountryToAirport_Boolean_whereFromId ' +
+            'AND ID(to) = $deleteContainsConnectionFromCountryToAirport_Boolean_whereToId\n' +
+            'DELETE deleteContainsConnectionFromCountryToAirport_Boolean\n' +
             'RETURN true',
         parameters: {
-            deleteEdgeContainsFromCountryToAirport_Boolean_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
-            deleteEdgeContainsFromCountryToAirport_Boolean_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
+            deleteContainsConnectionFromCountryToAirport_Boolean_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
+            deleteContainsConnectionFromCountryToAirport_Boolean_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -704,8 +704,8 @@ test('should resolve mutation to delete edge between nodes', () => {
 });
 
 test('should resolve mutation to update edge between nodes', () => {
-    const query = 'mutation UpdateEdgeRouteFromAirportToAirport {\n' +
-        '  updateEdgeRouteFromAirportToAirport(from_id: \"99\", to_id: \"48\", edge: { dist: 123 }) {\n' +
+    const query = 'mutation UpdateRouteConnectionFromAirportToAirport {\n' +
+        '  updateRouteConnectionFromAirportToAirport(from_id: \"99\", to_id: \"48\", edge: { dist: 123 }) {\n' +
         '    _id\n' +
         '    dist\n' +
         '  }\n' +
@@ -713,15 +713,15 @@ test('should resolve mutation to update edge between nodes', () => {
     const result = resolveGraphDBQuery({queryObjOrStr: query});
 
     expect(result).toMatchObject({
-        query: 'MATCH (from)-[updateEdgeRouteFromAirportToAirport_Route:`route`]->(to)\n' +
-            'WHERE ID(from) = $updateEdgeRouteFromAirportToAirport_Route_whereFromId ' +
-            'AND ID(to) = $updateEdgeRouteFromAirportToAirport_Route_whereToId\n' +
-            'SET updateEdgeRouteFromAirportToAirport_Route.dist = $updateEdgeRouteFromAirportToAirport_Route_dist\n' +
-            'RETURN {_id:ID(updateEdgeRouteFromAirportToAirport_Route), dist: updateEdgeRouteFromAirportToAirport_Route.`dist`}',
+        query: 'MATCH (from)-[updateRouteConnectionFromAirportToAirport_Route:`route`]->(to)\n' +
+            'WHERE ID(from) = $updateRouteConnectionFromAirportToAirport_Route_whereFromId ' +
+            'AND ID(to) = $updateRouteConnectionFromAirportToAirport_Route_whereToId\n' +
+            'SET updateRouteConnectionFromAirportToAirport_Route.dist = $updateRouteConnectionFromAirportToAirport_Route_dist\n' +
+            'RETURN {_id:ID(updateRouteConnectionFromAirportToAirport_Route), dist: updateRouteConnectionFromAirportToAirport_Route.`dist`}',
         parameters: {
-            updateEdgeRouteFromAirportToAirport_Route_whereFromId: '99',
-            updateEdgeRouteFromAirportToAirport_Route_whereToId: '48',
-            updateEdgeRouteFromAirportToAirport_Route_dist: 123
+            updateRouteConnectionFromAirportToAirport_Route_whereFromId: '99',
+            updateRouteConnectionFromAirportToAirport_Route_whereToId: '48',
+            updateRouteConnectionFromAirportToAirport_Route_dist: 123
         },
         language: 'opencypher',
         refactorOutput: null
@@ -730,12 +730,12 @@ test('should resolve mutation to update edge between nodes', () => {
 
 // Query0017
 test('should inference query using _id as filter (Query0017)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirport(filter: {_id: \"22\"}) {\n city\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(filter: {_id: \"22\"}) {\n city\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE ID(getNodeAirport_Airport) = $getNodeAirport_Airport__id\n' +
-            'RETURN {city: getNodeAirport_Airport.`city`} LIMIT 1',
-        parameters: { getNodeAirport_Airport__id: '22' },
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE ID(getAirport_Airport) = $getAirport_Airport__id\n' +
+            'RETURN {city: getAirport_Airport.`city`} LIMIT 1',
+        parameters: { getAirport_Airport__id: '22' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -743,11 +743,11 @@ test('should inference query using _id as filter (Query0017)', () => {
 
 // Query0018
 test('should control number of result using limit option (Query0018)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirports(options: {limit: 1}, filter: {code: {eq: \"SEA\"}}) {\n city }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirports(options: {limit: 1}, filter: {code: {eq: \"SEA\"}}) {\n city }\n }'});
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WHERE getNodeAirports_Airport.code = $getNodeAirports_Airport_code WITH getNodeAirports_Airport LIMIT 1\n' +
-            'RETURN collect({city: getNodeAirports_Airport.`city`})[..1]',
-        parameters: { getNodeAirports_Airport_code: 'SEA' },
+        query: 'MATCH (getAirports_Airport:`airport`) WHERE getAirports_Airport.code = $getAirports_Airport_code WITH getAirports_Airport LIMIT 1\n' +
+            'RETURN collect({city: getAirports_Airport.`city`})[..1]',
+        parameters: { getAirports_Airport_code: 'SEA' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -755,12 +755,12 @@ test('should control number of result using limit option (Query0018)', () => {
 
 // Query0019
 test('should resolve query that gets multiple different type of fields (Query0019)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirport(filter: {code: {eq: \"SEA\"}}) {\n _id\n city\n elev\n runways\n lat\n lon\n }\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirport(filter: {code: {eq: \"SEA\"}}) {\n _id\n city\n elev\n runways\n lat\n lon\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
-            'RETURN {_id:ID(getNodeAirport_Airport), city: getNodeAirport_Airport.`city`, elev: getNodeAirport_Airport.`elev`, runways: getNodeAirport_Airport.`runways`, lat: getNodeAirport_Airport.`lat`, lon: getNodeAirport_Airport.`lon`} LIMIT 1',
-        parameters: { getNodeAirport_Airport_code: 'SEA' },
+        query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
+            'RETURN {_id:ID(getAirport_Airport), city: getAirport_Airport.`city`, elev: getAirport_Airport.`elev`, runways: getAirport_Airport.`runways`, lat: getAirport_Airport.`lat`, lon: getAirport_Airport.`lon`} LIMIT 1',
+        parameters: { getAirport_Airport_code: 'SEA' },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -768,14 +768,14 @@ test('should resolve query that gets multiple different type of fields (Query001
 
 // Query0020
 test('should filter by parameter with numeric value and return mix of numeric value types (Query0020)', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeAirports(filter: { city: {eq: \"Seattle\"}, runways: 3 }) {\n code\n lat\n lon\n elev\n}\n }'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirports(filter: { city: {eq: \"Seattle\"}, runways: 3 }) {\n code\n lat\n lon\n elev\n}\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WHERE getNodeAirports_Airport.city = $getNodeAirports_Airport_city AND getNodeAirports_Airport.runways = $getNodeAirports_Airport_runways\n' +
-            'RETURN collect({code: getNodeAirports_Airport.`code`, lat: getNodeAirports_Airport.`lat`, lon: getNodeAirports_Airport.`lon`, elev: getNodeAirports_Airport.`elev`})',
+        query: 'MATCH (getAirports_Airport:`airport`) WHERE getAirports_Airport.city = $getAirports_Airport_city AND getAirports_Airport.runways = $getAirports_Airport_runways\n' +
+            'RETURN collect({code: getAirports_Airport.`code`, lat: getAirports_Airport.`lat`, lon: getAirports_Airport.`lon`, elev: getAirports_Airport.`elev`})',
         parameters: {
-            getNodeAirports_Airport_city: 'Seattle',
-            getNodeAirports_Airport_runways: 3
+            getAirports_Airport_city: 'Seattle',
+            getAirports_Airport_runways: 3
         },
         language: 'opencypher',
         refactorOutput: null
@@ -783,11 +783,11 @@ test('should filter by parameter with numeric value and return mix of numeric va
 });
 
 test('should resolve query with no parameters', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeContinents {\n code\n desc\n }\n }\n'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getContinents {\n code\n desc\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeContinents_Continent:`continent`)\n' +
-            'RETURN collect({code: getNodeContinents_Continent.`code`, desc: getNodeContinents_Continent.`desc`})',
+        query: 'MATCH (getContinents_Continent:`continent`)\n' +
+            'RETURN collect({code: getContinents_Continent.`code`, desc: getContinents_Continent.`desc`})',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -795,14 +795,14 @@ test('should resolve query with no parameters', () => {
 });
 
 test('should resolve query with parameters that have constant values', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getNodeCountry(filter: {_id: \"3541\", code: {eq: \"CA\"}}) {\n desc\n }\n }\n'});
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getCountry(filter: {_id: \"3541\", code: {eq: \"CA\"}}) {\n desc\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeCountry_Country:`country`) WHERE ID(getNodeCountry_Country) = $getNodeCountry_Country__id AND getNodeCountry_Country.code = $getNodeCountry_Country_code\n' +
-            'RETURN {desc: getNodeCountry_Country.`desc`} LIMIT 1',
+        query: 'MATCH (getCountry_Country:`country`) WHERE ID(getCountry_Country) = $getCountry_Country__id AND getCountry_Country.code = $getCountry_Country_code\n' +
+            'RETURN {desc: getCountry_Country.`desc`} LIMIT 1',
         parameters: {
-            getNodeCountry_Country_code: 'CA',
-            getNodeCountry_Country__id: '3541'
+            getCountry_Country_code: 'CA',
+            getCountry_Country__id: '3541'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -810,8 +810,8 @@ test('should resolve query with parameters that have constant values', () => {
 });
 
 test('should resolve query with filter that uses various string comparison operators', () => {
-    const query = 'query GetNodeAirports {\n' +
-        '  getNodeAirports(filter: {\n' +
+    const query = 'query getAirports {\n' +
+        '  getAirports(filter: {\n' +
         '    country: {\n' +
         '      eq: "CA"\n' +
         '    },\n' +
@@ -837,27 +837,27 @@ test('should resolve query with filter that uses various string comparison opera
     const result = resolveGraphDBQuery({queryObjOrStr: query});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) ' +
-            'WHERE getNodeAirports_Airport.country = $getNodeAirports_Airport_country ' +
-            'AND getNodeAirports_Airport.code STARTS WITH $getNodeAirports_Airport_code ' +
-            'AND getNodeAirports_Airport.city ENDS WITH $getNodeAirports_Airport_city ' +
-            'AND getNodeAirports_Airport.desc CONTAINS $getNodeAirports_Airport_desc ' +
-            'AND getNodeAirports_Airport.runways = $getNodeAirports_Airport_runways ' +
-            'WITH getNodeAirports_Airport LIMIT 5\n' +
+        query: 'MATCH (getAirports_Airport:`airport`) ' +
+            'WHERE getAirports_Airport.country = $getAirports_Airport_country ' +
+            'AND getAirports_Airport.code STARTS WITH $getAirports_Airport_code ' +
+            'AND getAirports_Airport.city ENDS WITH $getAirports_Airport_city ' +
+            'AND getAirports_Airport.desc CONTAINS $getAirports_Airport_desc ' +
+            'AND getAirports_Airport.runways = $getAirports_Airport_runways ' +
+            'WITH getAirports_Airport LIMIT 5\n' +
             'RETURN collect({' +
-            '_id:ID(getNodeAirports_Airport), ' +
-            'code: getNodeAirports_Airport.`code`, ' +
-            'city: getNodeAirports_Airport.`city`, ' +
-            'country: getNodeAirports_Airport.`country`, ' +
-            'runways: getNodeAirports_Airport.`runways`, ' +
-            'desc: getNodeAirports_Airport.`desc`' +
+            '_id:ID(getAirports_Airport), ' +
+            'code: getAirports_Airport.`code`, ' +
+            'city: getAirports_Airport.`city`, ' +
+            'country: getAirports_Airport.`country`, ' +
+            'runways: getAirports_Airport.`runways`, ' +
+            'desc: getAirports_Airport.`desc`' +
             '})[..5]',
         parameters: {
-            getNodeAirports_Airport_city: "n",
-            getNodeAirports_Airport_code: "Y",
-            getNodeAirports_Airport_country: "CA",
-            getNodeAirports_Airport_runways: 3,
-            getNodeAirports_Airport_desc: "Airport"
+            getAirports_Airport_city: "n",
+            getAirports_Airport_code: "Y",
+            getAirports_Airport_country: "CA",
+            getAirports_Airport_runways: 3,
+            getAirports_Airport_desc: "Airport"
         },
         language: 'opencypher',
         refactorOutput: null
@@ -865,8 +865,8 @@ test('should resolve query with filter that uses various string comparison opera
 });
 
 test('should resolve query with nested edge filter that uses string comparison operator', () => {
-    const query = 'query GetNodeAirports {\n' +
-        '  getNodeAirports(filter:  {\n' +
+    const query = 'query getAirports {\n' +
+        '  getAirports(filter:  {\n' +
         '     country:  {\n' +
         '        eq: "CA"\n' +
         '     }\n' +
@@ -897,32 +897,32 @@ test('should resolve query with nested edge filter that uses string comparison o
     const result = resolveGraphDBQuery({queryObjOrStr: query});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) ' +
-            'WHERE getNodeAirports_Airport.country = $getNodeAirports_Airport_country ' +
-            'WITH getNodeAirports_Airport LIMIT 5\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) ' +
-            'WHERE getNodeAirports_Airport_airportRoutesOut.country STARTS WITH $getNodeAirports_Airport_airportRoutesOut_country ' +
-            'AND getNodeAirports_Airport_airportRoutesOut.code CONTAINS $getNodeAirports_Airport_airportRoutesOut_code\n' +
-            'WITH getNodeAirports_Airport, ' +
-            'CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
+        query: 'MATCH (getAirports_Airport:`airport`) ' +
+            'WHERE getAirports_Airport.country = $getAirports_Airport_country ' +
+            'WITH getAirports_Airport LIMIT 5\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
+            'WHERE getAirports_Airport_airportRoutesOut.country STARTS WITH $getAirports_Airport_airportRoutesOut_country ' +
+            'AND getAirports_Airport_airportRoutesOut.code CONTAINS $getAirports_Airport_airportRoutesOut_code\n' +
+            'WITH getAirports_Airport, ' +
+            'CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
             'ELSE COLLECT({' +
-            '_id:ID(getNodeAirports_Airport_airportRoutesOut), ' +
-            'code: getNodeAirports_Airport_airportRoutesOut.`code`, ' +
-            'city: getNodeAirports_Airport_airportRoutesOut.`city`, ' +
-            'country: getNodeAirports_Airport_airportRoutesOut.`country`' +
+            '_id:ID(getAirports_Airport_airportRoutesOut), ' +
+            'code: getAirports_Airport_airportRoutesOut.`code`, ' +
+            'city: getAirports_Airport_airportRoutesOut.`city`, ' +
+            'country: getAirports_Airport_airportRoutesOut.`country`' +
             '})[..3] ' +
-            'END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'END AS getAirports_Airport_airportRoutesOut_collect\n' +
             'RETURN collect({' +
-            '_id:ID(getNodeAirports_Airport), ' +
-            'code: getNodeAirports_Airport.`code`, ' +
-            'city: getNodeAirports_Airport.`city`, ' +
-            'country: getNodeAirports_Airport.`country`, ' +
-            'airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect' +
+            '_id:ID(getAirports_Airport), ' +
+            'code: getAirports_Airport.`code`, ' +
+            'city: getAirports_Airport.`city`, ' +
+            'country: getAirports_Airport.`country`, ' +
+            'airportRoutesOut: getAirports_Airport_airportRoutesOut_collect' +
             '})[..5]',
         parameters: {
-            getNodeAirports_Airport_country: "CA",
-            getNodeAirports_Airport_airportRoutesOut_code: "M",
-            getNodeAirports_Airport_airportRoutesOut_country: "M"
+            getAirports_Airport_country: "CA",
+            getAirports_Airport_airportRoutesOut_code: "M",
+            getAirports_Airport_airportRoutesOut_country: "M"
         },
         language: 'opencypher',
         refactorOutput: null
@@ -930,8 +930,8 @@ test('should resolve query with nested edge filter that uses string comparison o
 });
 
 test('should resolve query with nested edge filter and variables', () => {
-    const query = 'query GetNodeAirports($filter: AirportInput, $options: Options, $nestedFilter: AirportInput, $nestedOptions: Options) {\n' +
-        '  getNodeAirports(filter: $filter, options: $options) {\n' +
+    const query = 'query getAirports($filter: AirportInput, $options: Options, $nestedFilter: AirportInput, $nestedOptions: Options) {\n' +
+        '  getAirports(filter: $filter, options: $options) {\n' +
         '    _id\n' +
         '    city\n' +
         '    code\n' +
@@ -963,28 +963,28 @@ test('should resolve query with nested edge filter and variables', () => {
     const result = resolveGraphDBQuery({queryObjOrStr: query, variables: variables});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) ' +
-            'WHERE getNodeAirports_Airport.country = $getNodeAirports_Airport_country ' +
-            'WITH getNodeAirports_Airport LIMIT 6\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) ' +
-            'WHERE getNodeAirports_Airport_airportRoutesOut.country STARTS WITH $getNodeAirports_Airport_airportRoutesOut_country\n' +
-            'WITH getNodeAirports_Airport, ' +
-            'CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
+        query: 'MATCH (getAirports_Airport:`airport`) ' +
+            'WHERE getAirports_Airport.country = $getAirports_Airport_country ' +
+            'WITH getAirports_Airport LIMIT 6\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
+            'WHERE getAirports_Airport_airportRoutesOut.country STARTS WITH $getAirports_Airport_airportRoutesOut_country\n' +
+            'WITH getAirports_Airport, ' +
+            'CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
             'ELSE COLLECT({' +
-            '_id:ID(getNodeAirports_Airport_airportRoutesOut), ' +
-            'city: getNodeAirports_Airport_airportRoutesOut.`city`, ' +
-            'code: getNodeAirports_Airport_airportRoutesOut.`code`' +
+            '_id:ID(getAirports_Airport_airportRoutesOut), ' +
+            'city: getAirports_Airport_airportRoutesOut.`city`, ' +
+            'code: getAirports_Airport_airportRoutesOut.`code`' +
             '})[..2] ' +
-            'END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'END AS getAirports_Airport_airportRoutesOut_collect\n' +
             'RETURN collect({' +
-            '_id:ID(getNodeAirports_Airport), ' +
-            'city: getNodeAirports_Airport.`city`, ' +
-            'code: getNodeAirports_Airport.`code`, ' +
-            'airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect' +
+            '_id:ID(getAirports_Airport), ' +
+            'city: getAirports_Airport.`city`, ' +
+            'code: getAirports_Airport.`code`, ' +
+            'airportRoutesOut: getAirports_Airport_airportRoutesOut_collect' +
             '})[..6]',
         parameters: {
-            getNodeAirports_Airport_country: "CA",
-            getNodeAirports_Airport_airportRoutesOut_country: "M"
+            getAirports_Airport_country: "CA",
+            getAirports_Airport_airportRoutesOut_country: "M"
         },
         language: 'opencypher',
         refactorOutput: null
@@ -992,8 +992,8 @@ test('should resolve query with nested edge filter and variables', () => {
 });
 
 test('should resolve query with nested edge filter and nested scalar variables', () => {
-    const query = 'query GetNodeAirports($filter: AirportInput, $options: Options, $nestedFilter: AirportInput, $nestedOptions: Options) {\n' +
-        '  getNodeAirports(filter: {country: {eq: $country}}, options: {limit: $limit}) {\n' +
+    const query = 'query getAirports($filter: AirportInput, $options: Options, $nestedFilter: AirportInput, $nestedOptions: Options) {\n' +
+        '  getAirports(filter: {country: {eq: $country}}, options: {limit: $limit}) {\n' +
         '    code\n' +
         '    airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) {\n' +
         '      code\n' +
@@ -1007,24 +1007,24 @@ test('should resolve query with nested edge filter and nested scalar variables',
     const result = resolveGraphDBQuery({queryObjOrStr: query, variables: variables});
 
     expect(result).toMatchObject({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) ' +
-            'WHERE getNodeAirports_Airport.country = $getNodeAirports_Airport_country ' +
-            'WITH getNodeAirports_Airport LIMIT 6\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) ' +
-            'WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
-            'WITH getNodeAirports_Airport, ' +
-            'CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
+        query: 'MATCH (getAirports_Airport:`airport`) ' +
+            'WHERE getAirports_Airport.country = $getAirports_Airport_country ' +
+            'WITH getAirports_Airport LIMIT 6\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
+            'WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
+            'WITH getAirports_Airport, ' +
+            'CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
             'ELSE COLLECT({' +
-            'code: getNodeAirports_Airport_airportRoutesOut.`code`' +
+            'code: getAirports_Airport_airportRoutesOut.`code`' +
             '})[..6] ' +
-            'END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+            'END AS getAirports_Airport_airportRoutesOut_collect\n' +
             'RETURN collect({' +
-            'code: getNodeAirports_Airport.`code`, ' +
-            'airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect' +
+            'code: getAirports_Airport.`code`, ' +
+            'airportRoutesOut: getAirports_Airport_airportRoutesOut_collect' +
             '})[..6]',
         parameters: {
-            getNodeAirports_Airport_country: "CA",
-            getNodeAirports_Airport_airportRoutesOut_country: "CA"
+            getAirports_Airport_country: "CA",
+            getAirports_Airport_airportRoutesOut_country: "CA"
         },
         language: 'opencypher',
         refactorOutput: null
@@ -1033,7 +1033,7 @@ test('should resolve query with nested edge filter and nested scalar variables',
 
 test('should resolve custom mutation with @graphQuery directive and $input parameter', () => {
     const query = 'mutation MyMutation {\n' +
-        '  createAirport(\n' +
+        '  createAirportCustom(\n' +
         '    input: {city: \"Test\", code: \"TEST\", country: \"CA\", desc: \"Test Airport\"}\n' +
         '  ) {\n' +
         '    _id\n' +
@@ -1045,54 +1045,54 @@ test('should resolve custom mutation with @graphQuery directive and $input param
     const result = resolveGraphDBQuery({queryObjOrStr: query});
 
     expect(result).toMatchObject({
-        query: 'CREATE (createAirport_Airport:airport {' +
-            'city: $createAirport_Airport_city, ' +
-            'code: $createAirport_Airport_code, ' +
-            'country: $createAirport_Airport_country, ' +
-            'desc: $createAirport_Airport_desc})\n' +
+        query: 'CREATE (createAirportCustom_Airport:airport {' +
+            'city: $createAirportCustom_Airport_city, ' +
+            'code: $createAirportCustom_Airport_code, ' +
+            'country: $createAirportCustom_Airport_country, ' +
+            'desc: $createAirportCustom_Airport_desc})\n' +
             'RETURN {' +
-            '_id:ID(createAirport_Airport), ' +
-            'city: createAirport_Airport.`city`, ' +
-            'code: createAirport_Airport.`code`, ' +
-            'country: createAirport_Airport.`country`' +
+            '_id:ID(createAirportCustom_Airport), ' +
+            'city: createAirportCustom_Airport.`city`, ' +
+            'code: createAirportCustom_Airport.`code`, ' +
+            'country: createAirportCustom_Airport.`country`' +
             '}',
         parameters: {
-            createAirport_Airport_city: "Test",
-            createAirport_Airport_code: "TEST",
-            createAirport_Airport_country: "CA",
-            createAirport_Airport_desc: "Test Airport"
+            createAirportCustom_Airport_city: "Test",
+            createAirportCustom_Airport_code: "TEST",
+            createAirportCustom_Airport_country: "CA",
+            createAirportCustom_Airport_desc: "Test Airport"
         },
         language: 'opencypher',
         refactorOutput: null
     });
 });
 
-test('should inference create node mutation with a prefix', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n airportMutation_createNodeAirport(input: {code: \"NAX\", city: \"Reggio Emilia\"}) {\n code\n }\n }'});
+test('should inference create mutation with a prefix', () => {
+    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n airportMutation_createAirport(input: {code: \"NAX\", city: \"Reggio Emilia\"}) {\n code\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'CREATE (airportMutation_createNodeAirport_Airport:`airport` {code: $airportMutation_createNodeAirport_Airport_code, city: $airportMutation_createNodeAirport_Airport_city})\n' +
-            'RETURN {code: airportMutation_createNodeAirport_Airport.`code`}',
+        query: 'CREATE (airportMutation_createAirport_Airport:`airport` {code: $airportMutation_createAirport_Airport_code, city: $airportMutation_createAirport_Airport_city})\n' +
+            'RETURN {code: airportMutation_createAirport_Airport.`code`}',
         parameters: {
-            airportMutation_createNodeAirport_Airport_code: 'NAX',
-            airportMutation_createNodeAirport_Airport_city: 'Reggio Emilia'
+            airportMutation_createAirport_Airport_code: 'NAX',
+            airportMutation_createAirport_Airport_city: 'Reggio Emilia'
         },
         language: 'opencypher',
         refactorOutput: null
     });
 });
 
-test('should inference update node mutation with a prefix', () => {
-    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n airportMutation_updateNodeAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }'});
+test('should inference update mutation with a prefix', () => {
+    const result = resolveGraphDBQuery({queryObjOrStr: 'mutation MyMutation {\n airportMutation_updateAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }'});
 
     expect(result).toMatchObject({
-        query: 'MATCH (airportMutation_updateNodeAirport_Airport)\n' +
-            'WHERE ID(airportMutation_updateNodeAirport_Airport) = $airportMutation_updateNodeAirport_Airport__id\n' +
-            'SET airportMutation_updateNodeAirport_Airport.city = $airportMutation_updateNodeAirport_Airport_city\n' +
-            'RETURN {city: airportMutation_updateNodeAirport_Airport.`city`}',
+        query: 'MATCH (airportMutation_updateAirport_Airport)\n' +
+            'WHERE ID(airportMutation_updateAirport_Airport) = $airportMutation_updateAirport_Airport__id\n' +
+            'SET airportMutation_updateAirport_Airport.city = $airportMutation_updateAirport_Airport_city\n' +
+            'RETURN {city: airportMutation_updateAirport_Airport.`city`}',
         parameters: {
-            airportMutation_updateNodeAirport_Airport_city: 'Seattle',
-            airportMutation_updateNodeAirport_Airport__id: '22'
+            airportMutation_updateAirport_Airport_city: 'Seattle',
+            airportMutation_updateAirport_Airport__id: '22'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -1101,7 +1101,7 @@ test('should inference update node mutation with a prefix', () => {
 
 test('should resolve mutation to connect nodes with a prefix', () => {
     const query = 'mutation ConnectCountryToAirport {\n' +
-        '  airportMutation_connectNodeCountryToNodeAirportEdgeContains(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\") {\n' +
+        '  airportMutation_connectCountryToAirportThroughContains(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\") {\n' +
         '    _id\n' +
         '  }\n' +
         '}';
@@ -1109,43 +1109,43 @@ test('should resolve mutation to connect nodes with a prefix', () => {
 
     expect(result).toMatchObject({
         query: 'MATCH (from), (to)\n' +
-            'WHERE ID(from) = $airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId ' +
-            'AND ID(to) = $airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId\n' +
-            'CREATE (from)-[airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains:`contains`]->(to)\n' +
-            'RETURN {_id:ID(airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains)}',
+            'WHERE ID(from) = $airportMutation_connectCountryToAirportThroughContains_Contains_whereFromId ' +
+            'AND ID(to) = $airportMutation_connectCountryToAirportThroughContains_Contains_whereToId\n' +
+            'CREATE (from)-[airportMutation_connectCountryToAirportThroughContains_Contains:`contains`]->(to)\n' +
+            'RETURN {_id:ID(airportMutation_connectCountryToAirportThroughContains_Contains)}',
         parameters: {
-            airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
-            airportMutation_connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
+            airportMutation_connectCountryToAirportThroughContains_Contains_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
+            airportMutation_connectCountryToAirportThroughContains_Contains_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
         },
         language: 'opencypher',
         refactorOutput: null
     });
 });
 
-test('should resolve mutation to delete edge between nodes with a prefix', () => {
-    const query = 'mutation DeleteEdgeContainsFromCountryToAirport {\n' +
-        '  airportMutation_deleteEdgeContainsFromCountryToAirport(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\")\n' +
+test('should resolve mutation to delete connection between nodes with a prefix', () => {
+    const query = 'mutation DeleteContainsConnectionFromCountryToAirport {\n' +
+        '  airportMutation_deleteContainsConnectionFromCountryToAirport(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\")\n' +
         '}';
     const result = resolveGraphDBQuery({queryObjOrStr: query});
 
     expect(result).toMatchObject({
-        query: 'MATCH (from)-[airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean]->(to)\n' +
-            'WHERE ID(from) = $airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereFromId ' +
-            'AND ID(to) = $airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereToId\n' +
-            'DELETE airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean\n' +
+        query: 'MATCH (from)-[airportMutation_deleteContainsConnectionFromCountryToAirport_Boolean]->(to)\n' +
+            'WHERE ID(from) = $airportMutation_deleteContainsConnectionFromCountryToAirport_Boolean_whereFromId ' +
+            'AND ID(to) = $airportMutation_deleteContainsConnectionFromCountryToAirport_Boolean_whereToId\n' +
+            'DELETE airportMutation_deleteContainsConnectionFromCountryToAirport_Boolean\n' +
             'RETURN true',
         parameters: {
-            airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
-            airportMutation_deleteEdgeContainsFromCountryToAirport_Boolean_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
+            airportMutation_deleteContainsConnectionFromCountryToAirport_Boolean_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
+            airportMutation_deleteContainsConnectionFromCountryToAirport_Boolean_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
         },
         language: 'opencypher',
         refactorOutput: null
     });
 });
 
-test('should resolve mutation to update edge between nodes with a prefix', () => {
-    const query = 'mutation UpdateEdgeRouteFromAirportToAirport {\n' +
-        '  airportMutation_updateEdgeRouteFromAirportToAirport(from_id: \"99\", to_id: \"48\", edge: { dist: 123 }) {\n' +
+test('should resolve mutation to update connection between nodes with a prefix', () => {
+    const query = 'mutation UpdateRouteConnectionFromAirportToAirport {\n' +
+        '  airportMutation_updateRouteConnectionFromAirportToAirport(from_id: \"99\", to_id: \"48\", edge: { dist: 123 }) {\n' +
         '    _id\n' +
         '    dist\n' +
         '  }\n' +
@@ -1153,15 +1153,15 @@ test('should resolve mutation to update edge between nodes with a prefix', () =>
     const result = resolveGraphDBQuery({queryObjOrStr: query});
 
     expect(result).toMatchObject({
-        query: 'MATCH (from)-[airportMutation_updateEdgeRouteFromAirportToAirport_Route:`route`]->(to)\n' +
-            'WHERE ID(from) = $airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereFromId ' +
-            'AND ID(to) = $airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereToId\n' +
-            'SET airportMutation_updateEdgeRouteFromAirportToAirport_Route.dist = $airportMutation_updateEdgeRouteFromAirportToAirport_Route_dist\n' +
-            'RETURN {_id:ID(airportMutation_updateEdgeRouteFromAirportToAirport_Route), dist: airportMutation_updateEdgeRouteFromAirportToAirport_Route.`dist`}',
+        query: 'MATCH (from)-[airportMutation_updateRouteConnectionFromAirportToAirport_Route:`route`]->(to)\n' +
+            'WHERE ID(from) = $airportMutation_updateRouteConnectionFromAirportToAirport_Route_whereFromId ' +
+            'AND ID(to) = $airportMutation_updateRouteConnectionFromAirportToAirport_Route_whereToId\n' +
+            'SET airportMutation_updateRouteConnectionFromAirportToAirport_Route.dist = $airportMutation_updateRouteConnectionFromAirportToAirport_Route_dist\n' +
+            'RETURN {_id:ID(airportMutation_updateRouteConnectionFromAirportToAirport_Route), dist: airportMutation_updateRouteConnectionFromAirportToAirport_Route.`dist`}',
         parameters: {
-            airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereFromId: '99',
-            airportMutation_updateEdgeRouteFromAirportToAirport_Route_whereToId: '48',
-            airportMutation_updateEdgeRouteFromAirportToAirport_Route_dist: 123
+            airportMutation_updateRouteConnectionFromAirportToAirport_Route_whereFromId: '99',
+            airportMutation_updateRouteConnectionFromAirportToAirport_Route_whereToId: '48',
+            airportMutation_updateRouteConnectionFromAirportToAirport_Route_dist: 123
         },
         language: 'opencypher',
         refactorOutput: null
@@ -1170,13 +1170,13 @@ test('should resolve mutation to update edge between nodes with a prefix', () =>
 
 test('should resolve query with limit and offset', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { options: { limit: 10, offset: 3 } },
         selectionSetGraphQL: '{ code }'
     });
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 3 LIMIT 10\n' +
-            'RETURN collect({code: getNodeAirports_Airport.`code`})[..10]',
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport SKIP 3 LIMIT 10\n' +
+            'RETURN collect({code: getAirports_Airport.`code`})[..10]',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null
@@ -1185,19 +1185,19 @@ test('should resolve query with limit and offset', () => {
 
 test('should resolve query with nested edge limit and offset', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { options: { limit: 10, offset: 2 } },
         selectionSetGraphQL: '{ code, airportRoutesIn(options: {offset: 5, limit: 3}) {code} }'
     });
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 2 LIMIT 10\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`)\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
-            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesIn.`code`})[5..8] ' +
-            'END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport SKIP 2 LIMIT 10\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`)\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getAirports_Airport_airportRoutesIn.`code`})[5..8] ' +
+            'END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({' +
-            'code: getNodeAirports_Airport.`code`, ' +
-            'airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect' +
+            'code: getAirports_Airport.`code`, ' +
+            'airportRoutesIn: getAirports_Airport_airportRoutesIn_collect' +
             '})[..10]',
         parameters: {},
         language: 'opencypher',
@@ -1207,20 +1207,20 @@ test('should resolve query with nested edge limit and offset', () => {
 
 test('should resolve query with nested edge limit and offset from variables', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { options: { limit: 2, offset: 4 } },
         selectionSetGraphQL: '{code, airportRoutesOut(options: $nestedOptions) {code}}',
         variables: { nestedOptions: { limit: 3, offset: 6 } }
     });
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 4 LIMIT 2\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`)\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
-            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesOut.`code`})[6..9] ' +
-            'END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport SKIP 4 LIMIT 2\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`)\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getAirports_Airport_airportRoutesOut.`code`})[6..9] ' +
+            'END AS getAirports_Airport_airportRoutesOut_collect\n' +
             'RETURN collect({' +
-            'code: getNodeAirports_Airport.`code`, ' +
-            'airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect' +
+            'code: getAirports_Airport.`code`, ' +
+            'airportRoutesOut: getAirports_Airport_airportRoutesOut_collect' +
             '})[..2]',
         parameters: {},
         language: 'opencypher',
@@ -1231,19 +1231,19 @@ test('should resolve query with nested edge limit and offset from variables', ()
 test('should resolve query zero limit and offset', () => {
     // zero limit and offset would be odd, but is allowed
     const result = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { options: { limit: 0, offset: 0 } },
         selectionSetGraphQL: '{ code, airportRoutesIn(options: {offset: 0, limit: 0}) {code} }'
     });
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport SKIP 0 LIMIT 0\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)<-[getNodeAirports_Airport_airportRoutesIn_route:route]-(getNodeAirports_Airport_airportRoutesIn:`airport`)\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
-            'ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesIn.`code`})[0..0] ' +
-            'END AS getNodeAirports_Airport_airportRoutesIn_collect\n' +
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport SKIP 0 LIMIT 0\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`)\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
+            'ELSE COLLECT({code: getAirports_Airport_airportRoutesIn.`code`})[0..0] ' +
+            'END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({' +
-            'code: getNodeAirports_Airport.`code`, ' +
-            'airportRoutesIn: getNodeAirports_Airport_airportRoutesIn_collect' +
+            'code: getAirports_Airport.`code`, ' +
+            'airportRoutesIn: getAirports_Airport_airportRoutesIn_collect' +
             '})[..0]',
         parameters: {},
         language: 'opencypher',
@@ -1254,7 +1254,7 @@ test('should resolve query zero limit and offset', () => {
 test('should throw error for query with negative limit', () => {
     expect(() => {
         resolveGraphDBQueryFromAppSyncEvent({
-            field: 'getNodeAirports',
+            field: 'getAirports',
             arguments: {options: {limit: -1}},
             selectionSetGraphQL: '{ code }'
         });
@@ -1264,7 +1264,7 @@ test('should throw error for query with negative limit', () => {
 test('should throw error for query with negative offset', () => {
     expect(() => {
         resolveGraphDBQueryFromAppSyncEvent({
-            field: 'getNodeAirports',
+            field: 'getAirports',
             arguments: {options: {offset: -1}},
             selectionSetGraphQL: '{ code }'
         });
@@ -1273,7 +1273,7 @@ test('should throw error for query with negative offset', () => {
 
 test('should resolve query with multiple fragments', () => {
     const result = resolveGraphDBQueryFromEvent({
-        field: 'getNodeAirport',
+        field: 'getAirport',
         arguments: {filter: {code: {eq: 'YVR'}}},
         selectionSet: gql`{ _id, ...locationFields, ...otherFields, runways }`.definitions[0].selectionSet,
         fragments: {
@@ -1282,18 +1282,18 @@ test('should resolve query with multiple fragments', () => {
         }
     });
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) ' +
-            'WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
+        query: 'MATCH (getAirport_Airport:`airport`) ' +
+            'WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
             'RETURN {' +
-            '_id:ID(getNodeAirport_Airport), ' +
-            'city: getNodeAirport_Airport.`city`, ' +
-            'country: getNodeAirport_Airport.`country`, ' +
-            'code: getNodeAirport_Airport.`code`, ' +
-            'elev: getNodeAirport_Airport.`elev`, ' +
-            'runways: getNodeAirport_Airport.`runways`' +
+            '_id:ID(getAirport_Airport), ' +
+            'city: getAirport_Airport.`city`, ' +
+            'country: getAirport_Airport.`country`, ' +
+            'code: getAirport_Airport.`code`, ' +
+            'elev: getAirport_Airport.`elev`, ' +
+            'runways: getAirport_Airport.`runways`' +
             '} ' +
             'LIMIT 1',
-        parameters: {getNodeAirport_Airport_code: "YVR"},
+        parameters: {getAirport_Airport_code: "YVR"},
         language: 'opencypher',
         refactorOutput: null
     });
@@ -1301,7 +1301,7 @@ test('should resolve query with multiple fragments', () => {
 
 test('should resolve query with nested edge fragments', () => {
     const result = resolveGraphDBQueryFromEvent({
-        field: 'getNodeAirport',
+        field: 'getAirport',
         arguments: {filter: {code: {eq: 'YVR'}}},
         selectionSet: gql`{ _id, ...locationFields, airportRoutesIn(options: {limit: 2}) {...locationFields}, ...otherFields }`.definitions[0].selectionSet,
         fragments: {
@@ -1310,24 +1310,24 @@ test('should resolve query with nested edge fragments', () => {
         }
     });
     expect(result).toEqual({
-        query: 'MATCH (getNodeAirport_Airport:`airport`) ' +
-            'WHERE getNodeAirport_Airport.code = $getNodeAirport_Airport_code\n' +
-            'OPTIONAL MATCH (getNodeAirport_Airport)<-[getNodeAirport_Airport_airportRoutesIn_route:route]-(getNodeAirport_Airport_airportRoutesIn:`airport`)\n' +
-            'WITH getNodeAirport_Airport, ' +
-            'CASE WHEN getNodeAirport_Airport_airportRoutesIn IS NULL THEN [] ' +
+        query: 'MATCH (getAirport_Airport:`airport`) ' +
+            'WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
+            'OPTIONAL MATCH (getAirport_Airport)<-[getAirport_Airport_airportRoutesIn_route:route]-(getAirport_Airport_airportRoutesIn:`airport`)\n' +
+            'WITH getAirport_Airport, ' +
+            'CASE WHEN getAirport_Airport_airportRoutesIn IS NULL THEN [] ' +
             'ELSE COLLECT({' +
-            'city: getNodeAirport_Airport_airportRoutesIn.`city`, ' +
-            'country: getNodeAirport_Airport_airportRoutesIn.`country`' +
-            '})[..2] END AS getNodeAirport_Airport_airportRoutesIn_collect\n' +
+            'city: getAirport_Airport_airportRoutesIn.`city`, ' +
+            'country: getAirport_Airport_airportRoutesIn.`country`' +
+            '})[..2] END AS getAirport_Airport_airportRoutesIn_collect\n' +
             'RETURN {' +
-            '_id:ID(getNodeAirport_Airport), ' +
-            'city: getNodeAirport_Airport.`city`, ' +
-            'country: getNodeAirport_Airport.`country`, ' +
-            'airportRoutesIn: getNodeAirport_Airport_airportRoutesIn_collect, ' +
-            'code: getNodeAirport_Airport.`code`, ' +
-            'elev: getNodeAirport_Airport.`elev`' +
+            '_id:ID(getAirport_Airport), ' +
+            'city: getAirport_Airport.`city`, ' +
+            'country: getAirport_Airport.`country`, ' +
+            'airportRoutesIn: getAirport_Airport_airportRoutesIn_collect, ' +
+            'code: getAirport_Airport.`code`, ' +
+            'elev: getAirport_Airport.`elev`' +
             '} LIMIT 1',
-        parameters: {getNodeAirport_Airport_code: "YVR"},
+        parameters: {getAirport_Airport_code: "YVR"},
         language: 'opencypher',
         refactorOutput: null
     });
@@ -1335,7 +1335,7 @@ test('should resolve query with nested edge fragments', () => {
 
 test('should resolve mutation to update node with fragment', () => {
     const result = resolveGraphDBQueryFromEvent({
-        field: 'updateNodeAirport',
+        field: 'updateAirport',
         arguments: {input: {_id: 22, city: "Seattle"}},
         selectionSet: gql`{ _id, ...locationFields, ...otherFields }`.definitions[0].selectionSet,
         fragments: {
@@ -1345,19 +1345,19 @@ test('should resolve mutation to update node with fragment', () => {
     });
     
     expect(result).toEqual({
-        query: 'MATCH (updateNodeAirport_Airport)\n' +
-            'WHERE ID(updateNodeAirport_Airport) = $updateNodeAirport_Airport__id\n' +
-            'SET updateNodeAirport_Airport.city = $updateNodeAirport_Airport_city\n' +
+        query: 'MATCH (updateAirport_Airport)\n' +
+            'WHERE ID(updateAirport_Airport) = $updateAirport_Airport__id\n' +
+            'SET updateAirport_Airport.city = $updateAirport_Airport_city\n' +
             'RETURN {' +
-            '_id:ID(updateNodeAirport_Airport), ' +
-            'city: updateNodeAirport_Airport.`city`, ' +
-            'country: updateNodeAirport_Airport.`country`, ' +
-            'code: updateNodeAirport_Airport.`code`, ' +
-            'elev: updateNodeAirport_Airport.`elev`' +
+            '_id:ID(updateAirport_Airport), ' +
+            'city: updateAirport_Airport.`city`, ' +
+            'country: updateAirport_Airport.`country`, ' +
+            'code: updateAirport_Airport.`code`, ' +
+            'elev: updateAirport_Airport.`elev`' +
             '}',
         parameters: {
-            updateNodeAirport_Airport__id: 22,
-            updateNodeAirport_Airport_city: "Seattle",
+            updateAirport_Airport__id: 22,
+            updateAirport_Airport_city: "Seattle",
         },
         language: 'opencypher',
         refactorOutput: null
@@ -1366,7 +1366,7 @@ test('should resolve mutation to update node with fragment', () => {
 
 test('should resolve mutation to update edge between nodes with fragment', () => {
     const result = resolveGraphDBQueryFromEvent({
-        field: 'updateEdgeRouteFromAirportToAirport',
+        field: 'updateRouteConnectionFromAirportToAirport',
         arguments: {from_id: "99", to_id: "48", edge: { dist: 123 }},
         selectionSet: gql`{ _id, ...routeFields }`.definitions[0].selectionSet,
         fragments: {
@@ -1375,18 +1375,18 @@ test('should resolve mutation to update edge between nodes with fragment', () =>
     });
     
     expect(result).toMatchObject({
-        query: 'MATCH (from)-[updateEdgeRouteFromAirportToAirport_Route:`route`]->(to)\n' +
-            'WHERE ID(from) = $updateEdgeRouteFromAirportToAirport_Route_whereFromId ' +
-            'AND ID(to) = $updateEdgeRouteFromAirportToAirport_Route_whereToId\n' +
-            'SET updateEdgeRouteFromAirportToAirport_Route.dist = $updateEdgeRouteFromAirportToAirport_Route_dist\n' +
+        query: 'MATCH (from)-[updateRouteConnectionFromAirportToAirport_Route:`route`]->(to)\n' +
+            'WHERE ID(from) = $updateRouteConnectionFromAirportToAirport_Route_whereFromId ' +
+            'AND ID(to) = $updateRouteConnectionFromAirportToAirport_Route_whereToId\n' +
+            'SET updateRouteConnectionFromAirportToAirport_Route.dist = $updateRouteConnectionFromAirportToAirport_Route_dist\n' +
             'RETURN {' +
-            '_id:ID(updateEdgeRouteFromAirportToAirport_Route), ' +
-            'dist: updateEdgeRouteFromAirportToAirport_Route.`dist`' +
+            '_id:ID(updateRouteConnectionFromAirportToAirport_Route), ' +
+            'dist: updateRouteConnectionFromAirportToAirport_Route.`dist`' +
             '}',
         parameters: {
-            updateEdgeRouteFromAirportToAirport_Route_whereFromId: '99',
-            updateEdgeRouteFromAirportToAirport_Route_whereToId: '48',
-            updateEdgeRouteFromAirportToAirport_Route_dist: 123
+            updateRouteConnectionFromAirportToAirport_Route_whereFromId: '99',
+            updateRouteConnectionFromAirportToAirport_Route_whereToId: '48',
+            updateRouteConnectionFromAirportToAirport_Route_dist: 123
         },
         language: 'opencypher',
         refactorOutput: null
@@ -1395,7 +1395,7 @@ test('should resolve mutation to update edge between nodes with fragment', () =>
 
 test('should resolve mutation to create node with fragment', () => {
     const result = resolveGraphDBQueryFromEvent({
-        field: 'createNodeAirport',
+        field: 'createAirport',
         arguments: {input: {code: "NAX", city: "Reggio Emilia"}},
         selectionSet: gql`{ _id, ...locationFields, ...otherFields }`.definitions[0].selectionSet,
         fragments: {
@@ -1405,16 +1405,16 @@ test('should resolve mutation to create node with fragment', () => {
     });
     
     expect(result).toEqual({
-        query: 'CREATE (createNodeAirport_Airport:`airport` {city: $createNodeAirport_Airport_city, code: $createNodeAirport_Airport_code})\n' +
+        query: 'CREATE (createAirport_Airport:`airport` {city: $createAirport_Airport_city, code: $createAirport_Airport_code})\n' +
             'RETURN {' +
-            '_id:ID(createNodeAirport_Airport), ' +
-            'city: createNodeAirport_Airport.`city`, ' +
-            'country: createNodeAirport_Airport.`country`, ' +
-            'runways: createNodeAirport_Airport.`runways`' +
+            '_id:ID(createAirport_Airport), ' +
+            'city: createAirport_Airport.`city`, ' +
+            'country: createAirport_Airport.`country`, ' +
+            'runways: createAirport_Airport.`runways`' +
             '}',
         parameters: {
-            createNodeAirport_Airport_code: 'NAX',
-            createNodeAirport_Airport_city: 'Reggio Emilia'
+            createAirport_Airport_code: 'NAX',
+            createAirport_Airport_city: 'Reggio Emilia'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -1423,7 +1423,7 @@ test('should resolve mutation to create node with fragment', () => {
 
 test('should resolve mutation to connect nodes with fragment', () => {
     const result = resolveGraphDBQueryFromEvent({
-        field: 'connectNodeCountryToNodeAirportEdgeContains',
+        field: 'connectCountryToAirportThroughContains',
         arguments: {from_id: "ee71c547-ea32-4573-88bc-6ecb31942a1e", to_id: "99cb3321-9cda-41b6-b760-e88ead3e1ea1"},
         selectionSet: gql`{ ...containsFields }`.definitions[0].selectionSet,
         fragments: {
@@ -1433,13 +1433,13 @@ test('should resolve mutation to connect nodes with fragment', () => {
 
     expect(result).toMatchObject({
         query: 'MATCH (from), (to)\n' +
-            'WHERE ID(from) = $connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId ' +
-            'AND ID(to) = $connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId\n' +
-            'CREATE (from)-[connectNodeCountryToNodeAirportEdgeContains_Contains:`contains`]->(to)\n' +
-            'RETURN {_id:ID(connectNodeCountryToNodeAirportEdgeContains_Contains)}',
+            'WHERE ID(from) = $connectCountryToAirportThroughContains_Contains_whereFromId ' +
+            'AND ID(to) = $connectCountryToAirportThroughContains_Contains_whereToId\n' +
+            'CREATE (from)-[connectCountryToAirportThroughContains_Contains:`contains`]->(to)\n' +
+            'RETURN {_id:ID(connectCountryToAirportThroughContains_Contains)}',
         parameters: {
-            connectNodeCountryToNodeAirportEdgeContains_Contains_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
-            connectNodeCountryToNodeAirportEdgeContains_Contains_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
+            connectCountryToAirportThroughContains_Contains_whereFromId: 'ee71c547-ea32-4573-88bc-6ecb31942a1e',
+            connectCountryToAirportThroughContains_Contains_whereToId: '99cb3321-9cda-41b6-b760-e88ead3e1ea1'
         },
         language: 'opencypher',
         refactorOutput: null
@@ -1449,7 +1449,7 @@ test('should resolve mutation to connect nodes with fragment', () => {
 test('should throw error for query with unknown fragment', () => {
     expect(() => {
         resolveGraphDBQueryFromEvent({
-            field: 'getNodeAirport',
+            field: 'getAirport',
             arguments: {},
             selectionSet: gql`{ _id, ...unknownFragment, code }`.definitions[0].selectionSet,
             fragments: {}
@@ -1460,7 +1460,7 @@ test('should throw error for query with unknown fragment', () => {
 test('should throw error for query with multiple sort arguments in one object', () => {
     expect(() => {
         resolveGraphDBQueryFromEvent({
-            field: 'getNodeAirports',
+            field: 'getAirports',
             arguments: {sort: [{desc: 'ASC'}, {code: 'DESC', country: 'ASC'}]},
             variables: {},
             selectionSetGraphQL: '{\n  desc\n  code\n  country\n}',
@@ -1470,7 +1470,7 @@ test('should throw error for query with multiple sort arguments in one object', 
 
 test('should resolve multiple app sync events with updated variable values', () => {
     const firstResult = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { options: { limit: 3 } },
         selectionSetGraphQL: '{ code, airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) { code } }',
         // initial variable values
@@ -1479,17 +1479,17 @@ test('should resolve multiple app sync events with updated variable values', () 
 
     // first result should reflect initial variable values
     expect(firstResult).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport LIMIT 3\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesOut.`code`})[..2] END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
-            'RETURN collect({code: getNodeAirports_Airport.`code`, airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect})[..3]',
-        parameters: { getNodeAirports_Airport_airportRoutesOut_country: 'CA'},
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport LIMIT 3\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirports_Airport_airportRoutesOut.`code`})[..2] END AS getAirports_Airport_airportRoutesOut_collect\n' +
+            'RETURN collect({code: getAirports_Airport.`code`, airportRoutesOut: getAirports_Airport_airportRoutesOut_collect})[..3]',
+        parameters: { getAirports_Airport_airportRoutesOut_country: 'CA'},
         language: 'opencypher',
         refactorOutput: null
     });
 
     const secondResult = resolveGraphDBQueryFromAppSyncEvent({
-        field: 'getNodeAirports',
+        field: 'getAirports',
         arguments: { options: { limit: 3 } },
         selectionSetGraphQL: '{ code, airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}) { code } }',
         // updated variable values
@@ -1498,11 +1498,11 @@ test('should resolve multiple app sync events with updated variable values', () 
 
     // second result should reflect updated variable values
     expect(secondResult).toEqual({
-        query: 'MATCH (getNodeAirports_Airport:`airport`) WITH getNodeAirports_Airport LIMIT 3\n' +
-            'OPTIONAL MATCH (getNodeAirports_Airport)-[getNodeAirports_Airport_airportRoutesOut_route:route]->(getNodeAirports_Airport_airportRoutesOut:`airport`) WHERE getNodeAirports_Airport_airportRoutesOut.country = $getNodeAirports_Airport_airportRoutesOut_country\n' +
-            'WITH getNodeAirports_Airport, CASE WHEN getNodeAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getNodeAirports_Airport_airportRoutesOut.`code`})[..1] END AS getNodeAirports_Airport_airportRoutesOut_collect\n' +
-            'RETURN collect({code: getNodeAirports_Airport.`code`, airportRoutesOut: getNodeAirports_Airport_airportRoutesOut_collect})[..3]',
-        parameters: { getNodeAirports_Airport_airportRoutesOut_country: 'MX'},
+        query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport LIMIT 3\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
+            'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirports_Airport_airportRoutesOut.`code`})[..1] END AS getAirports_Airport_airportRoutesOut_collect\n' +
+            'RETURN collect({code: getAirports_Airport.`code`, airportRoutesOut: getAirports_Airport_airportRoutesOut_collect})[..3]',
+        parameters: { getAirports_Airport_airportRoutesOut_country: 'MX'},
         language: 'opencypher',
         refactorOutput: null
     });

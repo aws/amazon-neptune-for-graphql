@@ -333,8 +333,8 @@ function graphDBInferenceSchema (graphdbSchema, { addMutations = true, queryPref
     r += `type Query {\n`;
     gdbs.nodeStructures.forEach(node => {
         let nodeCase = toPascalCase(cleanseLabel(node.label));
-        r += `\t${queryPrefix}getNode${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
-        r += `\t${queryPrefix}getNode${nodeCase}s(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}]\n`;
+        r += `\t${queryPrefix}get${nodeCase}(filter: ${nodeCase}Input): ${nodeCase}\n`;
+        r += `\t${queryPrefix}get${nodeCase}s(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}]\n`;
     });
     r += '}\n\n';
 
@@ -343,9 +343,9 @@ function graphDBInferenceSchema (graphdbSchema, { addMutations = true, queryPref
         r += `type Mutation {\n`;
         gdbs.nodeStructures.forEach(node => {
             let nodeCase = toPascalCase(cleanseLabel(node.label));
-            r += `\t${mutationPrefix}createNode${nodeCase}(input: ${nodeCase}CreateInput!): ${nodeCase}\n`;
-            r += `\t${mutationPrefix}updateNode${nodeCase}(input: ${nodeCase}UpdateInput!): ${nodeCase}\n`;
-            r += `\t${mutationPrefix}deleteNode${nodeCase}(_id: ID!): Boolean\n`;
+            r += `\t${mutationPrefix}create${nodeCase}(input: ${nodeCase}CreateInput!): ${nodeCase}\n`;
+            r += `\t${mutationPrefix}update${nodeCase}(input: ${nodeCase}UpdateInput!): ${nodeCase}\n`;
+            r += `\t${mutationPrefix}delete${nodeCase}(_id: ID!): Boolean\n`;
         });    
 
         gdbs.edgeStructures.forEach(edge => {
@@ -355,12 +355,12 @@ function graphDBInferenceSchema (graphdbSchema, { addMutations = true, queryPref
                 let edgeCase = toPascalCase(cleanseLabel(edge.label));
 
                 if (edge.properties.length > 0) {               
-                    r += `\t${mutationPrefix}connectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
-                    r += `\t${mutationPrefix}updateEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
+                    r += `\t${mutationPrefix}connect${fromCase}To${toCase}Through${edgeCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
+                    r += `\t${mutationPrefix}update${edgeCase}ConnectionFrom${fromCase}To${toCase}(from_id: ID!, to_id: ID!, edge: ${edgeCase}Input!): ${edgeCase}\n`;
                 } else {
-                    r += `\t${mutationPrefix}connectNode${fromCase}ToNode${toCase}Edge${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;
+                    r += `\t${mutationPrefix}connect${fromCase}To${toCase}Through${edgeCase}(from_id: ID!, to_id: ID!): ${edgeCase}\n`;
                 }
-                r += `\t${mutationPrefix}deleteEdge${edgeCase}From${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
+                r += `\t${mutationPrefix}delete${edgeCase}ConnectionFrom${fromCase}To${toCase}(from_id: ID!, to_id: ID!): Boolean\n`;
             });
         });
         r += '}\n\n';

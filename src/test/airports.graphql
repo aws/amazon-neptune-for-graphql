@@ -156,14 +156,14 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodeContinent(filter: ContinentInput): Continent
-    getNodeContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
-    getNodeCountry(filter: CountryInput): Country
-    getNodeCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
-    getNodeVersion(filter: VersionInput): Version
-    getNodeVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
-    getNodeAirport(filter: AirportInput): Airport
-    getNodeAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+    getContinent(filter: ContinentInput): Continent
+    getContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
+    getCountry(filter: CountryInput): Country
+    getCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
+    getVersion(filter: VersionInput): Version
+    getVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
+    getAirport(filter: AirportInput): Airport
+    getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
 }
 
 schema {

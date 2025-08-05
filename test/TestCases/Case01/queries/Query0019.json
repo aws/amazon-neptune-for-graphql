@@ -1,12 +1,13 @@
 {
-    "name": "Get different type of fields",
-    "description": "",
-    "graphql": "query MyQuery {\n getNodeAirport(filter: {code: \"SEA\"}) {\n city\n elev\n runways\n lat\n lon\n }\n }",
-    "result":{
-        "city": "Seattle",
-        "elev": 432,
-        "lon": -122.30899810791,
-        "runways": 3,
-        "lat": 47.4490013122559
+  "name": "Filter by parameter with numeric value and return mix of numeric value types",
+  "description": "",
+  "graphql": "query MyQuery {\n getAirports(filter: { city: \"Seattle\", runways: 3 }) {\n code\n lat\n lon\n elev\n}\n }",
+  "result": [
+    {
+      "code": "SEA",
+      "elev": 432,
+      "lon": -122.30899810791,
+      "lat": 47.4490013122559
     }
+  ]
 }

@@ -1,7 +1,7 @@
 {
     "name": "Filter in nested edge",
     "description": "",
-    "graphql": "query MyQuery {\n getNodeAirport(filter: {code: \"SEA\"}) {\n airportRoutesOut(filter: {code: \"LAX\"}) {\n city\n }\n city\n }\n }",
+    "graphql": "query MyQuery {\n getAirport(filter: {code: \"SEA\"}) {\n airportRoutesOut(filter: {code: \"LAX\"}) {\n city\n }\n city\n }\n }",
     "result":{
         "airportRoutesOut": [
           {

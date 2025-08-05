@@ -1,7 +1,7 @@
 {
     "name": "filter",
     "description": "",
-    "graphql": "query MyQuery {\n getNodeAirport(filter: {code: \"SEA\"}) {\n city \n }\n}",
+    "graphql": "query MyQuery {\n getAirport(filter: {code: \"SEA\"}) {\n city \n }\n}",
     "result":{
         "city": "Seattle"
     }

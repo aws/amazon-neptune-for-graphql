@@ -172,18 +172,18 @@ input StringScalarFilters {
 }
 
 type Query {
-    getNodeCity(filter: CityInput): City
-    getNodeCitys(filter: CityInput, options: Options, sort: [CitySort!]): [City]
-    getNodeReview(filter: ReviewInput): Review
-    getNodeReviews(filter: ReviewInput, options: Options, sort: [ReviewSort!]): [Review]
-    getNodePerson(filter: PersonInput): Person
-    getNodePersons(filter: PersonInput, options: Options, sort: [PersonSort!]): [Person]
-    getNodeRestaurant(filter: RestaurantInput): Restaurant
-    getNodeRestaurants(filter: RestaurantInput, options: Options, sort: [RestaurantSort!]): [Restaurant]
-    getNodeCuisine(filter: CuisineInput): Cuisine
-    getNodeCuisines(filter: CuisineInput, options: Options, sort: [CuisineSort!]): [Cuisine]
-    getNodeState(filter: StateInput): State
-    getNodeStates(filter: StateInput, options: Options, sort: [StateSort!]): [State]
+    getCity(filter: CityInput): City
+    getCitys(filter: CityInput, options: Options, sort: [CitySort!]): [City]
+    getReview(filter: ReviewInput): Review
+    getReviews(filter: ReviewInput, options: Options, sort: [ReviewSort!]): [Review]
+    getPerson(filter: PersonInput): Person
+    getPersons(filter: PersonInput, options: Options, sort: [PersonSort!]): [Person]
+    getRestaurant(filter: RestaurantInput): Restaurant
+    getRestaurants(filter: RestaurantInput, options: Options, sort: [RestaurantSort!]): [Restaurant]
+    getCuisine(filter: CuisineInput): Cuisine
+    getCuisines(filter: CuisineInput, options: Options, sort: [CuisineSort!]): [Cuisine]
+    getState(filter: StateInput): State
+    getStates(filter: StateInput, options: Options, sort: [StateSort!]): [State]
 }
 
 schema {

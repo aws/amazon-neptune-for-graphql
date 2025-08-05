@@ -1,8 +1,8 @@
 {
-    "name": "Mutation: update node",
-    "description": "update seattle airport node for neptune-db",
+    "name": "Get by _id",
+    "description": "",
     "neptuneType": "neptune-db",
-    "graphql": "mutation MyMutation {\n updateNodeAirport(input: {_id: \"22\", city: \"Seattle\"}) {\n city\n }\n }",
+    "graphql": "query MyQuery {\n getAirport(filter: {_id: \"22\"}) {\n city\n }\n }",
     "result":{
         "city": "Seattle"
     }

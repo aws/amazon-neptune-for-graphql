@@ -1,7 +1,7 @@
 [
     { "type": "Airport", "field": "outboundRoutesCountAdd", "action": "add", "value":"outboundRoutesCountAdd: Int @graphQuery(statement: \"MATCH (this)-[r:route]->(a) RETURN count(r)\")"},    
-    { "type": "Mutation", "field": "deleteNodeVersion", "action": "remove", "value": "" },
-    { "type": "Mutation", "field": "createNodeVersion", "action": "remove", "value": "" },
+    { "type": "Mutation", "field": "deleteVersion", "action": "remove", "value": "" },
+    { "type": "Mutation", "field": "createVersion", "action": "remove", "value": "" },
     { "type": "Query", "field": "getAirportWithGremlin", "action": "add", "value":"getAirportWithGremlin(code:String): Airport @graphQuery(statement: \"g.V().has('airport', 'code', '$code').elementMap()\")"},
     { "type": "Query", "field": "getCountriesCount", "action": "add", "value":"getCountriesCount: Int @graphQuery(statement: \"g.V().hasLabel('country').count()\")"}
 ]
