@@ -117,3 +117,5 @@ permissions and limitations under the License.
 * Fixed invalid schema generation when AWS AppSync scalar types are used in 
   an input 
   schema ([#118](https://github.com/aws/amazon-neptune-for-graphql/pull/118))
+* Fixed duplicated nodes and edges from nodes with 
+  multi-labels ([#125](https://github.com/aws/amazon-neptune-for-graphql/pull/125))
