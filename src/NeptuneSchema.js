@@ -147,11 +147,18 @@ async function getNodesNames() {
     let response = await queryNeptune(query);
     loggerInfo('Getting nodes names');
 
+    const processedNodeLabels = new Set();
+
     try {
         response.results.forEach(result => {
-            schema.nodeStructures.push({ label: result['labels(a)'][0], properties: []});
-            loggerDebug('Found Node: ' + yellow(result['labels(a)'][0]), {toConsole: true});
-        });        
+            result['labels(a)'].forEach(label => {
+                if (!processedNodeLabels.has(label)) {
+                    processedNodeLabels.add(label);
+                    schema.nodeStructures.push({ label: label, properties: []});
+                    loggerDebug('Found Node: ' + yellow(label), {toConsole: true});
+                }
+            });
+        });
     }
     catch (e)  {
         loggerError('No nodes found', e);
@@ -179,13 +186,19 @@ async function getEdgesNames() {
 
 async function findFromAndToLabels(edgeStructure) {
     const query = `MATCH (from)-[r:${sanitize(edgeStructure.label)}]->(to) WITH from, to LIMIT $sample RETURN DISTINCT labels(from) as fromLabel, labels(to) as toLabel`;
+    const processedEdges = new Set();
     loggerDebug(`Retrieving incoming and outgoing labels for edge ${edgeStructure.label} with limit ${SAMPLE}`, {toConsole: true});
     const response = await queryNeptune(query, {sample: SAMPLE});
     for (let result of response.results) {
         for (let fromLabel of result.fromLabel) {
             for (let toLabel of result.toLabel) {
-                edgeStructure.directions.push({from:fromLabel, to:toLabel});
-                loggerDebug('Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel), {toConsole: true});
+                const edgeKey = `${fromLabel}->${toLabel}`;
+
+                if (!processedEdges.has(edgeKey)) {
+                    processedEdges.add(edgeKey);
+                    edgeStructure.directions.push({from: fromLabel, to: toLabel});
+                    loggerDebug('Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel), {toConsole: true});
+                }
             }
         }
     }
