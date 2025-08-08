@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 import axios from 'axios';
 import { loggerInit } from '../logger.js';
 
-describe('Neptune Schema', () => {
+describe('Neptune Schema discovery tests', () => {
     beforeAll(() => {
         loggerInit('./src/test/output', true, 'fatal');
     });
