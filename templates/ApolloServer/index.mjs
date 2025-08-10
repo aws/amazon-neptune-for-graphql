@@ -8,7 +8,15 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const typeDefs = parse(readFileSync('./output.schema.graphql', 'utf-8'));
+const fileContent = readFileSync('./output.schema.graphql', 'utf-8');
+let schema = fileContent;
+if (process.env.SUBGRAPH === 'true') {
+    schema = `extend schema @link(
+        url: "https://specs.apollo.dev/federation/v2.0"
+        import: ["@key", "@shareable"]
+    )${fileContent}`;
+}
+const typeDefs = parse(schema);
 const queryDefinition = typeDefs.definitions.find(
     definition => definition.kind === 'ObjectTypeDefinition' && definition.name.value === 'Query'
 );

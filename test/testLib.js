@@ -226,6 +226,9 @@ async function testApolloArtifacts(outputFolderPath, testDbInfo, subgraph = fals
         ];
         const actualEnvContent = fs.readFileSync(path.join(outputFolderPath, 'unzipped', '.env'), 'utf8');
         expect(actualEnvContent).toEqual(expectedEnvContent.join('\n'));
+
+        const actualIndexContent = fs.readFileSync(path.join(outputFolderPath, 'unzipped', 'index.mjs'), 'utf8');
+        expect(actualIndexContent).toContain('https://specs.apollo.dev/federation/v2.0');
     });
 }
 
