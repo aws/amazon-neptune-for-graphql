@@ -120,4 +120,4 @@ permissions and limitations under the License.
 * Fixed duplicated nodes and edges from nodes with 
   multi-labels ([#125](https://github.com/aws/amazon-neptune-for-graphql/pull/125))
 * Updated Apollo subgraph to allow use of Federation 2 features.
-  features ([#126](https://github.com/aws/amazon-neptune-for-graphql/pull/126))
+  ([#126](https://github.com/aws/amazon-neptune-for-graphql/pull/126))
