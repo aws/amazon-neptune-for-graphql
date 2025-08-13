@@ -49,7 +49,7 @@ async function createZip({targetZipFilePath, includePaths = [], includeContent =
         output.on('close', () => resolve());
         archive.on('error', err => reject(err));
     });
-    
+
     archive.pipe(output);
 
     includePaths.forEach(includePath => {
