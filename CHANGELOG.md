@@ -117,5 +117,5 @@ permissions and limitations under the License.
 * Fixed invalid schema generation when AWS AppSync scalar types are used in 
   an input 
   schema ([#118](https://github.com/aws/amazon-neptune-for-graphql/pull/118))
-* Updated index.mjs file to be modified for Apollo subgraph Federation 2 
+* Updated Apollo subgraph to allow use of Federation 2 features.
   features ([#126](https://github.com/aws/amazon-neptune-for-graphql/pull/126))
