@@ -148,10 +148,17 @@ async function getNodesNames() {
     loggerInfo('Getting nodes names');
 
     try {
+        const processedLabels = new Set(schema.nodeStructures.map(node => node.label));
+
         response.results.forEach(result => {
-            schema.nodeStructures.push({ label: result['labels(a)'][0], properties: []});
-            loggerDebug('Found Node: ' + yellow(result['labels(a)'][0]), {toConsole: true});
-        });        
+            result['labels(a)'].forEach(label => {
+                if (!processedLabels.has(label)) {
+                    schema.nodeStructures.push({ label: label, properties: []});
+                    processedLabels.add(label);
+                    loggerDebug('Found Node: ' + yellow(label), {toConsole: true});
+                }
+            });
+        });
     }
     catch (e)  {
         loggerError('No nodes found', e);
@@ -181,11 +188,20 @@ async function findFromAndToLabels(edgeStructure) {
     const query = `MATCH (from)-[r:${sanitize(edgeStructure.label)}]->(to) WITH from, to LIMIT $sample RETURN DISTINCT labels(from) as fromLabel, labels(to) as toLabel`;
     loggerDebug(`Retrieving incoming and outgoing labels for edge ${edgeStructure.label} with limit ${SAMPLE}`, {toConsole: true});
     const response = await queryNeptune(query, {sample: SAMPLE});
+    const existingDirections = new Set(
+        edgeStructure.directions.map(dir => `${dir.from}|${dir.to}`)
+    );
+
     for (let result of response.results) {
         for (let fromLabel of result.fromLabel) {
             for (let toLabel of result.toLabel) {
-                edgeStructure.directions.push({from:fromLabel, to:toLabel});
-                loggerDebug('Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel), {toConsole: true});
+                const directionKey = `${fromLabel}|${toLabel}`;
+
+                if (!existingDirections.has(directionKey)) {
+                    edgeStructure.directions.push({from: fromLabel, to: toLabel});
+                    existingDirections.add(directionKey);
+                    loggerDebug('Found edge: ' + yellow(edgeStructure.label) + '  direction: ' + yellow(fromLabel) + ' -> ' + yellow(toLabel), {toConsole: true});
+                }
             }
         }
     }
