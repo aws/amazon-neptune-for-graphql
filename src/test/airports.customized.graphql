@@ -129,6 +129,7 @@ type Version @alias(property: "version") {
   author: String
   type: String
   code: String
+  dataSourcePulledFromOut(filter: DataSourceInput, options: Options): [DataSource] @relationship(edgeType: "pulled:From", direction: OUT)
 }
 
 input VersionInput {
@@ -254,6 +255,57 @@ input AirportSort {
   elev: SortingDirection
 }
 
+type DataSource @alias(property: "dataSource") {
+  _id: ID! @id
+  name: String
+  type: String
+  url: String
+  description: String
+  lastUpdated: String
+  isActive: Boolean
+  versionPulledFromIn(filter: VersionInput, options: Options): [Version] @relationship(edgeType: "pulled:From", direction: IN)
+}
+
+input DataSourceInput {
+  _id: ID @id
+  name: StringScalarFilters
+  type: StringScalarFilters
+  url: StringScalarFilters
+  description: StringScalarFilters
+  lastUpdated: StringScalarFilters
+  isActive: Boolean
+}
+
+input DataSourceCreateInput {
+  _id: ID @id
+  name: String
+  type: String
+  url: String
+  description: String
+  lastUpdated: String
+  isActive: Boolean
+}
+
+input DataSourceUpdateInput {
+  _id: ID! @id
+  name: String
+  type: String
+  url: String
+  description: String
+  lastUpdated: String
+  isActive: Boolean
+}
+
+input DataSourceSort {
+  _id: SortingDirection
+  name: SortingDirection
+  type: SortingDirection
+  url: SortingDirection
+  description: SortingDirection
+  lastUpdated: SortingDirection
+  isActive: SortingDirection
+}
+
 type Contains @alias(property:"contains") {
 _id: ID! @id
 }
@@ -265,6 +317,10 @@ dist: Int
 
 input RouteInput {
 dist: Int
+}
+
+type PulledFrom @alias(property:"pulled:From") {
+  _id: ID! @id
 }
 
 input Options {

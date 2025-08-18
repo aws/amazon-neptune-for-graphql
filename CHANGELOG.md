@@ -112,12 +112,12 @@ permissions and limitations under the License.
 * Fixed Apollo template to reference `graphql` `parse` instead of `graphql-tag`
   `gql` ([#116](https://github.com/aws/amazon-neptune-for-graphql/pull/116))
 * Fixed deployment of AWS resources if a pipeline name is not provided as an
-  input
-  option ([#117](https://github.com/aws/amazon-neptune-for-graphql/pull/117))
+  input option ([#117](https://github.com/aws/amazon-neptune-for-graphql/pull/117))
 * Fixed invalid schema generation when AWS AppSync scalar types are used in 
-  an input 
-  schema ([#118](https://github.com/aws/amazon-neptune-for-graphql/pull/118))
+  an input schema ([#118](https://github.com/aws/amazon-neptune-for-graphql/pull/118))
 * Fixed duplicated nodes and edges from nodes with 
   multi-labels ([#125](https://github.com/aws/amazon-neptune-for-graphql/pull/125))
 * Updated Apollo subgraph to allow use of Federation 2 features.
   ([#126](https://github.com/aws/amazon-neptune-for-graphql/pull/126))
+* Accommodated for special characters in edge labels to ensure proper Cypher
+  translation ([#127](https://github.com/aws/amazon-neptune-for-graphql/pull/127))
