@@ -709,7 +709,7 @@ function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNam
         if (schemaTypeInfo.relationship.direction !== 'IN') {
             arrows.shift();
         }
-        matchStatements.push(`OPTIONAL MATCH (${lastNamePath})${arrows[0]}[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]${arrows[1]}(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArgs})${whereClause}${orderByClause}`);
+        matchStatements.push(`OPTIONAL MATCH (${lastNamePath})${arrows[0]}[\`${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}\`:\`${schemaTypeInfo.relationship.edgeType}\`]${arrows[1]}(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArgs})${whereClause}${orderByClause}`);
     }
 
     const thisWithId = withStatements.push({carryOver: schemaTypeInfo.pathName, inLevel: '', content: ''}) - 1;
