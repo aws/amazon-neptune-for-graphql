@@ -201,7 +201,7 @@ test('should resolve app sync event with nested edge filters and variables', () 
         query: "MATCH (getAirports_Airport:`airport`) " +
             "WHERE getAirports_Airport.country = $getAirports_Airport_country " +
             "WITH getAirports_Airport LIMIT 6\n" +
-            "OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) " +
+            "OPTIONAL MATCH (getAirports_Airport)-[`getAirports_Airport_airportRoutesOut_route`:`route`]->(getAirports_Airport_airportRoutesOut:`airport`) " +
             "WHERE getAirports_Airport_airportRoutesOut.country STARTS WITH $getAirports_Airport_airportRoutesOut_country\n" +
             "WITH getAirports_Airport, " +
             "CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] " +
@@ -252,8 +252,8 @@ test('should resolve app sync event with nested sort arguments', () => {
 
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY getAirports_Airport.desc ASC, getAirports_Airport.code DESC\n' +
-            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY getAirports_Airport_airportRoutesIn.country ASC, getAirports_Airport_airportRoutesIn.city DESC\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ORDER BY getAirports_Airport_airportRoutesIn.country ASC, getAirports_Airport_airportRoutesIn.city DESC\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({country: getAirports_Airport_airportRoutesIn.`country`, city: getAirports_Airport_airportRoutesIn.`city`}) END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({desc: getAirports_Airport.`desc`, code: getAirports_Airport.`code`, airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})',
         parameters: {},
@@ -286,8 +286,8 @@ test('should resolve app sync event with nested sort arguments and variables', (
 
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY getAirports_Airport.country ASC, getAirports_Airport.city ASC LIMIT 1\n' +
-            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY getAirports_Airport_airportRoutesIn.country DESC, getAirports_Airport_airportRoutesIn.code DESC\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ORDER BY getAirports_Airport_airportRoutesIn.country DESC, getAirports_Airport_airportRoutesIn.code DESC\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getAirports_Airport_airportRoutesIn), city: getAirports_Airport_airportRoutesIn.`city`, code: getAirports_Airport_airportRoutesIn.`code`, country: getAirports_Airport_airportRoutesIn.`country`})[..1] END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({_id:ID(getAirports_Airport), city: getAirports_Airport.`city`, code: getAirports_Airport.`code`, country: getAirports_Airport.`country`, airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})[..1]',
         parameters: {},
@@ -316,8 +316,8 @@ test('should resolve app sync event with nested sort and nested selection', () =
 
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`)\n' +
-            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ' +
             'ORDER BY getAirports_Airport_airportRoutesIn.country DESC\n' +
             'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, {dist: getAirports_Airport_airportRoutesIn_route.`dist`} AS getAirports_Airport_airportRoutesIn_route_one\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
@@ -347,8 +347,8 @@ test('should resolve app sync event with ID field as both top-level and nested s
 
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY ID(getAirports_Airport) ASC\n' +
-            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY ID(getAirports_Airport_airportRoutesIn) DESC\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ORDER BY ID(getAirports_Airport_airportRoutesIn) DESC\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getAirports_Airport_airportRoutesIn)}) END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({_id:ID(getAirports_Airport), airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})',
         parameters: {},
@@ -427,9 +427,9 @@ test('should inference query with nested types single and array, references in a
 
     expect(result).toMatchObject({
         query: "MATCH (getAirportByCode_Airport:`airport`{code:'YKM'})\n" +
-            'OPTIONAL MATCH (getAirportByCode_Airport)<-[getAirportByCode_Airport_continentContainsIn_contains:contains]-(getAirportByCode_Airport_continentContainsIn:`continent`)\n' +
-            'OPTIONAL MATCH (getAirportByCode_Airport)<-[getAirportByCode_Airport_countryContainsIn_contains:contains]-(getAirportByCode_Airport_countryContainsIn:`country`)\n' +
-            'OPTIONAL MATCH (getAirportByCode_Airport)-[getAirportByCode_Airport_airportRoutesOut_route:route]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
+            'OPTIONAL MATCH (getAirportByCode_Airport)<-[`getAirportByCode_Airport_continentContainsIn_contains`:`contains`]-(getAirportByCode_Airport_continentContainsIn:`continent`)\n' +
+            'OPTIONAL MATCH (getAirportByCode_Airport)<-[`getAirportByCode_Airport_countryContainsIn_contains`:`contains`]-(getAirportByCode_Airport_countryContainsIn:`country`)\n' +
+            'OPTIONAL MATCH (getAirportByCode_Airport)-[`getAirportByCode_Airport_airportRoutesOut_route`:`route`]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
             'WITH getAirportByCode_Airport, getAirportByCode_Airport_continentContainsIn, getAirportByCode_Airport_countryContainsIn, CASE WHEN getAirportByCode_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirportByCode_Airport_airportRoutesOut.`code`}) END AS getAirportByCode_Airport_airportRoutesOut_collect\n' +
             'WITH getAirportByCode_Airport, getAirportByCode_Airport_continentContainsIn, getAirportByCode_Airport_airportRoutesOut_collect, {desc: getAirportByCode_Airport_countryContainsIn.`desc`} AS getAirportByCode_Airport_countryContainsIn_one\n' +
             'WITH getAirportByCode_Airport, getAirportByCode_Airport_countryContainsIn_one, getAirportByCode_Airport_airportRoutesOut_collect, {desc: getAirportByCode_Airport_continentContainsIn.`desc`} AS getAirportByCode_Airport_continentContainsIn_one\n' +
@@ -446,7 +446,7 @@ test('should get edge properties in nested array (Query0004)', () => {
 
     expect(result).toMatchObject({
         query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
-            'OPTIONAL MATCH (getAirportByCode_Airport)-[getAirportByCode_Airport_airportRoutesOut_route:route]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
+            'OPTIONAL MATCH (getAirportByCode_Airport)-[`getAirportByCode_Airport_airportRoutesOut_route`:`route`]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
             'WITH getAirportByCode_Airport, getAirportByCode_Airport_airportRoutesOut, {dist: getAirportByCode_Airport_airportRoutesOut_route.`dist`} AS getAirportByCode_Airport_airportRoutesOut_route_one\n' +
             'WITH getAirportByCode_Airport, CASE WHEN getAirportByCode_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirportByCode_Airport_airportRoutesOut.`code`, route: getAirportByCode_Airport_airportRoutesOut_route_one}) END AS getAirportByCode_Airport_airportRoutesOut_collect\n' +
             'RETURN {airportRoutesOut: getAirportByCode_Airport_airportRoutesOut_collect} LIMIT 1',
@@ -583,7 +583,7 @@ test('should apply limit to results returned from a nested edge (Query0012)', ()
 
     expect(result).toMatchObject({
         query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
-            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:`airport`)\n' +
+            'OPTIONAL MATCH (getAirport_Airport)-[`getAirport_Airport_airportRoutesOut_route`:`route`]->(getAirport_Airport_airportRoutesOut:`airport`)\n' +
             'WITH getAirport_Airport, CASE WHEN getAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirport_Airport_airportRoutesOut.`code`})[..2] END AS getAirport_Airport_airportRoutesOut_collect\n' +
             'RETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect} LIMIT 1',
         parameters: { getAirport_Airport_code: 'SEA' },
@@ -598,7 +598,7 @@ test('should inference query with filter in nested edge (Query0013)', () => {
 
     expect(result).toMatchObject({
         query: 'MATCH (getAirport_Airport:`airport`) WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
-            'OPTIONAL MATCH (getAirport_Airport)-[getAirport_Airport_airportRoutesOut_route:route]->(getAirport_Airport_airportRoutesOut:`airport`) WHERE getAirport_Airport_airportRoutesOut.code = $getAirport_Airport_airportRoutesOut_code\n' +
+            'OPTIONAL MATCH (getAirport_Airport)-[`getAirport_Airport_airportRoutesOut_route`:`route`]->(getAirport_Airport_airportRoutesOut:`airport`) WHERE getAirport_Airport_airportRoutesOut.code = $getAirport_Airport_airportRoutesOut_code\n' +
             'WITH getAirport_Airport, CASE WHEN getAirport_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({city: getAirport_Airport_airportRoutesOut.`city`}) END AS getAirport_Airport_airportRoutesOut_collect\n' +
             'RETURN {airportRoutesOut: getAirport_Airport_airportRoutesOut_collect, city: getAirport_Airport.`city`} LIMIT 1',
         parameters: {
@@ -900,7 +900,7 @@ test('should resolve query with nested edge filter that uses string comparison o
         query: 'MATCH (getAirports_Airport:`airport`) ' +
             'WHERE getAirports_Airport.country = $getAirports_Airport_country ' +
             'WITH getAirports_Airport LIMIT 5\n' +
-            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
+            'OPTIONAL MATCH (getAirports_Airport)-[`getAirports_Airport_airportRoutesOut_route`:`route`]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
             'WHERE getAirports_Airport_airportRoutesOut.country STARTS WITH $getAirports_Airport_airportRoutesOut_country ' +
             'AND getAirports_Airport_airportRoutesOut.code CONTAINS $getAirports_Airport_airportRoutesOut_code\n' +
             'WITH getAirports_Airport, ' +
@@ -966,7 +966,7 @@ test('should resolve query with nested edge filter and variables', () => {
         query: 'MATCH (getAirports_Airport:`airport`) ' +
             'WHERE getAirports_Airport.country = $getAirports_Airport_country ' +
             'WITH getAirports_Airport LIMIT 6\n' +
-            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
+            'OPTIONAL MATCH (getAirports_Airport)-[`getAirports_Airport_airportRoutesOut_route`:`route`]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
             'WHERE getAirports_Airport_airportRoutesOut.country STARTS WITH $getAirports_Airport_airportRoutesOut_country\n' +
             'WITH getAirports_Airport, ' +
             'CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
@@ -1010,7 +1010,7 @@ test('should resolve query with nested edge filter and nested scalar variables',
         query: 'MATCH (getAirports_Airport:`airport`) ' +
             'WHERE getAirports_Airport.country = $getAirports_Airport_country ' +
             'WITH getAirports_Airport LIMIT 6\n' +
-            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
+            'OPTIONAL MATCH (getAirports_Airport)-[`getAirports_Airport_airportRoutesOut_route`:`route`]->(getAirports_Airport_airportRoutesOut:`airport`) ' +
             'WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
             'WITH getAirports_Airport, ' +
             'CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
@@ -1168,6 +1168,24 @@ test('should resolve mutation to update connection between nodes with a prefix',
     });
 });
 
+test('should resolve query with special characters in edge label', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getVersions',
+        arguments: {},
+        selectionSetGraphQL: '{ _id date desc dataSourcePulled_cn_fromOut(sort: [{ name: ASC }]) { _id name type } }'
+    });
+
+    expect(result).toEqual({
+        query: 'MATCH (getVersions_Version:`version`)\n' +
+            'OPTIONAL MATCH (getVersions_Version)-[`getVersions_Version_dataSourcePulled_cn_fromOut_pulled:From`:`pulled:From`]->(getVersions_Version_dataSourcePulled_cn_fromOut:`dataSource`) WITH getVersions_Version, getVersions_Version_dataSourcePulled_cn_fromOut, `getVersions_Version_dataSourcePulled_cn_fromOut_pulled:From` ORDER BY getVersions_Version_dataSourcePulled_cn_fromOut.name ASC\n' +
+            'WITH getVersions_Version, CASE WHEN getVersions_Version_dataSourcePulled_cn_fromOut IS NULL THEN [] ELSE COLLECT({_id:ID(getVersions_Version_dataSourcePulled_cn_fromOut), name: getVersions_Version_dataSourcePulled_cn_fromOut.`name`, type: getVersions_Version_dataSourcePulled_cn_fromOut.`type`}) END AS getVersions_Version_dataSourcePulled_cn_fromOut_collect\n' +
+            'RETURN collect({_id:ID(getVersions_Version), date: getVersions_Version.`date`, desc: getVersions_Version.`desc`, dataSourcePulled_cn_fromOut: getVersions_Version_dataSourcePulled_cn_fromOut_collect})',
+        parameters: {},
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
 test('should resolve query with limit and offset', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
         field: 'getAirports',
@@ -1191,7 +1209,7 @@ test('should resolve query with nested edge limit and offset', () => {
     });
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport SKIP 2 LIMIT 10\n' +
-            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`)\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`)\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
             'ELSE COLLECT({code: getAirports_Airport_airportRoutesIn.`code`})[5..8] ' +
             'END AS getAirports_Airport_airportRoutesIn_collect\n' +
@@ -1214,7 +1232,7 @@ test('should resolve query with nested edge limit and offset from variables', ()
     });
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport SKIP 4 LIMIT 2\n' +
-            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`)\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[`getAirports_Airport_airportRoutesOut_route`:`route`]->(getAirports_Airport_airportRoutesOut:`airport`)\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ' +
             'ELSE COLLECT({code: getAirports_Airport_airportRoutesOut.`code`})[6..9] ' +
             'END AS getAirports_Airport_airportRoutesOut_collect\n' +
@@ -1237,7 +1255,7 @@ test('should resolve query zero limit and offset', () => {
     });
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport SKIP 0 LIMIT 0\n' +
-            'OPTIONAL MATCH (getAirports_Airport)<-[getAirports_Airport_airportRoutesIn_route:route]-(getAirports_Airport_airportRoutesIn:`airport`)\n' +
+            'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`)\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
             'ELSE COLLECT({code: getAirports_Airport_airportRoutesIn.`code`})[0..0] ' +
             'END AS getAirports_Airport_airportRoutesIn_collect\n' +
@@ -1312,7 +1330,7 @@ test('should resolve query with nested edge fragments', () => {
     expect(result).toEqual({
         query: 'MATCH (getAirport_Airport:`airport`) ' +
             'WHERE getAirport_Airport.code = $getAirport_Airport_code\n' +
-            'OPTIONAL MATCH (getAirport_Airport)<-[getAirport_Airport_airportRoutesIn_route:route]-(getAirport_Airport_airportRoutesIn:`airport`)\n' +
+            'OPTIONAL MATCH (getAirport_Airport)<-[`getAirport_Airport_airportRoutesIn_route`:`route`]-(getAirport_Airport_airportRoutesIn:`airport`)\n' +
             'WITH getAirport_Airport, ' +
             'CASE WHEN getAirport_Airport_airportRoutesIn IS NULL THEN [] ' +
             'ELSE COLLECT({' +
@@ -1480,7 +1498,7 @@ test('should resolve multiple app sync events with updated variable values', () 
     // first result should reflect initial variable values
     expect(firstResult).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport LIMIT 3\n' +
-            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[`getAirports_Airport_airportRoutesOut_route`:`route`]->(getAirports_Airport_airportRoutesOut:`airport`) WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirports_Airport_airportRoutesOut.`code`})[..2] END AS getAirports_Airport_airportRoutesOut_collect\n' +
             'RETURN collect({code: getAirports_Airport.`code`, airportRoutesOut: getAirports_Airport_airportRoutesOut_collect})[..3]',
         parameters: { getAirports_Airport_airportRoutesOut_country: 'CA'},
@@ -1499,7 +1517,7 @@ test('should resolve multiple app sync events with updated variable values', () 
     // second result should reflect updated variable values
     expect(secondResult).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport LIMIT 3\n' +
-            'OPTIONAL MATCH (getAirports_Airport)-[getAirports_Airport_airportRoutesOut_route:route]->(getAirports_Airport_airportRoutesOut:`airport`) WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
+            'OPTIONAL MATCH (getAirports_Airport)-[`getAirports_Airport_airportRoutesOut_route`:`route`]->(getAirports_Airport_airportRoutesOut:`airport`) WHERE getAirports_Airport_airportRoutesOut.country = $getAirports_Airport_airportRoutesOut_country\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirports_Airport_airportRoutesOut.`code`})[..1] END AS getAirports_Airport_airportRoutesOut_collect\n' +
             'RETURN collect({code: getAirports_Airport.`code`, airportRoutesOut: getAirports_Airport_airportRoutesOut_collect})[..3]',
         parameters: { getAirports_Airport_airportRoutesOut_country: 'MX'},

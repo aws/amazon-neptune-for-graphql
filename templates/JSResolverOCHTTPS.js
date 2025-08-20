@@ -700,7 +700,7 @@ function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNam
     const argsAndWhereClauses = extractQueryArgsAndWhereClauses(selection.arguments, fieldSchemaInfo);
     const queryArgs = argsAndWhereClauses.queryArguments?.length > 0 ? `{${argsAndWhereClauses.queryArguments.join(',')}}` : '';
     const whereClause = argsAndWhereClauses.whereClauses?.length > 0 ? ` WHERE ${argsAndWhereClauses.whereClauses.join(' AND ')}` : '';
-    const edgePath = schemaTypeInfo.isRelationship ? `${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}` : '';
+    const edgePath = schemaTypeInfo.isRelationship ? `\`${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}\`` : '';
     const withClause = `${[lastNamePath, schemaTypeInfo.pathName, edgePath].filter(path => path !== '').join(', ')}`;
     const orderByClause = fieldSchemaInfo.argOrderBy?.length ? ` WITH ${withClause} ORDER BY ${fieldSchemaInfo.argOrderBy.map(orderBy => `${orderBy.field === fieldSchemaInfo.graphDBIdArgName ? `ID(${schemaTypeInfo.pathName})` : `${schemaTypeInfo.pathName}.${orderBy.field}`} ${orderBy.direction}`).join(', ')}` : '';
 
@@ -709,7 +709,7 @@ function createTypeFieldStatementAndRecurse({selection, fieldSchemaInfo, lastNam
         if (schemaTypeInfo.relationship.direction !== 'IN') {
             arrows.shift();
         }
-        matchStatements.push(`OPTIONAL MATCH (${lastNamePath})${arrows[0]}[${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}:${schemaTypeInfo.relationship.edgeType}]${arrows[1]}(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArgs})${whereClause}${orderByClause}`);
+        matchStatements.push(`OPTIONAL MATCH (${lastNamePath})${arrows[0]}[\`${schemaTypeInfo.pathName}_${schemaTypeInfo.relationship.edgeType}\`:\`${schemaTypeInfo.relationship.edgeType}\`]${arrows[1]}(${schemaTypeInfo.pathName}:\`${schemaTypeInfo.typeAlias}\`${queryArgs})${whereClause}${orderByClause}`);
     }
 
     const thisWithId = withStatements.push({carryOver: schemaTypeInfo.pathName, inLevel: '', content: ''}) - 1;
