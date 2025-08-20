@@ -253,7 +253,7 @@ test('should resolve app sync event with nested sort arguments', () => {
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY getAirports_Airport.desc ASC, getAirports_Airport.code DESC\n' +
             'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY getAirports_Airport_airportRoutesIn.country ASC, getAirports_Airport_airportRoutesIn.city DESC\n' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ORDER BY getAirports_Airport_airportRoutesIn.country ASC, getAirports_Airport_airportRoutesIn.city DESC\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({country: getAirports_Airport_airportRoutesIn.`country`, city: getAirports_Airport_airportRoutesIn.`city`}) END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({desc: getAirports_Airport.`desc`, code: getAirports_Airport.`code`, airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})',
         parameters: {},
@@ -287,7 +287,7 @@ test('should resolve app sync event with nested sort arguments and variables', (
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY getAirports_Airport.country ASC, getAirports_Airport.city ASC LIMIT 1\n' +
             'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY getAirports_Airport_airportRoutesIn.country DESC, getAirports_Airport_airportRoutesIn.code DESC\n' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ORDER BY getAirports_Airport_airportRoutesIn.country DESC, getAirports_Airport_airportRoutesIn.code DESC\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getAirports_Airport_airportRoutesIn), city: getAirports_Airport_airportRoutesIn.`city`, code: getAirports_Airport_airportRoutesIn.`code`, country: getAirports_Airport_airportRoutesIn.`country`})[..1] END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({_id:ID(getAirports_Airport), city: getAirports_Airport.`city`, code: getAirports_Airport.`code`, country: getAirports_Airport.`country`, airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})[..1]',
         parameters: {},
@@ -317,7 +317,7 @@ test('should resolve app sync event with nested sort and nested selection', () =
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`)\n' +
             'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ' +
             'ORDER BY getAirports_Airport_airportRoutesIn.country DESC\n' +
             'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, {dist: getAirports_Airport_airportRoutesIn_route.`dist`} AS getAirports_Airport_airportRoutesIn_route_one\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ' +
@@ -348,7 +348,7 @@ test('should resolve app sync event with ID field as both top-level and nested s
     expect(result).toEqual({
         query: 'MATCH (getAirports_Airport:`airport`) WITH getAirports_Airport ORDER BY ID(getAirports_Airport) ASC\n' +
             'OPTIONAL MATCH (getAirports_Airport)<-[`getAirports_Airport_airportRoutesIn_route`:`route`]-(getAirports_Airport_airportRoutesIn:`airport`) ' +
-            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, getAirports_Airport_airportRoutesIn_route ORDER BY ID(getAirports_Airport_airportRoutesIn) DESC\n' +
+            'WITH getAirports_Airport, getAirports_Airport_airportRoutesIn, `getAirports_Airport_airportRoutesIn_route` ORDER BY ID(getAirports_Airport_airportRoutesIn) DESC\n' +
             'WITH getAirports_Airport, CASE WHEN getAirports_Airport_airportRoutesIn IS NULL THEN [] ELSE COLLECT({_id:ID(getAirports_Airport_airportRoutesIn)}) END AS getAirports_Airport_airportRoutesIn_collect\n' +
             'RETURN collect({_id:ID(getAirports_Airport), airportRoutesIn: getAirports_Airport_airportRoutesIn_collect})',
         parameters: {},
@@ -1172,12 +1172,12 @@ test('should resolve query with special characters in edge label', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
         field: 'getVersions',
         arguments: {},
-        selectionSetGraphQL: '{ _id date desc dataSourcePulled_cn_fromOut { _id name type } }'
+        selectionSetGraphQL: '{ _id date desc dataSourcePulled_cn_fromOut(sort: [{ name: ASC }]) { _id name type } }'
     });
 
     expect(result).toEqual({
         query: 'MATCH (getVersions_Version:`version`)\n' +
-            'OPTIONAL MATCH (getVersions_Version)-[`getVersions_Version_dataSourcePulled_cn_fromOut_pulled:From`:`pulled:From`]->(getVersions_Version_dataSourcePulled_cn_fromOut:`dataSource`)\n' +
+            'OPTIONAL MATCH (getVersions_Version)-[`getVersions_Version_dataSourcePulled_cn_fromOut_pulled:From`:`pulled:From`]->(getVersions_Version_dataSourcePulled_cn_fromOut:`dataSource`) WITH getVersions_Version, getVersions_Version_dataSourcePulled_cn_fromOut, `getVersions_Version_dataSourcePulled_cn_fromOut_pulled:From` ORDER BY getVersions_Version_dataSourcePulled_cn_fromOut.name ASC\n' +
             'WITH getVersions_Version, CASE WHEN getVersions_Version_dataSourcePulled_cn_fromOut IS NULL THEN [] ELSE COLLECT({_id:ID(getVersions_Version_dataSourcePulled_cn_fromOut), name: getVersions_Version_dataSourcePulled_cn_fromOut.`name`, type: getVersions_Version_dataSourcePulled_cn_fromOut.`type`}) END AS getVersions_Version_dataSourcePulled_cn_fromOut_collect\n' +
             'RETURN collect({_id:ID(getVersions_Version), date: getVersions_Version.`date`, desc: getVersions_Version.`desc`, dataSourcePulled_cn_fromOut: getVersions_Version_dataSourcePulled_cn_fromOut_collect})',
         parameters: {},
