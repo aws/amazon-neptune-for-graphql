@@ -1172,14 +1172,14 @@ test('should resolve query with special characters in edge label', () => {
     const result = resolveGraphDBQueryFromAppSyncEvent({
         field: 'getVersions',
         arguments: {},
-        selectionSetGraphQL: '{ _id date desc dataSourcePulledFromOut { _id name type } }'
+        selectionSetGraphQL: '{ _id date desc dataSourcePulled_cn_fromOut { _id name type } }'
     });
 
     expect(result).toEqual({
         query: 'MATCH (getVersions_Version:`version`)\n' +
-            'OPTIONAL MATCH (getVersions_Version)-[`getVersions_Version_dataSourcePulledFromOut_pulled:From`:`pulled:From`]->(getVersions_Version_dataSourcePulledFromOut:`dataSource`)\n' +
-            'WITH getVersions_Version, CASE WHEN getVersions_Version_dataSourcePulledFromOut IS NULL THEN [] ELSE COLLECT({_id:ID(getVersions_Version_dataSourcePulledFromOut), name: getVersions_Version_dataSourcePulledFromOut.`name`, type: getVersions_Version_dataSourcePulledFromOut.`type`}) END AS getVersions_Version_dataSourcePulledFromOut_collect\n' +
-            'RETURN collect({_id:ID(getVersions_Version), date: getVersions_Version.`date`, desc: getVersions_Version.`desc`, dataSourcePulledFromOut: getVersions_Version_dataSourcePulledFromOut_collect})',
+            'OPTIONAL MATCH (getVersions_Version)-[`getVersions_Version_dataSourcePulled_cn_fromOut_pulled:From`:`pulled:From`]->(getVersions_Version_dataSourcePulled_cn_fromOut:`dataSource`)\n' +
+            'WITH getVersions_Version, CASE WHEN getVersions_Version_dataSourcePulled_cn_fromOut IS NULL THEN [] ELSE COLLECT({_id:ID(getVersions_Version_dataSourcePulled_cn_fromOut), name: getVersions_Version_dataSourcePulled_cn_fromOut.`name`, type: getVersions_Version_dataSourcePulled_cn_fromOut.`type`}) END AS getVersions_Version_dataSourcePulled_cn_fromOut_collect\n' +
+            'RETURN collect({_id:ID(getVersions_Version), date: getVersions_Version.`date`, desc: getVersions_Version.`desc`, dataSourcePulled_cn_fromOut: getVersions_Version_dataSourcePulled_cn_fromOut_collect})',
         parameters: {},
         language: 'opencypher',
         refactorOutput: null

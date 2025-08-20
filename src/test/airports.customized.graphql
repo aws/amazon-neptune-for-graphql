@@ -8,15 +8,15 @@ type Continent @alias(property: "continent") {
   type: String
   code: String
   desc: String
-  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+  airportContainssOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType: "contains", direction: OUT)
   contains: Contains
 }
 
 input ContinentInput {
-_id: ID @id
-type: StringScalarFilters
-code: StringScalarFilters
-desc: StringScalarFilters
+  _id: ID @id
+  type: StringScalarFilters
+  code: StringScalarFilters
+  desc: StringScalarFilters
 }
 
 input ContinentCreateInput {
@@ -54,24 +54,24 @@ type Country @alias(property: "country") {
   governmentSite: AWSURL
   emergencyLine: AWSPhone
   gatewayIp: AWSIPAddress
-  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+  airportContainssOut(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport] @relationship(edgeType: "contains", direction: OUT)
   contains: Contains
 }
 
 input CountryInput {
-_id: ID @id
-type: StringScalarFilters
-code: StringScalarFilters
-desc: StringScalarFilters
-foundingDate: AWSDate
-localOfficeTime: AWSTime
-updatedAt: AWSDateTime
-createdTimestamp: AWSTimestamp
-officialEmail: AWSEmail
-metadataJson: AWSJSON
-governmentSite: AWSURL
-emergencyLine: AWSPhone
-gatewayIp: AWSIPAddress
+  _id: ID @id
+  type: StringScalarFilters
+  code: StringScalarFilters
+  desc: StringScalarFilters
+  foundingDate: AWSDate
+  localOfficeTime: AWSTime
+  updatedAt: AWSDateTime
+  createdTimestamp: AWSTimestamp
+  officialEmail: AWSEmail
+  metadataJson: AWSJSON
+  governmentSite: AWSURL
+  emergencyLine: AWSPhone
+  gatewayIp: AWSIPAddress
 }
 
 input CountryCreateInput {
@@ -129,16 +129,17 @@ type Version @alias(property: "version") {
   author: String
   type: String
   code: String
-  dataSourcePulledFromOut(filter: DataSourceInput, options: Options): [DataSource] @relationship(edgeType: "pulled:From", direction: OUT)
+  dataSourcePulled_cn_fromOut(filter: DataSourceInput, options: Options): [DataSource] @relationship(edgeType: "pulled:From", direction: OUT)
+  pulled_cn_From: Pulled_cn_from
 }
 
 input VersionInput {
-_id: ID @id
-date: StringScalarFilters
-desc: StringScalarFilters
-author: StringScalarFilters
-type: StringScalarFilters
-code: StringScalarFilters
+  _id: ID @id
+  date: StringScalarFilters
+  desc: StringScalarFilters
+  author: StringScalarFilters
+  type: StringScalarFilters
+  code: StringScalarFilters
 }
 
 input VersionCreateInput {
@@ -192,19 +193,19 @@ type Airport @alias(property: "airport") {
 }
 
 input AirportInput {
-_id: ID @id
-type: StringScalarFilters
-city: StringScalarFilters
-icao: StringScalarFilters
-code: StringScalarFilters
-country: StringScalarFilters
-lat: Float
-longest: Int
-runways: Int
-desc: StringScalarFilters
-lon: Float
-region: StringScalarFilters
-elev: Int
+  _id: ID @id
+  type: StringScalarFilters
+  city: StringScalarFilters
+  icao: StringScalarFilters
+  code: StringScalarFilters
+  country: StringScalarFilters
+  lat: Float
+  longest: Int
+  runways: Int
+  desc: StringScalarFilters
+  lon: Float
+  region: StringScalarFilters
+  elev: Int
 }
 
 input AirportCreateInput {
@@ -263,7 +264,8 @@ type DataSource @alias(property: "dataSource") {
   description: String
   lastUpdated: String
   isActive: Boolean
-  versionPulledFromIn(filter: VersionInput, options: Options): [Version] @relationship(edgeType: "pulled:From", direction: IN)
+  versionPulled_cn_fromsIn(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version] @relationship(edgeType: "pulled:From", direction: IN)
+  pulled_cn_From: Pulled_cn_from
 }
 
 input DataSourceInput {
@@ -306,65 +308,67 @@ input DataSourceSort {
   isActive: SortingDirection
 }
 
-type Contains @alias(property:"contains") {
-_id: ID! @id
+type Contains @alias(property: "contains") {
+  _id: ID! @id
 }
 
-type Route @alias(property:"route") {
-_id: ID! @id
-dist: Int
+type Route @alias(property: "route") {
+  _id: ID! @id
+  dist: Int
 }
 
 input RouteInput {
-dist: Int
+  dist: Int
 }
 
-type PulledFrom @alias(property:"pulled:From") {
+type Pulled_cn_from @alias(property: "pulled:From") {
   _id: ID! @id
 }
 
 input Options {
-limit:Int
-offset:Int
+  limit: Int
+  offset: Int
 }
 
 input StringScalarFilters {
-eq: String
-contains: String
-endsWith: String
-startsWith: String
+  eq: String
+  contains: String
+  endsWith: String
+  startsWith: String
 }
 
 type Query {
-getAirportByCode(code: String): Airport
-getAirportConnection(fromCode: String!, toCode: String!): Airport @cypher(statement: "MATCH (:airport{code: '$fromCode'})-[:route]->(this:airport)-[:route]->(:airport{code:'$toCode'})")
-getContinentsWithGremlin: [Continent] @graphQuery(statement: "g.V().hasLabel('continent').elementMap().fold()")
-getCountriesCountGremlin: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
-getContinent(filter: ContinentInput): Continent
-getContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
-getCountry(filter: CountryInput): Country
-getCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
-getVersion(filter: VersionInput): Version
-getVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
-getAirport(filter: AirportInput): Airport
-airportQuery_getAirport(filter: AirportInput): Airport
-getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
-getAirportWithGremlin(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
-getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
+  getAirportByCode(code: String): Airport
+  getAirportConnection(fromCode: String!, toCode: String!): Airport @cypher(statement: "MATCH (:airport{code: '$fromCode'})-[:route]->(this:airport)-[:route]->(:airport{code:'$toCode'})")
+  getContinentsWithGremlin: [Continent] @graphQuery(statement: "g.V().hasLabel('continent').elementMap().fold()")
+  getCountriesCountGremlin: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
+  getContinent(filter: ContinentInput): Continent
+  getContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
+  getCountry(filter: CountryInput): Country
+  getCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
+  getVersion(filter: VersionInput): Version
+  getVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
+  getAirport(filter: AirportInput): Airport
+  airportQuery_getAirport(filter: AirportInput): Airport
+  getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+  getAirportWithGremlin(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
+  getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
 }
 
 type Mutation {
-createAirport(input: AirportCreateInput!): Airport
-airportMutation_createAirport(input: AirportCreateInput!): Airport
-updateAirport(input: AirportUpdateInput!): Airport
-airportMutation_updateAirport(input: AirportUpdateInput!): Airport
-connectCountryToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
-airportMutation_connectCountryToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
-deleteContainsConnectionFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
-airportMutation_deleteContainsConnectionFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
-updateRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
-airportMutation_updateRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
-createAirportCustom(input: AirportCreateInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
+  createAirport(input: AirportCreateInput!): Airport
+  airportMutation_createAirport(input: AirportCreateInput!): Airport
+  updateAirport(input: AirportUpdateInput!): Airport
+  airportMutation_updateAirport(input: AirportUpdateInput!): Airport
+  connectCountryToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
+  airportMutation_connectCountryToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
+  deleteContainsConnectionFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  airportMutation_deleteContainsConnectionFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  updateRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  airportMutation_updateRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  connectVersionToDataSourceThroughPulled_cn_from(from_id: ID!, to_id: ID!): Pulled_cn_from
+  deletePulled_cn_fromConnectionFromVersionToDataSource(from_id: ID!, to_id: ID!): Boolean
+  createAirportCustom(input: AirportCreateInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
 }
 
 schema {
