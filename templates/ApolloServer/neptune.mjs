@@ -34,9 +34,7 @@ export async function resolveEvent(event) {
         if (loggingEnabled) {
             console.error(err);
         }
-        return {
-            "error": [{"message": err}]
-        };
+        throw new Error(`Failed to resolve Neptune query: ${err.message || err}`);
     }
 
 }

@@ -71,11 +71,9 @@ export async function queryNeptune(neptuneUrl, resolvedQuery, options = {logging
             return jsonData;
         }
     } catch (err) {
-        console.error("Failed to query neptune")
+        console.error("Failed to query neptune");
         console.error(err);
-        return {
-            "error": [{"message": err}]
-        };
-    }
 
+        throw new Error(`Neptune query failed: ${err.message || err}`);
+    }
 }
