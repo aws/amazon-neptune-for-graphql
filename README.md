@@ -289,6 +289,33 @@ type Mutation {
 }
 ```
 
+You can add a custom query to filter nodes based on a connected node's
+properties. This is an example of a query which can retrieve airports that have
+routes to a given country.
+
+```graphql
+type Query {
+    getAirportsWithRoutesToCountry(country: String): [Airport] @graphQuery(statement: "MATCH (getAirportsWithRoutesToCountry_Airport:`airport`)-[:route]->(toAirport:`airport` {country: '$country'}) WITH DISTINCT getAirportsWithRoutesToCountry_Airport")
+}
+```
+
+With this customized query, you can use a graphQL query to retrieve airports
+that have routes to CA and the CA airport properties:
+
+```graphql
+query GetAirportsWithRoutesToCountry {
+    getAirportsWithRoutesToCountry(country: "CA") {
+        city
+        code
+        country
+        airportRoutesOut(filter: {country: {eq: "CA"}}) {
+            city
+            code
+        }
+    }
+}
+```
+
 You can add a query or mutation using a Gremlin query. At this time Gremlin
 queries are limited to return *scalar* values, or *elementMap()* for a single
 node, or *elementMap().fold()* for a list of nodes.
@@ -388,6 +415,12 @@ For Example:
     "field": "outboundRoutesCountAdd",
     "action": "add",
     "value": "outboundRoutesCountAdd: Int @graphQuery(statement: \"MATCH (this)-[r:route]->(a) RETURN count(r)\")"
+  },
+  {
+    "type": "Query",
+    "field": "getAirportsWithRoutesToCountry",
+    "action": "add",
+    "value": "getAirportsWithRoutesToCountry(country:String): [Airport] @graphQuery(statement: \"MATCH (getAirportsWithRoutesToCountry_Airport:`airport`)-[:route]->(toAirport:`airport` {country: '$country'}) WITH DISTINCT getAirportsWithRoutesToCountry_Airport\")"
   },
   {
     "type": "Mutation",
