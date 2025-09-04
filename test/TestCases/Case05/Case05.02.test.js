@@ -1,4 +1,4 @@
-import { checkFolderContainsFiles, executeAppSyncQuery, unzipAndGetContents } from '../../testLib';
+import { checkFolderContainsFiles, executeAppSyncQuery, executeGraphQLQuery, unzipAndGetContents } from '../../testLib';
 import fs from "fs";
 import path from "path";
 
@@ -43,5 +43,16 @@ describe('Validate pipeline with http resolver output content', () => {
         const results = await executeAppSyncQuery(apiId, 'query {getContinents {code}}', {}, region);
         const codes = results.data.getContinents.map(continent => continent.code).sort();
         expect(codes).toEqual(['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']);
+    }, 600000);
+
+    test('Should throw error if api key is invalid', async () => {
+        const awsResources = JSON.parse(fs.readFileSync(path.join(outputFolderPath, 'AirportsJestTest-resources.json'), 'utf8'));
+        const apiId = awsResources.AppSyncAPI;
+        const region = awsResources.region;
+
+        await expect(executeGraphQLQuery(apiId, 'invalidKey', 'query {getContinents {code}}', {}, region))
+            .rejects
+            .toThrow('status code 401');
+        
     }, 600000);
 });
