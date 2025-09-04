@@ -70,6 +70,7 @@ permissions and limitations under the License.
   neptune analytics graph and added testing
   documentation ([#113](https://github.com/aws/amazon-neptune-for-graphql/pull/113))
 * Updated query and mutation names to be less graph-specific ([#124](https://github.com/aws/amazon-neptune-for-graphql/pull/124))
+* Improved API error message for failed requests ([#129](https://github.com/aws/amazon-neptune-for-graphql/pull/129)) 
 * Documented custom query to filter nodes by connected nodes'
   properties ([#130](https://github.com/aws/amazon-neptune-for-graphql/pull/130))
 
