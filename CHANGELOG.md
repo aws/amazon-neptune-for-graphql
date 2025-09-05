@@ -75,6 +75,9 @@ permissions and limitations under the License.
   properties ([#130](https://github.com/aws/amazon-neptune-for-graphql/pull/130))
 * Improved error messaging if query field or selection field types cannot be
   determined ([#132](https://github.com/aws/amazon-neptune-for-graphql/pull/132))
+* Allow credentials to be refreshed at Apollo runtime by passing the credential
+  provider to the
+  interceptor  ([#134](https://github.com/aws/amazon-neptune-for-graphql/pull/134))
 
 ### Bug Fixes
 

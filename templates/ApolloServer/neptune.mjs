@@ -10,14 +10,24 @@ import { decompressGzipToString } from './util.mjs';
 dotenv.config();
 
 const loggingEnabled = process.env.LOGGING_ENABLED === 'true';
-const credentialProvider = fromNodeProviderChain();
-const credentials = await credentialProvider();
+
+// wrapper that aws4Interceptor can use to obtain credentials
+const credentialsProviderWrapper = {
+    getCredentials: async () => {
+        // uses the default node provider chain
+        // see aws documentation for configuration options
+        // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-credential-providers/#fromnodeproviderchain
+        const credentialProvider = fromNodeProviderChain();
+        return await credentialProvider();
+    }
+};
+
 const interceptor = aws4Interceptor({
     options: {
         region: process.env.AWS_REGION,
         service: process.env.NEPTUNE_TYPE,
     },
-    credentials: credentials
+    credentials: credentialsProviderWrapper
 });
 axios.interceptors.request.use(interceptor);
 rax.attach();
