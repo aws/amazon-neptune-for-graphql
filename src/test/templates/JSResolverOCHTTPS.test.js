@@ -4,6 +4,7 @@ import {schemaParser} from "../../schemaParser.js";
 import {validatedSchemaModel} from "../../schemaModelValidator.js";
 import {injectAwsScalarDefinitions} from "../../../templates/util.mjs";
 import { gql } from "graphql-tag";
+import { jest } from "@jest/globals";
 
 beforeAll(() => {
     // Initialize resolver
@@ -1524,4 +1525,26 @@ test('should resolve multiple app sync events with updated variable values', () 
         language: 'opencypher',
         refactorOutput: null
     });
+});
+
+test('should log detailed error when GraphQL selection set field type cannot be resolved', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    
+    try {
+        resolveGraphDBQueryFromEvent({
+            field: 'getAirport',
+            arguments: {},
+            selectionSet: gql`{ invalid }`.definitions[0].selectionSet,
+            fragments: {}
+        });
+    } catch (error) {
+        // Expected to fail due to unhandled type
+        console.log(error);
+    }
+    
+    expect(consoleSpy).toHaveBeenCalledWith(
+        'GraphQL field type not found - field: invalid type: Airport path: getAirport_Airport.'
+    );
+    
+    consoleSpy.mockRestore();
 });

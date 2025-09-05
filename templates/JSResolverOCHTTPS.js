@@ -299,9 +299,11 @@ function getSchemaQueryInfo(name) {
 
     });
 
-    if (r.returnType == '') {
-        console.error('GraphQL query not found.');
-
+    if (!r.returnType) {
+        // if we ended up here it means there's an unhandled field type
+        const message = `GraphQL query return type not found for ${name}`;
+        console.error(message);
+        throw new Error(message);
     }
 
     return r;
@@ -449,8 +451,10 @@ function getSchemaFieldInfo(typeName, fieldName, pathName) {
         }
     });
 
-    if (r.type == '') {
-        console.error('GraphQL field not found.');
+    if (!r.type) {
+        // not throwing error here as the type is not currently used to determine the cypher query
+        // but logging for troubleshooting purposes
+        console.log(`GraphQL field type not found - field: ${fieldName} type: ${typeName} path: ${pathName}.`);
     }
 
     return r;
