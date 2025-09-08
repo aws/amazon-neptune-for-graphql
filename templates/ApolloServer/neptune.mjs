@@ -17,8 +17,13 @@ const credentialsProviderWrapper = {
         // uses the default node provider chain
         // see aws documentation for configuration options
         // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-credential-providers/#fromnodeproviderchain
-        const credentialProvider = fromNodeProviderChain();
-        return await credentialProvider();
+        try {
+            const credentialProvider = fromNodeProviderChain();
+            return await credentialProvider();
+        } catch (error) {
+            console.error('Failed to obtain AWS credentials:', error);
+            throw error;
+        }
     }
 };
 
