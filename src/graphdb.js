@@ -195,7 +195,7 @@ function graphDBInferenceSchema (graphdbSchema, { addMutations = true, queryPref
                     if (direction.relationship === 'ONE-MANY') {
                         r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options, sort: [${toCase}Sort!]): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
-                    if (direction.relationship === 'MANY-ONE') {
+                    if (direction.relationship === 'MANY-ONE' || direction.relationship === 'ONE-ONE') {
                         r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
                     }
                     if (!edgeTypes.includes(edge.label))
@@ -206,7 +206,7 @@ function graphDBInferenceSchema (graphdbSchema, { addMutations = true, queryPref
                     if (direction.relationship === 'MANY-MANY') {
                         r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options, sort: [${fromCase}Sort!]): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`
                     }
-                    if (direction.relationship === 'ONE-MANY') {
+                    if (direction.relationship === 'ONE-MANY' || direction.relationship === 'ONE-ONE') {
                         r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
                     }
                     if (direction.relationship === 'MANY-ONE') {

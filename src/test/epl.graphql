@@ -9,6 +9,7 @@ type Stadium {
     capacity: Int
     name: String
     cityCity_edgeOut: City @relationship(edgeType: "CITY_EDGE", direction: OUT)
+    teamStadium_edgeIn: Team @relationship(edgeType: "STADIUM_EDGE", direction: IN)
     CITY_EDGE: City_edge
     STADIUM_EDGE: Stadium_edge
 }
@@ -54,6 +55,7 @@ type Team {
     fullName: String
     founded: Int
     leagueCurrent_leagueOut: League @relationship(edgeType: "CURRENT_LEAGUE", direction: OUT)
+    stadiumStadium_edgeOut: Stadium @relationship(edgeType: "STADIUM_EDGE", direction: OUT)
     CURRENT_LEAGUE: Current_league
     STADIUM_EDGE: Stadium_edge
 }

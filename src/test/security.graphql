@@ -65,7 +65,10 @@ type Ec2_cn_vpc @alias(property: "ec2:vpc") {
     cidr_block: String
     ec2_cn_network_hy_interfaceResource_linksIn(filter: Ec2_cn_network_hy_interfaceInput, options: Options, sort: [Ec2_cn_network_hy_interfaceSort!]): [Ec2_cn_network_hy_interface] @relationship(edgeType: "resource_link", direction: IN)
     ec2_cn_subnetResource_linksIn(filter: Ec2_cn_subnetInput, options: Options, sort: [Ec2_cn_subnetSort!]): [Ec2_cn_subnet] @relationship(edgeType: "resource_link", direction: IN)
+    ec2_cn_internet_hy_gatewayResource_linkIn: Ec2_cn_internet_hy_gateway @relationship(edgeType: "resource_link", direction: IN)
     ec2_cn_instanceResource_linksIn(filter: Ec2_cn_instanceInput, options: Options, sort: [Ec2_cn_instanceSort!]): [Ec2_cn_instance] @relationship(edgeType: "resource_link", direction: IN)
+    ec2_cn_route_hy_tableResource_linkIn: Ec2_cn_route_hy_table @relationship(edgeType: "resource_link", direction: IN)
+    rds_cn_dbTransient_resource_linkIn: Rds_cn_db @relationship(edgeType: "transient_resource_link", direction: IN)
     resource_link: Resource_link
     transient_resource_link: Transient_resource_link
 }
@@ -100,6 +103,7 @@ type Iam_cn_role @alias(property: "iam:role") {
     scan_id: String
     assume_role_policy_document_dot_version: String @alias(property: "assume_role_policy_document.version")
     iam_cn_policyResource_linksOut(filter: Iam_cn_policyInput, options: Options, sort: [Iam_cn_policySort!]): [Iam_cn_policy] @relationship(edgeType: "resource_link", direction: OUT)
+    iam_cn_instance_hy_profileResource_linkIn: Iam_cn_instance_hy_profile @relationship(edgeType: "resource_link", direction: IN)
     resource_link: Resource_link
 }
 
@@ -195,6 +199,9 @@ type Rds_cn_db @alias(property: "rds:db") {
     endpoint_port: String
     instance_create_time: String
     engine: String
+    ec2_cn_security_hy_groupTransient_resource_linkOut: Ec2_cn_security_hy_group @relationship(edgeType: "transient_resource_link", direction: OUT)
+    ec2_cn_vpcTransient_resource_linkOut: Ec2_cn_vpc @relationship(edgeType: "transient_resource_link", direction: OUT)
+    kms_cn_keyTransient_resource_linkOut: Kms_cn_key @relationship(edgeType: "transient_resource_link", direction: OUT)
     transient_resource_link: Transient_resource_link
 }
 
@@ -258,6 +265,9 @@ type Ec2_cn_instance @alias(property: "ec2:instance") {
     ec2_cn_security_hy_groupResource_linkOut: Ec2_cn_security_hy_group @relationship(edgeType: "resource_link", direction: OUT)
     ec2_cn_subnetResource_linkOut: Ec2_cn_subnet @relationship(edgeType: "resource_link", direction: OUT)
     ec2_cn_vpcResource_linkOut: Ec2_cn_vpc @relationship(edgeType: "resource_link", direction: OUT)
+    ec2_cn_volumeResource_linkIn: Ec2_cn_volume @relationship(edgeType: "resource_link", direction: IN)
+    tagTaggedOut: Tag @relationship(edgeType: "tagged", direction: OUT)
+    iam_cn_instance_hy_profileTransient_resource_linkOut: Iam_cn_instance_hy_profile @relationship(edgeType: "transient_resource_link", direction: OUT)
     imageTransient_resource_linkOut: Image @relationship(edgeType: "transient_resource_link", direction: OUT)
     resource_link: Resource_link
     tagged: Tagged
@@ -353,6 +363,7 @@ type Ec2_cn_security_hy_group @alias(property: "ec2:security-group") {
     ec2_cn_security_hy_groupResource_linkOut: Ec2_cn_security_hy_group @relationship(edgeType: "resource_link", direction: OUT)
     ec2_cn_security_hy_groupResource_linkIn: Ec2_cn_security_hy_group @relationship(edgeType: "resource_link", direction: IN)
     tagTaggedsOut(filter: TagInput, options: Options, sort: [TagSort!]): [Tag] @relationship(edgeType: "tagged", direction: OUT)
+    rds_cn_dbTransient_resource_linkIn: Rds_cn_db @relationship(edgeType: "transient_resource_link", direction: IN)
     resource_link: Resource_link
     tagged: Tagged
     transient_resource_link: Transient_resource_link
@@ -398,6 +409,7 @@ type Ec2_cn_internet_hy_gateway @alias(property: "ec2:internet-gateway") {
     scan_id: String
     owner_id: String
     attachment_dot_state: String @alias(property: "attachment.state")
+    ec2_cn_vpcResource_linkOut: Ec2_cn_vpc @relationship(edgeType: "resource_link", direction: OUT)
     resource_link: Resource_link
 }
 
@@ -488,6 +500,8 @@ type Iam_cn_instance_hy_profile @alias(property: "iam:instance-profile") {
     arn: String
     name: String
     scan_id: String
+    iam_cn_roleResource_linkOut: Iam_cn_role @relationship(edgeType: "resource_link", direction: OUT)
+    ec2_cn_instanceTransient_resource_linkIn: Ec2_cn_instance @relationship(edgeType: "transient_resource_link", direction: IN)
     resource_link: Resource_link
     transient_resource_link: Transient_resource_link
 }
@@ -570,6 +584,7 @@ type Tag @alias(property: "tag") {
     scan_id: String
     Name: String
     ec2_cn_security_hy_groupTaggedIn: Ec2_cn_security_hy_group @relationship(edgeType: "tagged", direction: IN)
+    ec2_cn_instanceTaggedIn: Ec2_cn_instance @relationship(edgeType: "tagged", direction: IN)
     tagged: Tagged
 }
 
@@ -590,6 +605,7 @@ type Kms_cn_key @alias(property: "kms:key") {
     arn: String
     scan_id: String
     key_id: String
+    rds_cn_dbTransient_resource_linkIn: Rds_cn_db @relationship(edgeType: "transient_resource_link", direction: IN)
     transient_resource_link: Transient_resource_link
 }
 
@@ -620,6 +636,7 @@ type Ec2_cn_volume @alias(property: "ec2:volume") {
     size: String
     create_time: String
     attachment_dot_delete_on_termination: String @alias(property: "attachment.delete_on_termination")
+    ec2_cn_instanceResource_linkOut: Ec2_cn_instance @relationship(edgeType: "resource_link", direction: OUT)
     resource_link: Resource_link
 }
 
@@ -666,6 +683,7 @@ type Ec2_cn_route_hy_table @alias(property: "ec2:route-table") {
     association_dot_main: String @alias(property: "association.main")
     route_dot_state: String @alias(property: "route.state")
     association_dot_route_table_association_id: String @alias(property: "association.route_table_association_id")
+    ec2_cn_vpcResource_linkOut: Ec2_cn_vpc @relationship(edgeType: "resource_link", direction: OUT)
     resource_link: Resource_link
 }
 

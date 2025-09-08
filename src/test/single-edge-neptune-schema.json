@@ -1,0 +1,39 @@
+{
+  "nodeStructures": [
+    {
+      "label": "aws:lambda:function",
+      "properties": [
+        {
+          "name": "arn",
+          "type": "String"
+        }
+      ]
+    },
+    {
+      "label": "tag",
+      "properties": [
+        {
+          "name": "value",
+          "type": "String"
+        },
+        {
+          "name": "key",
+          "type": "String"
+        }
+      ]
+    }
+  ],
+  "edgeStructures": [
+    {
+      "label": "tagged_aws:lambda:function",
+      "properties": [],
+      "directions": [
+        {
+          "from": "aws:lambda:function",
+          "to": "tag",
+          "relationship": "ONE-ONE"
+        }
+      ]
+    }
+  ]
+}

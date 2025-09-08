@@ -6,6 +6,7 @@ enum SortingDirection {
 type post {
     _id: ID! @id
     text: String
+    authorauthorOut: author @relationship(edgeType: "author", direction: OUT)
     author: author
 }
 
@@ -22,6 +23,7 @@ input postSort {
 type author {
     _id: ID! @id
     username: String
+    postauthorIn: post @relationship(edgeType: "author", direction: IN)
     author: author
 }
 
