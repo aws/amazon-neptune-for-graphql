@@ -7,6 +7,7 @@ type City @alias(property: "city") {
     _id: ID! @id
     name: String
     personLivessIn(filter: PersonInput, options: Options, sort: [PersonSort!]): [Person] @relationship(edgeType: "lives", direction: IN)
+    stateWithinOut: State @relationship(edgeType: "within", direction: OUT)
     restaurantWithinsIn(filter: RestaurantInput, options: Options, sort: [RestaurantSort!]): [Restaurant] @relationship(edgeType: "within", direction: IN)
     lives: Lives
     within: Within
@@ -122,6 +123,7 @@ input CuisineSort {
 type State @alias(property: "state") {
     _id: ID! @id
     name: String
+    cityWithinIn: City @relationship(edgeType: "within", direction: IN)
     within: Within
 }
 

@@ -96,6 +96,13 @@ test('should alias edge with same label as node', async () => {
     expect(actual).toBe(expected);
 });
 
+test('should handle single one-to-one edge', async () => {
+    loggerInit('./src/test/output', false, 'info');
+    const actual = await inferGraphQLSchema('./src/test/single-edge-neptune-schema.json', {addMutations: false});
+    const expected = await loadGraphQLSchema('./src/test/single-edge.graphql');
+    expect(actual).toBe(expected);
+});
+
 async function inferGraphQLSchema(neptuneSchemaFilePath, { addMutations = false, queryPrefix = '', mutationPrefix = ''} = {}) {
     let neptuneSchema = readFile(neptuneSchemaFilePath);
     let inferredSchema = graphDBInferenceSchema(neptuneSchema, {addMutations, queryPrefix, mutationPrefix});

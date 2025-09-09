@@ -1,0 +1,68 @@
+enum SortingDirection {
+    ASC
+    DESC
+}
+
+type aws_cn_lambda_cn_function @alias(property: "aws:lambda:function") {
+    _id: ID! @id
+    arn: String
+    tagtagged_aws_cn_lambda_cn_functionOut: tag @relationship(edgeType: "tagged_aws:lambda:function", direction: OUT)
+    tagged_aws_cn_lambda_cn_function: tagged_aws_cn_lambda_cn_function
+}
+
+input aws_cn_lambda_cn_functionInput {
+    _id: ID @id
+    arn: StringScalarFilters
+}
+
+input aws_cn_lambda_cn_functionSort {
+    _id: SortingDirection
+    arn: SortingDirection
+}
+
+type tag {
+    _id: ID! @id
+    value: String
+    key: String
+    aws_cn_lambda_cn_functiontagged_aws_cn_lambda_cn_functionIn: aws_cn_lambda_cn_function @relationship(edgeType: "tagged_aws:lambda:function", direction: IN)
+    tagged_aws_cn_lambda_cn_function: tagged_aws_cn_lambda_cn_function
+}
+
+input tagInput {
+    _id: ID @id
+    value: StringScalarFilters
+    key: StringScalarFilters
+}
+
+input tagSort {
+    _id: SortingDirection
+    value: SortingDirection
+    key: SortingDirection
+}
+
+type tagged_aws_cn_lambda_cn_function @alias(property: "tagged_aws:lambda:function") {
+    _id: ID! @id
+}
+
+input Options {
+    limit: Int
+    offset: Int
+}
+
+input StringScalarFilters {
+    eq: String
+    contains: String
+    endsWith: String
+    startsWith: String
+}
+
+type Query {
+    getaws_cn_lambda_cn_function(filter: aws_cn_lambda_cn_functionInput): aws_cn_lambda_cn_function
+    getaws_cn_lambda_cn_functions(filter: aws_cn_lambda_cn_functionInput, options: Options, sort: [aws_cn_lambda_cn_functionSort!]): [aws_cn_lambda_cn_function]
+    gettag(filter: tagInput): tag
+    gettags(filter: tagInput, options: Options, sort: [tagSort!]): [tag]
+}
+
+schema {
+    query: Query
+}

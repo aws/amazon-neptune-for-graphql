@@ -176,41 +176,54 @@ function graphDBInferenceSchema (graphdbSchema, { addMutations = true, queryPref
                 let edgeCase = toPascalCase(cleanseLabel(edge.label));
 
                 if (direction.from === node.label && direction.to === node.label){
-                    if (direction.relationship === 'MANY-MANY') {
-                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
-                    }
-                    if (direction.relationship === 'ONE-ONE') {
-                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}Out: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                        r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}In: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
-                    }
-                    if (!edgeTypes.includes(edge.label))
-                        edgeTypes.push(edge.label);                                      
-                }
-                
-                if (direction.from === node.label && direction.to !== node.label){
-                    if (direction.relationship === 'MANY-MANY') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options, sort: [${toCase}Sort!]): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                    }
-                    if (direction.relationship === 'ONE-MANY') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options, sort: [${toCase}Sort!]): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
-                    }
-                    if (direction.relationship === 'MANY-ONE') {
-                        r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                    switch (direction.relationship) {
+                        case 'MANY-MANY':
+                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${nodeCase}Input, options: Options, sort: [${nodeCase}Sort!]): [${nodeCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
+                            break;
+                        case 'ONE-ONE':
+                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}Out: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                            r += `\t${nodeCase.toLocaleLowerCase() + edgeCase}In: ${nodeCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
+                            break;
+                        default:
+                            loggerInfo(`Unknown relationship type for edge from ${direction.from} to ${direction.to}: ${direction.relationship}`, {toConsole: true});
+                            break;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
                 }
-                
-                if (direction.from !== node.label && direction.to === node.label){
-                    if (direction.relationship === 'MANY-MANY') {
-                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options, sort: [${fromCase}Sort!]): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`
+
+                if (direction.from === node.label && direction.to !== node.label) {
+                    switch (direction.relationship) {
+                        case 'MANY-MANY':
+                        case 'ONE-MANY':
+                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}sOut(filter: ${toCase}Input, options: Options, sort: [${toCase}Sort!]): [${toCase}] @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                            break;
+                        case 'MANY-ONE':
+                        case 'ONE-ONE':
+                            r += `\t${toCase.toLocaleLowerCase() + edgeCase}Out: ${toCase} @relationship(edgeType:"${edge.label}", direction:OUT)\n`;
+                            break;
+                        default:
+                            loggerInfo(`Unknown relationship type for edge from ${direction.from} to ${direction.to}: ${direction.relationship}`, {toConsole: true});
+                            break;
                     }
-                    if (direction.relationship === 'ONE-MANY') {
-                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
-                    }
-                    if (direction.relationship === 'MANY-ONE') {
-                        r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options, sort: [${fromCase}Sort!]): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`;
+                    if (!edgeTypes.includes(edge.label))
+                        edgeTypes.push(edge.label);
+                }
+
+                if (direction.from !== node.label && direction.to === node.label) {
+                    switch (direction.relationship) {
+                        case 'MANY-MANY':
+                        case 'MANY-ONE':
+                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}sIn(filter: ${fromCase}Input, options: Options, sort: [${fromCase}Sort!]): [${fromCase}] @relationship(edgeType:"${edge.label}", direction:IN)\n`
+                            break;
+                        case 'ONE-MANY':
+                        case 'ONE-ONE':
+                            r += `\t${fromCase.toLocaleLowerCase() + edgeCase}In: ${fromCase} @relationship(edgeType:"${edge.label}", direction:IN)\n`;
+                            break;
+                        default:
+                            loggerInfo(`Unknown relationship type for edge from ${direction.from} to ${direction.to}: ${direction.relationship}`, {toConsole: true});
+                            break;
                     }
                     if (!edgeTypes.includes(edge.label))
                         edgeTypes.push(edge.label);                                      
