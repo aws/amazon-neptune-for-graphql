@@ -1,7 +1,7 @@
 {  
     "name": "getAirport _id",
     "description": "Get neptune _id",
-    "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n code\n }\n }",
+    "graphql": "query MyQuery {\n getAirport(filter: {code: {eq: \"SEA\"}}) {\n code\n }\n }",
     "result":{
         "code": "SEA"
     }

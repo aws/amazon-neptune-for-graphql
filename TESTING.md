@@ -19,7 +19,7 @@ the following command:
 npm run test:unit
 ```
 
-## Integration Tests
+## Automated Integration Tests
 
 Integration tests execute against a live neptune db cluster or graph and require
 the following prerequisites to run:
@@ -53,6 +53,66 @@ To execute the integration tests use the following command:
 ```
 npm run test:integration
 ```
+
+## Manual Integration Tests
+
+In addition to the automated integration tests, there are manual integration
+tests that can be run against live AWS AppSync APIs and Apollo Server instances
+that were deployed via the Amazon Neptune Utility for GraphQL. These tests are
+useful for validating deployed GraphQL APIs that are interfacing Neptune db or
+analytics graphs loaded with the airports sample data.
+
+### AppSync Manual Tests
+
+These tests execute queries against a deployed AWS AppSync API:
+
+#### Standard AppSync Queries
+
+```
+node --experimental-vm-modules node_modules/jest/bin/jest.js test/appSyncAirRoutesQueries.test.js
+```
+
+#### Custom AppSync Queries
+
+```
+node --experimental-vm-modules node_modules/jest/bin/jest.js test/appSyncCustomAirRoutesQueries.test.js
+```
+
+**Prerequisites for AppSync tests:**
+
+- Set environment variables:
+  ```
+  export APP_SYNC_API_ID=your-appsync-api-id
+  export APP_SYNC_API_KEY=your-api-key
+  export APP_SYNC_REGION=your-aws-region
+  ```
+
+### Apollo Server Manual Tests
+
+These tests execute queries against a local Apollo Server instance:
+
+#### Standard Apollo Queries
+
+```
+node --experimental-vm-modules node_modules/jest/bin/jest.js test/apolloAirRoutesQueries.test.js
+```
+
+#### Custom Apollo Queries
+
+```
+node --experimental-vm-modules node_modules/jest/bin/jest.js test/apolloCustomAirRoutesQueries.test.js
+```
+
+### Test Query Suites
+
+Both test suites use JSON files containing GraphQL queries and expected results:
+
+- **`air-routes-queries.json`**: Standard queries including filters, sorting,
+  pagination, variables, and fragments
+- **`custom-air-routes-queries.json`**: Custom queries using `@graphQuery`
+  directives, Gremlin queries, and custom field resolvers. These queries assume
+  that the utility was executed with option
+  `--input-schema-changes-file ./test/air-routes-changes.json`
 
 ## Loading Airports Sample Data Into Neptune
 

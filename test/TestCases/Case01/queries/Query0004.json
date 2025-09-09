@@ -1,7 +1,7 @@
 {
     "name": "Edge properties 2",
     "description": "Get edge properties in nested array",
-    "graphql": "query MyQuery {\n getAirport(code: \"SEA\") {\n airportRoutesOut {\n code\n route {\n dist\n }\n }\n }\n }\n", 
+    "graphql": "query MyQuery {\n getAirport(filter: {code: {eq: \"SEA\"}}) {\n airportRoutesOut {\n code\n route {\n dist\n }\n }\n }\n }\n", 
     "result": {
         "airportRoutesOut": [
           {

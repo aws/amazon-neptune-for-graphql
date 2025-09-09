@@ -1,0 +1,38 @@
+[
+  {
+    "type": "Airport",
+    "field": "outboundRoutesCount",
+    "action": "add",
+    "value": "outboundRoutesCount: Int @graphQuery(statement: \"MATCH (this)-[r:route]->(a) RETURN count(r)\")"
+  },
+  {
+    "type": "Query",
+    "field": "getAirportWithGremlin",
+    "action": "add",
+    "value": "getAirportWithGremlin(code:String): Airport @graphQuery(statement: \"g.V().has('airport', 'code', '$code').elementMap()\")"
+  },
+  {
+    "type": "Query",
+    "field": "getContinentsWithGremlin",
+    "action": "add",
+    "value": "getContinentsWithGremlin: [Continent] @cypher(statement: \"g.V().hasLabel('continent').order().elementMap().fold()\")"
+  },
+  {
+    "type": "Query",
+    "field": "getAirportByCode",
+    "action": "add",
+    "value": "getAirportByCode(code:String): Airport @graphQuery(statement: \"MATCH (this: airport {code: '$code'})\")"
+  },
+  {
+    "type": "Query",
+    "field": "getCountriesCountGremlin",
+    "action": "add",
+    "value": "getCountriesCountGremlin: Int @graphQuery(statement: \"g.V().hasLabel('country').count()\")"
+  },
+  {
+    "type": "Query",
+    "field": "getAirportConnection",
+    "action": "add",
+    "value": "getAirportConnection(fromCode: String!, toCode: String!): Airport @cypher(statement: \"MATCH (:airport{code: '$fromCode'})-[:route]->(this:airport)-[:route]->(:airport{code:'$toCode'})\")"
+  }
+]

@@ -1,0 +1,154 @@
+[
+  {
+    "description": "getAirport: Inference query from return type",
+    "query": "query MyQuery {\n getAirportByCode(code: \"SEA\") {\n city \n }\n}",
+    "expected": {
+      "getAirportByCode": {
+        "city": "Seattle"
+      }
+    }
+  },
+  {
+    "id": "3",
+    "description": "getAirport nested type: Nested types single and array, references in and out",
+    "query": "query MyQuery {\n getAirportByCode(code: \"YKM\") {\n city\n continentContainsIn {\n desc\n }\n countryContainsIn {\n desc\n }\n airportRoutesOut {\n code\n }\n }\n }",
+    "expected": {
+      "getAirportByCode": {
+        "airportRoutesOut": [
+          {
+            "code": "SEA"
+          }
+        ],
+        "city": "Yakima",
+        "countryContainsIn": {
+          "desc": "United States"
+        },
+        "continentContainsIn": {
+          "desc": "North America"
+        }
+      }
+    }
+  },
+  {
+    "description": "Edge properties 2: Get edge properties in nested array",
+    "query": "query MyQuery {\n getAirportByCode(code: \"SEA\") {\n airportRoutesOut(options: {limit: 4} sort: [{ code: DESC }]) {\n code\n route {\n dist\n }\n }\n }\n }\n",
+    "expected": {
+      "getAirportByCode": {
+        "airportRoutesOut": [
+          {
+            "code": "YYZ",
+            "route": {
+              "dist": 2053
+            }
+          },
+          {
+            "code": "YYJ",
+            "route": {
+              "dist": 97
+            }
+          },
+          {
+            "code": "YYC",
+            "route": {
+              "dist": 451
+            }
+          },
+          {
+            "code": "YVR",
+            "route": {
+              "dist": 127
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "description": "Type graph query 1: Type with graph query returning a scalar",
+    "query": "query MyQuery {\n getAirportByCode(code: \"YYZ\") {\n outboundRoutesCount\n }\n }\n",
+    "expected": {
+      "getAirportByCode": {
+        "outboundRoutesCount": 195
+      }
+    }
+  },
+  {
+    "description": "Field alias: Map type name to different graph db property name",
+    "query": "query MyQuery {\n getAirportByCode(code: \"SEA\") {\n desc2: desc\n }\n }\n",
+    "expected": {
+      "getAirportByCode": {
+        "desc2": "Seattle-Tacoma"
+      }
+    }
+  },
+  {
+    "description": "graphQuery type: Query using a graphQuery returning a type",
+    "query": "query MyQuery {\n getAirportConnection(fromCode: \"YKF\", toCode: \"ORD\") {\n city\n code\n }\n }\n",
+    "expected": {
+      "getAirportConnection": {
+        "code": "YYC",
+        "city": "Calgary"
+      }
+    }
+  },
+  {
+    "description": "graphQuery Gremlin type: Query using Gremlin returning a type",
+    "note": "This query may fail with neptune analytics or have different expected results",
+    "query": "query MyQuery {\n getAirportWithGremlin(code: \"SEA\") {\n _id\n city\n runways\n }\n }\n",
+    "expected": {
+      "getAirportWithGremlin": {
+        "_id": "22",
+        "city": "Seattle",
+        "runways": 3
+      }
+    }
+  },
+  {
+    "description": "graphQuery Gremlin type array: Query using Gremlin returning a type array",
+    "note": "This query may fail with neptune analytics or have different expected results",
+    "query": "query MyQuery {\n getContinentsWithGremlin {\n code\n }\n }\n",
+    "expected": {
+      "getContinentsWithGremlin": [
+        {
+          "code": "EU"
+        },
+        {
+          "code": "AF"
+        },
+        {
+          "code": "NA"
+        },
+        {
+          "code": "SA"
+        },
+        {
+          "code": "AS"
+        },
+        {
+          "code": "OC"
+        },
+        {
+          "code": "AN"
+        }
+      ]
+    }
+  },
+  {
+    "description": "graphQuery Gremlin scalar: Query using Gremlin returning a scalar",
+    "note": "This query may fail with neptune analytics or have different expected results",
+    "query": "query MyQuery {\n getCountriesCountGremlin\n }\n",
+    "expected": {
+      "getCountriesCountGremlin": 237
+    }
+  },
+  {
+    "description": "outboundRoutesCount: Custom field with graph query returning a scalar",
+    "note": "This query may produce a different count with neptune analytics vs neptune db",
+    "query": "query MyQuery {\n getAirportByCode(code: \"SEA\") {\n outboundRoutesCount\n }\n }",
+    "expected": {
+      "getAirportByCode": {
+        "outboundRoutesCount": 122
+      }
+    }
+  }
+]
