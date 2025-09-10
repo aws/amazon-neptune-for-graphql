@@ -74,7 +74,7 @@ export function resolveGraphDBQueryFromEvent(event) {
                 // retrieve an ID field which may not necessarily be named 'id'
                 const idField = Object.values(inputType.getFields()).find(
                     // if field is of non-null type, check the underlying type as well
-                    field => field?.type?.name === GraphQLID.name || field?.type?.ofType?.name === GraphQLID.name);
+                    field => field.type?.name === GraphQLID.name || field.type?.ofType?.name === GraphQLID.name);
                 if (idField) {
                     // check if id was an input arg
                     const idValue = astValue.fields.find(f => f.name.value === idField.name);
