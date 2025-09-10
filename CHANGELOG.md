@@ -129,3 +129,4 @@ permissions and limitations under the License.
   ([#126](https://github.com/aws/amazon-neptune-for-graphql/pull/126))
 * Accommodated for special characters in edge labels to ensure proper Cypher
   translation ([#127](https://github.com/aws/amazon-neptune-for-graphql/pull/127))
+* Accommodated for non-nullable IDs in resolver for input types ([#137](https://github.com/aws/amazon-neptune-for-graphql/pull/137))

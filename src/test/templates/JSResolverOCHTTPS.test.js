@@ -660,6 +660,27 @@ test('should inference query with mutation update node (Query0016)', () => {
     });
 });
 
+test('should inference query with mutation update node from event', () => {
+    const result = resolveGraphDBQueryFromEvent({
+        field: 'updateAirport',
+        arguments: {input: {_id: "22", city: "Seattle"}},
+        selectionSet: gql`{ city }`.definitions[0].selectionSet,
+        fragments: {}
+    });
+    expect(result).toMatchObject({
+        query: 'MATCH (updateAirport_Airport)\n' +
+            'WHERE ID(updateAirport_Airport) = $updateAirport_Airport__id\n' +
+            'SET updateAirport_Airport.city = $updateAirport_Airport_city\n' +
+            'RETURN {city: updateAirport_Airport.`city`}',
+        parameters: {
+            updateAirport_Airport_city: 'Seattle',
+            updateAirport_Airport__id: '22'
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
 test('should resolve mutation to connect nodes', () => {
     const query = 'mutation ConnectCountryToAirport {\n' +
         '  connectCountryToAirportThroughContains(from_id: \"ee71c547-ea32-4573-88bc-6ecb31942a1e\", to_id: \"99cb3321-9cda-41b6-b760-e88ead3e1ea1\") {\n' +
@@ -1375,7 +1396,7 @@ test('should resolve mutation to update node with fragment', () => {
             'elev: updateAirport_Airport.`elev`' +
             '}',
         parameters: {
-            updateAirport_Airport__id: 22,
+            updateAirport_Airport__id: '22',
             updateAirport_Airport_city: "Seattle",
         },
         language: 'opencypher',

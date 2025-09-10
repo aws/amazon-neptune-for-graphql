@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { astFromValue, buildASTSchema, GraphQLError, GraphQLID, GraphQLInputObjectType, parse, typeFromAST } from 'graphql';
+import { astFromValue, buildASTSchema, GraphQLError, GraphQLID, GraphQLInputObjectType, GraphQLNonNull, parse, typeFromAST } from 'graphql';
 
 const useCallSubquery = false;
 
@@ -64,11 +64,17 @@ export function resolveGraphDBQueryFromEvent(event) {
         const value = event.arguments[inputDef.name.value];
 
         if (value) {
-            const inputType = typeFromAST(schema, inputDef.type);
+            let inputType = typeFromAST(schema, inputDef.type);
+            if (inputType instanceof GraphQLNonNull && inputType.ofType) {
+                // if non-null type, unwrap to the underlying type
+                inputType = inputType.ofType;
+            }
             const astValue = astFromValue(value, inputType);
             if (inputType instanceof GraphQLInputObjectType) {
                 // retrieve an ID field which may not necessarily be named 'id'
-                const idField = Object.values(inputType.getFields()).find(field => field.type.name === GraphQLID.name);
+                const idField = Object.values(inputType.getFields()).find(
+                    // if field is of non-null type, check the underlying type as well
+                    field => field.type?.name === GraphQLID.name || field.type?.ofType?.name === GraphQLID.name);
                 if (idField) {
                     // check if id was an input arg
                     const idValue = astValue.fields.find(f => f.name.value === idField.name);
