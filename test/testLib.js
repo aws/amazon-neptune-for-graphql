@@ -340,15 +340,7 @@ function testAppSyncQueries(queryFilePath) {
                 console.log(query.note);
             }
             const response = await executeGraphQLQuery(apiId, apiKey, query.query, query.variables || {}, region);
-            const success = !response.errors;
-            if (!success) {
-                console.log(`Query failed: ${query.description}`);
-                console.log(`Response: ${JSON.stringify(response, null, 2)}`);
-            }
-            expect(success).toBe(true);
-            if (query.expected) {
-                expect(response.data).toEqual(query.expected);
-            }
+            expect(response).toEqual({ data: query.expected });
         }, 60000);
     });
 }
