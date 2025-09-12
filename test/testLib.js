@@ -312,6 +312,70 @@ async function executeAppSyncQuery(apiId, query, variables, region, apiKey) {
     return executeGraphQLQuery(apiId, apiKey, query, variables, region);
 }
 
+/**
+ * Executes set of queries from a json query file against an AppSync API.
+ * The following environment variables are executed to be set: APP_SYNC_API_ID, APP_SYNC_API_KEY, APP_SYNC_REGION.
+ *
+ * @param queryFilePath the json file which contains the queries to execute
+ */
+function testAppSyncQueries(queryFilePath) {
+    const apiId = process.env.APP_SYNC_API_ID;
+    if (!apiId) {
+        throw new Error('Expected environment variable APP_SYNC_API_ID is not set');
+    }
+    const apiKey = process.env.APP_SYNC_API_KEY;
+    if (!apiKey) {
+        throw new Error('Expected environment variable APP_SYNC_API_KEY is not set');
+    }
+    const region = process.env.APP_SYNC_REGION;
+    if (!region) {
+        throw new Error('Expected environment variable APP_SYNC_REGION is not set');
+    }
+    
+    const queries = JSON.parse(fs.readFileSync(queryFilePath, 'utf8'));
+
+    queries.forEach((query, _) => {
+        test(`App Sync Query: ${query.description}`, async () => {
+            if (query.note) {
+                console.log(query.note);
+            }
+            const response = await executeGraphQLQuery(apiId, apiKey, query.query, query.variables || {}, region);
+            expect(response).toEqual({ data: query.expected });
+        }, 60000);
+    });
+}
+
+/**
+ * Executes set of queries from a json query file against an Apollo Server running on localhost:4000.
+ *
+ * @param queryFilePath the json file which contains the queries to execute
+ */
+function testApolloQueries(queryFilePath) {
+    const apolloUrl = 'http://localhost:4000/graphql';
+    const queries = JSON.parse(fs.readFileSync(queryFilePath, 'utf8'));
+
+    queries.forEach((query, _) => {
+        test(`Apollo Query: ${query.description}`, async () => {
+            if (query.note) {
+                console.log(query.note);
+            }
+            const response = await axios({
+                url: apolloUrl,
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    query: query.query,
+                    variables: query.variables
+                }
+            });
+
+            expect(response.data).toEqual({data: query.expected});
+        }, 60000);
+    });
+}
+
 export {
     checkFileContains,
     checkFolderContainsFiles,
@@ -323,5 +387,7 @@ export {
     loadResolver,
     readJSONFile,
     testApolloArtifacts,
+    testApolloQueries,
+    testAppSyncQueries,
     testResolverQueriesResults,
 };

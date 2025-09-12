@@ -25,7 +25,8 @@
     "test:unit": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=src/test",
     "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases",
     "test:sdk": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case07",
-    "test:resolver": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case01"
+    "test:resolver": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --runInBand --detectOpenHandles --config .jest.js --testPathPattern=test/TestCases/Case01",
+    "test:manual": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "jest": {
     "collectCoverage": true,

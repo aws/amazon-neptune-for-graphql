@@ -78,6 +78,8 @@ permissions and limitations under the License.
 * Allow credentials to be refreshed at Apollo runtime by passing the credential
   provider to the
   interceptor  ([#134](https://github.com/aws/amazon-neptune-for-graphql/pull/134))
+* Added manually executed query integration test suites for App Sync and
+  Apollo ([#138](https://github.com/aws/amazon-neptune-for-graphql/pull/138))
 
 ### Bug Fixes
 

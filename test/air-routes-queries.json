@@ -1,0 +1,603 @@
+[
+  {
+    "description": "Filter by code",
+    "query": "query MyQuery { getAirport(filter: {code: {eq: \"SEA\"}}) { city  } }",
+    "expected": {
+      "getAirport": {
+        "city": "Seattle"
+      }
+    }
+  },
+  {
+    "description": "Limit in nested edge",
+    "query": "query MyQuery { getAirport(filter: {code: {eq: \"SEA\"}}) { airportRoutesOut(filter: {country: {eq: \"DE\"}} options: {limit: 3} sort: [{ code: DESC }]) { code } } }",
+    "expected": {
+      "getAirport": {
+        "airportRoutesOut": [
+          {
+            "code": "MUC"
+          },
+          {
+            "code": "FRA"
+          },
+          {
+            "code": "CGN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "description": "Filter in nested edge",
+    "query": "query MyQuery { getAirport(filter: {code: {eq: \"SEA\"}}) { airportRoutesOut(filter: {code: {eq: \"LAX\"}}) { city }  city } }",
+    "expected": {
+      "getAirport": {
+        "airportRoutesOut": [
+          {
+            "city": "Los Angeles"
+          }
+        ],
+        "city": "Seattle"
+      }
+    }
+  },
+  {
+    "description": "Mutation: update node: update seattle airport node for neptune-db",
+    "note": "This query may fail with neptune analytics or have different expected results",
+    "query": "mutation MyMutation { updateAirport(input: {_id: \"22\", city: \"Seattle\"}) { city } }",
+    "expected": {
+      "updateAirport": {
+        "city": "Seattle"
+      }
+    }
+  },
+  {
+    "description": "Get by _id",
+    "note": "This query may fail with neptune analytics or have different expected results",
+    "query": "query MyQuery { getAirport(filter: {_id: \"22\"}) { city } }",
+    "expected": {
+      "getAirport": {
+        "city": "Seattle"
+      }
+    }
+  },
+  {
+    "description": "Limit option",
+    "query": "query MyQuery { getAirports(options: {limit: 1}, filter: {code: {eq: \"SEA\"}}) { city } }",
+    "expected": {
+      "getAirports": [
+        {
+          "city": "Seattle"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Get different type of fields",
+    "query": "query MyQuery { getAirport(filter: {code: {eq: \"SEA\"}}) { city  elev  runways  lat  lon } }",
+    "expected": {
+      "getAirport": {
+        "city": "Seattle",
+        "elev": 432,
+        "lon": -122.30899810791,
+        "runways": 3,
+        "lat": 47.4490013122559
+      }
+    }
+  },
+  {
+    "description": "Filter by parameter with numeric value and return mix of numeric value types",
+    "query": "query MyQuery { getAirports(filter: { city: {eq: \"Seattle\"}, runways: 3 }) { code  lat  lon  elev } }",
+    "expected": {
+      "getAirports": [
+        {
+          "code": "SEA",
+          "elev": 432,
+          "lon": -122.30899810791,
+          "lat": 47.4490013122559
+        }
+      ]
+    }
+  },
+  {
+    "description": "Get continents",
+    "query": "query MyQuery { getContinents(sort: [{ code: DESC }]) { code desc } }",
+    "expected": {
+      "getContinents": [
+        {
+          "code": "SA",
+          "desc": "South America"
+        },
+        {
+          "code": "OC",
+          "desc": "Oceania"
+        },
+        {
+          "code": "NA",
+          "desc": "North America"
+        },
+        {
+          "code": "EU",
+          "desc": "Europe"
+        },
+        {
+          "code": "AS",
+          "desc": "Asia"
+        },
+        {
+          "code": "AN",
+          "desc": "Antarctica"
+        },
+        {
+          "code": "AF",
+          "desc": "Africa"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Get country with filter",
+    "query": "query MyQuery { getCountry(filter: {code: {eq: \"CA\"}}) { desc } }",
+    "expected": {
+      "getCountry": {
+        "desc": "Canada"
+      }
+    }
+  },
+  {
+    "description": "Filter with string comparison operators",
+    "query": "query getAirports { getAirports(filter: { country: { eq: \"CA\" },  code: { startsWith: \"Y\" }, city: { endsWith: \"n\" }, desc: { contains: \"Airport\" }  runways: 3 }, options: {limit: 5}, sort: [{ code: ASC }]) { code city country runways desc } }",
+    "expected": {
+      "getAirports": [
+        {
+          "city": "Brandon",
+          "code": "YBR",
+          "country": "CA",
+          "desc": "Brandon Municipal Airport",
+          "runways": 3
+        },
+        {
+          "city": "Fort Nelson",
+          "code": "YYE",
+          "country": "CA",
+          "desc": "Fort Nelson Airport",
+          "runways": 3
+        }
+      ]
+    }
+  },
+  {
+    "description": "Nested edge filter with string comparison",
+    "query": "query getAirports { getAirports(filter: { country: { eq: \"CA\" } }, options: { limit: 5 }, sort: [{ code: ASC }]) { code city country airportRoutesOut(filter: { country: { startsWith: \"C\" },  code: { contains: \"Y\" } }, options: { limit: 3 }, sort: [{ code: ASC }]) { code city country } } }",
+    "expected": {
+      "getAirports": [
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Ivujivik",
+              "code": "YIK",
+              "country": "CA"
+            },
+            {
+              "city": "Puvirnituq",
+              "code": "YPX",
+              "country": "CA"
+            }
+          ],
+          "city": "Akulivik",
+          "code": "AKV",
+          "country": "CA"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Red Lake",
+              "code": "YRL",
+              "country": "CA"
+            }
+          ],
+          "city": "Keewaywin",
+          "code": "KEW",
+          "country": "CA"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Vancouver",
+              "code": "YVR",
+              "country": "CA"
+            }
+          ],
+          "city": "Bella Coola",
+          "code": "QBC",
+          "country": "CA"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Sioux Lookout",
+              "code": "YXL",
+              "country": "CA"
+            }
+          ],
+          "city": "Kingfisher Lake",
+          "code": "KIF",
+          "country": "CA"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Sioux Lookout",
+              "code": "YXL",
+              "country": "CA"
+            }
+          ],
+          "city": "Muskrat Dam",
+          "code": "MSA",
+          "country": "CA"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with nested edge filter and variables and sort",
+    "query": "query getAirports($filter: AirportInput, $options: Options, $nestedFilter: AirportInput, $nestedOptions: Options) { getAirports(filter: $filter, options: $options, sort: [{ city: ASC }]) { city code airportRoutesOut(filter: $nestedFilter, options: $nestedOptions, sort: [{ city: ASC }]) { city code } } }",
+    "variables": {
+      "filter": {
+        "country": {
+          "eq": "CA"
+        }
+      },
+      "options": {
+        "limit": 3
+      },
+      "nestedFilter": {
+        "country": {
+          "startsWith": "C"
+        }
+      },
+      "nestedOptions": {
+        "limit": 2
+      }
+    },
+    "expected": {
+      "getAirports": [
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Calgary",
+              "code": "YYC"
+            },
+            {
+              "city": "Edmonton",
+              "code": "YEG"
+            }
+          ],
+          "city": "Abbotsford",
+          "code": "YXX"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Ivujivik",
+              "code": "YIK"
+            },
+            {
+              "city": "Puvirnituq",
+              "code": "YPX"
+            }
+          ],
+          "city": "Akulivik",
+          "code": "AKV"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "city": "Vancouver",
+              "code": "YVR"
+            }
+          ],
+          "city": "Anahim Lake",
+          "code": "YAA"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with nested scalar variables and sort",
+    "query": "query getAirports($country: String, $limit: Int) { getAirports(filter: {country: {eq: $country}}, options: {limit: $limit}, sort: [{ city: ASC }]) { code airportRoutesOut(filter: {country: {eq: $country}}, options: {limit: $limit}, sort: [{ city: ASC }]) { code } } }",
+    "variables": {
+      "country": "CA",
+      "limit": 3
+    },
+    "expected": {
+      "getAirports": [
+        {
+          "airportRoutesOut": [
+            {
+              "code": "YYC"
+            },
+            {
+              "code": "YEG"
+            },
+            {
+              "code": "YHM"
+            }
+          ],
+          "code": "YXX"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "code": "YIK"
+            },
+            {
+              "code": "YPX"
+            }
+          ],
+          "code": "AKV"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "code": "YVR"
+            }
+          ],
+          "code": "YAA"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with sort arguments as a list and limit",
+    "query": "query MyQuery { getAirports(sort: [{ desc: ASC }, { code: DESC }, { city: DESC }], options: { limit: 3}) { desc code city } }",
+    "expected": {
+      "getAirports": [
+        {
+          "city": "Culleredo",
+          "code": "LCG",
+          "desc": "A Coruna Airport"
+        },
+        {
+          "city": "Aalborg",
+          "code": "AAL",
+          "desc": "Aalborg Airport"
+        },
+        {
+          "city": "Aarhus",
+          "code": "AAR",
+          "desc": "Aarhus Airport"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with nested sort arguments and limit",
+    "query": "query MyQuery { getAirports(sort: [{desc: ASC}, {code: DESC}], options: { limit: 3 }) { desc code airportRoutesIn(sort: [{country : ASC}, {city : DESC}], options: { limit: 2 }) { country city } } }",
+    "expected": {
+      "getAirports": [
+        {
+          "airportRoutesIn": [
+            {
+              "city": "Prague",
+              "country": "CZ"
+            },
+            {
+              "city": "Munich",
+              "country": "DE"
+            }
+          ],
+          "code": "AAR",
+          "desc": "Aarhus Airport"
+        },
+        {
+          "airportRoutesIn": [
+            {
+              "city": "Copenhagen",
+              "country": "DK"
+            },
+            {
+              "city": "Billund",
+              "country": "DK"
+            }
+          ],
+          "code": "AAL",
+          "desc": "Aalborg Airport"
+        },
+        {
+          "airportRoutesIn": [
+            {
+              "city": "Tenerife Island",
+              "country": "ES"
+            },
+            {
+              "city": "Tenerife",
+              "country": "ES"
+            }
+          ],
+          "code": "LCG",
+          "desc": "A Coruna Airport"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with nested sort arguments and variables and limit",
+    "note": "Executing this query against Apollo may fail as it cannot handle quoted enum values in variables",
+    "query": "query getAirports($nestedOptions: Options, $nestedSort: [AirportSort!]) { getAirports(options: { limit: 1 }, sort: [ { country: ASC }, { city: ASC } ]) { city code country airportRoutesIn(options: $nestedOptions, sort: $nestedSort) { city   code   country } } }",
+    "variables": {
+      "nestedOptions": {
+        "limit": 1
+      },
+      "nestedSort": [
+        {
+          "country": "DESC"
+        },
+        {
+          "code": "DESC"
+        }
+      ]
+    },
+    "expected": {
+      "getAirports": [
+        {
+          "airportRoutesIn": [
+            {
+              "city": "Johannesburg",
+              "code": "JNB",
+              "country": "ZA"
+            }
+          ],
+          "city": "Abu Dhabi",
+          "code": "AUH",
+          "country": "AE"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with limit, offset, and sort",
+    "query": "query MyQuery { getAirports(options: { limit: 4, offset: 3 }, sort: [ { city: ASC } ]) { code } }",
+    "expected": {
+      "getAirports": [
+        {
+          "code": "ABD"
+        },
+        {
+          "code": "ABA"
+        },
+        {
+          "code": "YXX"
+        },
+        {
+          "code": "AEH"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with nested edge limit and offset and sort",
+    "query": "query MyQuery { getAirports(options: { limit: 5, offset: 2 }, sort: [ { city: DESC } ]) { code airportRoutesIn(options: {offset: 5, limit: 3}, sort: [ { city: DESC } ]) { code } } }",
+    "expected": {
+      "getAirports": [
+        {
+          "airportRoutesIn": [
+            {
+              "code": "SXB"
+            },
+            {
+              "code": "ARN"
+            },
+            {
+              "code": "VAS"
+            }
+          ],
+          "code": "ADB"
+        },
+        {
+          "airportRoutesIn": [
+            {
+              "code": "NLT"
+            },
+            {
+              "code": "XNN"
+            },
+            {
+              "code": "XIY"
+            }
+          ],
+          "code": "URC"
+        },
+        {
+          "airportRoutesIn": [],
+          "code": "HOV"
+        },
+        {
+          "airportRoutesIn": [
+            {
+              "code": "AMS"
+            }
+          ],
+          "code": "LCJ"
+        },
+        {
+          "airportRoutesIn": [],
+          "code": "OLA"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with nested edge limit and offset from variables",
+    "query": "query getAirports($nestedOptions: Options) { getAirports(options: { limit: 2, offset: 1 }, sort: [ { city: DESC } ]) { code airportRoutesOut(options: $nestedOptions, sort: [ { city: DESC } ]) { code } } }",
+    "variables": {
+      "nestedOptions": {
+        "limit": 3,
+        "offset": 2
+      }
+    },
+    "expected": {
+      "getAirports": [
+        {
+          "airportRoutesOut": [
+            {
+              "code": "CTS"
+            }
+          ],
+          "code": "MMB"
+        },
+        {
+          "airportRoutesOut": [
+            {
+              "code": "STN"
+            },
+            {
+              "code": "ATH"
+            },
+            {
+              "code": "AYT"
+            }
+          ],
+          "code": "LCJ"
+        }
+      ]
+    }
+  },
+  {
+    "description": "Query with multiple fragments",
+    "note": "This query will fail with App Sync which does not support fragments",
+    "query": "fragment locationFields on Airport { city, country } fragment otherFields on Airport { code, elev } query GetAirport { getAirport(filter: {code: {eq: \"YVR\"}}) { ...locationFields ...otherFields runways } }",
+    "expected": {
+      "getAirport": {
+        "city": "Vancouver",
+        "code": "YVR",
+        "country": "CA",
+        "elev": 14,
+        "runways": 3
+      }
+    }
+  },
+  {
+    "description": "Query with nested edge fragments",
+    "note": "This query will fail with App Sync which does not support fragments",
+    "query": "fragment locationFields on Airport { city, country } fragment otherFields on Airport { code, elev } query GetAirport { getAirport(filter: {code: {eq: \"YVR\"}}) { ...locationFields airportRoutesIn(options: {limit: 2}, sort: [{code: ASC}]) {...locationFields} ...otherFields } }",
+    "expected": {
+      "getAirport": {
+        "airportRoutesIn": [
+          {
+            "city": "Auckland",
+            "country": "NZ"
+          },
+          {
+            "city": "Amsterdam",
+            "country": "NL"
+          }
+        ],
+        "city": "Vancouver",
+        "code": "YVR",
+        "country": "CA",
+        "elev": 14
+      }
+    }
+  }
+]

@@ -1,7 +1,7 @@
 {
     "name": "Type graph query 1",
     "description": "Type with graph query returning a scalar",
-    "graphql": "query MyQuery {\n getAirport(code: \"YYZ\") {\n outboundRoutesCount\n }\n }\n",
+    "graphql": "query MyQuery {\n getAirport(filter: {code: {eq: \"YYZ\"}}) {\n outboundRoutesCount\n }\n }\n",
     "result": {
         "outboundRoutesCount": 195
       }

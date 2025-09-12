@@ -2,7 +2,7 @@
     "id": "3",
     "name": "getAirport nested type",
     "description": "Nested types single and array, references in and out",
-    "graphql": "query MyQuery {\n getAirport(code: \"YKM\") {\n city\n continentContainsIn {\n desc\n }\n countryContainsIn {\n desc\n }\n airportRoutesOut {\n code\n }\n }\n }",
+    "graphql": "query MyQuery {\n getAirport(filter: {code: {eq: \"YKM\"}}) {\n city\n continentContainsIn {\n desc\n }\n countryContainsIn {\n desc\n }\n airportRoutesOut {\n code\n }\n }\n }",
     "result":{
         "airportRoutesOut": [
           {
