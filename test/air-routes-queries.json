@@ -1,6 +1,6 @@
 [
   {
-    "description": "filter",
+    "description": "Filter by code",
     "query": "query MyQuery { getAirport(filter: {code: {eq: \"SEA\"}}) { city  } }",
     "expected": {
       "getAirport": {
