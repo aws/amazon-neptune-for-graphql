@@ -5,10 +5,7 @@ export default {
     'testPathIgnorePatterns': [
         '/node_modules/',
         // tests below are intended to be executed manually
-        'appSyncAirRoutesQueries.test.js',
-        'appSyncCustomAirRoutesQueries.test.js',
-        'apolloAirRoutesQueries.test.js',
-        'apolloCustomAirRoutesQueries.test.js'
+        '.*\\.manual\\.test\\.js$'
     ],
     'globals': {
         // neptune db that has pre-loaded air routes sample data host and port

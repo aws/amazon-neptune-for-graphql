@@ -371,15 +371,7 @@ function testApolloQueries(queryFilePath) {
                 }
             });
 
-            const success = !response.data.errors;
-            if (!success) {
-                console.log(`Query failed: ${query.description}`);
-                console.log(`Response Errors: ${JSON.stringify(response.data.errors, null, 2)}`);
-            }
-            expect(success).toBe(true);
-            if (query.expected) {
-                expect(response.data.data).toEqual(query.expected);
-            }
+            expect(response.data).toEqual({data: query.expected});
         }, 60000);
     });
 }

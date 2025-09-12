@@ -69,13 +69,19 @@ These tests execute queries against a deployed AWS AppSync API:
 #### Standard AppSync Queries
 
 ```
-node --experimental-vm-modules node_modules/jest/bin/jest.js test/appSyncAirRoutesQueries.test.js
+npm run test:manual -- test/appSyncAirRoutesQueries.manual.test.js
 ```
 
 #### Custom AppSync Queries
 
 ```
-node --experimental-vm-modules node_modules/jest/bin/jest.js test/appSyncCustomAirRoutesQueries.test.js
+npm run test:manual -- test/appSyncCustomAirRoutesQueries.manual.test.js
+```
+
+#### All AppSync Queries
+
+```
+npm run test:manual -- test/appSync*.manual.test.js
 ```
 
 **Prerequisites for AppSync tests:**
@@ -94,13 +100,19 @@ These tests execute queries against a local Apollo Server instance:
 #### Standard Apollo Queries
 
 ```
-node --experimental-vm-modules node_modules/jest/bin/jest.js test/apolloAirRoutesQueries.test.js
+npm run test:manual -- test/apolloAirRoutesQueries.manual.test.js
 ```
 
 #### Custom Apollo Queries
 
 ```
-node --experimental-vm-modules node_modules/jest/bin/jest.js test/apolloCustomAirRoutesQueries.test.js
+npm run test:manual -- test/apolloCustomAirRoutesQueries.manual.test.js
+```
+
+#### All Apollo Queries
+
+```
+npm run test:manual -- test/apollo*.manual.test.js
 ```
 
 ### Test Query Suites
