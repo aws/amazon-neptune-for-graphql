@@ -12,6 +12,8 @@ export default {
         // ex. db-neptune-foo-bar.cluster-abc.us-west-2.neptune.amazonaws.com
         'AIR_ROUTES_DB_HOST': process.env.AIR_ROUTES_DB_HOST,
         // ex. 8182
-        'AIR_ROUTES_DB_PORT': process.env.AIR_ROUTES_DB_PORT
+        'AIR_ROUTES_DB_PORT': process.env.AIR_ROUTES_DB_PORT,
+        // enables IAM auth flags for pipeline/CDK integration tests
+        'NEPTUNE_IAM_AUTH': process.env.NEPTUNE_IAM_AUTH
     }
 };

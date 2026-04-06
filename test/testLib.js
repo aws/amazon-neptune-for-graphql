@@ -376,6 +376,18 @@ function testApolloQueries(queryFilePath) {
     });
 }
 
+function getTestArgv(caseConfig) {
+    const argv = [...caseConfig.argv];
+    if (process.env.NEPTUNE_IAM_AUTH === 'true') {
+        if (argv.includes('--create-update-aws-pipeline') || argv.includes('-p')) {
+            argv.push('--create-update-aws-pipeline-neptune-IAM');
+        } else if (argv.includes('--output-aws-pipeline-cdk') || argv.includes('-c')) {
+            argv.push('--output-aws-pipeline-cdk-neptune-IAM');
+        }
+    }
+    return argv;
+}
+
 export {
     checkFileContains,
     checkFolderContainsFiles,
@@ -384,6 +396,7 @@ export {
     createAppSyncApiKey,
     executeAppSyncQuery,
     executeGraphQLQuery,
+    getTestArgv,
     loadResolver,
     readJSONFile,
     testApolloArtifacts,

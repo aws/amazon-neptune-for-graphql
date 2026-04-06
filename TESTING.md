@@ -29,24 +29,33 @@ the following prerequisites to run:
 2. neptune db cluster or graph which is accessible from the machine running the
    tests and
    is [loaded with the airports sample dataset](#loading-airports-sample-data-into-neptune)
-   3, AWS credentials configured appropriately on the machine running the tests
+3. AWS credentials configured appropriately on the machine running the tests
    to allow query access to the neptune db or cluster
 4. AWS IAM configured to allow creation of AWS resources necessary to deploy an
    App Sync API
 5. environment variables `AIR_ROUTES_DB_HOST` and `AIR_ROUTES_DB_PORT` set to
    identify the neptune db cluster or graph, for example:
 
-```
-# neptune db cluster
-export AIR_ROUTES_DB_HOST=air-routes.cluster-123.us-west-2.neptune.amazonaws.com
-export AIR_ROUTES_DB_PORT=8182
-```
+   ```
+   # neptune db cluster
+   export AIR_ROUTES_DB_HOST=air-routes.cluster-123.us-west-2.neptune.amazonaws.com
+   export AIR_ROUTES_DB_PORT=8182
+   ```
 
-```
-# neptune analytics graph
-export AIR_ROUTES_DB_HOST=g-abc123.us-west-2.neptune-graph.amazonaws.com
-export AIR_ROUTES_DB_PORT=8182
-```
+   ```
+   # neptune analytics graph
+   export AIR_ROUTES_DB_HOST=g-abc123.us-west-2.neptune-graph.amazonaws.com
+   export AIR_ROUTES_DB_PORT=8182
+   ```
+
+6. if the neptune db cluster has IAM authentication enabled:
+
+   ```
+   export NEPTUNE_IAM_AUTH=true
+   ```
+
+   **Note:** Neptune Analytics (`neptune-graph`) endpoints automatically enable
+   IAM auth regardless of the `NEPTUNE_IAM_AUTH` variable.
 
 To execute the integration tests use the following command:
 
