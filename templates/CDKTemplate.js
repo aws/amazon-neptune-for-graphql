@@ -72,42 +72,7 @@ class AppSyncNeptuneStack extends Stack {
            NEPTUNE_DOMAIN: this.parseNeptuneDomainFromHost(NEPTUNE_HOST),
            NEPTUNE_TYPE: NEPTUNE_TYPE,
        };
-       if (NEPTUNE_IAM_AUTH) {
-            // is IAM auth
-            echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, {
-                functionName: LAMBDA_FUNCTION_NAME,
-                description: 'Neptune GraphQL Resolver for AppSync',
-                code: lambda.Code.fromAsset(LAMBDA_ZIP_FILE), 
-                handler: 'index.handler',
-                runtime: lambda.Runtime.NODEJS_18_X,
-                timeout: Duration.seconds(15), 
-                memorySize: 128, 
-                environment: env,
-                initialPolicy: [new iam.PolicyStatement({
-                    sid: NAME + "NeptuneQueryPolicy",
-                    effect: iam.Effect.ALLOW,
-                    actions: [
-                        NEPTUNE_TYPE + ':connect',
-                        NEPTUNE_TYPE + ':DeleteDataViaQuery',
-                        NEPTUNE_TYPE + ':ReadDataViaQuery',
-                        NEPTUNE_TYPE + ':WriteDataViaQuery'
-                    ],
-                    resources: [NEPTUNE_IAM_POLICY_RESOURCE]
-                })],
-                roleArn: lambda_role.roleArn
-            });
-                        
-        } else {
-            // is VPC auth
-            const neptune_vpc = ec2.Vpc.fromLookup(this, 'Neptune_VPC', {
-                vpcId: NEPTUNE_DBSubnetGroup
-            });
-            
-            lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'));
-
-           let subnets = NEPTUNE_DBSubnetIds.split(',').map((subnetId) => ec2.Subnet.fromSubnetId(this, 'neptuneSubnet-' + subnetId, subnetId));
-
-            echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, {
+        const lambdaProps = {
                 functionName: LAMBDA_FUNCTION_NAME,
                 description: 'Neptune GraphQL Resolver for AppSync',
                 code: lambda.Code.fromAsset(LAMBDA_ZIP_FILE),
@@ -116,18 +81,42 @@ class AppSyncNeptuneStack extends Stack {
                 timeout: Duration.seconds(15),
                 memorySize: 128,
                 environment: env,
-                vpc: neptune_vpc,
-                vpcSubnets: {
-                    subnets: subnets
-                },
-                securityGroups: [
-                    ec2.SecurityGroup.fromSecurityGroupId(this, 'neptuneSecurityGroup', NEPTUNE_VpcSecurityGroupId)
-                ],
-                allowPublicSubnet: 'true',
                 roleArn: lambda_role.roleArn
-            });
+        };
+
+        if (NEPTUNE_IAM_AUTH) {
+            lambdaProps.initialPolicy = [new iam.PolicyStatement({
+                sid: NAME + "NeptuneQueryPolicy",
+                effect: iam.Effect.ALLOW,
+                actions: [
+                    NEPTUNE_TYPE + ':connect',
+                    NEPTUNE_TYPE + ':DeleteDataViaQuery',
+                    NEPTUNE_TYPE + ':ReadDataViaQuery',
+                    NEPTUNE_TYPE + ':WriteDataViaQuery'
+                ],
+                resources: [NEPTUNE_IAM_POLICY_RESOURCE]
+            })];
         }
-        
+
+        if (NEPTUNE_TYPE === 'neptune-db') {
+            const neptune_vpc = ec2.Vpc.fromLookup(this, 'Neptune_VPC', {
+                vpcId: NEPTUNE_DBSubnetGroup
+            });
+
+            lambda_role.addManagedPolicy( iam.ManagedPolicy.fromAwsManagedPolicyName('service-role/AWSLambdaVPCAccessExecutionRole'));
+
+            let subnets = NEPTUNE_DBSubnetIds.split(',').map((subnetId) => ec2.Subnet.fromSubnetId(this, 'neptuneSubnet-' + subnetId, subnetId));
+
+            lambdaProps.vpc = neptune_vpc;
+            lambdaProps.vpcSubnets = { subnets: subnets };
+            lambdaProps.securityGroups = [
+                ec2.SecurityGroup.fromSecurityGroupId(this, 'neptuneSecurityGroup', NEPTUNE_VpcSecurityGroupId)
+            ];
+            lambdaProps.allowPublicSubnet = 'true';
+        }
+
+        echoLambda = new lambda.Function(this, LAMBDA_FUNCTION_NAME, lambdaProps);
+
         echoLambda.node.addDependency(lambda_role);
         LAMBDA_ARN = echoLambda.functionArn;        
 
