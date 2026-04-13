@@ -6,8 +6,8 @@
             "--output-folder-path", "./test/TestCases/Case08/case08-02-output",
             "--create-update-apollo-server",
             "--output-resolver-query-https",
-            "--output-lambda-resolver-file", "case08-02-resolver.js",
-            "--output-schema-file", "case08-02.schema.graphql"],
+            "--output-lambda-resolver-file", "./test/TestCases/Case08/case08-02-output/case08-02-resolver.js",
+            "--output-schema-file", "./test/TestCases/Case08/case08-02-output/case08-02.schema.graphql"],
     "host": "<AIR_ROUTES_DB_HOST>",
     "port": "<AIR_ROUTES_DB_PORT>"
 }
