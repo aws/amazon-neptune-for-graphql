@@ -98,8 +98,8 @@ describe('createLambdaRole via createUpdateAWSpipeline', () => {
 
         const attachCalls = mockIAMSend.mock.calls.filter(([c]) => c._type === 'AttachRolePolicy').map(([c]) => c.input.PolicyArn);
         expect(attachCalls).toContain('arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole');
-        expect(attachCalls).toHaveLength(2); // basic + invoke policy
         expect(attachCalls).not.toContain('arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole');
+        expect(attachCalls).toHaveLength(2); // basic + invoke policy
     });
 });
 
