@@ -91,6 +91,30 @@ test('should generate CDK file for neptune-graph without calling cluster info', 
     expect(writtenContent).toContain('NEPTUNE_VpcSecurityGroupId = null');
 });
 
+test('should generate CDK file with VPC config for neptune-db with IAM', async () => {
+    mockGetNeptuneClusterDbInfoBy.mockResolvedValue(clusterInfo);
+    await createAWSpipelineCDK({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-db' });
+    expect(mockWriteFile).toHaveBeenCalled();
+    const writtenContent = mockWriteFile.mock.calls[0][1];
+    expect(writtenContent).toContain("NEPTUNE_IAM_AUTH = true");
+    expect(writtenContent).toContain("NEPTUNE_DBSubnetGroup = 'default-vpc-123'");
+    expect(writtenContent).toContain("NEPTUNE_DBSubnetIds = 'subnet-1,subnet-2'");
+    expect(writtenContent).toContain("NEPTUNE_VpcSecurityGroupId = 'sg-123'");
+    expect(writtenContent).toContain("NEPTUNE_IAM_POLICY_RESOURCE = 'arn:aws:neptune-db:us-east-1:123:cluster-abc/*'");
+});
+
+test('should exit when neptune-db has IAM disabled but IAM flag was provided', async () => {
+    mockGetNeptuneClusterDbInfoBy.mockResolvedValue({ ...clusterInfo, isIAMauth: false });
+    try { await createAWSpipelineCDK({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-db' }); } catch (e) { if (!(e instanceof ExitCalled)) throw e; }
+    expect(mockProcessExit).toHaveBeenCalledWith(1);
+});
+
+test('should exit when neptune-db has IAM enabled but IAM flag was not provided', async () => {
+    mockGetNeptuneClusterDbInfoBy.mockResolvedValue(clusterInfo);
+    try { await createAWSpipelineCDK({ ...baseParams, isNeptuneIAMAuth: false, neptuneType: 'neptune-db' }); } catch (e) { if (!(e instanceof ExitCalled)) throw e; }
+    expect(mockProcessExit).toHaveBeenCalledWith(1);
+});
+
 afterAll(() => {
     mockProcessExit.mockRestore();
 });

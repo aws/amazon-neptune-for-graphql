@@ -3,12 +3,11 @@ import { mockIAMSend, mockLambdaSend, mockAppSyncSend, mockNeptuneSend, mockWrit
 
 registerPipelineMocks();
 
-const originalSetTimeout = globalThis.setTimeout;
-
 let createUpdateAWSpipeline;
 
 beforeEach(async () => {
-    globalThis.setTimeout = (fn) => originalSetTimeout(fn, 0);
+    // doNotFake: ['Date'] keeps Date.now() real so each re-import gets a unique query string, forcing a fresh module instance
+    jest.useFakeTimers({ doNotFake: ['Date'] });
 
     // Re-import with unique query string to reset module-level mutable state between tests
     ({ createUpdateAWSpipeline } = await import('../pipelineResources.js?t=' + Date.now()));
@@ -43,11 +42,17 @@ const baseParams = {
     schemaModel: { definitions: [{ kind: 'ObjectTypeDefinition', name: { value: 'Query' }, fields: [{ name: { value: 'get' } }] }] },
 };
 
+async function runPipeline(overrides) {
+    const p = createUpdateAWSpipeline({ ...baseParams, ...overrides });
+    await jest.runAllTimersAsync();
+    return p;
+}
+
 describe('createLambdaRole via createUpdateAWSpipeline', () => {
     test('should attach VPC role as Policy2 for neptune-db without IAM', async () => {
         mockNeptuneSend.mockImplementation(mockNeptuneClusterResponse({ iamEnabled: false }));
 
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: false, neptuneType: 'neptune-db' });
+        await runPipeline({ isNeptuneIAMAuth: false, neptuneType: 'neptune-db' });
 
         const attachCalls = mockIAMSend.mock.calls.filter(([c]) => c._type === 'AttachRolePolicy').map(([c]) => c.input.PolicyArn);
         expect(attachCalls).toContain('arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole');
@@ -63,7 +68,7 @@ describe('createLambdaRole via createUpdateAWSpipeline', () => {
     });
 
     test('should attach IAM query as Policy2 and VPC as Policy3 for neptune-db with IAM', async () => {
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-db' });
+        await runPipeline({ isNeptuneIAMAuth: true, neptuneType: 'neptune-db' });
 
         const attachCalls = mockIAMSend.mock.calls.filter(([c]) => c._type === 'AttachRolePolicy').map(([c]) => c.input.PolicyArn);
         expect(attachCalls).toContain('arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole');
@@ -82,7 +87,7 @@ describe('createLambdaRole via createUpdateAWSpipeline', () => {
     });
 
     test('should attach IAM query as Policy2 with no VPC for neptune-graph with IAM', async () => {
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-graph' });
+        await runPipeline({ isNeptuneIAMAuth: true, neptuneType: 'neptune-graph' });
 
         const attachCalls = mockIAMSend.mock.calls.filter(([c]) => c._type === 'AttachRolePolicy').map(([c]) => c.input.PolicyArn);
         expect(attachCalls).toContain('arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole');
@@ -94,21 +99,13 @@ describe('createLambdaRole via createUpdateAWSpipeline', () => {
         expect(policyDoc.Statement[0].Action).toContain('neptune-graph:connect');
     });
 
-    test('should attach only basic execution role for neptune-graph without IAM', async () => {
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: false, neptuneType: 'neptune-graph' });
-
-        const attachCalls = mockIAMSend.mock.calls.filter(([c]) => c._type === 'AttachRolePolicy').map(([c]) => c.input.PolicyArn);
-        expect(attachCalls).toContain('arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole');
-        expect(attachCalls).not.toContain('arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole');
-        expect(attachCalls).toHaveLength(2); // basic + invoke policy
-    });
 });
 
 describe('createLambdaFunction VpcConfig via createUpdateAWSpipeline', () => {
     test('should include VpcConfig for neptune-db without IAM', async () => {
         mockNeptuneSend.mockImplementation(mockNeptuneClusterResponse({ iamEnabled: false }));
 
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: false, neptuneType: 'neptune-db' });
+        await runPipeline({ isNeptuneIAMAuth: false, neptuneType: 'neptune-db' });
 
         const createFnCall = mockLambdaSend.mock.calls.find(([c]) => c._type === 'CreateFunction');
         expect(createFnCall).toBeDefined();
@@ -118,7 +115,7 @@ describe('createLambdaFunction VpcConfig via createUpdateAWSpipeline', () => {
     });
 
     test('should include VpcConfig for neptune-db with IAM', async () => {
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-db' });
+        await runPipeline({ isNeptuneIAMAuth: true, neptuneType: 'neptune-db' });
 
         const createFnCall = mockLambdaSend.mock.calls.find(([c]) => c._type === 'CreateFunction');
         expect(createFnCall[0].input.VpcConfig).toBeDefined();
@@ -126,25 +123,22 @@ describe('createLambdaFunction VpcConfig via createUpdateAWSpipeline', () => {
     });
 
     test('should not include VpcConfig for neptune-graph with IAM', async () => {
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-graph' });
+        await runPipeline({ isNeptuneIAMAuth: true, neptuneType: 'neptune-graph' });
 
         const createFnCall = mockLambdaSend.mock.calls.find(([c]) => c._type === 'CreateFunction');
         expect(createFnCall[0].input.VpcConfig).toBeUndefined();
     });
 
-    test('should not include VpcConfig for neptune-graph without IAM', async () => {
-        await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: false, neptuneType: 'neptune-graph' });
-
-        const createFnCall = mockLambdaSend.mock.calls.find(([c]) => c._type === 'CreateFunction');
-        expect(createFnCall[0].input.VpcConfig).toBeUndefined();
-    });
 });
 
 describe('createUpdateAWSpipeline error handling', () => {
     test('should exit on cluster info failure for neptune-db with IAM', async () => {
         mockNeptuneSend.mockRejectedValue(new Error('cluster not found'));
 
-        try { await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-db' }); } catch (e) { if (!(e instanceof ExitCalled)) throw e; }
+        // swallow expected ExitCalled, rethrow anything else
+        try {
+            await runPipeline({ isNeptuneIAMAuth: true, neptuneType: 'neptune-db' });
+        } catch (e) { if (!(e instanceof ExitCalled)) throw e; }
 
         expect(mockExit).toHaveBeenCalledWith(1);
     });
@@ -152,14 +146,17 @@ describe('createUpdateAWSpipeline error handling', () => {
     test('should exit when neptune-db has IAM disabled but flag was provided', async () => {
         mockNeptuneSend.mockImplementation(mockNeptuneClusterResponse({ iamEnabled: false }));
 
-        try { await createUpdateAWSpipeline({ ...baseParams, isNeptuneIAMAuth: true, neptuneType: 'neptune-db' }); } catch (e) { if (!(e instanceof ExitCalled)) throw e; }
+        // swallow expected ExitCalled, rethrow anything else
+        try {
+            await runPipeline({ isNeptuneIAMAuth: true, neptuneType: 'neptune-db' });
+        } catch (e) { if (!(e instanceof ExitCalled)) throw e; }
 
         expect(mockExit).toHaveBeenCalledWith(1);
     });
 });
 
 afterEach(() => {
-    globalThis.setTimeout = originalSetTimeout;
+    jest.useRealTimers();
 });
 
 

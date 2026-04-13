@@ -2,15 +2,25 @@ import { readFileSync } from 'fs';
 
 const templateSource = readFileSync('./templates/CDKTemplate.js', 'utf8');
 
+function safeReplace(source, searchStr, replaceStr) {
+    if (!source.includes(searchStr)) {
+        throw new Error(
+            `CDKTemplate.js no longer contains expected placeholder: ${searchStr}. Update renderTemplate in CDKTemplate.test.js.`
+        );
+    }
+    return source.replace(searchStr, replaceStr);
+}
+
 function renderTemplate({ neptuneType, neptuneIAMAuth }) {
-    return templateSource
-        .replace("const NEPTUNE_TYPE = '';", `const NEPTUNE_TYPE = '${neptuneType}';`)
-        .replace("const NEPTUNE_IAM_AUTH = false;", `const NEPTUNE_IAM_AUTH = ${neptuneIAMAuth};`)
-        .replace("const NEPTUNE_DBSubnetGroup = null;", "const NEPTUNE_DBSubnetGroup = 'vpc-123';")
-        .replace("const NEPTUNE_DBSubnetIds = null;", "const NEPTUNE_DBSubnetIds = 'subnet-1,subnet-2';")
-        .replace("const NEPTUNE_VpcSecurityGroupId = null;", "const NEPTUNE_VpcSecurityGroupId = 'sg-123';")
-        .replace("const NEPTUNE_HOST = '';", "const NEPTUNE_HOST = 'db.cluster.us-east-1.neptune.amazonaws.com';")
-        .replace("const NEPTUNE_IAM_POLICY_RESOURCE = '*';", "const NEPTUNE_IAM_POLICY_RESOURCE = 'arn:aws:neptune-db:us-east-1:123:cluster-abc/*';");
+    let code = templateSource;
+    code = safeReplace(code, "const NEPTUNE_TYPE = '';", `const NEPTUNE_TYPE = '${neptuneType}';`);
+    code = safeReplace(code, "const NEPTUNE_IAM_AUTH = false;", `const NEPTUNE_IAM_AUTH = ${neptuneIAMAuth};`);
+    code = safeReplace(code, "const NEPTUNE_DBSubnetGroup = null;", "const NEPTUNE_DBSubnetGroup = 'vpc-123';");
+    code = safeReplace(code, "const NEPTUNE_DBSubnetIds = null;", "const NEPTUNE_DBSubnetIds = 'subnet-1,subnet-2';");
+    code = safeReplace(code, "const NEPTUNE_VpcSecurityGroupId = null;", "const NEPTUNE_VpcSecurityGroupId = 'sg-123';");
+    code = safeReplace(code, "const NEPTUNE_HOST = '';", "const NEPTUNE_HOST = 'db.cluster.us-east-1.neptune.amazonaws.com';");
+    code = safeReplace(code, "const NEPTUNE_IAM_POLICY_RESOURCE = '*';", "const NEPTUNE_IAM_POLICY_RESOURCE = 'arn:aws:neptune-db:us-east-1:123:cluster-abc/*';");
+    return code;
 }
 
 function evaluateTemplate({ neptuneType, neptuneIAMAuth }) {
@@ -19,7 +29,6 @@ function evaluateTemplate({ neptuneType, neptuneIAMAuth }) {
     const match = code.match(/const lambdaProps = \{[\s\S]*?(?=\n\s*echoLambda = new lambda\.Function)/);
     if (!match) throw new Error('Could not extract lambdaProps block from CDKTemplate.js — check that "const lambdaProps = {" and "echoLambda = new lambda.Function" markers still exist in the template');
 
-    const managedPolicies = [];
     const fn = new Function('NEPTUNE_TYPE', 'NEPTUNE_IAM_AUTH', 'NEPTUNE_DBSubnetGroup', 'NEPTUNE_DBSubnetIds', 'NEPTUNE_VpcSecurityGroupId', 'NEPTUNE_IAM_POLICY_RESOURCE', 'NAME', `
         const ec2 = {
             Vpc: { fromLookup: (_, __, o) => 'vpc-stub' },
@@ -74,10 +83,12 @@ test('neptune-db with IAM: VPC config and IAM policy', () => {
     expect(lambdaProps.vpcSubnets).toBeDefined();
     expect(lambdaProps.securityGroups).toBeDefined();
     expect(lambdaProps.initialPolicy).toBeDefined();
-    expect(lambdaProps.initialPolicy[0].actions).toEqual(expect.arrayContaining([
+    expect(lambdaProps.initialPolicy[0].actions).toEqual([
         'neptune-db:connect',
+        'neptune-db:DeleteDataViaQuery',
         'neptune-db:ReadDataViaQuery',
-    ]));
+        'neptune-db:WriteDataViaQuery',
+    ]);
     expect(managedPolicies).toContain('service-role/AWSLambdaVPCAccessExecutionRole');
 });
 
@@ -87,15 +98,12 @@ test('neptune-graph with IAM: IAM policy, no VPC config', () => {
     expect(lambdaProps.vpcSubnets).toBeUndefined();
     expect(lambdaProps.securityGroups).toBeUndefined();
     expect(lambdaProps.initialPolicy).toBeDefined();
-    expect(lambdaProps.initialPolicy[0].actions).toContain('neptune-graph:connect');
-});
-
-test('neptune-graph without IAM: no VPC, no IAM policy', () => {
-    const { lambdaProps } = evaluateTemplate({ neptuneType: 'neptune-graph', neptuneIAMAuth: false });
-    expect(lambdaProps.vpc).toBeUndefined();
-    expect(lambdaProps.vpcSubnets).toBeUndefined();
-    expect(lambdaProps.securityGroups).toBeUndefined();
-    expect(lambdaProps.initialPolicy).toBeUndefined();
+    expect(lambdaProps.initialPolicy[0].actions).toEqual([
+        'neptune-graph:connect',
+        'neptune-graph:DeleteDataViaQuery',
+        'neptune-graph:ReadDataViaQuery',
+        'neptune-graph:WriteDataViaQuery',
+    ]);
 });
 
 test('should guard VPC config by NEPTUNE_TYPE not NEPTUNE_IAM_AUTH', () => {

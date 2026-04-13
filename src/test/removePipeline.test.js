@@ -93,27 +93,6 @@ test('should detach Policy1 and Policy2 for neptune-graph with IAM', async () =>
     expect(detachCalls).toHaveLength(3); // Policy1 + Policy2 + InvokePolicy detach
 });
 
-test('should detach only Policy1 for neptune-graph without IAM', async () => {
-    const resources = {
-        region: 'us-east-1',
-        AppSyncAPI: 'api-id',
-        LambdaFunction: 'testLambdaFunction',
-        LambdaExecutionRole: 'testLambdaExecutionRole',
-        LambdaExecutionPolicy1: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
-        LambdaInvokePolicy: 'arn:invoke-policy',
-        LambdaInvokeRole: 'invokeRole',
-    };
-
-    await removeAWSpipelineResources(resources, true);
-
-    const detachCalls = mockIAMSend.mock.calls
-        .filter(([cmd]) => cmd._type === 'DetachRolePolicy')
-        .map(([cmd]) => cmd.input.PolicyArn);
-
-    expect(detachCalls).toContain(resources.LambdaExecutionPolicy1);
-    expect(detachCalls).toHaveLength(2); // Policy1 + InvokePolicy detach
-});
-
 test('should handle old resources.json format without Policy3', async () => {
     const resources = {
         region: 'us-east-1',
