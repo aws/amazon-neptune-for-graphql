@@ -8,6 +8,7 @@ let removeAWSpipelineResources;
 describe('removeAWSpipelineResources', () => {
 
 beforeEach(async () => {
+    // Re-import with unique query string to reset module-level mutable state between tests
     ({ removeAWSpipelineResources } = await import('../pipelineResources.js?t=' + Date.now()));
     jest.clearAllMocks();
     mockIAMSend.mockResolvedValue({});
