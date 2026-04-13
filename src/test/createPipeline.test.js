@@ -10,6 +10,7 @@ let createUpdateAWSpipeline;
 beforeEach(async () => {
     globalThis.setTimeout = (fn) => originalSetTimeout(fn, 0);
 
+    // Re-import with unique query string to reset module-level mutable state between tests
     ({ createUpdateAWSpipeline } = await import('../pipelineResources.js?t=' + Date.now()));
     jest.clearAllMocks();
 
