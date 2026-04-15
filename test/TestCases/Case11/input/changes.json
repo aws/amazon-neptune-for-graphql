@@ -1,0 +1,12 @@
+[
+    {
+        "action": "addType",
+        "value": "type AirportStats {\n  count: Int\n  name: String\n}"
+    },
+    {
+        "type": "Query",
+        "field": "getAirportStats",
+        "action": "add",
+        "value": "getAirportStats: AirportStats @graphQuery(statement: \"MATCH (a:airport) RETURN {count: count(a), name: 'airports'} AS getAirportStats\")"
+    }
+]
