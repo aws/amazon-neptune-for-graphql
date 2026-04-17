@@ -17,13 +17,25 @@ type Query {
 // Mimics changeGraphQLSchema() internal formatting: trim each line and append a trailing newline
 const normalize = (s) => s.split('\n').map(l => l.trim()).join('\n') + '\n';
 
+const extractTypeBlock = (schema, typeName) => {
+    const lines = schema.split('\n');
+    const block = [];
+    let inside = false;
+    for (const line of lines) {
+        if (line.startsWith(`type ${typeName}`)) inside = true;
+        if (inside) block.push(line);
+        if (inside && line.trim().endsWith('}')) break;
+    }
+    return block.join('\n');
+};
+
 describe('changeGraphQLSchema', () => {
     // Core functionality
 
     test('add action injects field before closing brace of matching type', () => {
         const changes = JSON.stringify([{ type: 'Airport', action: 'add', value: 'city: String' }]);
         const result = changeGraphQLSchema(baseSchema, changes);
-        expect(result).toContain('city: String');
+        expect(extractTypeBlock(result, 'Airport')).toContain('city: String');
     });
 
     test('remove action strips matching field line from type', () => {
@@ -39,7 +51,7 @@ describe('changeGraphQLSchema', () => {
         ]);
         const result = changeGraphQLSchema(baseSchema, changes);
         expect(result).not.toMatch(/^code: String$/m);
-        expect(result).toContain('city: String');
+        expect(extractTypeBlock(result, 'Airport')).toContain('city: String');
     });
 
     test('changes with no matching type return schema unchanged', () => {
@@ -66,15 +78,8 @@ describe('changeGraphQLSchema', () => {
         const changes = JSON.stringify([{ type: 'Airport', action: 'remove', field: 'getAirport' }]);
         const result = changeGraphQLSchema(baseSchema, changes);
         // getAirport exists in both Airport and Query — extract Airport block to verify only it was affected
-        const lines = result.split('\n');
-        const airportLines = [];
-        let inAirport = false;
-        for (const line of lines) {
-            if (line.startsWith('type Airport')) inAirport = true;
-            if (inAirport) airportLines.push(line);
-            if (inAirport && line.startsWith('}')) break;
-        }
-        expect(airportLines.join('\n')).not.toContain('getAirport(code: String): Airport');
+        const airportBlock = extractTypeBlock(result, 'Airport');
+        expect(airportBlock).not.toContain('getAirport(code: String): Airport');
         expect(result).toContain('getAirport(code: String): Airport');
     });
 
@@ -100,8 +105,9 @@ describe('changeGraphQLSchema', () => {
             { type: 'Airport', action: 'add', value: 'country: String' }
         ]);
         const result = changeGraphQLSchema(baseSchema, changes);
-        expect(result).toContain('city: String');
-        expect(result).toContain('country: String');
+        const airportBlock = extractTypeBlock(result, 'Airport');
+        expect(airportBlock).toContain('city: String');
+        expect(airportBlock).toContain('country: String');
     });
 
     test('remove for a field that does not exist returns schema unchanged', () => {
@@ -113,15 +119,10 @@ describe('changeGraphQLSchema', () => {
     test('changes only affect the targeted type', () => {
         const changes = JSON.stringify([{ type: 'Airport', action: 'add', value: 'city: String' }]);
         const result = changeGraphQLSchema(baseSchema, changes);
-        const lines = result.split('\n');
-        const queryLines = [];
-        let inQuery = false;
-        for (const line of lines) {
-            if (line.startsWith('type Query')) inQuery = true;
-            if (inQuery) queryLines.push(line);
-            if (inQuery && line.startsWith('}')) break;
-        }
-        expect(queryLines.join('\n')).not.toContain('city: String');
+        const queryBlock = extractTypeBlock(result, 'Query');
+        expect(queryBlock).not.toContain('city: String');
+        const airportBlock = extractTypeBlock(result, 'Airport');
+        expect(airportBlock).toContain('city: String');
     });
 
     test('add action value containing directives preserves them', () => {
@@ -131,6 +132,6 @@ describe('changeGraphQLSchema', () => {
             value: 'getConn(fromCode: String!, toCode: String!): Airport @graphQuery(statement: "g.V()")'
         }]);
         const result = changeGraphQLSchema(baseSchema, changes);
-        expect(result).toContain('getConn(fromCode: String!, toCode: String!): Airport @graphQuery(statement: "g.V()")');
+        expect(extractTypeBlock(result, 'Query')).toContain('getConn(fromCode: String!, toCode: String!): Airport @graphQuery(statement: "g.V()")');
     });
 });
