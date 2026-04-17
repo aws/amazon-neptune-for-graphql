@@ -32,7 +32,10 @@ function removeChanges(changesDirectives, currentType, line) {
     let r = line;
 
     changesDirectives.forEach(change => {
-        if (change.type == currentType && change.action == 'remove' && line.startsWith(change.field)) {
+        if (change.type == currentType && change.action == 'remove' &&
+            (line.startsWith(change.field + ':') ||
+             line.startsWith(change.field + '(') ||
+             line.startsWith(change.field + ' '))) {
             r = '*** REMOVE ***';
         }
     });
