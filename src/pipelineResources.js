@@ -372,16 +372,18 @@ async function createLambdaRole() {
         storeResource({LambdaExecutionPolicy2: input.PolicyArn});    
         await sleep(10000);
         succeedSpinner(`Attached ${yellow('Neptune Query Policy')} policies to Lambda Role`, {logLevel: 'info'});
-        
-    } else {
+    }
+
+    if (NEPTUNE_TYPE === NEPTUNE_DB) {
         startSpinner('Attaching policy for Neptune VPC to Lambda role ...', true);
+        const vpcPolicyKey = NEPTUNE_IAM_AUTH ? 'LambdaExecutionPolicy3' : 'LambdaExecutionPolicy2';
         input = {
             RoleName: roleName,
             PolicyArn: "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole",
         };
         command = new AttachRolePolicyCommand(input);
         await iamClient.send(command);    
-        storeResource({LambdaExecutionPolicy2: input.PolicyArn});    
+        storeResource({[vpcPolicyKey]: input.PolicyArn});    
         await sleep(10000);
         succeedSpinner(`Attached ${yellow('AWSLambdaVPCAccessExecutionRole')} policies to role`, {logLevel: 'info'});
     }
@@ -436,7 +438,7 @@ async function createLambdaFunction() {
         },
     };
 
-    if (!NEPTUNE_IAM_AUTH) {
+    if (NEPTUNE_TYPE === NEPTUNE_DB) {
         params.VpcConfig = {
             SubnetIds: NEPTUNE_DBSubnetIds,
             SecurityGroupIds: [NEPTUNE_VpcSecurityGroupId]
@@ -770,37 +772,24 @@ async function removeAWSpipelineResources(resources, quietI) {
         loggerError(message, error);
     }    
     
-    // Lambda execution role
-    startSpinner('Detaching first IAM policy from role ...', true);
-    try {
-        let input = { 
-            PolicyArn: resources.LambdaExecutionPolicy1,
-            RoleName: resources.LambdaExecutionRole
-        };
-        let command = new DetachRolePolicyCommand(input);        
-        await iamClient.send(command);
-        succeedSpinner('Detached policy: ' + yellow(resources.LambdaExecutionPolicy1) + " from role: " + yellow(resources.LambdaExecutionRole), {logLevel: 'debug'});
-        loggerInfo('Detached first IAM policy from role');
-    } catch (error) {
-        let message = 'Detach first policy failed';
-        failSpinner(message);
-        loggerError(message, error);
-    }
-
-    startSpinner('Detaching second IAM policy from role ...', true);
-    try {
-        let input = { 
-            PolicyArn: resources.LambdaExecutionPolicy2,
-            RoleName: resources.LambdaExecutionRole
-        };
-        let command = new DetachRolePolicyCommand(input);        
-        await iamClient.send(command);
-        succeedSpinner('Detached IAM policy: ' + yellow(resources.LambdaExecutionPolicy2) + " from role: " + yellow(resources.LambdaExecutionRole), {logLevel: 'debug'});
-        loggerInfo('Detached second IAM policy from role');
-    } catch (error) {
-        const message = 'Detach second IAM policy failed';
-        failSpinner(message);
-        loggerError(message, error);
+    // Lambda execution role - detach all execution policies
+    const policyKeys = Object.keys(resources).filter(k => k.startsWith('LambdaExecutionPolicy'));
+    for (const key of policyKeys) {
+        startSpinner(`Detaching IAM policy ${key} from role ...`, true);
+        try {
+            const input = { 
+                PolicyArn: resources[key],
+                RoleName: resources.LambdaExecutionRole
+            };
+            const command = new DetachRolePolicyCommand(input);        
+            await iamClient.send(command);
+            succeedSpinner('Detached policy: ' + yellow(resources[key]) + " from role: " + yellow(resources.LambdaExecutionRole), {logLevel: 'debug'});
+            loggerInfo(`Detached ${key} from role`);
+        } catch (error) {
+            const message = `Detach ${key} failed`;
+            failSpinner(message);
+            loggerError(message, error);
+        }
     }
     
     // Delete Neptune query Policy
@@ -971,13 +960,13 @@ async function createUpdateAWSpipeline({
                     succeedSpinner('Retrieved Neptune Cluster Info', {logLevel: 'info'});
                     if (isNeptuneIAMAuth) {
                         if (!NEPTUNE_CURRENT_IAM) {
-                            loggerError('The Neptune database authentication is set to VPC.');
+                            loggerError('Neptune database has IAM authentication disabled, but --neptune-IAM flag was provided.');
                             loggerError('Remove the --create-update-aws-pipeline-neptune-IAM option.');
                             exit(1);
                         }
                     } else {
                         if (NEPTUNE_CURRENT_IAM) {
-                            loggerError('The Neptune database authentication is set to IAM.');
+                            loggerError('Neptune database has IAM authentication enabled, but --neptune-IAM flag was not provided.');
                             loggerError('Add the --create-update-aws-pipeline-neptune-IAM option.');
                             exit(1);
                         } else {
@@ -999,13 +988,9 @@ async function createUpdateAWSpipeline({
                     let message = 'Error getting Neptune Cluster Info.';
                     failSpinner(message);
                     loggerError(message, error);
-                    if (!isNeptuneIAMAuth) {
-                        loggerError("VPC data is not available to proceed.");
-                        exit(1);
-                    } else {
-                        loggerInfo("Could not read the database ARN to restrict the Lambda permissions. To increase security change the resource in the Neptune Query policy.", {toConsole: true});
-                        loggerInfo("Proceeding without getting Neptune Cluster info.", {toConsole: true});
-                    }
+                    loggerInfo("Could not read the database ARN to restrict the Lambda permissions. To increase security change the resource in the Neptune Query policy.", {toConsole: true});
+                    loggerError("VPC data is not available to proceed.");
+                    exit(1);
                 }
             }
 

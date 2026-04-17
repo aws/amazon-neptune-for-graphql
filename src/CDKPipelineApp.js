@@ -110,13 +110,13 @@ async function createAWSpipelineCDK({
             if (!quiet) spinner.succeed('Got Neptune Cluster Info');
             if (isNeptuneIAMAuth) {
                 if (!neptuneClusterInfo.isIAMauth) {
-                    loggerError("The Neptune database authentication is set to VPC.");
+                    loggerError("Neptune database has IAM authentication disabled, but --neptune-IAM flag was provided.");
                     loggerError("Remove the --output-aws-pipeline-cdk-neptune-IAM option.");
                     process.exit(1);
                 }
             } else {
                 if (neptuneClusterInfo.isIAMauth) {
-                    loggerError("The Neptune database authentication is set to IAM.");
+                    loggerError("Neptune database has IAM authentication enabled, but --neptune-IAM flag was not provided.");
                     loggerError("Add the --output-aws-pipeline-cdk-neptune-IAM option.");
                     process.exit(1);
                 } else {
@@ -140,15 +140,11 @@ async function createAWSpipelineCDK({
             NEPTUNE_IAM_POLICY_RESOURCE = neptuneClusterInfo.iamPolicyResource;
 
         } catch (error) {
+            // VPC data is required for all Neptune DB deployments regardless of auth method
             loggerError('Error getting Neptune Cluster Info', error);
-            if (!quiet) spinner.fail("Error getting Neptune Cluster Info.");
-            if (!isNeptuneIAMAuth) {
-                spinner.clear();
-                loggerError("VPC data is not available to proceed.");
-                process.exit(1);
-            } else {
-                loggerInfo("Proceeding without getting Neptune Cluster info.", {toConsole: true});
-            }
+            if (spinner) spinner.fail('Error getting Neptune Cluster Info.');
+            loggerError("VPC data is not available to proceed.");
+            process.exit(1);
         }
     }
          
@@ -171,13 +167,17 @@ async function createAWSpipelineCDK({
     CDKFile = CDKFile.replace( "const NEPTUNE_PORT = '';",                   `const NEPTUNE_PORT = '${NEPTUNE_PORT}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_DB_NAME = '';",                `const NEPTUNE_DB_NAME = '${NEPTUNE_DB_NAME}';` );
     CDKFile = CDKFile.replace( "const NEPTUNE_TYPE = '';",                   `const NEPTUNE_TYPE = '${NEPTUNE_TYPE}';` );
-    CDKFile = CDKFile.replace( "const NEPTUNE_DBSubnetGroup = null;",        `const NEPTUNE_DBSubnetGroup = '${NEPTUNE_DBSubnetGroup}';` );
     if (neptuneClusterInfo) {
+        CDKFile = CDKFile.replace("const NEPTUNE_DBSubnetGroup = null;",     `const NEPTUNE_DBSubnetGroup = '${neptuneClusterInfo.dbSubnetGroup}';`);
         CDKFile = CDKFile.replace("const NEPTUNE_DBSubnetIds = null;",       `const NEPTUNE_DBSubnetIds = '${neptuneClusterInfo.dbSubnetIds}';`);
         CDKFile = CDKFile.replace("const NEPTUNE_VpcSecurityGroupId = null;",`const NEPTUNE_VpcSecurityGroupId = '${neptuneClusterInfo.vpcSecurityGroupId}';`);
     }
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_AUTH = false;",            `const NEPTUNE_IAM_AUTH = ${isNeptuneIAMAuth};` );    
     CDKFile = CDKFile.replace( "const NEPTUNE_IAM_POLICY_RESOURCE = '*';",   `const NEPTUNE_IAM_POLICY_RESOURCE = '${NEPTUNE_IAM_POLICY_RESOURCE}';` );
+
+    if (isNeptuneIAMAuth && NEPTUNE_IAM_POLICY_RESOURCE === '*') {
+        loggerInfo("WARNING: NEPTUNE_IAM_POLICY_RESOURCE is set to '*'. Consider restricting to a specific Neptune cluster ARN.", {toConsole: true});
+    }
 
     CDKFile = CDKFile.replace( "const LAMBDA_FUNCTION_NAME = '';",           `const LAMBDA_FUNCTION_NAME = '${NAME + 'LambdaFunction'}';` );
     CDKFile = CDKFile.replace( "const LAMBDA_ZIP_FILE = '';",                `const LAMBDA_ZIP_FILE = '${NAME}.zip';` );
