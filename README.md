@@ -400,11 +400,28 @@ applied at once.
   {
     "type": "graphQLTypeName",
     "field": "graphQLFieldName",
-    "action": "remove|add",
-    "value": "value"
+    "action": "add",
+    "value": "fieldDefinition"
+  },
+  {
+    "type": "graphQLTypeName",
+    "field": "graphQLFieldName",
+    "action": "remove"
+  },
+  {
+    "action": "addType",
+    "value": "type NewType { field: String }"
   }
 ]
 ```
+
+The `addType` action appends a new type definition to the schema and takes
+no `type` or `field` properties. The `addType` action is appended after
+add/remove processing, so add actions against a type declared
+in the same file will not find their target.
+
+> **Note:** Return type validation is line-based and may produce false positives
+> for multi-line directive arguments or comma-separated fields on a single line.
 
 For Example:
 

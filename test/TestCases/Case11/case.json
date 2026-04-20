@@ -1,0 +1,9 @@
+{
+    "name": "addType Action (Air Routes)",
+    "description":"Start from graphql schema with directives, using addType to add a new type",
+    "argv":["--quiet", 
+            "--input-schema-file", "./test/TestCases/airports.source.schema.graphql",
+            "--input-schema-changes-file", "./test/TestCases/Case11/input/changes.json", 
+            "--output-folder-path", "./test/TestCases/Case11/output",
+            "--output-no-lambda-zip"]
+}

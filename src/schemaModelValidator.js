@@ -14,13 +14,14 @@ import { schemaStringify } from './schemaParser.js';
 import { GraphQLID, print } from 'graphql';
 import {gql} from 'graphql-tag'
 import { loggerInfo, yellow } from "./logger.js";
+import { AWS_APPSYNC_SCALARS } from './util.js';
 
 // TODO change variables to local scope instead of global so this module can be used against multiple schemas
 const typesToAdd = [];
 const queriesToAdd = [];
 const mutationsToAdd = [];
 const enumTypes = [];
-const customScalarTypes = ['AWSDate', 'AWSTime', 'AWSDateTime', 'AWSTimestamp', 'AWSEmail', 'AWSJSON', 'AWSPhone', 'AWSURL', 'AWSIPAddress'];
+const customScalarTypes = [...AWS_APPSYNC_SCALARS];
 
 function lowercaseFirstCharacter(inputString) {
     if (inputString.length === 0) {     

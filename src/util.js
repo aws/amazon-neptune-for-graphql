@@ -77,4 +77,6 @@ function parseNeptuneEndpoint(neptuneEndpoint) {
     };
 }
 
-export {parseNeptuneDomainFromHost, parseNeptuneEndpoint};
+const AWS_APPSYNC_SCALARS = ['AWSDate', 'AWSTime', 'AWSDateTime', 'AWSTimestamp', 'AWSEmail', 'AWSJSON', 'AWSPhone', 'AWSURL', 'AWSIPAddress'];
+
+export {parseNeptuneDomainFromHost, parseNeptuneEndpoint, AWS_APPSYNC_SCALARS};

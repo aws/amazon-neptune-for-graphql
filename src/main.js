@@ -13,9 +13,9 @@ permissions and limitations under the License.
 import { readFileSync, writeFileSync, mkdirSync}  from 'fs';
 import { helpTxt } from './help.js';
 import { graphDBInferenceSchema } from './graphdb.js';
-import { changeGraphQLSchema } from './changes.js';
+import { changeGraphQLSchema, validateReturnTypes } from './changes.js';
 import { schemaParser, schemaStringify } from './schemaParser.js';
-import { validatedSchemaModel} from './schemaModelValidator.js';
+import { validatedSchemaModel } from './schemaModelValidator.js';
 import { getNeptuneSchema, setGetNeptuneSchemaParameters } from './NeptuneSchema.js';
 import { createUpdateAWSpipeline, removeAWSpipelineResources } from './pipelineResources.js'
 import { createAWSpipelineCDK } from './CDKPipelineApp.js'
@@ -531,14 +531,27 @@ async function main() {
 
     // Apply changes
     if (inputGraphQLSchemaChanges != '') {
-        inputGraphQLSchema = changeGraphQLSchema(inputGraphQLSchema, inputGraphQLSchemaChanges); 
+        try {
+            inputGraphQLSchema = changeGraphQLSchema(inputGraphQLSchema, inputGraphQLSchemaChanges);
+        } catch (err) {
+            loggerError('Schema changes failed', err);
+            process.exit(1);
+        }
     }
 
     const resolverSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json.gz`);
     if (inputGraphQLSchema != '') {
+        // Validate Query/Mutation return types reference defined types
+        try {
+            validateReturnTypes(inputGraphQLSchema);
+        } catch (err) {
+            loggerError('Schema validation failed', err);
+            process.exit(1);
+        }
+
         // Parse schema
         schemaModel = schemaParser(inputGraphQLSchema);
-        
+
         // Validate schema
         schemaModel = validatedSchemaModel(schemaModel, {
             queryPrefix: inputQueryPrefix,
