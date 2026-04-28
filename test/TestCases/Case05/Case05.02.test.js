@@ -41,6 +41,7 @@ describe('Validate pipeline with http resolver output content', () => {
         const apiId = awsResources.AppSyncAPI;
         const region = awsResources.region;
         const results = await executeAppSyncQuery(apiId, 'query {getContinents {code}}', {}, region);
+        expect(results.errors).toBeUndefined();
         const codes = results.data.getContinents.map(continent => continent.code).sort();
         expect(codes).toEqual(['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']);
     }, 600000);

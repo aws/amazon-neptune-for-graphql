@@ -135,6 +135,17 @@ Both test suites use JSON files containing GraphQL queries and expected results:
   that the utility was executed with option
   `--input-schema-changes-file ./test/air-routes-changes.json`
 
+## Known Test Failures
+
+Some tests are expected to fail depending on the target environment:
+
+- **Gremlin queries** fail on Neptune Analytics, which only supports openCypher.
+- **Gremlin type query** returns a different data shape through Apollo Server on Neptune DB.
+- **`_id` field queries** fail on Neptune Analytics, which uses `id` instead of `_id`.
+- **Dataset differences** between Neptune DB (Gremlin load) and Neptune Analytics (openCypher load) cause mismatches in route counts and sort order.
+- **Fragment queries** fail on AppSync, which does not support fragments.
+- **Sort with variables** fails on Apollo Server (see README Known Limitations).
+
 ## Loading Airports Sample Data Into Neptune
 
 The easiest way to load the airports sample data into Neptune is using

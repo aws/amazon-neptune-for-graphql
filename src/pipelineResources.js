@@ -420,7 +420,7 @@ async function createLambdaFunction() {
         FunctionName: lambdaName,
         Handler: 'index.handler',
         Role: LAMBDA_ROLE,
-        Runtime: 'nodejs18.x',
+        Runtime: 'nodejs22.x',
         Description: 'Neptune GraphQL Resolver for AppSync',
         Timeout: 15,
         MemorySize: 128,

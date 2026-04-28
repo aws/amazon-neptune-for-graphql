@@ -43,7 +43,7 @@ function evaluateTemplate({ neptuneType, neptuneIAMAuth }) {
         const lambda_role = { addManagedPolicy: (p) => managedPolicies.push(p) };
         const managedPolicies = [];
         const Duration = { seconds: (s) => s };
-        const lambda = { Code: { fromAsset: (f) => f }, Runtime: { NODEJS_18_X: 'nodejs18.x' } };
+        const lambda = { Code: { fromAsset: (f) => f }, Runtime: { NODEJS_22_X: 'nodejs22.x' } };
         const self = { parseNeptuneDomainFromHost: () => 'neptune.amazonaws.com' };
         const LAMBDA_FUNCTION_NAME = 'testFn';
         const LAMBDA_ZIP_FILE = 'test.zip';

@@ -37,6 +37,7 @@ describe('Validate pipeline with prefixes content', () => {
         const apiId = awsResources.AppSyncAPI;
         const region = awsResources.region;
         const results = await executeAppSyncQuery(apiId, 'query {airportsQueryPrefix_getContinents {code}}', {}, region);
+        expect(results.errors).toBeUndefined();
         const codes = results.data.airportsQueryPrefix_getContinents.map(continent => continent.code).sort();
         expect(codes).toEqual(['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']);
     }, 600000);
@@ -56,11 +57,13 @@ describe('Validate pipeline with prefixes content', () => {
         }`;
 
         const results = await executeAppSyncQuery(apiId, mutation, {}, region);
+        expect(results.errors).toBeUndefined();
         const createdCode = results.data.airportsMutationPrefix_createAirport.code;
         expect(createdCode).toBe("TEST");
 
         const deleteMutation = `mutation {airportsMutationPrefix_deleteAirport(_id: "${results.data.airportsMutationPrefix_createAirport._id}")}`;
         const deleteResults = await executeAppSyncQuery(apiId, deleteMutation, {}, region);
+        expect(deleteResults.errors).toBeUndefined();
         const deleteResult = deleteResults.data.airportsMutationPrefix_deleteAirport;
         expect(deleteResult).toBe(true);
     }, 600000);
