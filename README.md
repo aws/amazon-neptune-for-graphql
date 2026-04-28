@@ -398,40 +398,54 @@ applied at once.
 ```json
 [
   {
+    "action": "add",
     "type": "graphQLTypeName",
     "field": "graphQLFieldName",
-    "action": "remove|add",
-    "value": "value"
+    "value": "fieldDefinition"
+  },
+  {
+    "action": "remove",
+    "type": "graphQLTypeName",
+    "field": "graphQLFieldName"
+  },
+  {
+    "action": "addType",
+    "value": "type NewType { field: String }"
   }
 ]
 ```
+
+The `addType` action appends a new type definition to the schema and takes
+no `type` or `field` properties. The `addType` action is appended after
+add/remove processing, so add actions against a type declared
+in the same file will not find their target.
 
 For Example:
 
 ```json
 [
   {
+    "action": "add",
     "type": "Airport",
     "field": "outboundRoutesCountAdd",
-    "action": "add",
     "value": "outboundRoutesCountAdd: Int @graphQuery(statement: \"MATCH (this)-[r:route]->(a) RETURN count(r)\")"
   },
   {
+    "action": "add",
     "type": "Query",
     "field": "getAirportsWithRoutesToCountry",
-    "action": "add",
     "value": "getAirportsWithRoutesToCountry(country:String): [Airport] @graphQuery(statement: \"MATCH (getAirportsWithRoutesToCountry_Airport:`airport`)-[:route]->(toAirport:`airport` {country: '$country'}) WITH DISTINCT getAirportsWithRoutesToCountry_Airport\")"
   },
   {
+    "action": "remove",
     "type": "Mutation",
     "field": "deleteVersion",
-    "action": "remove",
     "value": ""
   },
   {
+    "action": "remove",
     "type": "Mutation",
     "field": "createVersion",
-    "action": "remove",
     "value": ""
   }
 ]

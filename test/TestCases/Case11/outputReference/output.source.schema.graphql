@@ -1,0 +1,287 @@
+enum SortingDirection {
+  ASC
+  DESC
+}
+
+type Continent @alias(property: "continent") {
+  id: ID! @id
+  code: String
+  type: String
+  desc: String
+  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+  contains: Contains
+}
+
+input ContinentInput {
+  id: ID @id
+  code: StringScalarFilters
+  type: StringScalarFilters
+  desc: StringScalarFilters
+}
+
+input ContinentCreateInput {
+  _id: ID @id
+  code: String
+  type: String
+  desc: String
+}
+
+input ContinentUpdateInput {
+  _id: ID! @id
+  code: String
+  type: String
+  desc: String
+}
+
+input ContinentSort {
+  _id: SortingDirection
+  code: SortingDirection
+  type: SortingDirection
+  desc: SortingDirection
+}
+
+type Country @alias(property: "country") {
+  _id: ID! @id
+  code: String
+  type: String
+  desc: String
+  airportContainssOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "contains", direction: OUT)
+  contains: Contains
+}
+
+input CountryInput {
+  _id: ID @id
+  code: StringScalarFilters
+  type: StringScalarFilters
+  desc: StringScalarFilters
+}
+
+input CountryCreateInput {
+  _id: ID @id
+  code: String
+  type: String
+  desc: String
+}
+
+input CountryUpdateInput {
+  _id: ID! @id
+  code: String
+  type: String
+  desc: String
+}
+
+input CountrySort {
+  _id: SortingDirection
+  code: SortingDirection
+  type: SortingDirection
+  desc: SortingDirection
+}
+
+type Version @alias(property: "version") {
+  _id: ID! @id
+  date: String
+  code: String
+  author: String
+  type: String
+  desc: String
+}
+
+input VersionInput {
+  _id: ID @id
+  date: StringScalarFilters
+  code: StringScalarFilters
+  author: StringScalarFilters
+  type: StringScalarFilters
+  desc: StringScalarFilters
+}
+
+input VersionCreateInput {
+  _id: ID @id
+  date: String
+  code: String
+  author: String
+  type: String
+  desc: String
+}
+
+input VersionUpdateInput {
+  _id: ID! @id
+  date: String
+  code: String
+  author: String
+  type: String
+  desc: String
+}
+
+input VersionSort {
+  _id: SortingDirection
+  date: SortingDirection
+  code: SortingDirection
+  author: SortingDirection
+  type: SortingDirection
+  desc: SortingDirection
+}
+
+type Airport @alias(property: "airport") {
+  _id: ID! @id
+  country: String
+  longest: Int
+  code: String
+  city: String
+  elev: Int
+  icao: String
+  lon: Float
+  runways: Int
+  region: String
+  type: String
+  lat: Float
+  desc2: String @alias(property: "desc")
+  outboundRoutesCount: Int @graphQuery(statement: "MATCH (this)-[r:route]->(a) RETURN count(r)")
+  continentContainsIn: Continent @relationship(edgeType: "contains", direction: IN)
+  countryContainsIn: Country @relationship(edgeType: "contains", direction: IN)
+  airportRoutesOut(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: OUT)
+  airportRoutesIn(filter: AirportInput, options: Options): [Airport] @relationship(edgeType: "route", direction: IN)
+  contains: Contains
+  route: Route
+}
+
+input AirportInput {
+  _id: ID @id
+  country: StringScalarFilters
+  longest: Int
+  code: StringScalarFilters
+  city: StringScalarFilters
+  elev: Int
+  icao: StringScalarFilters
+  lon: Float
+  runways: Int
+  region: StringScalarFilters
+  type: StringScalarFilters
+  lat: Float
+  desc: StringScalarFilters
+}
+
+input AirportCreateInput {
+  _id: ID @id
+  country: String
+  longest: Int
+  code: String
+  city: String
+  elev: Int
+  icao: String
+  lon: Float
+  runways: Int
+  region: String
+  type: String
+  lat: Float
+  desc: String
+}
+
+input AirportUpdateInput {
+  _id: ID @id
+  country: String
+  longest: Int
+  code: String
+  city: String
+  elev: Int
+  icao: String
+  lon: Float
+  runways: Int
+  region: String
+  type: String
+  lat: Float
+  desc: String
+}
+
+input AirportSort {
+  _id: SortingDirection
+  country: SortingDirection
+  longest: SortingDirection
+  code: SortingDirection
+  city: SortingDirection
+  elev: SortingDirection
+  icao: SortingDirection
+  lon: SortingDirection
+  runways: SortingDirection
+  region: SortingDirection
+  type: SortingDirection
+  lat: SortingDirection
+  desc: SortingDirection
+}
+
+type Contains @alias(property: "contains") {
+  _id: ID! @id
+}
+
+type Route @alias(property: "route") {
+  _id: ID! @id
+  dist: Int
+}
+
+input RouteInput {
+  dist: Int
+}
+
+input Options {
+  limit: Int
+  offset: Int
+}
+
+input StringScalarFilters {
+  eq: String
+  contains: String
+  endsWith: String
+  startsWith: String
+}
+
+type Query {
+  getAirportCustom(code: String): Airport
+  getAirportConnection(fromCode: String!, toCode: String!): Airport @cypher(statement: "MATCH (:airport{code: '$fromCode'})-[:route]->(this:airport)-[:route]->(:airport{code:'$toCode'})")
+  getAirportWithGremlin(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
+  getContinentsWithGremlin: [Continent] @graphQuery(statement: "g.V().hasLabel('continent').elementMap().fold()")
+  getCountriesCountGremlin: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
+  getContinent(filter: ContinentInput): Continent
+  getContinents(filter: ContinentInput, options: Options, sort: [ContinentSort!]): [Continent]
+  getCountry(filter: CountryInput): Country
+  getCountrys(filter: CountryInput, options: Options, sort: [CountrySort!]): [Country]
+  getVersion(filter: VersionInput): Version
+  getVersions(filter: VersionInput, options: Options, sort: [VersionSort!]): [Version]
+  getAirport(filter: AirportInput): Airport
+  getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
+  getAirportStats: AirportStats @graphQuery(statement: "MATCH (a:airport) RETURN {count: count(a), name: 'airports'} AS getAirportStats")
+}
+
+type Mutation {
+  createAirportCustom(input: AirportInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
+  addRoute(fromAirportCode: String, toAirportCode: String, dist: Int): Route @graphQuery(statement: "MATCH (from:airport{code:'$fromAirportCode'}), (to:airport{code:'$toAirportCode'}) CREATE (from)-[this:route{dist:$dist}]->(to) RETURN this")
+  deleteAirportCustom(id: ID): Int @graphQuery(statement: "MATCH (this:airport) WHERE ID(this) = '$id' DETACH DELETE this")
+  createContinent(input: ContinentCreateInput!): Continent
+  updateContinent(input: ContinentUpdateInput!): Continent
+  deleteContinent(_id: ID!): Boolean
+  createCountry(input: CountryCreateInput!): Country
+  updateCountry(input: CountryUpdateInput!): Country
+  deleteCountry(_id: ID!): Boolean
+  createVersion(input: VersionCreateInput!): Version
+  updateVersion(input: VersionUpdateInput!): Version
+  deleteVersion(_id: ID!): Boolean
+  createAirport(input: AirportCreateInput!): Airport
+  updateAirport(input: AirportUpdateInput!): Airport
+  deleteAirport(_id: ID!): Boolean
+  connectContinentToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
+  deleteContainsConnectionFromContinentToAirport(from_id: ID!, to_id: ID!): Boolean
+  connectCountryToAirportThroughContains(from_id: ID!, to_id: ID!): Contains
+  deleteContainsConnectionFromCountryToAirport(from_id: ID!, to_id: ID!): Boolean
+  connectAirportToAirportThroughRoute(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  updateRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!, edge: RouteInput!): Route
+  deleteRouteConnectionFromAirportToAirport(from_id: ID!, to_id: ID!): Boolean
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type AirportStats {
+  count: Int
+  name: String
+}

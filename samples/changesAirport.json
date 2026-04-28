@@ -1,5 +1,6 @@
 [
     { "type": "Airport", "field": "outboundRoutesCountAdd", "action": "add", "value":"outboundRoutesCountAdd: Int @graphQuery(statement: \"MATCH (this)-[r:route]->(a) RETURN count(r)\")"},    
     { "type": "Mutation", "field": "deleteVersion", "action": "remove", "value": "" },
-    { "type": "Mutation", "field": "createVersion", "action": "remove", "value": "" }
+    { "type": "Mutation", "field": "createVersion", "action": "remove", "value": "" },
+    { "action": "addType", "value": "type AirportStats {\n  totalAirports: Int\n  totalRoutes: Int\n}" }
 ]
