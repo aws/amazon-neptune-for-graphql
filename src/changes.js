@@ -10,7 +10,7 @@ express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 */
 
-import { specifiedScalarTypes } from 'graphql';
+import { specifiedScalarTypes, isTypeDefinitionNode } from 'graphql';
 import { AWS_APPSYNC_SCALARS } from './util.js';
 import { loggerInfo } from './logger.js';
 
@@ -53,7 +53,7 @@ function changeGraphQLSchema(schema, changes) {
     try {
         changesDirectives = JSON.parse(changes);
     } catch (err) {
-        throw new Error('Invalid JSON in --input-schema-changes-file: ' + err.message);
+        throw new Error('Invalid JSON in --input-schema-changes-file: ' + err.message, { cause: err });
     }
     if (!Array.isArray(changesDirectives)) {
         throw new Error('--input-schema-changes-file must be a JSON array');
@@ -89,7 +89,7 @@ function changeGraphQLSchema(schema, changes) {
             if (typeof change.value === 'string' && change.value.trim()) {
                 r += change.value + '\n';
             } else {
-                loggerInfo('Skipping addType entry with missing or non-string value');
+                loggerInfo('Skipping addType entry with missing or non-string value', {toConsole: true});
             }
         }
     }
@@ -99,118 +99,38 @@ function changeGraphQLSchema(schema, changes) {
 
 
 /**
- * Checks that Query/Mutation return types are defined. Line-based, so it
- * misses some edge cases (multi-line directive args, multi-field single-line blocks).
+ * Checks that every return type referenced by Query/Mutation fields is
+ * defined in the schema. Throws if any are missing.
  */
-function validateReturnTypes(schema) {
-    if (!schema) return;
+function validateReturnTypes(schemaModel) {
+    if (!schemaModel || !schemaModel.definitions) return;
 
     const knownTypes = new Set([
         ...specifiedScalarTypes.map(t => t.name),
         ...AWS_APPSYNC_SCALARS
     ]);
+    for (const def of schemaModel.definitions) {
+        if (isTypeDefinitionNode(def) && def.name) knownTypes.add(def.name.value);
+    }
 
-    const lines = schema.split('\n').map(l => l.trim());
-
-    // Strip a leading `extend ` so `extend type Foo` behaves like `type Foo`.
-    const stripExtend = (line) => line.startsWith('extend ') ? line.slice(7) : line;
-    const isTypeDef = (line) => {
-        const l = stripExtend(line);
-        return l.startsWith('type ') || l.startsWith('enum ') || l.startsWith('input ') ||
-               l.startsWith('scalar ') || l.startsWith('interface ') || l.startsWith('union ');
+    // Unwrap NonNull/List wrappers (e.g. [Foo!]! → Foo) to get the named type.
+    const baseTypeName = (type) => {
+        while (type.kind === 'NonNullType' || type.kind === 'ListType') type = type.type;
+        return type.name.value;
     };
 
-    /**
-     * Extracts the return type name from a GraphQL field line by stripping
-     * comments, quoted strings, directives, and list/non-null wrappers.
-     * Returns null if the line has no return type.
-     *
-     * Example: "getAirport(code: String): Airport @graphQuery(...) # note" → "Airport"
-     */
-    const extractReturnType = (fieldLine) => {
-        let line = fieldLine
-            .replace(/\s#.*$/, '')                          // 1. strip inline comments
-            .replace(/"""[\s\S]*?"""/g, '')                 // 2a. strip block strings so content can't match directives
-            .replace(/"(?:[^"\\]|\\.)*"/g, '');             // 2b. strip strings so `@` or `:` in values don't confuse extraction
-
-        // 3. strip trailing directives — matches `@` preceded by word char / `]` / `!`
-        const atMatch = line.match(/(?<=[\w\]!])\s*@/);
-        if (atMatch) line = line.substring(0, atMatch.index);
-
-        // 4. everything after the last `:` is the return type
-        const colonPos = line.lastIndexOf(':');
-        if (colonPos === -1) return null;
-
-        // 5. strip `}` (single-line declarations) and unwrap list/non-null: [Foo!] → Foo
-        return line.substring(colonPos + 1).replace(/[}]/g, '').trim().replace(/[[\]!]/g, '') || null;
-    };
-
-    // Check a single field line inside a Query/Mutation block; collect missing types.
-    const validateField = (rawFieldLine, errors) => {
-        if (!rawFieldLine || rawFieldLine.startsWith('#')) return;
-
-        const returnType = extractReturnType(rawFieldLine);
-        if (returnType && !knownTypes.has(returnType) && !errors.includes(returnType)) {
-            errors.push(returnType);
-        }
-    };
-
-    // Returns true if the line is inside (or opens/closes) a triple-quoted description block.
-    const isInsideDescription = (line, state) => {
-        const tripleQuoteCount = (line.match(/"""/g) || []).length;
-        const wasIn = state.inDescription;
-        if (tripleQuoteCount % 2 === 1) state.inDescription = !state.inDescription;
-        return wasIn || tripleQuoteCount > 0;
-    };
-
-    // Pass 1: Collect all defined type/enum/input/scalar names.
-    let descState = { inDescription: false };
-    for (const line of lines) {
-        if (isInsideDescription(line, descState)) continue;
-        if (isTypeDef(line)) {
-            knownTypes.add(stripExtend(line).split(' ')[1]);
+    const errors = new Set();
+    for (const def of schemaModel.definitions) {
+        if (def.kind !== 'ObjectTypeDefinition' && def.kind !== 'ObjectTypeExtension') continue;
+        if (def.name.value !== 'Query' && def.name.value !== 'Mutation') continue;
+        for (const field of def.fields || []) {
+            const name = baseTypeName(field.type);
+            if (!knownTypes.has(name)) errors.add(name);
         }
     }
 
-    // Pass 2: Validate return types in Query/Mutation blocks
-    let insideQueryOrMutation = false;
-    descState = { inDescription: false };
-    const errors = [];
-
-    for (const line of lines) {
-        if (isInsideDescription(line, descState)) continue;
-
-        const defLine = stripExtend(line);
-        const parts = defLine.split(' ');
-
-        if (defLine.startsWith('type ') && (parts[1] == 'Query' || parts[1] == 'Mutation')) {
-            insideQueryOrMutation = true;
-            // Handle single-line declarations: `type Query { getX: Foo }` — parse the tail after `{`.
-            const bracePos = line.indexOf('{');
-            if (bracePos !== -1) {
-                const tail = line.substring(bracePos + 1).trim();
-                if (tail) {
-                    // Strip a trailing `}` so a closing brace on the same line also closes the block.
-                    const closeBracePos = tail.lastIndexOf('}');
-                    const fieldPart = closeBracePos !== -1 ? tail.substring(0, closeBracePos).trim() : tail;
-                    validateField(fieldPart, errors);
-                    if (closeBracePos !== -1) insideQueryOrMutation = false;
-                }
-            }
-            continue;
-        }
-
-        if (line.startsWith('}')) {
-            insideQueryOrMutation = false;
-            continue;
-        }
-
-        if (!insideQueryOrMutation) continue;
-        validateField(line, errors);
-    }
-
-    if (errors.length > 0) {
-        throw new Error('Return types not defined in schema: ' + errors.join(', ') + '. Consider using "action": "addType" to add the missing types.');
+    if (errors.size > 0) {
+        throw new Error('Return types not defined in schema: ' + [...errors].join(', ') + '. Use "action": "addType" in the changes file to add the missing types.');
     }
 }
 

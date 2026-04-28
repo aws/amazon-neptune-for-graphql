@@ -541,16 +541,21 @@ async function main() {
 
     const resolverSchemaFile = path.join(outputFolderPath, `${outputFilePrefix}.resolver.schema.json.gz`);
     if (inputGraphQLSchema != '') {
+        // Parse schema
+        try {
+            schemaModel = schemaParser(inputGraphQLSchema);
+        } catch (err) {
+            loggerError('Schema parse failed', err);
+            process.exit(1);
+        }
+
         // Validate Query/Mutation return types reference defined types
         try {
-            validateReturnTypes(inputGraphQLSchema);
+            validateReturnTypes(schemaModel);
         } catch (err) {
             loggerError('Schema validation failed', err);
             process.exit(1);
         }
-
-        // Parse schema
-        schemaModel = schemaParser(inputGraphQLSchema);
 
         // Validate schema
         schemaModel = validatedSchemaModel(schemaModel, {
