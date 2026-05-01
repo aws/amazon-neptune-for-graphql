@@ -39,6 +39,7 @@
     "neptune-for-graphql": "./neptune-for-graphql.mjs"
   },
   "files": [
+    "THIRD_PARTY_LICENSES.txt",
     "neptune-for-graphql.mjs",
     "./templates/CDKTemplate.js",
     "./templates/queryHttpNeptune.mjs",
