@@ -1,4 +1,4 @@
-# Detailed AWS Resources - v2.0.0
+# Detailed AWS Resources - v2.1.0
 
 Steps:
 
@@ -68,13 +68,13 @@ AppSync. To create the Lambda you have two options:
 1. go to the Neptune documentation
    here https://docs.aws.amazon.com/neptune/latest/userguide/get-started-cfn-lambda.html,
    can run the CloudFormation template that creates the Lambda. Lambda runtime
-   is Node.js 18x.
+   is Node.js 22.x.
    (NOTE: the Neptune CloudFormation to create the Lambda is outdated, the
    nodejs12.x is no longer supported by Lambda)
 2. go to Lambda console
     1. Create a new function, author from scratch
     2. Name the function ( you will point AppSync to this fucntion)
-    3. Runtime: Node.js 18.x
+    3. Runtime: Node.js 22.x
     4. Open Advance settings, enable VPC, and select your Neptune DB VPC,
        Subnets and Security Group.
     5. Create the function

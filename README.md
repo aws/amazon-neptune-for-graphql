@@ -1,7 +1,7 @@
 <br>
 <img src="https://github.com/aws/amazon-neptune-for-graphql/blob/main/doc/images/utilityRunning.gif" width="180" height="100">
 
-# **Amazon Neptune utility for GraphQL&trade; schemas and resolvers - v2.0.0**
+# **Amazon Neptune utility for GraphQL&trade; schemas and resolvers - v2.1.0**
 
 The Amazon Neptune utility for GraphQL&trade; is a Node.js command-line utility
 to help with the creation and maintenance of a GraphQL API for the Amazon
