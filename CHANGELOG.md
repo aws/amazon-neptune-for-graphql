@@ -14,6 +14,31 @@ permissions and limitations under the License.
 
 # amazon-neptune-for-graphql CHANGELOG
 
+## Release v2.1.0
+
+### Features
+
+* Added `addType` action in schema changes file for custom type
+  definitions ([#163](https://github.com/aws/amazon-neptune-for-graphql/pull/163))
+
+### Improvements
+
+* Upgraded Lambda runtime to
+  nodejs22.x ([#164](https://github.com/aws/amazon-neptune-for-graphql/pull/164))
+* Upgraded dependencies: AWS SDK, Axios, Apollo
+  Server ([#144](https://github.com/aws/amazon-neptune-for-graphql/pull/144), [#160](https://github.com/aws/amazon-neptune-for-graphql/pull/160), [#161](https://github.com/aws/amazon-neptune-for-graphql/pull/161))
+* Added unit tests for pipeline creation/removal, CDK generation, and
+  schema changes ([#157](https://github.com/aws/amazon-neptune-for-graphql/pull/157), [#162](https://github.com/aws/amazon-neptune-for-graphql/pull/162), [#163](https://github.com/aws/amazon-neptune-for-graphql/pull/163))
+
+### Bug Fixes
+
+* Fixed Lambda missing VPC configuration when Neptune DB is used with
+  IAM auth ([#157](https://github.com/aws/amazon-neptune-for-graphql/pull/157))
+* Fixed `remove` action prefix matching — `desc` no longer removes
+  `desc2` ([#162](https://github.com/aws/amazon-neptune-for-graphql/pull/162))
+* Fixed missing error handling for malformed
+  `--input-schema-changes-file` ([#163](https://github.com/aws/amazon-neptune-for-graphql/pull/163))
+
 ## Release v2.0.0
 
 ### Features

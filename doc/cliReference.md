@@ -1,4 +1,4 @@
-# Neptune GraphQL Utility Command Line options Reference - v2.0.0
+# Neptune GraphQL Utility Command Line options Reference - v2.1.0
 
 `--help, --h, -help, -h`
 <br>
@@ -32,10 +32,19 @@ format.
 ```json
 [
   {
+    "action": "add",
     "type": "graphQLTypeName",
     "field": "graphQLFieldName",
-    "action": "remove|add",
-    "value": "value"
+    "value": "fieldDefinition"
+  },
+  {
+    "action": "remove",
+    "type": "graphQLTypeName",
+    "field": "graphQLFieldName"
+  },
+  {
+    "action": "addType",
+    "value": "type NewType { field: String }"
   }
 ]
 ```
