@@ -10,7 +10,7 @@
   "author": "AWS",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/client-neptune-graph": "^3.1030.0",
+    "@aws-sdk/client-neptune-graph": "^3.1041.0",
     "graphql": "^16.8.1"
   }
 }
