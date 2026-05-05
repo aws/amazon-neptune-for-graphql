@@ -642,3 +642,5 @@ Follow AWS open source practices.
 <br>
 [Code of conduct page.](/CODE_OF_CONDUCT.md)
 <br>
+[Testing guide.](/TESTING.md)
+<br>

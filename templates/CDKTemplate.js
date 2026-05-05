@@ -77,7 +77,7 @@ class AppSyncNeptuneStack extends Stack {
                 description: 'Neptune GraphQL Resolver for AppSync',
                 code: lambda.Code.fromAsset(LAMBDA_ZIP_FILE),
                 handler: 'index.handler',
-                runtime: lambda.Runtime.NODEJS_18_X,
+                runtime: lambda.Runtime.NODEJS_22_X,
                 timeout: Duration.seconds(15),
                 memorySize: 128,
                 environment: env,

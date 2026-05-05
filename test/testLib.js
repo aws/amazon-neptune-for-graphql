@@ -31,13 +31,14 @@ async function queryNeptune(q, language, host, port, param) {
     try {
         let response = null;
         if (language == 'opencypher')
-            response = await axios.post(`https://${host}:${port}/opencypher`, `query=${encodeURIComponent(q)}&parameters=${encodeURIComponent(JSON.stringify(param))}`);
+            response = await axios.post(`https://${host}:${port}/opencypher`, { query: q, parameters: JSON.stringify(param) });
         else             
-            response = await axios.post(`https://${host}:${port}/gremlin`, `{"gremlin":"${q}"}`)
+            response = await axios.post(`https://${host}:${port}/gremlin`, { gremlin: q })
 
         return response.data;    
     } catch (error) {
-        console.error("Http query request failed: ", error.message);            
+        console.error("Http query request failed: ", error.message);
+        throw error;
     }
 }
 
@@ -154,15 +155,21 @@ async function testResolverQueriesResults(resolverFile, queriesReferenceFolder, 
                 continue;
             }
             console.log(`Executing query: ${queryFile} ${query.graphql}`);
-            const result = resolverModule.resolveGraphDBQuery({queryObjOrStr: gql(query.graphql)});
-            const httpResult = await queryNeptune(result.query, result.language, host, port, result.parameters);
-                
             let data = null;
-            if (result.language === 'opencypher')
-                data = httpResult.results[0][Object.keys(httpResult.results[0])[0]];
-            else {
-                const input = httpResult.result.data;
-                data = JSON.parse(resolverModule.refactorGremlinqueryOutput(input, result.fieldsAlias));                                            
+            try {
+                const result = resolverModule.resolveGraphDBQuery({queryObjOrStr: gql(query.graphql)});
+                const httpResult = await queryNeptune(result.query, result.language, host, port, result.parameters);
+                if (result.language === 'opencypher')
+                    data = httpResult.results[0][Object.keys(httpResult.results[0])[0]];
+                else {
+                    const input = httpResult.result.data;
+                    data = JSON.parse(resolverModule.refactorGremlinqueryOutput(input, result.fieldsAlias));
+                }
+            } catch (queryError) {
+                test(`Resolver Neptune result, ${queryFile}: ${query.name}`, async () => {
+                    throw new Error(`Neptune query failed: ${queryError.message}`, { cause: queryError });
+                });
+                continue;
             }
 
             if (JSON.stringify(data, null, 2) !== JSON.stringify(query.result, null, 2))
