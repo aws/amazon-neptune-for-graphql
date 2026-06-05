@@ -490,9 +490,9 @@ test('should resolve query using a graphQuery returning a type (Query0007)', () 
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportConnection(fromCode: \"SEA\", toCode: \"BLQ\") {\n city\n code\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "MATCH (:airport{code: 'SEA'})-[:route]->(getAirportConnection_Airport:airport)-[:route]->(:airport{code:'BLQ'})\n" +
+        query: "MATCH (:airport{code: $getAirportConnection_Airport_fromCode})-[:route]->(getAirportConnection_Airport:airport)-[:route]->(:airport{code:$getAirportConnection_Airport_toCode})\n" +
             'RETURN {city: getAirportConnection_Airport.`city`, code: getAirportConnection_Airport.`code`} LIMIT 1',
-        parameters: {},
+        parameters: { getAirportConnection_Airport_fromCode: 'SEA', getAirportConnection_Airport_toCode: 'BLQ' },
         language: 'opencypher',
         refactorOutput: null
     });
