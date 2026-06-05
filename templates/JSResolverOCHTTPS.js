@@ -512,7 +512,9 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
     if (querySchemaInfo.graphQuery != null) {
         var gq = querySchemaInfo.graphQuery.replaceAll('this', querySchemaInfo.pathName);
         obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
-            gq = gq.replace('$' + arg.name.value, arg.value.value);
+            const paramName = querySchemaInfo.pathName + '_' + arg.name.value;
+            gq = gq.replace(`'$${arg.name.value}'`, `$${paramName}`);
+            Object.assign(parameters, { [paramName]: arg.value.value });
         });
 
         matchStatements.push(gq);
@@ -1255,7 +1257,9 @@ function resolveGraphDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
             ocQuery = ocQuery.replace('$input', formattedFields);
         } else {
             queryAst.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
-                ocQuery = ocQuery.replace('$' + arg.name.value, arg.value.value);
+                const paramName = querySchemaInfo.pathName + '_' + arg.name.value;
+                ocQuery = ocQuery.replace(`'$${arg.name.value}'`, `$${paramName}`);
+                Object.assign(parameters, { [paramName]: arg.value.value });
             });
         }
 
