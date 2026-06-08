@@ -369,6 +369,7 @@ type Mutation {
   connectVersionToDataSourceThroughPulled_cn_from(from_id: ID!, to_id: ID!): Pulled_cn_from
   deletePulled_cn_fromConnectionFromVersionToDataSource(from_id: ID!, to_id: ID!): Boolean
   createAirportCustom(input: AirportCreateInput!): Airport @graphQuery(statement: "CREATE (this:airport {$input}) RETURN this")
+  addRoute(fromAirportCode: String, toAirportCode: String, dist: Int): Route @graphQuery(statement: "MATCH (from:airport{code:'$fromAirportCode'}), (to:airport{code:'$toAirportCode'}) CREATE (from)-[this:route{dist:$dist}]->(to) RETURN this")
 }
 
 schema {

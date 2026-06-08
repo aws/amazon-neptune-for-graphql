@@ -142,8 +142,8 @@ test('should resolve app sync event gremlin query with argument', () => {
     });
 
     expect(result).toMatchObject({
-        query: "g.V().has('airport', 'code', 'YVR').elementMap()",
-        parameters: {},
+        query: "g.V().has('airport', 'code', getAirportWithGremlin_Airport_code).elementMap()",
+        parameters: { getAirportWithGremlin_Airport_code: 'YVR' },
         language: 'gremlin',
         refactorOutput: null
     });
@@ -503,9 +503,9 @@ test('should resolve query using Gremlin returning a type (Query0008)', () => {
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportWithGremlin(code: \"SEA\") {\n _id\n city\n runways\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "g.V().has('airport', 'code', 'SEA').elementMap()",
+        query: "g.V().has('airport', 'code', getAirportWithGremlin_Airport_code).elementMap()",
         language: 'gremlin',
-        parameters: {},
+        parameters: { getAirportWithGremlin_Airport_code: 'SEA' },
         refactorOutput: null,
         fieldsAlias: {
             id: '_id',
@@ -1087,6 +1087,49 @@ test('should resolve custom mutation with @graphQuery directive and $input param
         language: 'opencypher',
         refactorOutput: null
     });
+});
+
+test('should resolve custom mutation with @graphQuery directive and individual parameters', () => {
+    const query = 'mutation MyMutation {\n' +
+        '  addRoute(fromAirportCode: "SEA", toAirportCode: "BLQ", dist: "5765") {\n' +
+        '    _id\n' +
+        '    dist\n' +
+        '  }\n' +
+        '}';
+    const result = resolveGraphDBQuery({queryObjOrStr: query});
+
+    expect(result).toMatchObject({
+        query: 'MATCH (from:airport{code:$addRoute_Route_fromAirportCode}), (to:airport{code:$addRoute_Route_toAirportCode}) CREATE (from)-[addRoute_Route:route{dist:$addRoute_Route_dist}]->(to)\n' +
+            'RETURN {_id:ID(addRoute_Route), dist: addRoute_Route.`dist`}',
+        parameters: {
+            addRoute_Route_fromAirportCode: 'SEA',
+            addRoute_Route_toAirportCode: 'BLQ',
+            addRoute_Route_dist: '5765'
+        },
+        language: 'opencypher',
+        refactorOutput: null
+    });
+});
+
+test('should safely parameterize injection attempt in mutation @graphQuery', () => {
+    const injectionPayload = "SEA'}) RETURN this UNION MATCH (n) RETURN n //";
+    const query = `mutation MyMutation {\n  addRoute(fromAirportCode: "${injectionPayload}", toAirportCode: "BLQ", dist: "0") {\n    _id\n  }\n}`;
+    const result = resolveGraphDBQuery({queryObjOrStr: query});
+
+    // Injection payload should be in parameters, not in the query string
+    expect(result.parameters.addRoute_Route_fromAirportCode).toBe(injectionPayload);
+    expect(result.query).not.toContain("UNION");
+    expect(result.query).toContain("$addRoute_Route_fromAirportCode");
+});
+
+test('should handle special characters in mutation @graphQuery parameters', () => {
+    const query = `mutation MyMutation {\n  addRoute(fromAirportCode: "it's a test", toAirportCode: "O'Hare", dist: "100") {\n    _id\n    dist\n  }\n}`;
+    const result = resolveGraphDBQuery({queryObjOrStr: query});
+
+    expect(result.parameters.addRoute_Route_fromAirportCode).toBe("it's a test");
+    expect(result.parameters.addRoute_Route_toAirportCode).toBe("O'Hare");
+    expect(result.query).not.toContain("it's");
+    expect(result.query).toContain("$addRoute_Route_fromAirportCode");
 });
 
 test('should inference create mutation with a prefix', () => {

@@ -513,7 +513,11 @@ function createQueryFunctionMatchStatement(obj, matchStatements, querySchemaInfo
         var gq = querySchemaInfo.graphQuery.replaceAll('this', querySchemaInfo.pathName);
         obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
             const paramName = querySchemaInfo.pathName + '_' + arg.name.value;
-            gq = gq.replace(`'$${arg.name.value}'`, `$${paramName}`);
+            if (gq.includes(`'$${arg.name.value}'`)) {
+                gq = gq.replaceAll(`'$${arg.name.value}'`, `$${paramName}`);
+            } else {
+                gq = gq.replaceAll(`$${arg.name.value}`, `$${paramName}`);
+            }
             Object.assign(parameters, { [paramName]: arg.value.value });
         });
 
@@ -1260,7 +1264,11 @@ function resolveGraphDBqueryForGraphQLMutation (queryAst, querySchemaInfo) {
         } else {
             queryAst.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
                 const paramName = querySchemaInfo.pathName + '_' + arg.name.value;
-                ocQuery = ocQuery.replace(`'$${arg.name.value}'`, `$${paramName}`);
+                if (ocQuery.includes(`'$${arg.name.value}'`)) {
+                    ocQuery = ocQuery.replaceAll(`'$${arg.name.value}'`, `$${paramName}`);
+                } else {
+                    ocQuery = ocQuery.replaceAll(`$${arg.name.value}`, `$${paramName}`);
+                }
                 Object.assign(parameters, { [paramName]: arg.value.value });
             });
         }
@@ -1413,7 +1421,13 @@ function resolveGremlinQuery(obj, querySchemaInfo) {
     // replace values from input parameters
     gremlinQuery.query = querySchemaInfo.graphQuery;
     obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
-        gremlinQuery.query = gremlinQuery.query.replace('$' + arg.name.value, arg.value.value);
+        const paramName = querySchemaInfo.pathName + '_' + arg.name.value;
+        if (gremlinQuery.query.includes(`'$${arg.name.value}'`)) {
+            gremlinQuery.query = gremlinQuery.query.replaceAll(`'$${arg.name.value}'`, `${paramName}`);
+        } else {
+            gremlinQuery.query = gremlinQuery.query.replaceAll(`$${arg.name.value}`, `${paramName}`);
+        }
+        Object.assign(gremlinQuery.parameters, { [paramName]: arg.value.value });
     });
 
     return gremlinQuery;
