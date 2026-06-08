@@ -581,7 +581,9 @@ function extractQueryArgsAndWhereClauses(selectionArguments, querySchemaInfo) {
                 }
             })
         } else if (selectionArgument.name?.value && selectionArgument.value?.value) {
-            queryArguments.push(`${selectionArgument.name.value}:'${selectionArgument.value.value}'`);
+            const paramName = querySchemaInfo.pathName + '_' + selectionArgument.name.value;
+            Object.assign(parameters, { [paramName]: selectionArgument.value.value });
+            queryArguments.push(`${selectionArgument.name.value}: $${paramName}`);
         }
     });
     return { queryArguments: queryArguments, whereClauses: whereClauses };

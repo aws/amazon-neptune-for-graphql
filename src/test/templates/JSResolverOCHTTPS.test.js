@@ -401,9 +401,9 @@ test('should inference query from return type (Query0001)', () => {
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n city \n }\n}'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+        query: "MATCH (getAirportByCode_Airport:`airport`{code: $getAirportByCode_Airport_code})\n" +
             'RETURN {city: getAirportByCode_Airport.`city`} LIMIT 1',
-        parameters: {},
+        parameters: { getAirportByCode_Airport_code: "SEA" },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -414,9 +414,9 @@ test('should get neptune_id (Query0002)', () => {
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n _id\n }\n }'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+        query: "MATCH (getAirportByCode_Airport:`airport`{code: $getAirportByCode_Airport_code})\n" +
             'RETURN {_id:ID(getAirportByCode_Airport)} LIMIT 1',
-        parameters: {},
+        parameters: { getAirportByCode_Airport_code: "SEA" },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -427,7 +427,7 @@ test('should inference query with nested types single and array, references in a
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"YKM\") {\n city\n continentContainsIn {\n desc\n }\n countryContainsIn {\n desc\n }\n airportRoutesOut {\n code\n }\n }\n }'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirportByCode_Airport:`airport`{code:'YKM'})\n" +
+        query: "MATCH (getAirportByCode_Airport:`airport`{code: $getAirportByCode_Airport_code})\n" +
             'OPTIONAL MATCH (getAirportByCode_Airport)<-[`getAirportByCode_Airport_continentContainsIn_contains`:`contains`]-(getAirportByCode_Airport_continentContainsIn:`continent`)\n' +
             'OPTIONAL MATCH (getAirportByCode_Airport)<-[`getAirportByCode_Airport_countryContainsIn_contains`:`contains`]-(getAirportByCode_Airport_countryContainsIn:`country`)\n' +
             'OPTIONAL MATCH (getAirportByCode_Airport)-[`getAirportByCode_Airport_airportRoutesOut_route`:`route`]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
@@ -435,7 +435,7 @@ test('should inference query with nested types single and array, references in a
             'WITH getAirportByCode_Airport, getAirportByCode_Airport_continentContainsIn, getAirportByCode_Airport_airportRoutesOut_collect, {desc: getAirportByCode_Airport_countryContainsIn.`desc`} AS getAirportByCode_Airport_countryContainsIn_one\n' +
             'WITH getAirportByCode_Airport, getAirportByCode_Airport_countryContainsIn_one, getAirportByCode_Airport_airportRoutesOut_collect, {desc: getAirportByCode_Airport_continentContainsIn.`desc`} AS getAirportByCode_Airport_continentContainsIn_one\n' +
             'RETURN {city: getAirportByCode_Airport.`city`, continentContainsIn: getAirportByCode_Airport_continentContainsIn_one, countryContainsIn: getAirportByCode_Airport_countryContainsIn_one, airportRoutesOut: getAirportByCode_Airport_airportRoutesOut_collect} LIMIT 1',
-        parameters: {},
+        parameters: { getAirportByCode_Airport_code: "YKM" },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -446,12 +446,12 @@ test('should get edge properties in nested array (Query0004)', () => {
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n airportRoutesOut {\n code\n route {\n dist\n }\n }\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+        query: "MATCH (getAirportByCode_Airport:`airport`{code: $getAirportByCode_Airport_code})\n" +
             'OPTIONAL MATCH (getAirportByCode_Airport)-[`getAirportByCode_Airport_airportRoutesOut_route`:`route`]->(getAirportByCode_Airport_airportRoutesOut:`airport`)\n' +
             'WITH getAirportByCode_Airport, getAirportByCode_Airport_airportRoutesOut, {dist: getAirportByCode_Airport_airportRoutesOut_route.`dist`} AS getAirportByCode_Airport_airportRoutesOut_route_one\n' +
             'WITH getAirportByCode_Airport, CASE WHEN getAirportByCode_Airport_airportRoutesOut IS NULL THEN [] ELSE COLLECT({code: getAirportByCode_Airport_airportRoutesOut.`code`, route: getAirportByCode_Airport_airportRoutesOut_route_one}) END AS getAirportByCode_Airport_airportRoutesOut_collect\n' +
             'RETURN {airportRoutesOut: getAirportByCode_Airport_airportRoutesOut_collect} LIMIT 1',
-        parameters: {},
+        parameters: { getAirportByCode_Airport_code: "SEA" },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -462,11 +462,11 @@ test('should return type with graph query returning a scalar (Query0005)', () =>
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n outboundRoutesCount\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+        query: "MATCH (getAirportByCode_Airport:`airport`{code: $getAirportByCode_Airport_code})\n" +
             'OPTIONAL MATCH (getAirportByCode_Airport)-[getAirportByCode_Airport_outboundRoutesCount_r:route]->(getAirportByCode_Airport_outboundRoutesCount_a)\n' +
             'WITH getAirportByCode_Airport, count(getAirportByCode_Airport_outboundRoutesCount_r) AS getAirportByCode_Airport_outboundRoutesCount\n' +
             'RETURN {outboundRoutesCount:getAirportByCode_Airport_outboundRoutesCount} LIMIT 1',
-        parameters: {},
+        parameters: { getAirportByCode_Airport_code: "SEA" },
         language: 'opencypher',
         refactorOutput: null
     });
@@ -477,9 +477,9 @@ test('should map type name to different graph db property name (Query0006)', () 
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportByCode(code: \"SEA\") {\n desc\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "MATCH (getAirportByCode_Airport:`airport`{code:'SEA'})\n" +
+        query: "MATCH (getAirportByCode_Airport:`airport`{code: $getAirportByCode_Airport_code})\n" +
             'RETURN {desc: getAirportByCode_Airport.`desc`} LIMIT 1',
-        parameters: {},
+        parameters: { getAirportByCode_Airport_code: "SEA" },
         language: 'opencypher',
         refactorOutput: null
     });
