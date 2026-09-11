@@ -1,6 +1,6 @@
 {
   "name": "@aws/neptune-for-graphql",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "CLI utility to create and maintain a GraphQL API for Amazon Neptune",
   "keywords": [
     "Amazon Neptune",
@@ -60,29 +60,29 @@
   "license": "Apache-2.0",
   "type": "module",
   "dependencies": {
-    "@aws-sdk/client-appsync": "3.1041.0",
-    "@aws-sdk/client-iam": "3.1041.0",
-    "@aws-sdk/client-lambda": "3.1041.0",
-    "@aws-sdk/client-neptune": "3.1041.0",
-    "@aws-sdk/client-neptune-graph": "3.1041.0",
-    "@aws-sdk/client-neptunedata": "3.1041.0",
-    "@aws-sdk/credential-providers": "3.1041.0",
+    "@aws-sdk/client-appsync": "3.1111.0",
+    "@aws-sdk/client-iam": "3.1111.0",
+    "@aws-sdk/client-lambda": "3.1111.0",
+    "@aws-sdk/client-neptune": "3.1111.0",
+    "@aws-sdk/client-neptune-graph": "3.1111.0",
+    "@aws-sdk/client-neptunedata": "3.1111.0",
+    "@aws-sdk/credential-providers": "3.1111.0",
     "archiver": "7.0.1",
     "aws4-axios": "3.4.0",
-    "axios": "^1.16.0",
-    "graphql": "^16.8.1",
-    "graphql-tag": "2.12.6",
+    "axios": "^1.19.0",
+    "graphql": "^16.14.2",
+    "graphql-tag": "2.12.7",
     "ora": "7.0.1",
-    "pino": "9.4.0",
-    "pino-pretty": "11.2.2",
-    "prettier": "^3.5.3",
-    "semver": "7.5.4"
+    "pino": "9.14.0",
+    "pino-pretty": "11.3.0",
+    "prettier": "^3.9.6",
+    "semver": "7.8.5"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@jest/test-sequencer": "^29.7.0",
-    "@eslint/js": "^9.26.0",
-    "eslint": "^9.26.0",
-    "globals": "^16.1.0",
+    "eslint": "^9.39.5",
+    "globals": "^16.5.0",
     "jest": "^29.7.0"
   }
 }

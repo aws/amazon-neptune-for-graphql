@@ -14,6 +14,16 @@ permissions and limitations under the License.
 
 # amazon-neptune-for-graphql CHANGELOG
 
+## Release v2.2.0
+
+### Improvements
+
+* Updated dependencies across the CLI, the Lambda and Apollo Server
+  templates, and the test package, including the AWS SDK, Apollo Server,
+  `graphql` and `axios`
+* Regenerated the third-party licenses file to match the updated
+  dependencies
+
 ## Release v2.1.0
 
 ### Features
