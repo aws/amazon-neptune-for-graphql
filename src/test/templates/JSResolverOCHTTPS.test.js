@@ -142,10 +142,154 @@ test('should resolve app sync event gremlin query with argument', () => {
     });
 
     expect(result).toMatchObject({
-        query: "g.V().has('airport', 'code', getAirportWithGremlin_Airport_code).elementMap()",
-        parameters: { getAirportWithGremlin_Airport_code: 'YVR' },
+        query: "g.V().has('airport', 'code', 'YVR').elementMap()",
+        parameters: {},
         language: 'gremlin',
         refactorOutput: null
+    });
+});
+
+test('should resolve a gremlin query argument supplied as a variable', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlin',
+        arguments: { code: 'YVR' },
+        variables: { code: 'YVR' },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', 'YVR').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should quote a numeric gremlin query argument when the statement quotes the placeholder', () => {
+    const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportWithGremlin(code: 22) {\n city\n }\n }\n'});
+
+    // the statement is written as '$code', so the value belongs in a string literal even
+    // though the graphQL parser read it as a number
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', '22').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should substitute every occurrence of a repeated gremlin placeholder', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlinRepeatedArg',
+        arguments: { code: 'SEA' },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', 'SEA').has('icao', 'SEA').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should not let a gremlin argument value be read as another placeholder', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlinTwoArgs',
+        arguments: { code: '$codeSuffix', codeSuffix: 'KSEA' },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    // the first value contains the second placeholder verbatim and must survive as data
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', '$codeSuffix').has('icao', 'KSEA').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should not substitute a bare gremlin placeholder whose name is a prefix of another', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportsWithGremlinBareArgs',
+        arguments: { runways: 3, runwaysMin: 11901 },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    // $runways must not consume the leading characters of $runwaysMin
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'runways', 3).has('longest', 11901).elementMap().fold()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should escape a single quote in a gremlin query argument', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlin',
+        arguments: { code: "YVR' + 'x" },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    // the quote is escaped so the value cannot terminate the literal and alter the query
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', 'YVR\\' + \\'x').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should escape a backslash in a gremlin query argument', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlin',
+        arguments: { code: 'YVR\\' },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', 'YVR\\\\').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should escape a newline in a gremlin query argument', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlin',
+        arguments: { code: 'YVR\n' },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', 'YVR\\n').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should escape a control character in a gremlin query argument', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlin',
+        arguments: { code: 'YVR\u0001' },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', 'YVR\\u0001').elementMap()",
+        parameters: {},
+        language: 'gremlin'
+    });
+});
+
+test('should not escape a dollar sign in a gremlin query argument', () => {
+    const result = resolveGraphDBQueryFromAppSyncEvent({
+        field: 'getAirportWithGremlin',
+        arguments: { code: 'YVR$X' },
+        selectionSetGraphQL: '{ city }'
+    });
+
+    // Neptune reads a bare $ as a plain character and rejects \$ with a parse error,
+    // so the dollar sign must pass through untouched
+    expect(result).toMatchObject({
+        query: "g.V().has('airport', 'code', 'YVR$X').elementMap()",
+        parameters: {},
+        language: 'gremlin'
     });
 });
 
@@ -503,9 +647,9 @@ test('should resolve query using Gremlin returning a type (Query0008)', () => {
     const result = resolveGraphDBQuery({queryObjOrStr: 'query MyQuery {\n getAirportWithGremlin(code: \"SEA\") {\n _id\n city\n runways\n }\n }\n'});
 
     expect(result).toMatchObject({
-        query: "g.V().has('airport', 'code', getAirportWithGremlin_Airport_code).elementMap()",
+        query: "g.V().has('airport', 'code', 'SEA').elementMap()",
         language: 'gremlin',
-        parameters: { getAirportWithGremlin_Airport_code: 'SEA' },
+        parameters: {},
         refactorOutput: null,
         fieldsAlias: {
             id: '_id',

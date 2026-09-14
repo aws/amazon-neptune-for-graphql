@@ -41,11 +41,7 @@ export async function queryNeptune(neptuneUrl, resolvedQuery, options = {logging
                 query: resolvedQuery.query, parameters: JSON.stringify(resolvedQuery.parameters)
             }, requestConfig);
         } else {
-            const gremlinRequest = { gremlin: resolvedQuery.query };
-            if (resolvedQuery.parameters && Object.keys(resolvedQuery.parameters).length > 0) {
-                gremlinRequest.bindings = resolvedQuery.parameters;
-            }
-            response = await axios.post(`${neptuneUrl}/gremlin`, gremlinRequest, requestConfig);
+            response = await axios.post(`${neptuneUrl}/gremlin`, { gremlin: resolvedQuery.query }, requestConfig);
         }
         if (loggingEnabled) {
             console.log("Query result: ", JSON.stringify(response.data, null, 2));

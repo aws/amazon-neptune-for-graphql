@@ -352,6 +352,9 @@ type Query {
   airportQuery_getAirport(filter: AirportInput): Airport
   getAirports(filter: AirportInput, options: Options, sort: [AirportSort!]): [Airport]
   getAirportWithGremlin(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').elementMap()")
+  getAirportWithGremlinTwoArgs(code: String, codeSuffix: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').has('icao', '$codeSuffix').elementMap()")
+  getAirportsWithGremlinBareArgs(runways: Int, runwaysMin: Int): [Airport] @graphQuery(statement: "g.V().has('airport', 'runways', $runways).has('longest', $runwaysMin).elementMap().fold()")
+  getAirportWithGremlinRepeatedArg(code: String): Airport @graphQuery(statement: "g.V().has('airport', 'code', '$code').has('icao', '$code').elementMap()")
   getCountriesCount: Int @graphQuery(statement: "g.V().hasLabel('country').count()")
 }
 
