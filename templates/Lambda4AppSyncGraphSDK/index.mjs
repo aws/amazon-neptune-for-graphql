@@ -2,7 +2,6 @@ import { ExecuteQueryCommand, NeptuneGraphClient } from "@aws-sdk/client-neptune
 import { initSchema, resolveGraphDBQueryFromAppSyncEvent } from './output.resolver.graphql.js';
 import { decompressGzipToString, injectAwsScalarDefinitions } from './util.mjs';
 
-const PROTOCOL = 'https';
 const QUERY_LANGUAGE = 'OPEN_CYPHER';
 const RESOLVER_LANGUAGE = 'opencypher';
 
@@ -21,7 +20,6 @@ function getClient() {
                 port: process.env.NEPTUNE_PORT,
                 host: process.env.NEPTUNE_DOMAIN,
                 region: process.env.NEPTUNE_REGION,
-                protocol: PROTOCOL,
             });
         } catch (error) {
             return onError('Error instantiating NeptuneGraphClient: ', error);

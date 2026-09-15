@@ -20,9 +20,14 @@ permissions and limitations under the License.
 
 * Updated dependencies across the CLI, the Lambda and Apollo Server
   templates, and the test package, including the AWS SDK, Apollo Server,
-  `graphql` and `axios`
+  `graphql` and `axios` ([#187](https://github.com/aws/amazon-neptune-for-graphql/pull/187))
 * Regenerated the third-party licenses file to match the updated
-  dependencies
+  dependencies ([#187](https://github.com/aws/amazon-neptune-for-graphql/pull/187))
+
+### Bug Fixes
+
+* Fixed queries failing on Neptune Analytics pipelines that use the SDK
+  resolver ([#187](https://github.com/aws/amazon-neptune-for-graphql/pull/187))
 
 ## Release v2.1.0
 
