@@ -1,4 +1,4 @@
-## Code of Conduct - v2.0.0
+## Code of Conduct - v2.2.0
 
 This project has adopted
 the [Amazon Open Source Code of Conduct](https://aws.github.io/code-of-conduct).

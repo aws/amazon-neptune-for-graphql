@@ -1,4 +1,4 @@
-# Air Routes Example: Starting from a Neptune database with data - v2.0.0
+# Air Routes Example: Starting from a Neptune database with data - v2.2.0
 
 Amazon Neptune uses the Air Routes dataset in several Notebook tutorials. If you
 don't have a Neptune database with the Air Routes data you can create a new

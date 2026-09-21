@@ -10,9 +10,9 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "graphql-tag": "2.12.6",
-    "adm-zip": "0.5.16",
-    "@aws-sdk/client-appsync": "^3.1029.0",
-    "axios": "^1.15.0"
+    "@aws-sdk/client-appsync": "^3.1111.0",
+    "adm-zip": "0.6.0",
+    "axios": "^1.19.0",
+    "graphql-tag": "2.12.7"
   }
 }

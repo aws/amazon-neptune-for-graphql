@@ -1,4 +1,4 @@
-# TODO Example: Starting from a GraphQL schema with no directives - v2.0.0
+# TODO Example: Starting from a GraphQL schema with no directives - v2.2.0
 
 You can start from a GraphQL schema without directives and an empty Neptune
 database. The utility will inference directives, input, queries and mutations,
