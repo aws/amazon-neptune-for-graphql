@@ -1410,6 +1410,65 @@ function getFieldsAlias(typeName) {
 }
 
 
+const GREMLIN_ESCAPES = {
+    '\\': '\\\\',
+    "'": "\\'",
+    '\n': '\\n',
+    '\t': '\\t'
+};
+
+
+/**
+ * Matches a `@graphQuery` argument placeholder, either quoted as `'$name'` or bare as
+ * `$name`. The name follows the graphQL rule for argument names.
+ */
+const GREMLIN_ARGUMENT_PLACEHOLDER = /'\$([_A-Za-z][_0-9A-Za-z]*)'|\$([_A-Za-z][_0-9A-Za-z]*)/g;
+
+
+/**
+ * Escapes a value for inclusion in a Gremlin single-quoted string literal.
+ *
+ * Neptune's Gremlin endpoint does not support query bindings, so argument values are
+ * inlined into the query text. Backslash and quote are escaped so that a value cannot
+ * terminate the literal and be read as query syntax. Newline and tab use their named
+ * escapes; any other control character is emitted as \uXXXX.
+ *
+ * `$` is deliberately not escaped. Neptune accepts it bare and rejects `\$` with a parse
+ * error, even though the Groovy escaping rules its documentation references include `\$`.
+ *
+ * @param {string} value the raw value
+ * @returns {string} the escaped value, without surrounding quotes
+ */
+function escapeGremlinStringLiteral(value) {
+    return value.replace(/[\\'\u0000-\u001f\u007f]/g, ch =>
+        GREMLIN_ESCAPES[ch] ?? '\\u' + ch.codePointAt(0).toString(16).padStart(4, '0'));
+}
+
+
+/**
+ * Converts a graphQL argument value node into a Gremlin literal.
+ *
+ * @param {object} valueNode a graphQL AST value node
+ * @returns {string} a Gremlin literal
+ */
+function toGremlinLiteral(valueNode, quoted) {
+    switch (valueNode.kind) {
+        case 'IntValue':
+        case 'FloatValue':
+            // a quoted placeholder means the schema author wants a string, which matters for
+            // ID arguments that the graphQL parser reads as numbers
+            return quoted ? `'${escapeGremlinStringLiteral(String(valueNode.value))}'` : valueNode.value;
+        case 'BooleanValue':
+            return valueNode.value ? 'true' : 'false';
+        case 'StringValue':
+        case 'EnumValue':
+            return `'${escapeGremlinStringLiteral(valueNode.value)}'`;
+        default:
+            throw new Error(`Unsupported argument type for a Gremlin @graphQuery: ${valueNode.kind}`);
+    }
+}
+
+
 function resolveGremlinQuery(obj, querySchemaInfo) {
     let gremlinQuery = {
         query:'',
@@ -1418,17 +1477,21 @@ function resolveGremlinQuery(obj, querySchemaInfo) {
         refactorOutput: null,
         fieldsAlias: getFieldsAlias(querySchemaInfo.returnType) };
 
-    // replace values from input parameters
-    gremlinQuery.query = querySchemaInfo.graphQuery;
-    obj.definitions[0].selectionSet.selections[0].arguments.forEach(arg => {
-        const paramName = querySchemaInfo.pathName + '_' + arg.name.value;
-        if (gremlinQuery.query.includes(`'$${arg.name.value}'`)) {
-            gremlinQuery.query = gremlinQuery.query.replaceAll(`'$${arg.name.value}'`, `${paramName}`);
-        } else {
-            gremlinQuery.query = gremlinQuery.query.replaceAll(`$${arg.name.value}`, `${paramName}`);
-        }
-        Object.assign(gremlinQuery.parameters, { [paramName]: arg.value.value });
-    });
+    // Inline argument values as escaped literals.
+    const selection = obj.definitions[0].selectionSet.selections[0];
+    replaceVariableArgsWithValues(selection, querySchemaInfo.variables);
+    const argumentsByName = new Map(selection.arguments.map(arg => [arg.name.value, arg.value]));
+
+    // A single pass over the statement: replacement text is not rescanned, so a value
+    // containing a `$` cannot be read as another argument's placeholder, and argument names
+    // that share a prefix cannot match each other. A placeholder written with quotes yields
+    // a quoted literal.
+    gremlinQuery.query = querySchemaInfo.graphQuery.replace(
+        GREMLIN_ARGUMENT_PLACEHOLDER,
+        (match, quotedName, bareName) => {
+            const valueNode = argumentsByName.get(quotedName ?? bareName);
+            return valueNode === undefined ? match : toGremlinLiteral(valueNode, quotedName !== undefined);
+        });
 
     return gremlinQuery;
 }

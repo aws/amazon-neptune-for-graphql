@@ -28,6 +28,7 @@ permissions and limitations under the License.
 
 * Fixed queries failing on Neptune Analytics pipelines that use the SDK
   resolver ([#187](https://github.com/aws/amazon-neptune-for-graphql/pull/187))
+* Fixed `@graphQuery` Gremlin statements with arguments returning an error ([#186](https://github.com/aws/amazon-neptune-for-graphql/pull/186))
 
 ## Release v2.1.0
 
